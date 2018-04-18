@@ -40,14 +40,22 @@ func printBacklogItems(items []*backlog.BacklogItem, title string) {
 	fmt.Printf("  # | %s\n", title)
 	fmt.Printf("-----%s\n", strings.Repeat("-", len(title)+2))
 	for i, item := range items {
-		fmt.Printf("%s | %s\n", padLeft(i+1, 3), item.Title())
+		fmt.Printf("%s | %s\n", padIntLeft(i+1, 3), item.Title())
 	}
 }
 
-func padLeft(value, width int) string {
+func padIntLeft(value, width int) string {
 	result := strconv.Itoa(value)
 	if len(result) < width {
 		result = strings.Repeat(" ", width-len(result)) + result
+	}
+	return result
+}
+
+func padStringRight(value string, width int) string {
+	result := value
+	if len(result) < width {
+		result += strings.Repeat(" ", width-len(result))
 	}
 	return result
 }

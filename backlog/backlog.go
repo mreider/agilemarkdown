@@ -42,3 +42,18 @@ func (bck *Backlog) ItemsByStatus(statusCode string) []*BacklogItem {
 	}
 	return result
 }
+
+func (bck *Backlog) ItemsByStatusAndUser(statusCode, user string) []*BacklogItem {
+	items := bck.ItemsByStatus(statusCode)
+	if user == "" {
+		return items
+	}
+	user = strings.ToLower(user)
+	var result []*BacklogItem
+	for _, item := range items {
+		if strings.ToLower(item.Assigned()) == user {
+			result = append(result, item)
+		}
+	}
+	return result
+}
