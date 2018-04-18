@@ -2,9 +2,12 @@ package commands
 
 import (
 	"errors"
+	"fmt"
 	"github.com/mreider/agilemarkdown/backlog"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 )
 
 func checkIsBacklogDirectory(dirPath string) error {
@@ -31,4 +34,20 @@ func existsFile(path string) bool {
 		return false
 	}
 	return !info.IsDir()
+}
+
+func printBacklogItems(items []*backlog.BacklogItem, title string) {
+	fmt.Printf("  # | %s\n", title)
+	fmt.Printf("-----%s\n", strings.Repeat("-", len(title)+2))
+	for i, item := range items {
+		fmt.Printf("%s | %s\n", padLeft(i+1, 3), item.Title())
+	}
+}
+
+func padLeft(value, width int) string {
+	result := strconv.Itoa(value)
+	if len(result) < width {
+		result = strings.Repeat(" ", width-len(result)) + result
+	}
+	return result
 }
