@@ -39,11 +39,11 @@ func (cmd *CreateItemCommand) Execute(args []string) error {
 	if err != nil {
 		return err
 	}
-	item.SetTitle("")
+	item.SetTitle(itemName)
 	item.SetCreated()
 	item.SetModified()
 	item.SetAuthor(currentUser)
-	item.SetStatus("")
+	item.SetStatus(backlog.GetStatusByCode("f"))
 	item.SetAssigned("")
 	item.SetEstimate("")
 	return item.Save()

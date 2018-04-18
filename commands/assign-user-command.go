@@ -1,8 +1,18 @@
 package commands
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/mreider/agilemarkdown/backlog"
+	"github.com/mreider/agilemarkdown/git"
+	"os"
+	"regexp"
+	"strconv"
+	"strings"
+)
+
+var (
+	itemUserRe = regexp.MustCompile(`^(\d+)\s+(.*)$`)
 )
 
 type AssignUserCommand struct {
@@ -15,7 +25,7 @@ func (*AssignUserCommand) Name() string {
 }
 
 func (cmd *AssignUserCommand) Execute(args []string) error {
-	if cmd.Status != "f" && cmd.Status != "l" && cmd.Status != "g" && cmd.Status != "h" && cmd.Status != "all" {
+	if cmd.Status != "f" && cmd.Status != "l" && cmd.Status != "g" && cmd.Status != "h" {
 		return fmt.Errorf("illegal status: %s", cmd.Status)
 	}
 	if err := checkIsBacklogDirectory(cmd.RootDir); err != nil {
@@ -27,9 +37,45 @@ func (cmd *AssignUserCommand) Execute(args []string) error {
 	}
 
 	items := bck.ItemsByStatus(cmd.Status)
-	// TODO
-	for i, item := range items {
-		fmt.Println(i+1, item.Title())
+	if len(items) == 0 {
+		fmt.Printf("No items with status '%s'\n", backlog.GetStatusByCode(cmd.Status))
+		return nil
+	}
+
+	printBacklogItems(items, fmt.Sprintf("Stories %s", backlog.GetStatusDescriptionByCode(cmd.Status)))
+	fmt.Println("")
+
+	users, _ := git.KnownUsers()
+
+	// TODO: need users check?
+	//usersSet := make(map[string]bool)
+	//for _, user := range users {
+	//	usersSet[strings.ToLower(user)] = true
+	//}
+
+	fmt.Println("Users: ", strings.Join(users, ", "))
+	fmt.Println()
+	reader := bufio.NewReader(os.Stdin)
+	for {
+		fmt.Println("Enter a number to a story number followed by a username, or e to exit")
+		text, _ := reader.ReadString('\n')
+		text = strings.ToLower(strings.TrimSpace(text))
+		if text == "e" {
+			break
+		}
+		match := itemUserRe.FindStringSubmatch(text)
+		if match != nil {
+			itemNo, _ := strconv.Atoi(match[1])
+			user := match[2]
+			itemIndex := itemNo - 1
+			if itemIndex < 0 || itemIndex >= len(items) {
+				fmt.Println("illegal story number")
+				continue
+			}
+			item := items[itemIndex]
+			item.SetAssigned(user)
+			item.Save()
+		}
 	}
 
 	return nil

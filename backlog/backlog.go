@@ -32,10 +32,11 @@ func LoadBacklog(backlogDir string) (*Backlog, error) {
 	return &Backlog{items: items}, nil
 }
 
-func (bck *Backlog) ItemsByStatus(status string) []*BacklogItem {
+func (bck *Backlog) ItemsByStatus(statusCode string) []*BacklogItem {
+	status := strings.ToLower(GetStatusByCode(statusCode))
 	result := make([]*BacklogItem, 0, 10)
 	for _, item := range bck.items {
-		if item.Status() == status || status == "all" {
+		if strings.ToLower(item.Status()) == status {
 			result = append(result, item)
 		}
 	}
