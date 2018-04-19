@@ -13,6 +13,7 @@ func main() {
 	var changeStatusCmd = &commands.ChangeStatusCommand{RootDir: "."}
 	var workCmd = &commands.WorkCommand{RootDir: "."}
 	var pointsCmd = &commands.PointsCommand{RootDir: "."}
+	var syncCmd = &commands.SyncCommand{RootDir: "."}
 
 	parser := flags.NewParser(nil, flags.Default)
 	parser.AddCommand(createBacklogCmd.Name(), "Create a new backlog", "", createBacklogCmd)
@@ -21,6 +22,7 @@ func main() {
 	parser.AddCommand(changeStatusCmd.Name(), "Change story status", "", changeStatusCmd)
 	parser.AddCommand(workCmd.Name(), "Show user work by status", "", workCmd)
 	parser.AddCommand(pointsCmd.Name(), "Show total points by user and status", "", pointsCmd)
+	parser.AddCommand(syncCmd.Name(), "Sync state", "", syncCmd)
 
 	_, err := parser.Parse()
 	if err != nil {

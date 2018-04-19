@@ -34,6 +34,41 @@ func KnownUsers() ([]string, error) {
 	return users, nil
 }
 
+func AddAll() error {
+	args := []string{"add", "-A"}
+	_, err := runGitCommand(args)
+	return err
+}
+
+func Commit(msg string) error {
+	args := []string{"commit", "-m", msg}
+	_, err := runGitCommand(args)
+	return err
+}
+
+func Fetch() error {
+	args := []string{"fetch"}
+	_, err := runGitCommand(args)
+	return err
+}
+
+func Merge() (string, error) {
+	args := []string{"merge", "--commit"}
+	return runGitCommand(args)
+}
+
+func AbortMerge() error {
+	args := []string{"merge", "--abort"}
+	_, err := runGitCommand(args)
+	return err
+}
+
+func Push() error {
+	args := []string{"push"}
+	_, err := runGitCommand(args)
+	return err
+}
+
 func runGitCommand(args []string) (string, error) {
 	cmd := exec.Command("git", args...)
 	var out bytes.Buffer
