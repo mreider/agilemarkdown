@@ -37,10 +37,25 @@ func existsFile(path string) bool {
 }
 
 func printBacklogItems(items []*backlog.BacklogItem, title string) {
+	maxUserLen, maxTitleLen := 0, 0
+	for _, item := range items {
+		if len(item.Assigned()) > maxUserLen {
+			maxUserLen = len(item.Assigned())
+		}
+		if len(item.Title()) > maxTitleLen {
+			maxTitleLen = len(item.Title())
+		}
+	}
+
+	maxLen := len(title)
+	if maxUserLen+3+maxTitleLen > maxLen {
+		maxLen = maxUserLen + 3 + maxTitleLen
+	}
+
 	fmt.Printf("  # | %s\n", title)
-	fmt.Printf("-----%s\n", strings.Repeat("-", len(title)+2))
+	fmt.Printf("------%s-\n", strings.Repeat("-", maxLen))
 	for i, item := range items {
-		fmt.Printf("%s | %s\n", padIntLeft(i+1, 3), item.Title())
+		fmt.Printf("%s | %s | %s\n", padIntLeft(i+1, 3), padStringRight(item.Title(), maxTitleLen), item.Assigned())
 	}
 }
 

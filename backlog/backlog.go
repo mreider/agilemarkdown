@@ -57,3 +57,20 @@ func (bck *Backlog) ItemsByStatusAndUser(statusCode, user string) []*BacklogItem
 	}
 	return result
 }
+
+func (bck *Backlog) KnownUsers() []string {
+	users := make(map[string]bool)
+	for _, item := range bck.items {
+		if item.Assigned() != "" {
+			users[item.Assigned()] = true
+		}
+		if item.Author() != "" {
+			users[item.Author()] = true
+		}
+	}
+	result := make([]string, 0, len(users))
+	for user := range users {
+		result = append(result, user)
+	}
+	return result
+}
