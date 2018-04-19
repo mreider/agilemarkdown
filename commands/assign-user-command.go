@@ -7,6 +7,7 @@ import (
 	"github.com/mreider/agilemarkdown/git"
 	"os"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -45,7 +46,20 @@ func (cmd *AssignUserCommand) Execute(args []string) error {
 	printBacklogItems(items, fmt.Sprintf("Stories %s", backlog.GetStatusDescriptionByCode(cmd.Status)))
 	fmt.Println("")
 
-	users, _ := git.KnownUsers()
+	gitUsers, _ := git.KnownUsers()
+	knownUsers := bck.KnownUsers()
+	usersSet := make(map[string]bool)
+	for _, user := range gitUsers {
+		usersSet[user] = true
+	}
+	for _, user := range knownUsers {
+		usersSet[user] = true
+	}
+	users := make([]string, 0, len(usersSet))
+	for user := range usersSet {
+		users = append(users, user)
+	}
+	sort.Strings(users)
 
 	// TODO: need users check?
 	//usersSet := make(map[string]bool)
@@ -53,7 +67,7 @@ func (cmd *AssignUserCommand) Execute(args []string) error {
 	//	usersSet[strings.ToLower(user)] = true
 	//}
 
-	fmt.Println("Users: ", strings.Join(users, ", "))
+	fmt.Printf("Users: %s\n", strings.Join(users, ", "))
 	fmt.Println()
 	reader := bufio.NewReader(os.Stdin)
 	for {
