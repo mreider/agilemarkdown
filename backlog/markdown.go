@@ -71,9 +71,11 @@ func (content *MarkdownContent) Save() error {
 		return err
 	}
 	defer contentFile.Close()
-	for _, line := range content.lines {
+	for i, line := range content.lines {
 		contentFile.WriteString(line)
-		contentFile.WriteString("\n")
+		if i < len(content.lines)-1 {
+			contentFile.WriteString("\n")
+		}
 	}
 	content.isDirty = false
 	return nil

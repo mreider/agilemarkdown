@@ -59,8 +59,8 @@ func (cmd *AssignUserCommand) Execute(args []string) error {
 	for {
 		fmt.Println("Enter a number to a story number followed by a username, or e to exit")
 		text, _ := reader.ReadString('\n')
-		text = strings.ToLower(strings.TrimSpace(text))
-		if text == "e" {
+		text = strings.TrimSpace(text)
+		if strings.ToLower(text) == "e" {
 			break
 		}
 		match := itemUserRe.FindStringSubmatch(text)
