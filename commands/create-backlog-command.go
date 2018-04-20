@@ -3,6 +3,7 @@ package commands
 import (
 	"fmt"
 	"github.com/mreider/agilemarkdown/backlog"
+	"github.com/mreider/agilemarkdown/git"
 	"os"
 	"path/filepath"
 )
@@ -34,6 +35,8 @@ func (cmd *CreateBacklogCommand) Execute(args []string) error {
 			return fmt.Errorf("a file with the same name already exists")
 		}
 	}
+
+	git.SetUpstream()
 
 	err := os.MkdirAll(backlogDir, 0777)
 	if err != nil {

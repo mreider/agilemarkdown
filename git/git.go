@@ -69,6 +69,17 @@ func Push() error {
 	return err
 }
 
+func SetUpstream() error {
+	args := []string{"branch", "--set-upstream-to", "origin"}
+	_, err := runGitCommand(args)
+	return err
+}
+
+func Status() (string, error) {
+	args := []string{"status"}
+	return runGitCommand(args)
+}
+
 func runGitCommand(args []string) (string, error) {
 	cmd := exec.Command("git", args...)
 	var out bytes.Buffer

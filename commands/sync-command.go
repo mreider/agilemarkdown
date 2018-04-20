@@ -3,6 +3,7 @@ package commands
 import (
 	"fmt"
 	"github.com/mreider/agilemarkdown/git"
+	"strings"
 )
 
 type SyncCommand struct {
@@ -25,9 +26,12 @@ func (cmd *SyncCommand) Execute(args []string) error {
 	}
 	output, err := git.Merge()
 	if err != nil {
-		fmt.Println(output)
-		git.AbortMerge()
-		return fmt.Errorf("can't merge: %v", err)
+		status, _ := git.Status()
+		if !strings.Contains(status, "Your branch is based on 'origin/master', but the upstream is gone.") {
+			fmt.Println(output)
+			git.AbortMerge()
+			return fmt.Errorf("can't merge: %v", err)
+		}
 	}
 	err = git.Push()
 	if err != nil {
