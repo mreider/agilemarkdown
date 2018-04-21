@@ -10,8 +10,8 @@ import (
 	"strings"
 )
 
-func checkIsBacklogDirectory(dirPath string) error {
-	overviewPath := filepath.Join(dirPath, backlog.OverviewFileName)
+func checkIsBacklogDirectory() error {
+	overviewPath := filepath.Join(".", backlog.OverviewFileName)
 	_, err := os.Stat(overviewPath)
 	if err != nil {
 		return errors.New("Error, please change directory to a backlog folder")
@@ -19,8 +19,8 @@ func checkIsBacklogDirectory(dirPath string) error {
 	return nil
 }
 
-func checkIsRootDirectory(dirPath string) error {
-	overviewPath := filepath.Join(dirPath, ".git")
+func checkIsRootDirectory() error {
+	overviewPath := filepath.Join(".", ".git")
 	_, err := os.Stat(overviewPath)
 	if err != nil {
 		return errors.New("Error, please change directory to a root git folder")

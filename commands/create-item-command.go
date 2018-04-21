@@ -4,47 +4,47 @@ import (
 	"fmt"
 	"github.com/mreider/agilemarkdown/backlog"
 	"github.com/mreider/agilemarkdown/git"
+	"gopkg.in/urfave/cli.v1"
 	"path/filepath"
 )
 
-type CreateItemCommand struct {
-	RootDir string
-}
+var CreateItemCommand = cli.Command{
+	Name:      "create-item",
+	Usage:     "Create a new item for the backlog",
+	ArgsUsage: "ITEM_NAME",
+	Action: func(c *cli.Context) error {
+		if err := checkIsBacklogDirectory(); err != nil {
+			return err
+		}
+		if c.NArg() != 1 {
+			fmt.Println("an item name should be specified")
+			return nil
+		}
+		itemName := c.Args()[0]
+		itemPath := filepath.Join(".", fmt.Sprintf("%s.md", itemName))
+		if existsFile(itemPath) {
+			fmt.Println("file exists")
+			return nil
+		}
 
-func (*CreateItemCommand) Name() string {
-	return "create-item"
-}
+		// TODO: user list
+		// TODO: initial status
+		currentUser, err := git.CurrentUser()
+		if err != nil {
+			currentUser = "unknown"
+		}
 
-func (cmd *CreateItemCommand) Execute(args []string) error {
-	if err := checkIsBacklogDirectory(cmd.RootDir); err != nil {
-		return err
-	}
-	if len(args) != 1 {
-		return fmt.Errorf("an item name should be specified")
-	}
-	itemName := args[0]
-	itemPath := filepath.Join(cmd.RootDir, fmt.Sprintf("%s.md", itemName))
-	if existsFile(itemPath) {
-		return fmt.Errorf("file exists")
-	}
-
-	// TODO: user list
-	// TODO: initial status
-	currentUser, err := git.CurrentUser()
-	if err != nil {
-		currentUser = "unknown"
-	}
-
-	item, err := backlog.CreateBacklogItem(itemPath)
-	if err != nil {
-		return err
-	}
-	item.SetTitle(itemName)
-	item.SetCreated()
-	item.SetModified()
-	item.SetAuthor(currentUser)
-	item.SetStatus(backlog.GetStatusByCode("f"))
-	item.SetAssigned("")
-	item.SetEstimate("")
-	return item.Save()
+		item, err := backlog.CreateBacklogItem(itemPath)
+		if err != nil {
+			return err
+		}
+		item.SetTitle(itemName)
+		item.SetCreated()
+		item.SetModified()
+		item.SetAuthor(currentUser)
+		item.SetStatus(backlog.GetStatusByCode("f"))
+		item.SetAssigned("")
+		item.SetEstimate("")
+		return item.Save()
+	},
 }
