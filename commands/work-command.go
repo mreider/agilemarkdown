@@ -3,67 +3,78 @@ package commands
 import (
 	"fmt"
 	"github.com/mreider/agilemarkdown/backlog"
+	"gopkg.in/urfave/cli.v1"
 	"sort"
 	"strconv"
 	"strings"
 )
 
-type WorkCommand struct {
-	User    string `short:"u" required:"false" description:"user"`
-	Status  string `short:"s" required:"false" description:"status (f, l, g or h)" default:"f"`
-	RootDir string
-}
+var WorkCommand = cli.Command{
+	Name:      "work",
+	Usage:     "Show user work by status",
+	ArgsUsage: " ",
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:  "u",
+			Usage: "User Namne",
+		},
+		cli.StringFlag{
+			Name:  "s",
+			Usage: "Status - either l (landed), f (flying), g (gate), or h (hangar).",
+			Value: "f",
+		},
+	},
+	Action: func(c *cli.Context) error {
+		user := c.String("u")
+		status := c.String("s")
 
-func (*WorkCommand) Name() string {
-	return "work"
-}
-
-func (cmd *WorkCommand) Execute(args []string) error {
-	if cmd.Status != "f" && cmd.Status != "l" && cmd.Status != "g" && cmd.Status != "h" {
-		return fmt.Errorf("illegal status: %s", cmd.Status)
-	}
-	if err := checkIsBacklogDirectory(cmd.RootDir); err != nil {
-		return err
-	}
-	bck, err := backlog.LoadBacklog(cmd.RootDir)
-	if err != nil {
-		return err
-	}
-
-	items := bck.ItemsByStatusAndUser(cmd.Status, cmd.User)
-	sort.Slice(items, func(i, j int) bool {
-		if items[i].Assigned() < items[j].Assigned() {
-			return true
+		if status != "f" && status != "l" && status != "g" && status != "h" {
+			fmt.Printf("illegal status: %s\n", status)
+			return nil
 		}
-		if items[i].Assigned() > items[j].Assigned() {
-			return false
+		if err := checkIsBacklogDirectory(); err != nil {
+			return err
 		}
-		return items[i].Title() < items[j].Title()
-	})
+		bck, err := backlog.LoadBacklog(".")
+		if err != nil {
+			return err
+		}
 
-	userHeader, titleHeader, pointsHeader := "User", "Title", "Points"
-	maxAssignedLen, maxTitleLen := len(userHeader), len(titleHeader)
-	for _, item := range items {
-		if len(item.Assigned()) > maxAssignedLen {
-			maxAssignedLen = len(item.Assigned())
-		}
-		if len(item.Title()) > maxTitleLen {
-			maxTitleLen = len(item.Title())
-		}
-	}
+		items := bck.ItemsByStatusAndUser(status, user)
+		sort.Slice(items, func(i, j int) bool {
+			if items[i].Assigned() < items[j].Assigned() {
+				return true
+			}
+			if items[i].Assigned() > items[j].Assigned() {
+				return false
+			}
+			return items[i].Title() < items[j].Title()
+		})
 
-	fmt.Printf("Status: %s\n", backlog.GetStatusByCode(cmd.Status))
-	fmt.Printf("-%s---%s---%s\n", strings.Repeat("-", maxAssignedLen), strings.Repeat("-", maxTitleLen), strings.Repeat("-", len(pointsHeader)))
-	fmt.Printf(" %s | %s | %s\n", padStringRight(userHeader, maxAssignedLen), padStringRight(titleHeader, maxTitleLen), pointsHeader)
-	fmt.Printf("-%s---%s---%s\n", strings.Repeat("-", maxAssignedLen), strings.Repeat("-", maxTitleLen), strings.Repeat("-", len(pointsHeader)))
-	for _, item := range items {
-		estimate, _ := strconv.ParseFloat(item.Estimate(), 64)
-		estimateStr := padIntLeft(int(estimate), len(pointsHeader))
-		if estimate == 0 {
-			estimateStr = ""
+		userHeader, titleHeader, pointsHeader := "User", "Title", "Points"
+		maxAssignedLen, maxTitleLen := len(userHeader), len(titleHeader)
+		for _, item := range items {
+			if len(item.Assigned()) > maxAssignedLen {
+				maxAssignedLen = len(item.Assigned())
+			}
+			if len(item.Title()) > maxTitleLen {
+				maxTitleLen = len(item.Title())
+			}
 		}
-		fmt.Printf(" %s | %s | %s\n", padStringRight(item.Assigned(), maxAssignedLen), padStringRight(item.Title(), maxTitleLen), estimateStr)
-	}
 
-	return nil
+		fmt.Printf("Status: %s\n", backlog.GetStatusByCode(status))
+		fmt.Printf("-%s---%s---%s\n", strings.Repeat("-", maxAssignedLen), strings.Repeat("-", maxTitleLen), strings.Repeat("-", len(pointsHeader)))
+		fmt.Printf(" %s | %s | %s\n", padStringRight(userHeader, maxAssignedLen), padStringRight(titleHeader, maxTitleLen), pointsHeader)
+		fmt.Printf("-%s---%s---%s\n", strings.Repeat("-", maxAssignedLen), strings.Repeat("-", maxTitleLen), strings.Repeat("-", len(pointsHeader)))
+		for _, item := range items {
+			estimate, _ := strconv.ParseFloat(item.Estimate(), 64)
+			estimateStr := padIntLeft(int(estimate), len(pointsHeader))
+			if estimate == 0 {
+				estimateStr = ""
+			}
+			fmt.Printf(" %s | %s | %s\n", padStringRight(item.Assigned(), maxAssignedLen), padStringRight(item.Title(), maxTitleLen), estimateStr)
+		}
+
+		return nil
+	},
 }
