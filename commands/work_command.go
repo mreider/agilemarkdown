@@ -20,7 +20,7 @@ var WorkCommand = cli.Command{
 		},
 		cli.StringFlag{
 			Name:  "s",
-			Usage: "Status - either l (landed), f (flying), g (gate), or h (hangar).",
+			Usage: fmt.Sprintf("Status - %s", backlog.AllStatusesList()),
 			Value: "f",
 		},
 	},
@@ -28,7 +28,7 @@ var WorkCommand = cli.Command{
 		user := c.String("u")
 		status := c.String("s")
 
-		if status != "f" && status != "l" && status != "g" && status != "h" {
+		if !backlog.IsValidStatusCode(status) {
 			fmt.Printf("illegal status: %s\n", status)
 			return nil
 		}
@@ -62,7 +62,7 @@ var WorkCommand = cli.Command{
 			}
 		}
 
-		fmt.Printf("Status: %s\n", backlog.GetStatusByCode(status))
+		fmt.Printf("Status: %s\n", backlog.StatusNameByCode(status))
 		fmt.Printf("-%s---%s---%s\n", strings.Repeat("-", maxAssignedLen), strings.Repeat("-", maxTitleLen), strings.Repeat("-", len(pointsHeader)))
 		fmt.Printf(" %s | %s | %s\n", padStringRight(userHeader, maxAssignedLen), padStringRight(titleHeader, maxTitleLen), pointsHeader)
 		fmt.Printf("-%s---%s---%s\n", strings.Repeat("-", maxAssignedLen), strings.Repeat("-", maxTitleLen), strings.Repeat("-", len(pointsHeader)))

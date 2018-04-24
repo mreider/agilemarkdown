@@ -23,7 +23,8 @@ var CreateBacklogCommand = cli.Command{
 			return nil
 		}
 
-		backlogDir := filepath.Join(".", c.Args()[0])
+		backlogName := c.Args()[0]
+		backlogDir := filepath.Join(".", backlogName)
 		if info, err := os.Stat(backlogDir); err != nil && !os.IsNotExist(err) {
 			return err
 		} else if err == nil {
@@ -43,11 +44,11 @@ var CreateBacklogCommand = cli.Command{
 		}
 
 		overviewPath := filepath.Join(backlogDir, backlog.OverviewFileName)
-		overview, err := backlog.CreateBacklogOverview(overviewPath)
+		overview, err := backlog.LoadBacklogOverview(overviewPath)
 		if err != nil {
 			return err
 		}
-		overview.SetTitle("")
+		overview.SetTitle(backlogName)
 		overview.SetCreated()
 		return overview.Save()
 	},

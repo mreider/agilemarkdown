@@ -1,34 +1,38 @@
 package backlog
 
 import (
-	"fmt"
+	"bytes"
 	"io/ioutil"
 	"os"
 	"strings"
 )
 
 const (
-	CreatedHeader  = "created"
-	ModifiedHeader = "modified"
+	CreatedField     = "created"
+	ModifiedField    = "modified"
+	GroupTitlePrefix = "### "
 )
+
+type MarkdownItem interface {
+	Lines() []string
+}
 
 type MarkdownContent struct {
 	contentPath string
-
-	isDirty       bool
-	lines         []string
-	headerIndexes map[string]int
+	fieldsSet   map[string]bool
+	isDirty     bool
+	items       []MarkdownItem
 }
 
-func CreateMarkdown(contentPath string, headers map[string]struct{}) (*MarkdownContent, error) {
+func LoadMarkdown(markdownPath string, fields []string) (*MarkdownContent, error) {
 	var err error
-	if _, err = os.Stat(contentPath); err != nil && !os.IsNotExist(err) {
+	if _, err = os.Stat(markdownPath); err != nil && !os.IsNotExist(err) {
 		return nil, err
 	}
 
 	var data []byte
 	if err == nil {
-		itemFile, err := os.Open(contentPath)
+		itemFile, err := os.Open(markdownPath)
 		if err != nil {
 			return nil, err
 		}
@@ -38,87 +42,136 @@ func CreateMarkdown(contentPath string, headers map[string]struct{}) (*MarkdownC
 			return nil, err
 		}
 	}
+	return NewMarkdown(string(data), markdownPath, fields), nil
+}
 
-	content := &MarkdownContent{contentPath: contentPath, headerIndexes: make(map[string]int, len(headers))}
+func NewMarkdown(data, markdownPath string, fields []string) *MarkdownContent {
+	content := &MarkdownContent{contentPath: markdownPath, fieldsSet: make(map[string]bool)}
+	for _, field := range fields {
+		content.fieldsSet[field] = true
+	}
+
 	if len(data) > 0 {
-		content.lines = strings.Split(string(data), "\n")
-		for i := range content.lines {
-			header, _ := content.getHeaderAndValue(i)
-			if _, ok := headers[header]; ok {
-				if _, ok := content.headerIndexes[header]; !ok {
-					content.headerIndexes[header] = i
+		lines := strings.Split(data, "\n")
+
+		var currentGroup *MarkdownGroup
+		for _, line := range lines {
+			field, value := content.getFieldAndValue(line)
+			if content.fieldsSet[field] {
+				content.addItem(&MarkdownField{field, value})
+			}
+			if strings.HasPrefix(line, GroupTitlePrefix) {
+				if currentGroup != nil {
+					content.addItem(currentGroup)
+				}
+				currentGroup = &MarkdownGroup{content: content, title: strings.TrimSpace(strings.TrimPrefix(line, GroupTitlePrefix))}
+			} else if currentGroup != nil {
+				if strings.TrimSpace(line) != "" {
+					currentGroup.lines = append(currentGroup.lines, line)
 				}
 			}
 		}
+		if currentGroup != nil {
+			content.addItem(currentGroup)
+		}
 	}
-	return content, nil
+	return content
 }
 
 func (content *MarkdownContent) Save() error {
+	if content.contentPath == "" {
+		return nil
+	}
 	if !content.isDirty {
 		return nil
 	}
-
-	currentTime := getCurrentTimestamp()
-	if _, ok := content.headerIndexes[CreatedHeader]; ok && content.Value(CreatedHeader) == "" {
-		content.SetValue(CreatedHeader, currentTime)
-	}
-	if _, ok := content.headerIndexes[ModifiedHeader]; ok {
-		content.SetValue(ModifiedHeader, currentTime)
-	}
-	contentFile, err := os.OpenFile(content.contentPath, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0644)
+	data := content.Content(getCurrentTimestamp())
+	err := ioutil.WriteFile(content.contentPath, data, 0644)
 	if err != nil {
 		return err
-	}
-	defer contentFile.Close()
-	for i, line := range content.lines {
-		contentFile.WriteString(line)
-		if i < len(content.lines)-1 {
-			contentFile.WriteString("\n")
-		}
 	}
 	content.isDirty = false
 	return nil
 }
 
-func (content *MarkdownContent) Value(header string) string {
-	if headerIndex, ok := content.headerIndexes[header]; !ok {
-		return ""
-	} else {
-		_, value := content.getHeaderAndValue(headerIndex)
-		return value
+func (content *MarkdownContent) Content(timestamp string) []byte {
+	if content.fieldsSet[CreatedField] && content.FieldValue(CreatedField) == "" {
+		content.SetFieldValue(CreatedField, timestamp)
 	}
+	if content.fieldsSet[ModifiedField] {
+		content.SetFieldValue(ModifiedField, timestamp)
+	}
+	result := bytes.NewBuffer(nil)
+	for _, item := range content.items {
+		result.WriteString(strings.Join(item.Lines(), "\n"))
+	}
+	return result.Bytes()
 }
 
-func (content *MarkdownContent) SetValue(header, value string) {
-	if headerIndex, ok := content.headerIndexes[header]; !ok {
-		content.addValue(header, value)
-	} else {
-		content.setValue(headerIndex, value)
+func (content *MarkdownContent) FieldValue(field string) string {
+	for _, item := range content.items {
+		if f, ok := item.(*MarkdownField); ok {
+			if f.field == field {
+				return f.value
+			}
+		}
 	}
+	return ""
 }
 
-func (content *MarkdownContent) getHeaderAndValue(headerIndex int) (string, string) {
-	parts := strings.SplitN(content.lines[headerIndex], ":", 2)
+func (content *MarkdownContent) SetFieldValue(field, value string) {
+	for _, item := range content.items {
+		if f, ok := item.(*MarkdownField); ok {
+			if f.field == field {
+				f.value = value
+				content.markDirty()
+				return
+			}
+		}
+	}
+
+	if !content.fieldsSet[field] {
+		return
+	}
+
+	f := &MarkdownField{field, value}
+	content.addItem(f)
+}
+
+func (content *MarkdownContent) GroupCount() int {
+	result := 0
+	for _, item := range content.items {
+		if _, ok := item.(*MarkdownGroup); ok {
+			result++
+		}
+	}
+	return result
+}
+
+func (content *MarkdownContent) Group(title string) *MarkdownGroup {
+	for _, item := range content.items {
+		if g, ok := item.(*MarkdownGroup); ok {
+			if g.title == title {
+				return g
+			}
+		}
+	}
+	return nil
+}
+
+func (content *MarkdownContent) getFieldAndValue(line string) (string, string) {
+	parts := strings.SplitN(line, ":", 2)
 	if len(parts) == 1 {
 		return strings.TrimSpace(parts[0]), ""
 	}
 	return strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1])
 }
 
-func (content *MarkdownContent) setValue(headerIndex int, value string) {
-	header, oldValue := content.getHeaderAndValue(headerIndex)
-	if value != oldValue {
-		content.lines[headerIndex] = fmt.Sprintf("%s: %s", header, value)
-		content.isDirty = true
-	}
+func (content *MarkdownContent) addItem(item MarkdownItem) {
+	content.items = append(content.items, item)
+	content.markDirty()
 }
 
-func (content *MarkdownContent) addValue(header, value string) {
-	if len(content.lines) > 0 {
-		content.lines = append(content.lines, "")
-	}
-	content.lines = append(content.lines, fmt.Sprintf("%s: %s", header, value))
+func (content *MarkdownContent) markDirty() {
 	content.isDirty = true
-	content.headerIndexes[header] = len(content.lines) - 1
 }

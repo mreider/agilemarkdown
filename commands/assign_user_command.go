@@ -24,7 +24,7 @@ var AssignUserCommand = cli.Command{
 	Flags: []cli.Flag{
 		cli.StringFlag{
 			Name:  "s",
-			Usage: "Status - either l (landed), f (flying), g (gate), or h (hangar).",
+			Usage: fmt.Sprintf("Status - %s", backlog.AllStatusesList()),
 		},
 	},
 	Action: func(c *cli.Context) error {
@@ -34,7 +34,7 @@ var AssignUserCommand = cli.Command{
 			fmt.Println("-s option is required")
 			return nil
 		}
-		if status != "f" && status != "l" && status != "g" && status != "h" {
+		if !backlog.IsValidStatusCode(status) {
 			fmt.Printf("illegal status: %s\n", status)
 			return nil
 		}
@@ -48,11 +48,11 @@ var AssignUserCommand = cli.Command{
 
 		items := bck.ItemsByStatus(status)
 		if len(items) == 0 {
-			fmt.Printf("No items with status '%s'\n", backlog.GetStatusByCode(status))
+			fmt.Printf("No items with status '%s'\n", backlog.StatusNameByCode(status))
 			return nil
 		}
 
-		printBacklogItems(items, fmt.Sprintf("Stories %s", backlog.GetStatusDescriptionByCode(status)))
+		printBacklogItems(items, fmt.Sprintf("Stories %s", backlog.StatusDescriptionByCode(status)))
 		fmt.Println("")
 
 		gitUsers, _ := git.KnownUsers()
