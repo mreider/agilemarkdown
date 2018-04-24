@@ -34,7 +34,7 @@ var CreateItemCommand = cli.Command{
 			currentUser = "unknown"
 		}
 
-		item, err := backlog.CreateBacklogItem(itemPath)
+		item, err := backlog.LoadBacklogItem(itemPath)
 		if err != nil {
 			return err
 		}
@@ -42,7 +42,7 @@ var CreateItemCommand = cli.Command{
 		item.SetCreated()
 		item.SetModified()
 		item.SetAuthor(currentUser)
-		item.SetStatus(backlog.GetStatusByCode("f"))
+		item.SetStatus(backlog.StatusNameByCode("h"))
 		item.SetAssigned("")
 		item.SetEstimate("")
 		return item.Save()

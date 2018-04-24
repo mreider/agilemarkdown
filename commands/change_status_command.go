@@ -22,7 +22,7 @@ var ChangeStatusCommand = cli.Command{
 	Flags: []cli.Flag{
 		cli.StringFlag{
 			Name:  "s",
-			Usage: "Status - either l (landed), f (flying), g (gate), or h (hangar).",
+			Usage: fmt.Sprintf("Status - %s", backlog.AllStatusesList()),
 		},
 	},
 	Action: func(c *cli.Context) error {
@@ -32,25 +32,25 @@ var ChangeStatusCommand = cli.Command{
 			fmt.Println("-s option is required")
 			return nil
 		}
-		if status != "f" && status != "l" && status != "g" && status != "h" {
+		if !backlog.IsValidStatusCode(status) {
 			fmt.Printf("illegal status: %s\n", status)
 			return nil
 		}
 		if err := checkIsBacklogDirectory(); err != nil {
 			return err
 		}
-		bck, err := backlog.LoadBacklog("")
+		bck, err := backlog.LoadBacklog(".")
 		if err != nil {
 			return err
 		}
 
 		items := bck.ItemsByStatus(status)
 		if len(items) == 0 {
-			fmt.Printf("No items with status '%s'\n", backlog.GetStatusByCode(status))
+			fmt.Printf("No items with status '%s'\n", backlog.StatusNameByCode(status))
 			return nil
 		}
 
-		printBacklogItems(items, fmt.Sprintf("Stories %s", backlog.GetStatusDescriptionByCode(status)))
+		printBacklogItems(items, fmt.Sprintf("Stories %s", backlog.StatusDescriptionByCode(status)))
 		fmt.Println("")
 		reader := bufio.NewReader(os.Stdin)
 		for {
@@ -70,7 +70,7 @@ var ChangeStatusCommand = cli.Command{
 					continue
 				}
 				item := items[itemIndex]
-				item.SetStatus(backlog.GetStatusByCode(statusCode))
+				item.SetStatus(backlog.StatusNameByCode(statusCode))
 				item.Save()
 			}
 		}
