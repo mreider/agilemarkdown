@@ -64,15 +64,15 @@ var WorkCommand = cli.Command{
 
 		fmt.Printf("Status: %s\n", backlog.StatusNameByCode(status))
 		fmt.Printf("-%s---%s---%s\n", strings.Repeat("-", maxAssignedLen), strings.Repeat("-", maxTitleLen), strings.Repeat("-", len(pointsHeader)))
-		fmt.Printf(" %s | %s | %s\n", padStringRight(userHeader, maxAssignedLen), padStringRight(titleHeader, maxTitleLen), pointsHeader)
+		fmt.Printf(" %s | %s | %s\n", PadStringRight(userHeader, maxAssignedLen), PadStringRight(titleHeader, maxTitleLen), pointsHeader)
 		fmt.Printf("-%s---%s---%s\n", strings.Repeat("-", maxAssignedLen), strings.Repeat("-", maxTitleLen), strings.Repeat("-", len(pointsHeader)))
 		for _, item := range items {
 			estimate, _ := strconv.ParseFloat(item.Estimate(), 64)
-			estimateStr := padIntLeft(int(estimate), len(pointsHeader))
+			estimateStr := PadIntLeft(int(estimate), len(pointsHeader))
 			if estimate == 0 {
 				estimateStr = ""
 			}
-			fmt.Printf(" %s | %s | %s\n", padStringRight(item.Assigned(), maxAssignedLen), padStringRight(item.Title(), maxTitleLen), estimateStr)
+			fmt.Printf(" %s | %s | %s\n", PadStringRight(item.Assigned(), maxAssignedLen), PadStringRight(item.Title(), maxTitleLen), estimateStr)
 		}
 
 		return nil

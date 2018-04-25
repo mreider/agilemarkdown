@@ -62,15 +62,15 @@ var PointsCommand = cli.Command{
 
 		fmt.Printf("Status: %s\n", backlog.StatusNameByCode(status))
 		fmt.Printf("-%s---%s\n", strings.Repeat("-", maxUserLen), strings.Repeat("-", len(pointsHeader)))
-		fmt.Printf(" %s | %s\n", padStringRight(userHeader, maxUserLen), pointsHeader)
+		fmt.Printf(" %s | %s\n", PadStringRight(userHeader, maxUserLen), pointsHeader)
 		fmt.Printf("-%s---%s\n", strings.Repeat("-", maxUserLen), strings.Repeat("-", len(pointsHeader)))
 		for _, user := range users {
 			points := int(pointsByUser[user])
-			pointsStr := padIntLeft(points, len(pointsHeader))
+			pointsStr := PadIntLeft(points, len(pointsHeader))
 			if points == 0 {
 				pointsStr = ""
 			}
-			fmt.Printf(" %s | %s\n", padStringRight(user, maxUserLen), pointsStr)
+			fmt.Printf(" %s | %s\n", PadStringRight(user, maxUserLen), pointsStr)
 		}
 
 		return nil

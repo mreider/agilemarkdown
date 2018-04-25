@@ -3,6 +3,7 @@ package backlog
 import (
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 const (
@@ -55,6 +56,11 @@ func (item *BacklogItem) SetTitle(title string) {
 
 func (item *BacklogItem) SetCreated() {
 	item.markdown.SetFieldValue(CreatedField, "")
+}
+
+func (item *BacklogItem) Modified() time.Time {
+	value, _ := parseTimestamp(item.markdown.FieldValue(ModifiedField))
+	return value
 }
 
 func (item *BacklogItem) SetModified() {
