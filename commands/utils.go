@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func checkIsBacklogDirectory() error {
@@ -55,11 +56,11 @@ func printBacklogItems(items []*backlog.BacklogItem, title string) {
 	fmt.Printf("  # | %s\n", title)
 	fmt.Printf("------%s-\n", strings.Repeat("-", maxLen))
 	for i, item := range items {
-		fmt.Printf("%s | %s | %s\n", padIntLeft(i+1, 3), padStringRight(item.Title(), maxTitleLen), item.Assigned())
+		fmt.Printf("%s | %s | %s\n", PadIntLeft(i+1, 3), PadStringRight(item.Title(), maxTitleLen), item.Assigned())
 	}
 }
 
-func padIntLeft(value, width int) string {
+func PadIntLeft(value, width int) string {
 	result := strconv.Itoa(value)
 	if len(result) < width {
 		result = strings.Repeat(" ", width-len(result)) + result
@@ -67,10 +68,24 @@ func padIntLeft(value, width int) string {
 	return result
 }
 
-func padStringRight(value string, width int) string {
+func PadStringRight(value string, width int) string {
 	result := value
 	if len(result) < width {
 		result += strings.Repeat(" ", width-len(result))
 	}
 	return result
+}
+
+func WeekStart(value time.Time) time.Time {
+	weekday := value.Weekday()
+	if weekday == 0 {
+		weekday = 7
+	}
+	weekStart := value.Add(time.Duration(-(weekday-1)*24) * time.Hour)
+	weekStart = time.Date(weekStart.Year(), weekStart.Month(), weekStart.Day(), 0, 0, 0, 0, weekStart.Location())
+	return weekStart
+}
+
+func WeekDelta(baseValue, value time.Time) int {
+	return int(WeekStart(value).Sub(WeekStart(baseValue)).Hours()) / 24 / 7
 }

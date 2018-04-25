@@ -34,6 +34,7 @@ func main() {
 		commands.PointsCommand,
 		commands.AssignUserCommand,
 		commands.ChangeStatusCommand,
+		commands.ProgressCommand,
 	}
 
 	err = app.Run(os.Args)
