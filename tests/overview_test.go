@@ -13,14 +13,14 @@ const (
 Story 1 [Story1](Story1.md) - -  
 Story 2 [Story2](Story2.md) - -  
 
+### Hangar
+Story 4 [Story4](Story4.md) - -  
+Story 3 [Story3](Story3.md) - -  
+
 ### Gate
 Story 5 [Story5](Story5.md) - -  
 Story 6 [Story6](Story6.md) - -  
 Story 7 [Story7](Story7.md) - -  
-
-### Hangar
-Story 4 [Story4](Story4.md) - -  
-Story 3 [Story3](Story3.md) - -  
 
 ### Landed
 Story 8 [Story8](Story8.md) - -  
