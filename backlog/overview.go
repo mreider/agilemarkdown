@@ -93,7 +93,7 @@ func (overview *BacklogOverview) Update(items []*BacklogItem) {
 			}
 			itemTitle := item.Title()
 			itemLinkTitle := item.Name()
-			itemLink := item.Name() + ".md"
+			itemLink := item.FileName()
 			itemPoints := item.Estimate()
 			if itemPoints == "" {
 				itemPoints = "-"
