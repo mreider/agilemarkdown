@@ -8,23 +8,19 @@ import (
 )
 
 const (
-	CreatedField     = "created"
-	ModifiedField    = "modified"
-	GroupTitlePrefix = "### "
+	CreatedMetadataKey  = "Created"
+	ModifiedMetadataKey = "Modified"
+	GroupTitlePrefix    = "### "
 )
-
-type MarkdownItem interface {
-	Lines() []string
-}
 
 type MarkdownContent struct {
 	contentPath string
-	fieldsSet   map[string]bool
 	isDirty     bool
-	items       []MarkdownItem
+	metadata    *MarkdownMetadata
+	groups      []*MarkdownGroup
 }
 
-func LoadMarkdown(markdownPath string, fields []string) (*MarkdownContent, error) {
+func LoadMarkdown(markdownPath string, metadataKeys []string) (*MarkdownContent, error) {
 	var err error
 	if _, err = os.Stat(markdownPath); err != nil && !os.IsNotExist(err) {
 		return nil, err
@@ -42,27 +38,20 @@ func LoadMarkdown(markdownPath string, fields []string) (*MarkdownContent, error
 			return nil, err
 		}
 	}
-	return NewMarkdown(string(data), markdownPath, fields), nil
+	return NewMarkdown(string(data), markdownPath, metadataKeys), nil
 }
 
-func NewMarkdown(data, markdownPath string, fields []string) *MarkdownContent {
-	content := &MarkdownContent{contentPath: markdownPath, fieldsSet: make(map[string]bool)}
-	for _, field := range fields {
-		content.fieldsSet[field] = true
-	}
-
+func NewMarkdown(data, markdownPath string, metadataKeys []string) *MarkdownContent {
+	content := &MarkdownContent{contentPath: markdownPath, metadata: NewMarkdownMetadata(metadataKeys)}
 	if len(data) > 0 {
 		lines := strings.Split(data, "\n")
+		parsed := content.metadata.ParseLines(lines)
 
 		var currentGroup *MarkdownGroup
-		for _, line := range lines {
-			field, value := content.getFieldAndValue(line)
-			if content.fieldsSet[field] {
-				content.addItem(&MarkdownField{field, value})
-			}
+		for _, line := range lines[parsed:] {
 			if strings.HasPrefix(line, GroupTitlePrefix) {
 				if currentGroup != nil {
-					content.addItem(currentGroup)
+					content.addGroup(currentGroup)
 				}
 				currentGroup = &MarkdownGroup{content: content, title: strings.TrimSpace(strings.TrimPrefix(line, GroupTitlePrefix))}
 			} else if currentGroup != nil {
@@ -72,9 +61,10 @@ func NewMarkdown(data, markdownPath string, fields []string) *MarkdownContent {
 			}
 		}
 		if currentGroup != nil {
-			content.addItem(currentGroup)
+			content.addGroup(currentGroup)
 		}
 	}
+	content.isDirty = false
 	return content
 }
 
@@ -95,80 +85,46 @@ func (content *MarkdownContent) Save() error {
 }
 
 func (content *MarkdownContent) Content(timestamp string) []byte {
-	if content.fieldsSet[CreatedField] && content.FieldValue(CreatedField) == "" {
-		content.SetFieldValue(CreatedField, timestamp)
+	if content.metadata.IsAllowedKey(CreatedMetadataKey) && content.MetadataValue(CreatedMetadataKey) == "" {
+		content.SetMetadataValue(CreatedMetadataKey, timestamp)
 	}
-	if content.fieldsSet[ModifiedField] {
-		content.SetFieldValue(ModifiedField, timestamp)
+	if content.metadata.IsAllowedKey(ModifiedMetadataKey) {
+		content.SetMetadataValue(ModifiedMetadataKey, timestamp)
 	}
 	result := bytes.NewBuffer(nil)
-	for _, item := range content.items {
-		result.WriteString(strings.Join(item.Lines(), "\n"))
+	result.WriteString(strings.Join(content.metadata.RawLines(), "\n"))
+	result.WriteString("\n\n")
+	for _, group := range content.groups {
+		result.WriteString(strings.Join(group.RawLines(), "\n"))
 	}
 	return result.Bytes()
 }
 
-func (content *MarkdownContent) FieldValue(field string) string {
-	for _, item := range content.items {
-		if f, ok := item.(*MarkdownField); ok {
-			if f.field == field {
-				return f.value
-			}
-		}
-	}
-	return ""
+func (content *MarkdownContent) MetadataValue(key string) string {
+	return content.metadata.Value(key)
 }
 
-func (content *MarkdownContent) SetFieldValue(field, value string) {
-	for _, item := range content.items {
-		if f, ok := item.(*MarkdownField); ok {
-			if f.field == field {
-				f.value = value
-				content.markDirty()
-				return
-			}
-		}
+func (content *MarkdownContent) SetMetadataValue(key, value string) {
+	if content.metadata.SetValue(key, value) {
+		content.markDirty()
 	}
-
-	if !content.fieldsSet[field] {
-		return
-	}
-
-	f := &MarkdownField{field, value}
-	content.addItem(f)
 }
 
 func (content *MarkdownContent) GroupCount() int {
-	result := 0
-	for _, item := range content.items {
-		if _, ok := item.(*MarkdownGroup); ok {
-			result++
-		}
-	}
-	return result
+	return len(content.groups)
 }
 
 func (content *MarkdownContent) Group(title string) *MarkdownGroup {
-	for _, item := range content.items {
-		if g, ok := item.(*MarkdownGroup); ok {
-			if g.title == title {
-				return g
-			}
+	for _, group := range content.groups {
+		if group.title == title {
+			return group
 		}
 	}
 	return nil
 }
 
-func (content *MarkdownContent) getFieldAndValue(line string) (string, string) {
-	parts := strings.SplitN(line, ":", 2)
-	if len(parts) == 1 {
-		return strings.TrimSpace(parts[0]), ""
-	}
-	return strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1])
-}
-
-func (content *MarkdownContent) addItem(item MarkdownItem) {
-	content.items = append(content.items, item)
+func (content *MarkdownContent) addGroup(group *MarkdownGroup) {
+	content.groups = append(content.groups, group)
 	content.markDirty()
 }
 

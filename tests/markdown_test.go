@@ -7,9 +7,8 @@ import (
 )
 
 const (
-	markdownData = `title: test backlog
-
-data: test
+	markdownData = `Title: test backlog
+Data: test
 
 ### Flying
 
@@ -38,8 +37,8 @@ Story 8 [link8] (points) (assigned)
 )
 
 func TestMarkdownLoad(t *testing.T) {
-	content := backlog.NewMarkdown(markdownData, "", []string{"title", "data"})
-	assert.Equal(t, "test backlog", content.FieldValue("title"))
+	content := backlog.NewMarkdown(markdownData, "", []string{"Title", "Data"})
+	assert.Equal(t, "test backlog", content.MetadataValue("title"))
 	assert.Equal(t, 4, content.GroupCount())
 
 	assert.Equal(t, "Flying", content.Group("Flying").Title())
@@ -58,9 +57,8 @@ func TestMarkdownLoad(t *testing.T) {
 }
 
 func TestMarkdownSave(t *testing.T) {
-	updatedData := `title: new backlog
-
-data: test
+	updatedData := `Title: new backlog  
+Data: test  
 
 ### Flying
 
@@ -86,8 +84,8 @@ Story 4 [link4] (points) (assigned)
 
 `
 
-	content := backlog.NewMarkdown(markdownData, "", []string{"title", "data"})
-	content.SetFieldValue("title", "new backlog")
+	content := backlog.NewMarkdown(markdownData, "", []string{"Title", "Data"})
+	content.SetMetadataValue("title", "new backlog")
 	content.Group("Flying").SetLine(0, "Story 1 [link1] 12 Mike")
 	content.Group("Gate").AddLine("Story 9 [link9] 9 Robert")
 	content.Group("Hangar").DeleteLine(1)

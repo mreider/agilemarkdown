@@ -36,7 +36,7 @@ func (g *MarkdownGroup) DeleteLine(index int) {
 	g.content.markDirty()
 }
 
-func (g *MarkdownGroup) Lines() []string {
+func (g *MarkdownGroup) RawLines() []string {
 	result := make([]string, 0, (1+len(g.lines))*2+1)
 	result = append(result, fmt.Sprintf("%s%s", GroupTitlePrefix, g.title), "")
 	for _, line := range g.lines {
