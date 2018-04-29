@@ -7,11 +7,11 @@ import (
 )
 
 const (
-	BacklogItemTitleField    = "title"
-	BacklogItemAuthorField   = "author"
-	BacklogItemStatusField   = "status"
-	BacklogItemAssignedField = "assigned"
-	BacklogItemEstimateField = "estimate"
+	BacklogItemTitleMetadataKey    = "Title"
+	BacklogItemAuthorMetadataKey   = "Author"
+	BacklogItemStatusMetadataKey   = "Status"
+	BacklogItemAssignedMetadataKey = "Assigned"
+	BacklogItemEstimateMetadataKey = "Estimate"
 )
 
 type BacklogItem struct {
@@ -21,8 +21,8 @@ type BacklogItem struct {
 
 func LoadBacklogItem(itemPath string) (*BacklogItem, error) {
 	markdown, err := LoadMarkdown(itemPath, []string{
-		BacklogItemTitleField, CreatedField, ModifiedField, BacklogItemAuthorField,
-		BacklogItemStatusField, BacklogItemAssignedField, BacklogItemEstimateField})
+		BacklogItemTitleMetadataKey, CreatedMetadataKey, ModifiedMetadataKey, BacklogItemAuthorMetadataKey,
+		BacklogItemStatusMetadataKey, BacklogItemAssignedMetadataKey, BacklogItemEstimateMetadataKey})
 	if err != nil {
 		return nil, err
 	}
@@ -33,8 +33,8 @@ func LoadBacklogItem(itemPath string) (*BacklogItem, error) {
 
 func NewBacklogItem(name string) *BacklogItem {
 	markdown := NewMarkdown("", "", []string{
-		BacklogItemTitleField, CreatedField, ModifiedField, BacklogItemAuthorField,
-		BacklogItemStatusField, BacklogItemAssignedField, BacklogItemEstimateField})
+		BacklogItemTitleMetadataKey, CreatedMetadataKey, ModifiedMetadataKey, BacklogItemAuthorMetadataKey,
+		BacklogItemStatusMetadataKey, BacklogItemAssignedMetadataKey, BacklogItemEstimateMetadataKey})
 	return &BacklogItem{name, markdown}
 }
 
@@ -47,54 +47,54 @@ func (item *BacklogItem) Name() string {
 }
 
 func (item *BacklogItem) Title() string {
-	return item.markdown.FieldValue(BacklogItemTitleField)
+	return item.markdown.MetadataValue(BacklogItemTitleMetadataKey)
 }
 
 func (item *BacklogItem) SetTitle(title string) {
-	item.markdown.SetFieldValue(BacklogItemTitleField, title)
+	item.markdown.SetMetadataValue(BacklogItemTitleMetadataKey, title)
 }
 
 func (item *BacklogItem) SetCreated() {
-	item.markdown.SetFieldValue(CreatedField, "")
+	item.markdown.SetMetadataValue(CreatedMetadataKey, "")
 }
 
 func (item *BacklogItem) Modified() time.Time {
-	value, _ := parseTimestamp(item.markdown.FieldValue(ModifiedField))
+	value, _ := parseTimestamp(item.markdown.MetadataValue(ModifiedMetadataKey))
 	return value
 }
 
 func (item *BacklogItem) SetModified() {
-	item.markdown.SetFieldValue(ModifiedField, "")
+	item.markdown.SetMetadataValue(ModifiedMetadataKey, "")
 }
 
 func (item *BacklogItem) Author() string {
-	return item.markdown.FieldValue(BacklogItemAuthorField)
+	return item.markdown.MetadataValue(BacklogItemAuthorMetadataKey)
 }
 
 func (item *BacklogItem) SetAuthor(author string) {
-	item.markdown.SetFieldValue(BacklogItemAuthorField, author)
+	item.markdown.SetMetadataValue(BacklogItemAuthorMetadataKey, author)
 }
 
 func (item *BacklogItem) Status() string {
-	return item.markdown.FieldValue(BacklogItemStatusField)
+	return item.markdown.MetadataValue(BacklogItemStatusMetadataKey)
 }
 
 func (item *BacklogItem) SetStatus(status string) {
-	item.markdown.SetFieldValue(BacklogItemStatusField, status)
+	item.markdown.SetMetadataValue(BacklogItemStatusMetadataKey, status)
 }
 
 func (item *BacklogItem) Assigned() string {
-	return item.markdown.FieldValue(BacklogItemAssignedField)
+	return item.markdown.MetadataValue(BacklogItemAssignedMetadataKey)
 }
 
 func (item *BacklogItem) SetAssigned(assigned string) {
-	item.markdown.SetFieldValue(BacklogItemAssignedField, assigned)
+	item.markdown.SetMetadataValue(BacklogItemAssignedMetadataKey, assigned)
 }
 
 func (item *BacklogItem) Estimate() string {
-	return item.markdown.FieldValue(BacklogItemEstimateField)
+	return item.markdown.MetadataValue(BacklogItemEstimateMetadataKey)
 }
 
 func (item *BacklogItem) SetEstimate(estimate string) {
-	item.markdown.SetFieldValue(BacklogItemEstimateField, estimate)
+	item.markdown.SetMetadataValue(BacklogItemEstimateMetadataKey, estimate)
 }

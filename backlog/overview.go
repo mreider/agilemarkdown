@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	BacklogOverviewTitleField = "title"
+	BacklogOverviewTitleMetadataKey = "Title"
 )
 
 var (
@@ -19,7 +19,7 @@ type BacklogOverview struct {
 }
 
 func LoadBacklogOverview(overviewPath string) (*BacklogOverview, error) {
-	markdown, err := LoadMarkdown(overviewPath, []string{BacklogOverviewTitleField, CreatedField, ModifiedField})
+	markdown, err := LoadMarkdown(overviewPath, []string{BacklogOverviewTitleMetadataKey, CreatedMetadataKey, ModifiedMetadataKey})
 	if err != nil {
 		return nil, err
 	}
@@ -39,15 +39,15 @@ func (overview *BacklogOverview) Content(timestamp string) []byte {
 }
 
 func (overview *BacklogOverview) Title() string {
-	return overview.markdown.FieldValue(BacklogOverviewTitleField)
+	return overview.markdown.MetadataValue(BacklogOverviewTitleMetadataKey)
 }
 
 func (overview *BacklogOverview) SetTitle(title string) {
-	overview.markdown.SetFieldValue(BacklogOverviewTitleField, title)
+	overview.markdown.SetMetadataValue(BacklogOverviewTitleMetadataKey, title)
 }
 
 func (overview *BacklogOverview) SetCreated() {
-	overview.markdown.SetFieldValue(CreatedField, "")
+	overview.markdown.SetMetadataValue(CreatedMetadataKey, "")
 }
 
 func (overview *BacklogOverview) ItemsByStatus() map[string][]string {
@@ -83,7 +83,7 @@ func (overview *BacklogOverview) Update(items []*BacklogItem) {
 		group := overview.markdown.Group(title)
 		if group == nil {
 			group = &MarkdownGroup{content: overview.markdown, title: title}
-			overview.markdown.addItem(group)
+			overview.markdown.addGroup(group)
 		}
 		newLines := make([]string, 0, len(statusItems))
 		for _, itemName := range statusItems {

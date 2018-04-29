@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	markdownOverviewData = `title: test backlog
+	markdownOverviewData = `Title: test backlog
 
 ### Flying
 
@@ -36,7 +36,7 @@ Story 8 [Story8](Story8.md) - -
 )
 
 func TestOverviewCreate(t *testing.T) {
-	markdown := backlog.NewMarkdown(markdownOverviewData, "", []string{"title", "data"})
+	markdown := backlog.NewMarkdown(markdownOverviewData, "", []string{"Title", "Data"})
 	overview := backlog.NewBacklogOverview(markdown)
 	itemsByStatus := overview.ItemsByStatus()
 	assert.Equal(t, 4, len(itemsByStatus))
@@ -47,7 +47,7 @@ func TestOverviewCreate(t *testing.T) {
 }
 
 func TestOverviewUpdate(t *testing.T) {
-	updatedOverviewData := `title: new backlog
+	updatedOverviewData := `Title: new backlog  
 
 ### Flying
 
@@ -73,7 +73,7 @@ Second story [Story2](Story2.md) 15 robert
 
 `
 
-	markdown := backlog.NewMarkdown(markdownOverviewData, "", []string{"title", "data"})
+	markdown := backlog.NewMarkdown(markdownOverviewData, "", []string{"Title", "Data"})
 	overview := backlog.NewBacklogOverview(markdown)
 	overview.SetTitle("new backlog")
 
