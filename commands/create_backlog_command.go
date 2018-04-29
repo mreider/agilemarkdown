@@ -7,6 +7,7 @@ import (
 	"gopkg.in/urfave/cli.v1"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 var CreateBacklogCommand = cli.Command{
@@ -18,13 +19,14 @@ var CreateBacklogCommand = cli.Command{
 			return err
 		}
 
-		if c.NArg() != 1 {
+		if c.NArg() == 0 {
 			fmt.Println("A backlog name should be specified")
 			return nil
 		}
 
-		backlogName := c.Args()[0]
-		backlogDir := filepath.Join(".", backlogName)
+		backlogName := strings.Join(c.Args(), " ")
+		backlogFileName := strings.Replace(backlogName, " ", "_", -1)
+		backlogDir := filepath.Join(".", backlogFileName)
 		if info, err := os.Stat(backlogDir); err != nil && !os.IsNotExist(err) {
 			return err
 		} else if err == nil {

@@ -6,6 +6,7 @@ import (
 	"github.com/mreider/agilemarkdown/git"
 	"gopkg.in/urfave/cli.v1"
 	"path/filepath"
+	"strings"
 )
 
 var CreateItemCommand = cli.Command{
@@ -17,19 +18,18 @@ var CreateItemCommand = cli.Command{
 			fmt.Println(err)
 			return nil
 		}
-		if c.NArg() != 1 {
+		if c.NArg() == 0 {
 			fmt.Println("an item name should be specified")
 			return nil
 		}
-		itemName := c.Args()[0]
-		itemPath := filepath.Join(".", fmt.Sprintf("%s.md", itemName))
+		itemName := strings.Join(c.Args(), " ")
+		itemFileName := strings.Replace(itemName, " ", "_", -1)
+		itemPath := filepath.Join(".", fmt.Sprintf("%s.md", itemFileName))
 		if existsFile(itemPath) {
 			fmt.Println("file exists")
 			return nil
 		}
 
-		// TODO: user list
-		// TODO: initial status
 		currentUser, err := git.CurrentUser()
 		if err != nil {
 			currentUser = "unknown"

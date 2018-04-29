@@ -21,6 +21,10 @@ func (g *MarkdownGroup) Line(index int) string {
 }
 
 func (g *MarkdownGroup) SetLine(index int, line string) {
+	if g.lines[index] == line {
+		return
+	}
+
 	g.lines[index] = line
 	g.content.markDirty()
 }
@@ -47,6 +51,10 @@ func (g *MarkdownGroup) RawLines() []string {
 }
 
 func (g *MarkdownGroup) ReplaceLines(lines []string) {
+	if areEqual(g.lines, lines) {
+		return
+	}
+
 	g.lines = lines
 	g.content.markDirty()
 }
