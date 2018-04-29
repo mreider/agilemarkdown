@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	OverviewFileName = "Home.md"
+	OverviewFileName = "0-overview.md"
 )
 
 type Backlog struct {
