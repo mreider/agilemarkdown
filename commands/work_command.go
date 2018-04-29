@@ -16,7 +16,7 @@ var WorkCommand = cli.Command{
 	Flags: []cli.Flag{
 		cli.StringFlag{
 			Name:  "u",
-			Usage: "User Namne",
+			Usage: "User Name",
 		},
 		cli.StringFlag{
 			Name:  "s",
@@ -33,7 +33,8 @@ var WorkCommand = cli.Command{
 			return nil
 		}
 		if err := checkIsBacklogDirectory(); err != nil {
-			return err
+			fmt.Println(err)
+			return nil
 		}
 		bck, err := backlog.LoadBacklog(".")
 		if err != nil {

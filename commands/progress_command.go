@@ -23,7 +23,8 @@ var ProgressCommand = cli.Command{
 		}
 
 		if err := checkIsBacklogDirectory(); err != nil {
-			return err
+			fmt.Println(err)
+			return nil
 		}
 		bck, err := backlog.LoadBacklog(".")
 		if err != nil {
