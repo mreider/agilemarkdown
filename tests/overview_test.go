@@ -7,31 +7,23 @@ import (
 )
 
 const (
-	markdownOverviewData = `Title: test backlog
+	markdownOverviewData = `Title: test backlog  
 
 ### Flying
-
-Story 1 [Story1](Story1.md) - -
-
-Story 2 [Story2](Story2.md) - -
+Story 1 [Story1](Story1.md) - -  
+Story 2 [Story2](Story2.md) - -  
 
 ### Gate
-
-Story 5 [Story5](Story5.md) - -
-
-Story 6 [Story6](Story6.md) - -
-
-Story 7 [Story7](Story7.md) - -
+Story 5 [Story5](Story5.md) - -  
+Story 6 [Story6](Story6.md) - -  
+Story 7 [Story7](Story7.md) - -  
 
 ### Hangar
-
-Story 4 [Story4](Story4.md) - -
-
-Story 3 [Story3](Story3.md) - -
+Story 4 [Story4](Story4.md) - -  
+Story 3 [Story3](Story3.md) - -  
 
 ### Landed
-
-Story 8 [Story8](Story8.md) - -
+Story 8 [Story8](Story8.md) - -  
 `
 )
 
@@ -50,27 +42,19 @@ func TestOverviewUpdate(t *testing.T) {
 	updatedOverviewData := `Title: new backlog  
 
 ### Flying
-
-First story [Story1](Story1.md) 10 mike
-
-Story 5 [Story5](Story5.md) 20 -
+First story [Story1](Story1.md) 10 mike  
+Story 5 [Story5](Story5.md) 20 -  
 
 ### Gate
-
-Story 7 [Story7](Story7.md) - -
+Story 7 [Story7](Story7.md) - -  
 
 ### Hangar
-
-Story 4 [Story4](Story4.md) 30 -
-
-Story Six [Story6](Story6.md) - -
+Story 4 [Story4](Story4.md) 30 -  
+Story Six [Story6](Story6.md) - -  
 
 ### Landed
-
-Story 8 [Story8](Story8.md) - -
-
-Second story [Story2](Story2.md) 15 robert
-
+Story 8 [Story8](Story8.md) - -  
+Second story [Story2](Story2.md) 15 robert  
 `
 
 	markdown := backlog.NewMarkdown(markdownOverviewData, "", []string{"Title", "Data"})

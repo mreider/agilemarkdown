@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+	"unicode"
 )
 
 const (
@@ -56,7 +57,7 @@ func NewMarkdown(data, markdownPath string, metadataKeys []string) *MarkdownCont
 				currentGroup = &MarkdownGroup{content: content, title: strings.TrimSpace(strings.TrimPrefix(line, GroupTitlePrefix))}
 			} else if currentGroup != nil {
 				if strings.TrimSpace(line) != "" {
-					currentGroup.lines = append(currentGroup.lines, line)
+					currentGroup.lines = append(currentGroup.lines, strings.TrimRightFunc(line, unicode.IsSpace))
 				}
 			}
 		}
@@ -93,9 +94,11 @@ func (content *MarkdownContent) Content(timestamp string) []byte {
 	}
 	result := bytes.NewBuffer(nil)
 	result.WriteString(strings.Join(content.metadata.RawLines(), "\n"))
-	result.WriteString("\n\n")
+	result.WriteString("\n")
 	for _, group := range content.groups {
+		result.WriteString("\n")
 		result.WriteString(strings.Join(group.RawLines(), "\n"))
+		result.WriteString("\n")
 	}
 	return result.Bytes()
 }

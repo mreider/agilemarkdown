@@ -11,28 +11,20 @@ const (
 Data: test
 
 ### Flying
-
-Story 1 [link1] (points) (assigned)
-
-Story 2 [link2] (points) (assigned)
+Story 1 [link1] (points) (assigned)  
+Story 2 [link2] (points) (assigned)  
 
 ### Gate
-
-Story 5 [link5] (points) (assigned)
-
-Story 6 [link6] (points) (assigned)
-
-Story 7 [link7] (points) (assigned)
+Story 5 [link5] (points) (assigned)  
+Story 6 [link6] (points) (assigned)  
+Story 7 [link7] (points) (assigned)  
 
 ### Hangar
-
-Story 4 [link4] (points) (assigned)
-
-Story 3 [link3] (points) (assigned)
+Story 4 [link4] (points) (assigned)  
+Story 3 [link3] (points) (assigned)  
 
 ### Landed
-
-Story 8 [link8] (points) (assigned)
+Story 8 [link8] (points) (assigned)  
 `
 )
 
@@ -61,27 +53,19 @@ func TestMarkdownSave(t *testing.T) {
 Data: test  
 
 ### Flying
-
-Story 1 [link1] 12 Mike
-
-Story 2 [link2] (points) (assigned)
+Story 1 [link1] 12 Mike  
+Story 2 [link2] (points) (assigned)  
 
 ### Gate
-
-Story 5 [link5] (points) (assigned)
-
-Story 6 [link6] (points) (assigned)
-
-Story 7 [link7] (points) (assigned)
-
-Story 9 [link9] 9 Robert
+Story 5 [link5] (points) (assigned)  
+Story 6 [link6] (points) (assigned)  
+Story 7 [link7] (points) (assigned)  
+Story 9 [link9] 9 Robert  
 
 ### Hangar
-
-Story 4 [link4] (points) (assigned)
+Story 4 [link4] (points) (assigned)  
 
 ### Landed
-
 `
 
 	content := backlog.NewMarkdown(markdownData, "", []string{"Title", "Data"})
