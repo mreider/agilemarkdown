@@ -14,7 +14,8 @@ var CreateItemCommand = cli.Command{
 	ArgsUsage: "ITEM_NAME",
 	Action: func(c *cli.Context) error {
 		if err := checkIsBacklogDirectory(); err != nil {
-			return err
+			fmt.Println(err)
+			return nil
 		}
 		if c.NArg() != 1 {
 			fmt.Println("an item name should be specified")
