@@ -2,7 +2,9 @@ package backlog
 
 import (
 	"fmt"
+	"math"
 	"regexp"
+	"sort"
 	"strings"
 )
 
@@ -31,6 +33,9 @@ func NewBacklogOverview(markdown *MarkdownContent) *BacklogOverview {
 }
 
 func (overview *BacklogOverview) Save() error {
+	if overview.markdown.isDirty {
+		overview.sortGroupsByStatus()
+	}
 	return overview.markdown.Save()
 }
 
@@ -78,8 +83,9 @@ func (overview *BacklogOverview) Update(items []*BacklogItem) {
 		itemsByName[item.Name()] = item
 		overview.updateItem(item, itemsByStatus)
 	}
-	for statusName, statusItems := range itemsByStatus {
-		title := overview.statusGroupTitle(StatusByName(statusName))
+	for _, status := range AllStatuses {
+		title := overview.statusGroupTitle(status)
+		statusItems := itemsByStatus[status.Name]
 		group := overview.markdown.Group(title)
 		if group == nil {
 			group = &MarkdownGroup{content: overview.markdown, title: title}
@@ -132,4 +138,23 @@ NextStatus:
 
 func (*BacklogOverview) statusGroupTitle(status *BacklogItemStatus) string {
 	return strings.ToUpper(status.Name[0:1]) + status.Name[1:]
+}
+
+func (overview *BacklogOverview) sortGroupsByStatus() {
+	sort.Slice(overview.markdown.groups, func(i, j int) bool {
+		iStatus, jStatus := StatusByName(overview.markdown.groups[i].title), StatusByName(overview.markdown.groups[j].title)
+		iIndex, jIndex := int(math.MaxInt32), int(math.MaxInt32)
+		if iStatus != nil {
+			iIndex = StatusIndex(iStatus)
+		}
+		if jStatus != nil {
+			jIndex = StatusIndex(jStatus)
+		}
+
+		if iIndex != jIndex {
+			return iIndex < jIndex
+		}
+
+		return i < j
+	})
 }

@@ -11,8 +11,6 @@ type BacklogItemStatus struct {
 	Description string
 }
 
-var AllStatusCodes = []string{"f", "g", "h", "l"}
-
 var AllStatuses = []*BacklogItemStatus{
 	{"f", "flying", "in flight"},
 	{"g", "gate", "at the gate"},
@@ -30,12 +28,26 @@ func StatusByCode(statusCode string) *BacklogItemStatus {
 }
 
 func StatusByName(statusName string) *BacklogItemStatus {
+	statusName = strings.ToLower(statusName)
 	for _, status := range AllStatuses {
 		if status.Name == statusName {
 			return status
 		}
 	}
 	return nil
+}
+
+func StatusIndex(status *BacklogItemStatus) int {
+	if status == nil {
+		return -1
+	}
+
+	for i, st := range AllStatuses {
+		if st.Name == status.Name {
+			return i
+		}
+	}
+	return -1
 }
 
 func StatusNameByCode(statusCode string) string {
@@ -55,8 +67,8 @@ func StatusDescriptionByCode(statusCode string) string {
 }
 
 func IsValidStatusCode(statusCode string) bool {
-	for _, code := range AllStatusCodes {
-		if code == statusCode {
+	for _, status := range AllStatuses {
+		if status.Code == statusCode {
 			return true
 		}
 	}
