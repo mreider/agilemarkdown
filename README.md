@@ -19,16 +19,6 @@ go build
 
 Create an alias for the binary
 
-On mac:
-
 ```
-echo "alias am='$GOPATH/bin/agilemarkdown'" >> ~/.bash_profile
+$GOPATH/bin/agilemarkdown alias am
 ```
-
-On linux
-
-```
-echo "alias am='$GOPATH/bin/agilemarkdown'" >> ~/.bashrc
-```
-
-
