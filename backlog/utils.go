@@ -13,15 +13,3 @@ func getCurrentTimestamp() string {
 func parseTimestamp(timestamp string) (time.Time, error) {
 	return time.Parse(timestampLayout, timestamp)
 }
-
-func areEqual(items1, items2 []string) bool {
-	if len(items1) != len(items2) {
-		return false
-	}
-	for i := range items1 {
-		if items1[i] != items2[i] {
-			return false
-		}
-	}
-	return true
-}

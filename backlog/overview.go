@@ -1,11 +1,9 @@
 package backlog
 
 import (
-	"fmt"
 	"math"
 	"regexp"
 	"sort"
-	"strings"
 )
 
 const (
@@ -58,7 +56,7 @@ func (overview *BacklogOverview) SetCreated() {
 func (overview *BacklogOverview) ItemsByStatus() map[string][]string {
 	result := make(map[string][]string)
 	for _, status := range AllStatuses {
-		title := overview.statusGroupTitle(status)
+		title := status.CapitalizedName()
 		group := overview.markdown.Group(title)
 		if group == nil {
 			result[status.Name] = nil
@@ -84,31 +82,24 @@ func (overview *BacklogOverview) Update(items []*BacklogItem) {
 		overview.updateItem(item, itemsByStatus)
 	}
 	for _, status := range AllStatuses {
-		title := overview.statusGroupTitle(status)
+		title := status.CapitalizedName()
 		statusItems := itemsByStatus[status.Name]
 		group := overview.markdown.Group(title)
 		if group == nil {
 			group = &MarkdownGroup{content: overview.markdown, title: title}
 			overview.markdown.addGroup(group)
 		}
-		newLines := make([]string, 0, len(statusItems))
+		items := make([]*BacklogItem, 0, len(statusItems))
 		for _, itemName := range statusItems {
 			item := itemsByName[itemName]
-			if item == nil {
-				continue
+			if item != nil {
+				items = append(items, item)
 			}
-			itemTitle := item.Title()
-			itemLinkTitle := item.Name()
-			itemLink := item.FileName()
-			itemPoints := item.Estimate()
-			if itemPoints == "" {
-				itemPoints = "-"
-			}
-			itemAssigned := item.Assigned()
-			if itemAssigned == "" {
-				itemAssigned = "-"
-			}
-			newLines = append(newLines, fmt.Sprintf("%s [%s](%s) %s %s", itemTitle, itemLinkTitle, itemLink, itemPoints, itemAssigned))
+		}
+		newLines := BacklogView{}.WriteBacklogItems(items, "", "  ")
+		if len(newLines) > 0 {
+			newLines[0] = "```" + newLines[0]
+			newLines = append(newLines, "```")
 		}
 		group.ReplaceLines(newLines)
 	}
@@ -134,10 +125,6 @@ NextStatus:
 			itemsByStatus[status.Name] = append(itemsByStatus[status.Name], item.Name())
 		}
 	}
-}
-
-func (*BacklogOverview) statusGroupTitle(status *BacklogItemStatus) string {
-	return strings.ToUpper(status.Name[0:1]) + status.Name[1:]
 }
 
 func (overview *BacklogOverview) sortGroupsByStatus() {

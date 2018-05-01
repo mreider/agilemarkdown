@@ -3,6 +3,7 @@ package commands
 import (
 	"fmt"
 	"github.com/mreider/agilemarkdown/backlog"
+	"github.com/mreider/agilemarkdown/utils"
 	"gopkg.in/urfave/cli.v1"
 	"sort"
 	"strconv"
@@ -63,15 +64,15 @@ var PointsCommand = cli.Command{
 
 		fmt.Printf("Status: %s\n", backlog.StatusNameByCode(status))
 		fmt.Printf("-%s---%s\n", strings.Repeat("-", maxUserLen), strings.Repeat("-", len(pointsHeader)))
-		fmt.Printf(" %s | %s\n", PadStringRight(userHeader, maxUserLen), pointsHeader)
+		fmt.Printf(" %s | %s\n", utils.PadStringRight(userHeader, maxUserLen), pointsHeader)
 		fmt.Printf("-%s---%s\n", strings.Repeat("-", maxUserLen), strings.Repeat("-", len(pointsHeader)))
 		for _, user := range users {
 			points := int(pointsByUser[user])
-			pointsStr := PadIntLeft(points, len(pointsHeader))
+			pointsStr := utils.PadIntLeft(points, len(pointsHeader))
 			if points == 0 {
 				pointsStr = ""
 			}
-			fmt.Printf(" %s | %s\n", PadStringRight(user, maxUserLen), pointsStr)
+			fmt.Printf(" %s | %s\n", utils.PadStringRight(user, maxUserLen), pointsStr)
 		}
 
 		return nil

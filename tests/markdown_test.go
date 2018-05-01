@@ -11,20 +11,20 @@ const (
 Data: test
 
 ### Flying
-Story 1 [link1] (points) (assigned)  
-Story 2 [link2] (points) (assigned)  
+Story 1 [link1](link1.md) (points) (assigned)  
+Story 2 [link2](link2.md) (points) (assigned)  
 
 ### Gate
-Story 5 [link5] (points) (assigned)  
-Story 6 [link6] (points) (assigned)  
-Story 7 [link7] (points) (assigned)  
+Story 5 [link5](link5.md) (points) (assigned)  
+Story 6 [link6](link6.md) (points) (assigned)  
+Story 7 [link7](link7.md) (points) (assigned)  
 
 ### Hangar
-Story 4 [link4] (points) (assigned)  
-Story 3 [link3] (points) (assigned)  
+Story 4 [link4](link4.md) (points) (assigned)  
+Story 3 [link3](link3.md) (points) (assigned)  
 
 ### Landed
-Story 8 [link8] (points) (assigned)  
+Story 8 [link8](link8.md) (points) (assigned)  
 `
 )
 
@@ -42,10 +42,10 @@ func TestMarkdownLoad(t *testing.T) {
 	assert.Equal(t, "Landed", content.Group("Landed").Title())
 	assert.Equal(t, 1, content.Group("Landed").Count())
 
-	assert.Equal(t, "Story 1 [link1] (points) (assigned)", content.Group("Flying").Line(0))
-	assert.Equal(t, "Story 7 [link7] (points) (assigned)", content.Group("Gate").Line(2))
-	assert.Equal(t, "Story 3 [link3] (points) (assigned)", content.Group("Hangar").Line(1))
-	assert.Equal(t, "Story 8 [link8] (points) (assigned)", content.Group("Landed").Line(0))
+	assert.Equal(t, "Story 1 [link1](link1.md) (points) (assigned)", content.Group("Flying").Line(0))
+	assert.Equal(t, "Story 7 [link7](link7.md) (points) (assigned)", content.Group("Gate").Line(2))
+	assert.Equal(t, "Story 3 [link3](link3.md) (points) (assigned)", content.Group("Hangar").Line(1))
+	assert.Equal(t, "Story 8 [link8](link8.md) (points) (assigned)", content.Group("Landed").Line(0))
 }
 
 func TestMarkdownSave(t *testing.T) {
@@ -53,25 +53,25 @@ func TestMarkdownSave(t *testing.T) {
 Data: test  
 
 ### Flying
-Story 1 [link1] 12 Mike  
-Story 2 [link2] (points) (assigned)  
+Story 1 [link1](link1.md) 12 Mike  
+Story 2 [link2](link2.md) (points) (assigned)  
 
 ### Gate
-Story 5 [link5] (points) (assigned)  
-Story 6 [link6] (points) (assigned)  
-Story 7 [link7] (points) (assigned)  
-Story 9 [link9] 9 Robert  
+Story 5 [link5](link5.md) (points) (assigned)  
+Story 6 [link6](link6.md) (points) (assigned)  
+Story 7 [link7](link7.md) (points) (assigned)  
+Story 9 [link9](link9.md) 9 Robert  
 
 ### Hangar
-Story 4 [link4] (points) (assigned)  
+Story 4 [link4](link4.md) (points) (assigned)  
 
 ### Landed
 `
 
 	content := backlog.NewMarkdown(markdownData, "", []string{"Title", "Data"})
 	content.SetMetadataValue("title", "new backlog")
-	content.Group("Flying").SetLine(0, "Story 1 [link1] 12 Mike")
-	content.Group("Gate").AddLine("Story 9 [link9] 9 Robert")
+	content.Group("Flying").SetLine(0, "Story 1 [link1](link1.md) 12 Mike")
+	content.Group("Gate").AddLine("Story 9 [link9](link9.md) 9 Robert")
 	content.Group("Hangar").DeleteLine(1)
 	content.Group("Landed").DeleteLine(0)
 
