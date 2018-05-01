@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/buger/goterm"
 	"github.com/mreider/agilemarkdown/backlog"
+	"github.com/mreider/agilemarkdown/utils"
 	"gopkg.in/urfave/cli.v1"
 	"strconv"
 	"time"
@@ -36,7 +37,7 @@ var ProgressCommand = cli.Command{
 		pointsByWeekDelta := make(map[int]float64)
 		for _, item := range items {
 			modified := item.Modified()
-			weekDelta := WeekDelta(currentDate, modified)
+			weekDelta := utils.WeekDelta(currentDate, modified)
 			if -weekCount < weekDelta && weekDelta <= 0 {
 				itemPoints, _ := strconv.ParseFloat(item.Estimate(), 64)
 				pointsByWeekDelta[weekDelta] += itemPoints

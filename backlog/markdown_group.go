@@ -1,6 +1,9 @@
 package backlog
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/mreider/agilemarkdown/utils"
+)
 
 type MarkdownGroup struct {
 	content *MarkdownContent
@@ -50,7 +53,7 @@ func (g *MarkdownGroup) RawLines() []string {
 }
 
 func (g *MarkdownGroup) ReplaceLines(lines []string) {
-	if areEqual(g.lines, lines) {
+	if utils.AreEqualStrings(g.lines, lines) {
 		return
 	}
 

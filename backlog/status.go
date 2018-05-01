@@ -82,3 +82,7 @@ func AllStatusesList() string {
 	}
 	return strings.Join(result, ", ")
 }
+
+func (status *BacklogItemStatus) CapitalizedName() string {
+	return strings.ToUpper(status.Name[0:1]) + status.Name[1:]
+}

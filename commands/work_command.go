@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/mreider/agilemarkdown/backlog"
 	"gopkg.in/urfave/cli.v1"
+	"strings"
 )
 
 var WorkCommand = cli.Command{
@@ -40,14 +41,15 @@ var WorkCommand = cli.Command{
 
 		var statuses []*backlog.BacklogItemStatus
 		if statusCode == "" {
-			statuses = []*backlog.BacklogItemStatus { backlog.StatusByCode("f"), backlog.StatusByCode("g"), backlog.StatusByCode("h") }
+			statuses = []*backlog.BacklogItemStatus{backlog.StatusByCode("f"), backlog.StatusByCode("g"), backlog.StatusByCode("h")}
 		} else {
-			statuses = []*backlog.BacklogItemStatus { backlog.StatusByCode(statusCode) }
+			statuses = []*backlog.BacklogItemStatus{backlog.StatusByCode(statusCode)}
 		}
 
 		for _, status := range statuses {
 			items := bck.ItemsByStatusAndUser(status.Code, user)
-			printBacklogItemsForStatus(items, status)
+			lines := backlog.BacklogView{}.WriteBacklogItems(items, fmt.Sprintf("Status: %s", status.Name), "")
+			fmt.Println(strings.Join(lines, "\n"))
 			fmt.Println("")
 		}
 
