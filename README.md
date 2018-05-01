@@ -5,9 +5,11 @@ A framework for managing backlogs using git and markdown
 
 Read the docs at [http://agilemarkdown.com](http://agilemarkdown.com)
 
-## Installing
+## Installing the agilemarkdown CLI
 
-Get the library
+Make sure you have [GO](https://golang.org/doc/install) installed
+
+Get the Go library
 
 ```
 go get -u github.com/mreider/agilemarkdown
