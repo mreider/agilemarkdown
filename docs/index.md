@@ -1,5 +1,3 @@
-# agilemarkdown
-
 ## About the project
 
 Agilemarkdown is framework for managing agile projects using markdown files, rather than tools like JIRA, Pivotal Tracker, Trello, etc. The arguments for using simple markdown files to manage a project are:
