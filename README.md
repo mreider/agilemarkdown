@@ -1,5 +1,9 @@
 # agilemarkdown
-A framework for managing a backlog using Git, Markdown, and YAML
+A framework for managing backlogs using git and markdown
+
+## Documentation
+
+Read the docs at [http://agilemarkdown.com](http://agilemarkdown.com)
 
 ## Installing
 
