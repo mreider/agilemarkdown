@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"sort"
 )
 
 func checkIsBacklogDirectory() error {
@@ -57,6 +58,42 @@ func printBacklogItems(items []*backlog.BacklogItem, title string) {
 	fmt.Printf("------%s-\n", strings.Repeat("-", maxLen))
 	for i, item := range items {
 		fmt.Printf("%s | %s | %s\n", PadIntLeft(i+1, 3), PadStringRight(item.Title(), maxTitleLen), item.Assigned())
+	}
+}
+
+func printBacklogItemsForStatus(items []*backlog.BacklogItem, status *backlog.BacklogItemStatus) {
+	sort.Slice(items, func(i, j int) bool {
+		if items[i].Assigned() < items[j].Assigned() {
+			return true
+		}
+		if items[i].Assigned() > items[j].Assigned() {
+			return false
+		}
+		return items[i].Title() < items[j].Title()
+	})
+
+	userHeader, titleHeader, pointsHeader := "User", "Title", "Points"
+	maxAssignedLen, maxTitleLen := len(userHeader), len(titleHeader)
+	for _, item := range items {
+		if len(item.Assigned()) > maxAssignedLen {
+			maxAssignedLen = len(item.Assigned())
+		}
+		if len(item.Title()) > maxTitleLen {
+			maxTitleLen = len(item.Title())
+		}
+	}
+
+	fmt.Printf("Status: %s\n", status.Name)
+	fmt.Printf("-%s---%s---%s\n", strings.Repeat("-", maxAssignedLen), strings.Repeat("-", maxTitleLen), strings.Repeat("-", len(pointsHeader)))
+	fmt.Printf(" %s | %s | %s\n", PadStringRight(userHeader, maxAssignedLen), PadStringRight(titleHeader, maxTitleLen), pointsHeader)
+	fmt.Printf("-%s---%s---%s\n", strings.Repeat("-", maxAssignedLen), strings.Repeat("-", maxTitleLen), strings.Repeat("-", len(pointsHeader)))
+	for _, item := range items {
+		estimate, _ := strconv.ParseFloat(item.Estimate(), 64)
+		estimateStr := PadIntLeft(int(estimate), len(pointsHeader))
+		if estimate == 0 {
+			estimateStr = ""
+		}
+		fmt.Printf(" %s | %s | %s\n", PadStringRight(item.Assigned(), maxAssignedLen), PadStringRight(item.Title(), maxTitleLen), estimateStr)
 	}
 }
 
