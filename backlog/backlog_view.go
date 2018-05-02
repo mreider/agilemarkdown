@@ -11,7 +11,7 @@ import (
 type BacklogView struct {
 }
 
-func (bv BacklogView) WriteBacklogItems(items []*BacklogItem, title string, rowDelimiter string) []string {
+func (bv BacklogView) WriteBacklogItems(items []*BacklogItem, title string) []string {
 	sort.Slice(items, func(i, j int) bool {
 		if items[i].Assigned() < items[j].Assigned() {
 			return true
@@ -35,21 +35,21 @@ func (bv BacklogView) WriteBacklogItems(items []*BacklogItem, title string, rowD
 
 	result := make([]string, 0, 50)
 	if title != "" {
-		result = append(result, fmt.Sprintf("%s%s", title, rowDelimiter))
+		result = append(result, fmt.Sprintf("%s", title))
 	}
-	result = append(result, fmt.Sprintf("-%s---%s---%s%s", strings.Repeat("-", maxAssignedLen), strings.Repeat("-", maxTitleLen), strings.Repeat("-", len(pointsHeader)), rowDelimiter))
-	result = append(result, fmt.Sprintf(" %s | %s | %s%s", utils.PadStringRight(userHeader, maxAssignedLen), utils.PadStringRight(titleHeader, maxTitleLen), pointsHeader, rowDelimiter))
-	result = append(result, fmt.Sprintf("-%s---%s---%s%s", strings.Repeat("-", maxAssignedLen), strings.Repeat("-", maxTitleLen), strings.Repeat("-", len(pointsHeader)), rowDelimiter))
+	result = append(result, fmt.Sprintf("-%s---%s---%s", strings.Repeat("-", maxAssignedLen), strings.Repeat("-", maxTitleLen), strings.Repeat("-", len(pointsHeader))))
+	result = append(result, fmt.Sprintf(" %s | %s | %s", utils.PadStringRight(userHeader, maxAssignedLen), utils.PadStringRight(titleHeader, maxTitleLen), pointsHeader))
+	result = append(result, fmt.Sprintf("-%s---%s---%s", strings.Repeat("-", maxAssignedLen), strings.Repeat("-", maxTitleLen), strings.Repeat("-", len(pointsHeader))))
 	for _, item := range items {
 		estimate, _ := strconv.ParseFloat(item.Estimate(), 64)
 		estimateStr := utils.PadIntLeft(int(estimate), len(pointsHeader))
 		if estimate == 0 {
 			estimateStr = ""
 		}
-		result = append(result, fmt.Sprintf(" %s | %s | %s%s", utils.PadStringRight(item.Assigned(), maxAssignedLen), utils.PadStringRight(item.Title(), maxTitleLen), estimateStr, rowDelimiter))
+		result = append(result, fmt.Sprintf(" %s | %s | %s", utils.PadStringRight(item.Assigned(), maxAssignedLen), utils.PadStringRight(item.Title(), maxTitleLen), estimateStr))
 	}
 	if len(items) > 0 {
-		result = append(result, fmt.Sprintf("-%s---%s---%s%s", strings.Repeat("-", maxAssignedLen), strings.Repeat("-", maxTitleLen), strings.Repeat("-", len(pointsHeader)), rowDelimiter))
+		result = append(result, fmt.Sprintf("-%s---%s---%s", strings.Repeat("-", maxAssignedLen), strings.Repeat("-", maxTitleLen), strings.Repeat("-", len(pointsHeader))))
 	}
 	return result
 }

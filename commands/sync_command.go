@@ -43,7 +43,7 @@ var SyncCommand = cli.Command{
 			items := bck.Items()
 			overview.Update(items)
 		}
-		return nil
+
 		err = git.AddAll()
 		if err != nil {
 			return err
