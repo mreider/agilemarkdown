@@ -96,7 +96,7 @@ func (overview *BacklogOverview) Update(items []*BacklogItem) {
 				items = append(items, item)
 			}
 		}
-		newLines := BacklogView{}.WriteBacklogItems(items, "")
+		newLines := BacklogView{}.WriteBacklogItems(items, "", false)
 		group.ReplaceLines(newLines)
 	}
 	overview.Save()
