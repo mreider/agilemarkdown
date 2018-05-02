@@ -4,6 +4,7 @@ import (
 	"math"
 	"regexp"
 	"sort"
+	"github.com/mreider/agilemarkdown/utils"
 )
 
 const (
@@ -97,6 +98,7 @@ func (overview *BacklogOverview) Update(items []*BacklogItem) {
 			}
 		}
 		newLines := BacklogView{}.WriteBacklogItems(items, "", false)
+		newLines = utils.WrapLinesToMarkdownCodeBlock(newLines)
 		group.ReplaceLines(newLines)
 	}
 	overview.Save()
