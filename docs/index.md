@@ -17,7 +17,7 @@ The best way to get started is to use Github's Wiki feature as a place to manage
 
 Since you can't clone an empty Github wiki, you must create a home page. Begin by accessing your repo's wiki and creating the first page. It's just a placeholder for now - with a simple welcome message.
 
-![Alt text](https://monosnap.com/image/hxSCiIhhs67Af8ym5TgWb3JllBjvXq.png)
+![Github Wiki Welcome Message](https://monosnap.com/image/hxSCiIhhs67Af8ym5TgWb3JllBjvXq.png)
 
 After creating the first page, you can clone the wiki to your local machine. Github Wiki repositories use the repository address with the word 'wiki' in the file extension:
 
@@ -36,8 +36,26 @@ cd agile-backlog
 am create-backlog our-project
 ```
 
-Cool. Now you have a backlog named our-project. Now sync your project with Github and look at your wiki page online.
+Cool. Now you have a backlog named our-project. Now sync your project with Github and look at your wiki page online. The overview page should appear with nothing in your backlog. That overview page is automatically generated based on the items you have created and landed.
 
 ```
 am sync
 ```
+
+![Github wiki project view](https://monosnap.com/image/Myuk0ga2ZLYJ0FE3bAQ15g86NVEInt.png)
+
+## Creating stories in a backlog
+
+Use the `create-item` command to create items in your backlog. The story is created as a markdown file.
+
+```
+am create-item smart-automerge
+ls
+0-overview.md		smart-automerge.md
+```
+
+Once the file is created you can start editing the story using your favorite text editor. We like [Atom](https://atom.io/)
+
+![Edit the story in a text editor](https://monosnap.com/image/qZq7zbKCBbUMYJXOXjg2OodzP4gZMc.png)
+
+After you edit the file, you can sync to the wiki to make your changes are available.
