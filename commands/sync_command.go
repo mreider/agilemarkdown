@@ -103,7 +103,7 @@ func (a *SyncAction) updateHome(rootDir string) error {
 
 		flying := backlog.StatusByCode("f")
 		items := bck.ItemsByStatus(flying.Code)
-		itemsLines := backlog.BacklogView{}.WriteBacklogItems(items, fmt.Sprintf("Status: %s", flying.Name))
+		itemsLines := backlog.BacklogView{}.WriteBacklogItems(items, fmt.Sprintf("Status: %s", flying.Name), false)
 		itemsLines = utils.WrapLinesToMarkdownCodeBlock(itemsLines)
 		lines = append(lines, itemsLines...)
 	}

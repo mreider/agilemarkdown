@@ -58,14 +58,6 @@ func StatusNameByCode(statusCode string) string {
 	return "unknown"
 }
 
-func StatusDescriptionByCode(statusCode string) string {
-	status := StatusByCode(statusCode)
-	if status != nil {
-		return status.Description
-	}
-	return "unknown"
-}
-
 func IsValidStatusCode(statusCode string) bool {
 	for _, status := range AllStatuses {
 		if status.Code == statusCode {

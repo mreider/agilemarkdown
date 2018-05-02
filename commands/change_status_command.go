@@ -26,14 +26,14 @@ var ChangeStatusCommand = cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
-		status := c.String("s")
+		statusCode := c.String("s")
 
-		if status == "" {
+		if statusCode == "" {
 			fmt.Println("-s option is required")
 			return nil
 		}
-		if !backlog.IsValidStatusCode(status) {
-			fmt.Printf("illegal status: %s\n", status)
+		if !backlog.IsValidStatusCode(statusCode) {
+			fmt.Printf("illegal status: %s\n", statusCode)
 			return nil
 		}
 		if err := checkIsBacklogDirectory(); err != nil {
@@ -45,13 +45,17 @@ var ChangeStatusCommand = cli.Command{
 			return err
 		}
 
-		items := bck.ItemsByStatus(status)
+		items := bck.ItemsByStatus(statusCode)
+		status := backlog.StatusByCode(statusCode)
 		if len(items) == 0 {
-			fmt.Printf("No items with status '%s'\n", backlog.StatusNameByCode(status))
+			fmt.Printf("No items with status '%s'\n", status.Name)
 			return nil
 		}
 
-		printBacklogItems(items, fmt.Sprintf("Stories %s", backlog.StatusDescriptionByCode(status)))
+		lines := backlog.BacklogView{}.WriteBacklogItems(items, fmt.Sprintf("Status: %s", status.Name), true)
+		for _, line := range lines {
+			fmt.Println(line)
+		}
 		fmt.Println("")
 		reader := bufio.NewReader(os.Stdin)
 		for {
