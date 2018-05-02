@@ -3,7 +3,6 @@ package backlog
 import (
 	"bytes"
 	"fmt"
-	"github.com/mreider/agilemarkdown/utils"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -101,7 +100,7 @@ func (content *MarkdownContent) Content(timestamp string) []byte {
 		result.WriteString("\n")
 		result.WriteString(fmt.Sprintf("%s%s", GroupTitlePrefix, group.title))
 		result.WriteString("\n")
-		result.WriteString(strings.Join(utils.WrapLinesToMarkdownCodeBlock(group.RawLines()), "\n"))
+		result.WriteString(strings.Join(group.RawLines(), "\n"))
 		result.WriteString("\n")
 	}
 	return result.Bytes()
