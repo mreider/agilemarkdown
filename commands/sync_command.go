@@ -60,7 +60,11 @@ func (a *SyncAction) updateOverviews(rootDir string) error {
 		return err
 	}
 	for _, backlogDir := range backlogDirs {
-		overview, err := backlog.LoadBacklogOverview(filepath.Join(backlogDir, backlog.OverviewFileName))
+		overviewPath, ok := findOverviewFileInDirectory(backlogDir)
+		if !ok {
+			return fmt.Errorf("the index file isn't found in %s", backlogDir)
+		}
+		overview, err := backlog.LoadBacklogOverview(overviewPath)
 		if err != nil {
 			return err
 		}
@@ -82,11 +86,15 @@ func (a *SyncAction) updateHome(rootDir string) error {
 		return err
 	}
 	for _, backlogDir := range backlogDirs {
-		overview, err := backlog.LoadBacklogOverview(filepath.Join(backlogDir, backlog.OverviewFileName))
+		overviewPath, ok := findOverviewFileInDirectory(backlogDir)
+		if !ok {
+			return fmt.Errorf("the index file isn't found in %s", backlogDir)
+		}
+		overview, err := backlog.LoadBacklogOverview(overviewPath)
 		if err != nil {
 			return err
 		}
-		lines = append(lines, fmt.Sprintf("### [%s](%s)", overview.Title(), strings.TrimSuffix(backlog.OverviewFileName, ".md")))
+		lines = append(lines, fmt.Sprintf("### [%s](%s)", overview.Title(), strings.TrimSuffix(filepath.Base(overviewPath), ".md")))
 		bck, err := backlog.LoadBacklog(backlogDir)
 		if err != nil {
 			return err
@@ -118,11 +126,15 @@ func (a *SyncAction) updateSidebar(rootDir string) error {
 		return err
 	}
 	for _, backlogDir := range backlogDirs {
-		overview, err := backlog.LoadBacklogOverview(filepath.Join(backlogDir, backlog.OverviewFileName))
+		overviewPath, ok := findOverviewFileInDirectory(backlogDir)
+		if !ok {
+			return fmt.Errorf("the index file isn't found in %s", backlogDir)
+		}
+		overview, err := backlog.LoadBacklogOverview(overviewPath)
 		if err != nil {
 			return err
 		}
-		lines = append(lines, fmt.Sprintf("[%s](%s)", overview.Title(), strings.TrimSuffix(backlog.OverviewFileName, ".md")))
+		lines = append(lines, fmt.Sprintf("[%s](%s)", overview.Title(), strings.TrimSuffix(filepath.Base(overviewPath), ".md")))
 	}
 	err = ioutil.WriteFile(filepath.Join(rootDir, "_Sidebar.md"), []byte(strings.Join(lines, "  \n")), 0644)
 	return err

@@ -29,7 +29,7 @@ Story 8 [link8](link8.md) (points) (assigned)
 )
 
 func TestMarkdownLoad(t *testing.T) {
-	content := backlog.NewMarkdown(markdownData, "", []string{"Title", "Data"})
+	content := backlog.NewMarkdown(markdownData, "", []string{"Title", "Data"}, true)
 	assert.Equal(t, "test backlog", content.MetadataValue("title"))
 	assert.Equal(t, 4, content.GroupCount())
 
@@ -68,7 +68,7 @@ Story 4 [link4](link4.md) (points) (assigned)
 ### Landed
 `
 
-	content := backlog.NewMarkdown(markdownData, "", []string{"Title", "Data"})
+	content := backlog.NewMarkdown(markdownData, "", []string{"Title", "Data"}, true)
 	content.SetMetadataValue("title", "new backlog")
 	content.Group("Flying").SetLine(0, "Story 1 [link1](link1.md) 12 Mike")
 	content.Group("Gate").AddLine("Story 9 [link9](link9.md) 9 Robert")

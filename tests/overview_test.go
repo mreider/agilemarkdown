@@ -28,7 +28,7 @@ Story 8 [Story8](Story8.md) - -
 )
 
 func TestOverviewCreate(t *testing.T) {
-	markdown := backlog.NewMarkdown(markdownOverviewData, "", []string{"Title", "Data"})
+	markdown := backlog.NewMarkdown(markdownOverviewData, "", []string{"Title", "Data"}, true)
 	overview := backlog.NewBacklogOverview(markdown)
 	itemsByStatus := overview.ItemsByStatus()
 	assert.Equal(t, 4, len(itemsByStatus))
@@ -57,7 +57,7 @@ Story 8 [Story8](Story8.md) - -
 Second story [Story2](Story2.md) 15 robert  
 `
 
-	markdown := backlog.NewMarkdown(markdownOverviewData, "", []string{"Title", "Data"})
+	markdown := backlog.NewMarkdown(markdownOverviewData, "", []string{"Title", "Data"}, true)
 	overview := backlog.NewBacklogOverview(markdown)
 	overview.SetTitle("new backlog")
 
