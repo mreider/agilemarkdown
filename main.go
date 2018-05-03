@@ -6,7 +6,9 @@ import (
 	"github.com/mreider/agilemarkdown/commands"
 	"gopkg.in/urfave/cli.v1"
 	"log"
+	"math/rand"
 	"os"
+	"time"
 )
 
 func main() {
@@ -14,6 +16,8 @@ func main() {
 	if err != nil {
 		fmt.Printf("can't set bash autocomplete: %v\n", err)
 	}
+
+	rand.Seed(time.Now().Unix())
 
 	app := cli.NewApp()
 	app.EnableBashCompletion = true

@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	OverviewFileName = "0-overview.md"
+	OverviewFileNamePrefix = "0index-"
 )
 
 type Backlog struct {
@@ -21,7 +21,7 @@ func LoadBacklog(backlogDir string) (*Backlog, error) {
 	}
 	var items []*BacklogItem
 	for _, info := range infos {
-		if !info.IsDir() && strings.HasSuffix(info.Name(), ".md") && info.Name() != OverviewFileName {
+		if !info.IsDir() && strings.HasSuffix(info.Name(), ".md") && !strings.HasPrefix(info.Name(), OverviewFileNamePrefix) {
 			item, err := LoadBacklogItem(filepath.Join(backlogDir, info.Name()))
 			if err != nil {
 				return nil, err
