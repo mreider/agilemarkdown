@@ -73,7 +73,7 @@ func (m *MarkdownMetadata) ParseLines(lines []string) int {
 			continue
 		}
 		if !strings.Contains(trimmedLine, ":") { // TODO: multi-line metadata
-			return parsed
+			break
 		}
 		parts := strings.SplitN(trimmedLine, ":", 2)
 		var item *markdownMetadataItem
@@ -84,6 +84,14 @@ func (m *MarkdownMetadata) ParseLines(lines []string) int {
 		}
 		m.items = append(m.items, item)
 		parsed++
+	}
+	for i := parsed - 1; i >= 0; i-- {
+		trimmedLine := strings.TrimSpace(lines[i])
+		if trimmedLine == "" {
+			parsed--
+		} else {
+			break
+		}
 	}
 	return parsed
 }

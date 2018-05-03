@@ -20,9 +20,10 @@ type MarkdownContent struct {
 	isDirty     bool
 	metadata    *MarkdownMetadata
 	groups      []*MarkdownGroup
+	freeText    []string
 }
 
-func LoadMarkdown(markdownPath string, metadataKeys []string) (*MarkdownContent, error) {
+func LoadMarkdown(markdownPath string, metadataKeys []string, parseGroups bool) (*MarkdownContent, error) {
 	var err error
 	if _, err = os.Stat(markdownPath); err != nil && !os.IsNotExist(err) {
 		return nil, err
@@ -40,31 +41,36 @@ func LoadMarkdown(markdownPath string, metadataKeys []string) (*MarkdownContent,
 			return nil, err
 		}
 	}
-	return NewMarkdown(string(data), markdownPath, metadataKeys), nil
+	return NewMarkdown(string(data), markdownPath, metadataKeys, parseGroups), nil
 }
 
-func NewMarkdown(data, markdownPath string, metadataKeys []string) *MarkdownContent {
+func NewMarkdown(data, markdownPath string, metadataKeys []string, parseGroups bool) *MarkdownContent {
 	content := &MarkdownContent{contentPath: markdownPath, metadata: NewMarkdownMetadata(metadataKeys)}
 	if len(data) > 0 {
 		lines := strings.Split(data, "\n")
 		parsed := content.metadata.ParseLines(lines)
 
-		var currentGroup *MarkdownGroup
-		for _, line := range lines[parsed:] {
-			if strings.HasPrefix(line, GroupTitlePrefix) {
-				if currentGroup != nil {
-					content.addGroup(currentGroup)
-				}
-				currentGroup = &MarkdownGroup{content: content, title: strings.TrimSpace(strings.TrimPrefix(line, GroupTitlePrefix))}
-			} else if currentGroup != nil {
-				if strings.TrimSpace(line) != "" {
-					currentGroup.lines = append(currentGroup.lines, strings.TrimRightFunc(line, unicode.IsSpace))
+		if parseGroups {
+			var currentGroup *MarkdownGroup
+			for _, line := range lines[parsed:] {
+				if strings.HasPrefix(line, GroupTitlePrefix) {
+					if currentGroup != nil {
+						content.addGroup(currentGroup)
+					}
+					currentGroup = &MarkdownGroup{content: content, title: strings.TrimSpace(strings.TrimPrefix(line, GroupTitlePrefix))}
+				} else if currentGroup != nil {
+					if strings.TrimSpace(line) != "" {
+						currentGroup.lines = append(currentGroup.lines, strings.TrimRightFunc(line, unicode.IsSpace))
+					}
 				}
 			}
+			if currentGroup != nil {
+				content.addGroup(currentGroup)
+			}
+		} else {
+			content.freeText = lines[parsed:]
 		}
-		if currentGroup != nil {
-			content.addGroup(currentGroup)
-		}
+
 	}
 	content.isDirty = false
 	return content
@@ -96,12 +102,20 @@ func (content *MarkdownContent) Content(timestamp string) []byte {
 	result := bytes.NewBuffer(nil)
 	result.WriteString(strings.Join(content.metadata.RawLines(), "\n"))
 	result.WriteString("\n")
-	for _, group := range content.groups {
-		result.WriteString("\n")
-		result.WriteString(fmt.Sprintf("%s%s", GroupTitlePrefix, group.title))
-		result.WriteString("\n")
-		result.WriteString(strings.Join(group.RawLines(), "\n"))
-		result.WriteString("\n")
+	if len(content.groups) > 0 {
+		for _, group := range content.groups {
+			result.WriteString("\n")
+			result.WriteString(fmt.Sprintf("%s%s", GroupTitlePrefix, group.title))
+			result.WriteString("\n")
+			result.WriteString(strings.Join(group.RawLines(), "\n"))
+			result.WriteString("\n")
+		}
+	}
+	for i, line := range content.freeText {
+		result.WriteString(line)
+		if i < len(content.freeText)-1 {
+			result.WriteString("\n")
+		}
 	}
 	return result.Bytes()
 }
