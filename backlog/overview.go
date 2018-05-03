@@ -1,10 +1,10 @@
 package backlog
 
 import (
+	"github.com/mreider/agilemarkdown/utils"
 	"math"
 	"regexp"
 	"sort"
-	"github.com/mreider/agilemarkdown/utils"
 )
 
 const (
@@ -20,7 +20,7 @@ type BacklogOverview struct {
 }
 
 func LoadBacklogOverview(overviewPath string) (*BacklogOverview, error) {
-	markdown, err := LoadMarkdown(overviewPath, []string{BacklogOverviewTitleMetadataKey, CreatedMetadataKey, ModifiedMetadataKey})
+	markdown, err := LoadMarkdown(overviewPath, []string{BacklogOverviewTitleMetadataKey, CreatedMetadataKey, ModifiedMetadataKey}, true)
 	if err != nil {
 		return nil, err
 	}

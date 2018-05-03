@@ -22,7 +22,7 @@ type BacklogItem struct {
 func LoadBacklogItem(itemPath string) (*BacklogItem, error) {
 	markdown, err := LoadMarkdown(itemPath, []string{
 		BacklogItemTitleMetadataKey, CreatedMetadataKey, ModifiedMetadataKey, BacklogItemAuthorMetadataKey,
-		BacklogItemStatusMetadataKey, BacklogItemAssignedMetadataKey, BacklogItemEstimateMetadataKey})
+		BacklogItemStatusMetadataKey, BacklogItemAssignedMetadataKey, BacklogItemEstimateMetadataKey}, false)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,7 @@ func LoadBacklogItem(itemPath string) (*BacklogItem, error) {
 func NewBacklogItem(name string) *BacklogItem {
 	markdown := NewMarkdown("", "", []string{
 		BacklogItemTitleMetadataKey, CreatedMetadataKey, ModifiedMetadataKey, BacklogItemAuthorMetadataKey,
-		BacklogItemStatusMetadataKey, BacklogItemAssignedMetadataKey, BacklogItemEstimateMetadataKey})
+		BacklogItemStatusMetadataKey, BacklogItemAssignedMetadataKey, BacklogItemEstimateMetadataKey}, false)
 	return &BacklogItem{name, markdown}
 }
 
