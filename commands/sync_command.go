@@ -60,9 +60,9 @@ func (a *SyncAction) updateOverviews(rootDir string) error {
 		return err
 	}
 	for _, backlogDir := range backlogDirs {
-		overviewPath, ok := findOverviewFileInDirectory(backlogDir)
+		overviewPath, ok := findOverviewFileInRootDirectory(backlogDir)
 		if !ok {
-			return fmt.Errorf("the index file isn't found in %s", backlogDir)
+			return fmt.Errorf("the index file isn't found for %s", backlogDir)
 		}
 		overview, err := backlog.LoadBacklogOverview(overviewPath)
 		if err != nil {
@@ -86,9 +86,9 @@ func (a *SyncAction) updateHome(rootDir string) error {
 		return err
 	}
 	for _, backlogDir := range backlogDirs {
-		overviewPath, ok := findOverviewFileInDirectory(backlogDir)
+		overviewPath, ok := findOverviewFileInRootDirectory(backlogDir)
 		if !ok {
-			return fmt.Errorf("the index file isn't found in %s", backlogDir)
+			return fmt.Errorf("the index file isn't found for %s", backlogDir)
 		}
 		overview, err := backlog.LoadBacklogOverview(overviewPath)
 		if err != nil {
@@ -126,9 +126,9 @@ func (a *SyncAction) updateSidebar(rootDir string) error {
 		return err
 	}
 	for _, backlogDir := range backlogDirs {
-		overviewPath, ok := findOverviewFileInDirectory(backlogDir)
+		overviewPath, ok := findOverviewFileInRootDirectory(backlogDir)
 		if !ok {
-			return fmt.Errorf("the index file isn't found in %s", backlogDir)
+			return fmt.Errorf("the index file isn't found for %s", backlogDir)
 		}
 		overview, err := backlog.LoadBacklogOverview(overviewPath)
 		if err != nil {

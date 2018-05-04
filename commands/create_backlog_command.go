@@ -5,7 +5,6 @@ import (
 	"github.com/mreider/agilemarkdown/backlog"
 	"github.com/mreider/agilemarkdown/git"
 	"gopkg.in/urfave/cli.v1"
-	"math/rand"
 	"os"
 	"path/filepath"
 	"strings"
@@ -46,16 +45,8 @@ var CreateBacklogCommand = cli.Command{
 			return err
 		}
 
-		var overviewFileName string
-		for {
-			overviewIndex := rand.Intn(1000)
-			overviewFileName = fmt.Sprintf("%s%04d.md", backlog.OverviewFileNamePrefix, overviewIndex)
-			if !existsOverviewFileName(".", overviewFileName) {
-				break
-			}
-		}
-
-		overviewPath := filepath.Join(backlogDir, overviewFileName)
+		overviewFileName := fmt.Sprintf("%s.md", backlogFileName)
+		overviewPath := filepath.Join(".", overviewFileName)
 		overview, err := backlog.LoadBacklogOverview(overviewPath)
 		if err != nil {
 			return err

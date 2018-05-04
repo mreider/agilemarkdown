@@ -2,29 +2,32 @@ package commands
 
 import (
 	"errors"
-	"github.com/mreider/agilemarkdown/backlog"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 func checkIsBacklogDirectory() error {
-	_, ok := findOverviewFileInDirectory(".")
+	_, ok := findOverviewFileInRootDirectory(".")
 	if !ok {
 		return errors.New("Error, please change directory to a backlog folder")
 	}
 	return nil
 }
 
-func findOverviewFileInDirectory(dir string) (string, bool) {
-	infos, err := ioutil.ReadDir(dir)
+func findOverviewFileInRootDirectory(dir string) (string, bool) {
+	dir, _ = filepath.Abs(dir)
+	rootDir := filepath.Dir(dir)
+	overviewFileName := fmt.Sprintf("%s.md", filepath.Base(dir))
+
+	infos, err := ioutil.ReadDir(rootDir)
 	if err != nil {
 		return "", false
 	}
 	for _, info := range infos {
-		if !info.IsDir() && strings.HasPrefix(info.Name(), backlog.OverviewFileNamePrefix) {
-			return filepath.Join(dir, info.Name()), true
+		if info.Name() == overviewFileName {
+			return filepath.Join(rootDir, info.Name()), true
 		}
 	}
 	return "", false
