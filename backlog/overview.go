@@ -1,7 +1,6 @@
 package backlog
 
 import (
-	"github.com/mreider/agilemarkdown/utils"
 	"math"
 	"regexp"
 	"sort"
@@ -97,8 +96,7 @@ func (overview *BacklogOverview) Update(items []*BacklogItem) {
 				items = append(items, item)
 			}
 		}
-		newLines := BacklogView{}.WriteBacklogItems(items, "", false)
-		newLines = utils.WrapLinesToMarkdownCodeBlock(newLines)
+		newLines := BacklogView{}.WriteMarkdownTable(items)
 		group.ReplaceLines(newLines)
 	}
 	overview.Save()

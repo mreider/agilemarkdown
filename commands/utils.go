@@ -3,6 +3,8 @@ package commands
 import (
 	"errors"
 	"fmt"
+	"github.com/mreider/agilemarkdown/backlog"
+	"gopkg.in/urfave/cli.v1"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -65,4 +67,39 @@ func existsFile(path string) bool {
 		return false
 	}
 	return !info.IsDir()
+}
+
+func showBacklogItems(c *cli.Context) ([]*backlog.BacklogItem, error) {
+	statusCode := c.String("s")
+
+	if statusCode == "" {
+		fmt.Println("-s option is required")
+		return nil, nil
+	}
+	if !backlog.IsValidStatusCode(statusCode) {
+		fmt.Printf("illegal status: %s\n", statusCode)
+		return nil, nil
+	}
+	if err := checkIsBacklogDirectory(); err != nil {
+		fmt.Println(err)
+		return nil, nil
+	}
+	bck, err := backlog.LoadBacklog(".")
+	if err != nil {
+		return nil, err
+	}
+
+	items := bck.ItemsByStatus(statusCode)
+	status := backlog.StatusByCode(statusCode)
+	if len(items) == 0 {
+		fmt.Printf("No items with status '%s'\n", status.Name)
+		return nil, nil
+	}
+
+	lines := backlog.BacklogView{}.WriteAsciiTable(items, fmt.Sprintf("Status: %s", status.Name), true)
+	for _, line := range lines {
+		fmt.Println(line)
+	}
+	fmt.Println("")
+	return items, nil
 }
