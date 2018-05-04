@@ -48,7 +48,7 @@ var WorkCommand = cli.Command{
 
 		for _, status := range statuses {
 			items := bck.ItemsByStatusAndUser(status.Code, user)
-			lines := backlog.BacklogView{}.WriteBacklogItems(items, fmt.Sprintf("Status: %s", status.Name), false)
+			lines := backlog.BacklogView{}.WriteAsciiTable(items, fmt.Sprintf("Status: %s", status.Name), false)
 			fmt.Println(strings.Join(lines, "\n"))
 			fmt.Println("")
 		}

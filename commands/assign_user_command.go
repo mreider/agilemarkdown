@@ -54,7 +54,7 @@ var AssignUserCommand = cli.Command{
 			return nil
 		}
 
-		lines := backlog.BacklogView{}.WriteBacklogItems(items, fmt.Sprintf("Status: %s", status.Name), true)
+		lines := backlog.BacklogView{}.WriteAsciiTable(items, fmt.Sprintf("Status: %s", status.Name), true)
 		for _, line := range lines {
 			fmt.Println(line)
 		}

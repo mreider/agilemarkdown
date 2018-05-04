@@ -11,7 +11,7 @@ import (
 type BacklogView struct {
 }
 
-func (bv BacklogView) WriteBacklogItems(items []*BacklogItem, title string, withOrderNumber bool) []string {
+func (bv BacklogView) WriteAsciiTable(items []*BacklogItem, title string, withOrderNumber bool) []string {
 	sort.Slice(items, func(i, j int) bool {
 		if items[i].Assigned() < items[j].Assigned() {
 			return true
@@ -65,6 +65,19 @@ func (bv BacklogView) WriteBacklogItems(items []*BacklogItem, title string, with
 			footer = "------" + footer
 		}
 		result = append(result, footer)
+	}
+	return result
+}
+
+func (bv BacklogView) WriteMarkdownTable(items []*BacklogItem) []string {
+	result := make([]string, 0, 50)
+	headers := make([]string, 0, 2)
+	headers = append(headers, fmt.Sprintf(" User | Title | Points "))
+	headers = append(headers, "---|---|:---:")
+	result = append(result, headers...)
+	for _, item := range items {
+		line := fmt.Sprintf(" %s | [%s](%s) | %s ", item.Assigned(), item.Title(), strings.TrimSuffix(item.FileName(), ".md"), item.Estimate())
+		result = append(result, line)
 	}
 	return result
 }
