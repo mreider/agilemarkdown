@@ -51,7 +51,7 @@ Use the `create-item` command to create items in your backlog. The story is crea
 ```
 am create-item smart-automerge
 ls
-0-overview.md		smart-automerge.md
+smart-automerge.md
 ```
 
 Once the file is created you can start editing the story using your favorite text editor. We like [Atom](https://atom.io/).
@@ -86,7 +86,7 @@ If a story is important - you need to get it out of the hangar, into the gate an
 ```
 am create-item overview page needs unique names
 ls
-0-overview.md				overview_page_needs_unique_names.md	smart-automerge.md
+overview_page_needs_unique_names.md	smart-automerge.md
 ```
 
 Now we open our favorite text editor and outline the story a bit, so the engineer can understand it, and talk to us about it. That's what the hangar is for. A place to get things ready.
@@ -101,7 +101,7 @@ Next time we sync, the story will show up on the Wiki, in the gate, ready to go.
 
 ![Overview shows things at the gate](https://monosnap.com/image/Xg79Lit5hu9dSpHalz6vl7latzmokI.png)
 
-From the engineer's perspective, the stories at the gate should be stack ranked - with the next story at the top of the gate. That way, the engineer will know what is most important, and what should be worked on next. To change the stack rank of the work at the gate, simply edit the overview page, and the order of things in that section. Before we do that, let's move the other story into the gate using the `am change-status` command.
+From the engineer's perspective, the stories at the gate should be stack ranked - with the most important story at the top of the gate. That way, the engineer will know what to work on next. To change the stack rank of the work at the gate, simply edit the overview page, and the order of things in that section. Before we do that, let's move the other story into the gate using the `am change-status` command.
 
 ```
 am change-status -s h
@@ -130,3 +130,5 @@ Status: gate
  falconandy | smart-automerge                  |
 -------------------------------------------------------
 ```
+
+To change the priority of these, go to the root directory of the wiki and edit the order of the stories in a text editor.
