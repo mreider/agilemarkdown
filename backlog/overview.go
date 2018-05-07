@@ -11,7 +11,7 @@ const (
 )
 
 var (
-	overviewItemRe = regexp.MustCompile(`^.* \[.*\]\(([^)]+)\.md\).*$`)
+	overviewItemRe = regexp.MustCompile(`^.* \[.*]\(([^)]+)\).*$`)
 )
 
 type BacklogOverview struct {
@@ -53,7 +53,7 @@ func (overview *BacklogOverview) SetCreated() {
 	overview.markdown.SetMetadataValue(CreatedMetadataKey, "")
 }
 
-func (overview *BacklogOverview) ItemsByStatus() map[string][]string {
+func (overview *BacklogOverview) SortedItemsByStatus() map[string][]string {
 	result := make(map[string][]string)
 	for _, status := range AllStatuses {
 		title := status.CapitalizedName()
@@ -66,16 +66,36 @@ func (overview *BacklogOverview) ItemsByStatus() map[string][]string {
 			matches := overviewItemRe.FindStringSubmatch(line)
 			if len(matches) > 0 {
 				result[status.Name] = append(result[status.Name], matches[1])
-			} else {
-				result[status.Name] = append(result[status.Name], "unknown")
 			}
 		}
 	}
 	return result
 }
 
+func (overview *BacklogOverview) SortItems(status *BacklogItemStatus, items []*BacklogItem) {
+	itemsNames := overview.SortedItemsByStatus()[status.Name]
+	itemsOrder := make(map[string]int, len(itemsNames))
+	for i, itemName := range itemsNames {
+		itemsOrder[itemName] = i
+	}
+	sort.Slice(items, func(i, j int) bool {
+		iIndex1, iOk := itemsOrder[items[i].Name()]
+		jIndex1, jOk := itemsOrder[items[j].Name()]
+		if iOk && jOk {
+			return iIndex1 < jIndex1
+		}
+		if iOk {
+			return true
+		}
+		if jOk {
+			return false
+		}
+		return i < j
+	})
+}
+
 func (overview *BacklogOverview) Update(items []*BacklogItem) {
-	itemsByStatus := overview.ItemsByStatus()
+	itemsByStatus := overview.SortedItemsByStatus()
 	itemsByName := make(map[string]*BacklogItem)
 	for _, item := range items {
 		itemsByName[item.Name()] = item

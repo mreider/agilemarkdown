@@ -32,7 +32,6 @@ func main() {
 		commands.PointsCommand,
 		commands.AssignUserCommand,
 		commands.ChangeStatusCommand,
-		commands.ChangePriorityCommand,
 		commands.ProgressCommand,
 		commands.AliasCommand,
 	}

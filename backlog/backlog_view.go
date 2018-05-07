@@ -3,7 +3,6 @@ package backlog
 import (
 	"fmt"
 	"github.com/mreider/agilemarkdown/utils"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -12,16 +11,6 @@ type BacklogView struct {
 }
 
 func (bv BacklogView) WriteAsciiTable(items []*BacklogItem, title string, withOrderNumber bool) []string {
-	sort.Slice(items, func(i, j int) bool {
-		if items[i].Assigned() < items[j].Assigned() {
-			return true
-		}
-		if items[i].Assigned() > items[j].Assigned() {
-			return false
-		}
-		return items[i].Title() < items[j].Title()
-	})
-
 	userHeader, titleHeader, pointsHeader := "User", "Title", "Points"
 	maxAssignedLen, maxTitleLen := len(userHeader), len(titleHeader)
 	for _, item := range items {
@@ -76,7 +65,7 @@ func (bv BacklogView) WriteMarkdownTable(items []*BacklogItem) []string {
 	headers = append(headers, "---|---|:---:")
 	result = append(result, headers...)
 	for _, item := range items {
-		line := fmt.Sprintf(" %s | [%s](%s) | %s ", item.Assigned(), item.Title(), strings.TrimSuffix(item.FileName(), ".md"), item.Estimate())
+		line := fmt.Sprintf(" %s | [%s](%s) | %s ", item.Assigned(), item.Title(), item.Name(), item.Estimate())
 		result = append(result, line)
 	}
 	return result

@@ -27,7 +27,7 @@ func LoadBacklogItem(itemPath string) (*BacklogItem, error) {
 		return nil, err
 	}
 	name := filepath.Base(itemPath)
-	name = strings.Replace(strings.TrimSuffix(name, filepath.Ext(name)), "_", " ", -1)
+	name = strings.TrimSuffix(name, filepath.Ext(name))
 	return &BacklogItem{name, markdown}, nil
 }
 
@@ -44,10 +44,6 @@ func (item *BacklogItem) Save() error {
 
 func (item *BacklogItem) Name() string {
 	return item.name
-}
-
-func (item *BacklogItem) FileName() string {
-	return strings.Replace(item.name, " ", "_", -1) + ".md"
 }
 
 func (item *BacklogItem) Title() string {
