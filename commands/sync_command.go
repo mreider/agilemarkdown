@@ -111,6 +111,7 @@ func (a *SyncAction) updateHome(rootDir string) error {
 
 		flying := backlog.StatusByCode("f")
 		items := bck.ItemsByStatus(flying.Code)
+		overview.SortItems(flying, items)
 		itemsLines := backlog.BacklogView{}.WriteMarkdownTable(items)
 		lines = append(lines, fmt.Sprintf("#### %s", flying.CapitalizedName()))
 		lines = append(lines, itemsLines...)

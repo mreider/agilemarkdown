@@ -10,27 +10,27 @@ const (
 	markdownOverviewData = `Title: test backlog  
 
 ### Flying
-Story 1 [Story1](Story1.md) - -  
-Story 2 [Story2](Story2.md) - -  
+Story 1 [Story1](Story1) - -  
+Story 2 [Story2](Story2) - -  
 
 ### Hangar
-Story 4 [Story4](Story4.md) - -  
-Story 3 [Story3](Story3.md) - -  
+Story 4 [Story4](Story4) - -  
+Story 3 [Story3](Story3) - -  
 
 ### Gate
-Story 5 [Story5](Story5.md) - -  
-Story 6 [Story6](Story6.md) - -  
-Story 7 [Story7](Story7.md) - -  
+Story 5 [Story5](Story5) - -  
+Story 6 [Story6](Story6) - -  
+Story 7 [Story7](Story7) - -  
 
 ### Landed
-Story 8 [Story8](Story8.md) - -  
+Story 8 [Story8](Story8) - -  
 `
 )
 
 func TestOverviewCreate(t *testing.T) {
 	markdown := backlog.NewMarkdown(markdownOverviewData, "", []string{"Title", "Data"}, true)
 	overview := backlog.NewBacklogOverview(markdown)
-	itemsByStatus := overview.ItemsByStatus()
+	itemsByStatus := overview.SortedItemsByStatus()
 	assert.Equal(t, 4, len(itemsByStatus))
 	assert.Equal(t, []string{"Story1", "Story2"}, itemsByStatus["flying"])
 	assert.Equal(t, []string{"Story5", "Story6", "Story7"}, itemsByStatus["gate"])
@@ -42,19 +42,27 @@ func TestOverviewUpdate(t *testing.T) {
 	updatedOverviewData := `Title: new backlog  
 
 ### Flying
-First story [Story1](Story1.md) 10 mike  
-Story 5 [Story5](Story5.md) 20 -  
+ User | Title | Points 
+---|---|:---:
+ mike | [First story](Story1) | 10 
+  | [Story 5](Story5) | 20 
 
 ### Gate
-Story 7 [Story7](Story7.md) - -  
+ User | Title | Points 
+---|---|:---:
+  | [Story 7](Story7) |  
 
 ### Hangar
-Story 4 [Story4](Story4.md) 30 -  
-Story Six [Story6](Story6.md) - -  
+ User | Title | Points 
+---|---|:---:
+  | [Story 4](Story4) | 30 
+  | [Story Six](Story6) |  
 
 ### Landed
-Story 8 [Story8](Story8.md) - -  
-Second story [Story2](Story2.md) 15 robert  
+ User | Title | Points 
+---|---|:---:
+  | [Story 8](Story8) |  
+ robert | [Second story](Story2) | 15 
 `
 
 	markdown := backlog.NewMarkdown(markdownOverviewData, "", []string{"Title", "Data"}, true)

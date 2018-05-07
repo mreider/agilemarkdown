@@ -35,23 +35,6 @@ func findOverviewFileInRootDirectory(dir string) (string, bool) {
 	return "", false
 }
 
-func existsOverviewFileName(rootDir string, overviewFileName string) bool {
-	infos, err := ioutil.ReadDir(rootDir)
-	if err != nil {
-		return false
-	}
-	for _, info := range infos {
-		if !info.IsDir() {
-			continue
-		}
-		overviewPath := filepath.Join(rootDir, info.Name(), overviewFileName)
-		if _, err := os.Stat(overviewPath); err == nil {
-			return true
-		}
-	}
-	return false
-}
-
 func checkIsRootDirectory() error {
 	gitFolder := filepath.Join(".", ".git")
 	_, err := os.Stat(gitFolder)
@@ -84,7 +67,17 @@ func showBacklogItems(c *cli.Context) ([]*backlog.BacklogItem, error) {
 		fmt.Println(err)
 		return nil, nil
 	}
-	bck, err := backlog.LoadBacklog(".")
+	backlogDir, _ := filepath.Abs(".")
+	bck, err := backlog.LoadBacklog(backlogDir)
+	if err != nil {
+		return nil, err
+	}
+
+	overviewPath, ok := findOverviewFileInRootDirectory(backlogDir)
+	if !ok {
+		return nil, fmt.Errorf("the index file isn't found for %s", backlogDir)
+	}
+	overview, err := backlog.LoadBacklogOverview(overviewPath)
 	if err != nil {
 		return nil, err
 	}
@@ -96,6 +89,7 @@ func showBacklogItems(c *cli.Context) ([]*backlog.BacklogItem, error) {
 		return nil, nil
 	}
 
+	overview.SortItems(status, items)
 	lines := backlog.BacklogView{}.WriteAsciiTable(items, fmt.Sprintf("Status: %s", status.Name), true)
 	for _, line := range lines {
 		fmt.Println(line)

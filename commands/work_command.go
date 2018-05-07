@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/mreider/agilemarkdown/backlog"
 	"gopkg.in/urfave/cli.v1"
+	"path/filepath"
 	"strings"
 )
 
@@ -34,7 +35,17 @@ var WorkCommand = cli.Command{
 			fmt.Println(err)
 			return nil
 		}
-		bck, err := backlog.LoadBacklog(".")
+		backlogDir, _ := filepath.Abs(".")
+		bck, err := backlog.LoadBacklog(backlogDir)
+		if err != nil {
+			return err
+		}
+
+		overviewPath, ok := findOverviewFileInRootDirectory(backlogDir)
+		if !ok {
+			return fmt.Errorf("the index file isn't found for %s", backlogDir)
+		}
+		overview, err := backlog.LoadBacklogOverview(overviewPath)
 		if err != nil {
 			return err
 		}
@@ -48,6 +59,7 @@ var WorkCommand = cli.Command{
 
 		for _, status := range statuses {
 			items := bck.ItemsByStatusAndUser(status.Code, user)
+			overview.SortItems(status, items)
 			lines := backlog.BacklogView{}.WriteAsciiTable(items, fmt.Sprintf("Status: %s", status.Name), false)
 			fmt.Println(strings.Join(lines, "\n"))
 			fmt.Println("")

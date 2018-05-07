@@ -53,19 +53,20 @@ func TestMarkdownSave(t *testing.T) {
 Data: test  
 
 ### Flying
-Story 1 [link1](link1.md) 12 Mike  
-Story 2 [link2](link2.md) (points) (assigned)  
+Story 1 [link1](link1.md) 12 Mike
+Story 2 [link2](link2.md) (points) (assigned)
 
 ### Gate
-Story 5 [link5](link5.md) (points) (assigned)  
-Story 6 [link6](link6.md) (points) (assigned)  
-Story 7 [link7](link7.md) (points) (assigned)  
-Story 9 [link9](link9.md) 9 Robert  
+Story 5 [link5](link5.md) (points) (assigned)
+Story 6 [link6](link6.md) (points) (assigned)
+Story 7 [link7](link7.md) (points) (assigned)
+Story 9 [link9](link9.md) 9 Robert
 
 ### Hangar
-Story 4 [link4](link4.md) (points) (assigned)  
+Story 4 [link4](link4.md) (points) (assigned)
 
 ### Landed
+
 `
 
 	content := backlog.NewMarkdown(markdownData, "", []string{"Title", "Data"}, true)
