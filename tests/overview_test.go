@@ -9,20 +9,20 @@ import (
 const (
 	markdownOverviewData = `Title: test backlog  
 
-### Flying
+### Doing
 Story 1 [Story1](Story1) - -  
 Story 2 [Story2](Story2) - -  
 
-### Hangar
+### Unplanned
 Story 4 [Story4](Story4) - -  
 Story 3 [Story3](Story3) - -  
 
-### Gate
+### Planned
 Story 5 [Story5](Story5) - -  
 Story 6 [Story6](Story6) - -  
 Story 7 [Story7](Story7) - -  
 
-### Landed
+### Finished
 Story 8 [Story8](Story8) - -  
 `
 )
@@ -32,33 +32,33 @@ func TestOverviewCreate(t *testing.T) {
 	overview := backlog.NewBacklogOverview(markdown)
 	itemsByStatus := overview.SortedItemsByStatus()
 	assert.Equal(t, 4, len(itemsByStatus))
-	assert.Equal(t, []string{"Story1", "Story2"}, itemsByStatus["flying"])
-	assert.Equal(t, []string{"Story5", "Story6", "Story7"}, itemsByStatus["gate"])
-	assert.Equal(t, []string{"Story4", "Story3"}, itemsByStatus["hangar"])
-	assert.Equal(t, []string{"Story8"}, itemsByStatus["landed"])
+	assert.Equal(t, []string{"Story1", "Story2"}, itemsByStatus["doing"])
+	assert.Equal(t, []string{"Story5", "Story6", "Story7"}, itemsByStatus["planned"])
+	assert.Equal(t, []string{"Story4", "Story3"}, itemsByStatus["unplanned"])
+	assert.Equal(t, []string{"Story8"}, itemsByStatus["finished"])
 }
 
 func TestOverviewUpdate(t *testing.T) {
 	updatedOverviewData := `Title: new backlog  
 
-### Flying
+### Doing
  User | Title | Points 
 ---|---|:---:
  mike | [First story](Story1) | 10 
   | [Story 5](Story5) | 20 
 
-### Gate
+### Planned
  User | Title | Points 
 ---|---|:---:
   | [Story 7](Story7) |  
 
-### Hangar
+### Unplanned
  User | Title | Points 
 ---|---|:---:
   | [Story 4](Story4) | 30 
   | [Story Six](Story6) |  
 
-### Landed
+### Finished
  User | Title | Points 
 ---|---|:---:
   | [Story 8](Story8) |  
@@ -69,13 +69,13 @@ func TestOverviewUpdate(t *testing.T) {
 	overview := backlog.NewBacklogOverview(markdown)
 	overview.SetTitle("new backlog")
 
-	story1 := createBacklogItem("Story1", "First story", "flying", "10", "mike")
-	story2 := createBacklogItem("Story2", "Second story", "landed", "15", "robert")
-	story5 := createBacklogItem("Story5", "Story 5", "flying", "20", "")
-	story6 := createBacklogItem("Story6", "Story Six", "hangar", "", "")
-	story7 := createBacklogItem("Story7", "Story 7", "gate", "", "")
-	story4 := createBacklogItem("Story4", "Story 4", "hangar", "30", "")
-	story8 := createBacklogItem("Story8", "Story 8", "landed", "", "")
+	story1 := createBacklogItem("Story1", "First story", "doing", "10", "mike")
+	story2 := createBacklogItem("Story2", "Second story", "finished", "15", "robert")
+	story5 := createBacklogItem("Story5", "Story 5", "doing", "20", "")
+	story6 := createBacklogItem("Story6", "Story Six", "unplanned", "", "")
+	story7 := createBacklogItem("Story7", "Story 7", "planned", "", "")
+	story4 := createBacklogItem("Story4", "Story 4", "unplanned", "30", "")
+	story8 := createBacklogItem("Story8", "Story 8", "finished", "", "")
 	overview.Update([]*backlog.BacklogItem{
 		story1, story2, story5, story6, story7, story4, story8,
 	})

@@ -52,7 +52,7 @@ var WorkCommand = cli.Command{
 
 		var statuses []*backlog.BacklogItemStatus
 		if statusCode == "" {
-			statuses = []*backlog.BacklogItemStatus{backlog.StatusByCode("f"), backlog.StatusByCode("g"), backlog.StatusByCode("h")}
+			statuses = []*backlog.BacklogItemStatus{backlog.DoingStatus, backlog.PlannedStatus, backlog.UnplannedStatus}
 		} else {
 			statuses = []*backlog.BacklogItemStatus{backlog.StatusByCode(statusCode)}
 		}

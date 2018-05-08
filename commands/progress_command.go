@@ -49,7 +49,7 @@ func (a *ProgressAction) Execute(backlogDir string, weekCount int) (string, erro
 	}
 
 	currentDate := time.Now().UTC()
-	items := bck.ItemsByStatus("l")
+	items := bck.ItemsByStatus(backlog.FinishedStatus.Code)
 	pointsByWeekDelta := make(map[int]float64)
 	for _, item := range items {
 		modified := item.Modified()

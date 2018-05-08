@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	itemStatusRe = regexp.MustCompile(`^(\d+)\s+([flgh])$`)
+	itemStatusRe = regexp.MustCompile(`^(\d+)\s+([dpuf])$`)
 )
 
 var ChangeStatusCommand = cli.Command{

@@ -22,7 +22,7 @@ var PointsCommand = cli.Command{
 		cli.StringFlag{
 			Name:  "s",
 			Usage: fmt.Sprintf("Status - %s", backlog.AllStatusesList()),
-			Value: "f",
+			Value: backlog.DoingStatus.Code,
 		},
 	},
 	Action: func(c *cli.Context) error {

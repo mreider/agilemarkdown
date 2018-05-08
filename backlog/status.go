@@ -11,12 +11,14 @@ type BacklogItemStatus struct {
 	Description string
 }
 
-var AllStatuses = []*BacklogItemStatus{
-	{"f", "flying", "in flight"},
-	{"g", "gate", "at the gate"},
-	{"h", "hangar", "in hangar"},
-	{"l", "landed", "landed"},
-}
+var (
+	DoingStatus     = &BacklogItemStatus{"d", "doing", "in doing"}
+	PlannedStatus   = &BacklogItemStatus{"p", "planned", "planned"}
+	UnplannedStatus = &BacklogItemStatus{"u", "unplanned", "unplanned"}
+	FinishedStatus  = &BacklogItemStatus{"f", "finished", "finished"}
+)
+
+var AllStatuses = []*BacklogItemStatus{DoingStatus, PlannedStatus, UnplannedStatus, FinishedStatus}
 
 func StatusByCode(statusCode string) *BacklogItemStatus {
 	for _, status := range AllStatuses {
