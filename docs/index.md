@@ -153,3 +153,5 @@ Moving a story to a different section (hangar to gate) will not work. You must e
 ### Measuring velocity
 
 The main page of the Wiki shows how many points your team has landed over the course of the last few weeks. You can also look at this by using the command `am progress`
+
+![Alt text](https://monosnap.com/image/sqrDGVQVmwFRWQVFyuOYEKtjlmoy6p.png)
