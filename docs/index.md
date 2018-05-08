@@ -79,9 +79,11 @@ To manage stories you must set different keys at the top of each story file. The
 | Not planned | Planned | Being worked on  |  Finished |
 
 
-### Prioritizing a story
+### Changing the status of a story
 
-If a story is important - you need to get it out of the hangar, into the gate and up into the air. By default, when you create a new story, it lives in the hangar. Let's begin by creating a new story to fix the overview page. Notice that spaces in the story are replaced with underscores.
+By default, when you create a new story, it lives in the hangar. If the story is important - you need to get it out of the hangar, into the gate and up into the air.
+
+To understand how to change a status, let's begin by creating a new story. Notice that spaces in the story are replaced with underscores.
 
 ```
 am create-item overview page needs unique names
@@ -89,7 +91,7 @@ ls
 overview_page_needs_unique_names.md	smart-automerge.md
 ```
 
-Now we open our favorite text editor and outline the story a bit, so the engineer can understand it, and talk to us about it. That's what the hangar is for. A place to get things ready.
+Now we open our favorite text editor and outline the story a bit, so the engineer can understand it. That's what the hangar is for. A place to get things ready.
 
 ![Getting a story ready](https://monosnap.com/image/i3yxrZ7qP5hjbi4oBsLDoiqehmG02C.png)
 
@@ -97,11 +99,9 @@ Once we agree on the story, and it's ready to go, the engineer should give it an
 
 ![Giving an estimate](https://monosnap.com/image/9RNiCCjt5s9Duaupiqmml8kzuRsvGL.png)
 
-Next time we sync, the story will show up on the Wiki, in the gate, ready to go.
+Now the story has an estimate of 1, and a status of 'gate' in that section
 
-![Overview shows things at the gate](https://monosnap.com/image/Xg79Lit5hu9dSpHalz6vl7latzmokI.png)
-
-From the engineer's perspective, the stories at the gate should be stack ranked - with the most important story at the top of the gate. That way, the engineer will know what to work on next. To change the stack rank of the work at the gate, simply edit the overview page, and the order of things in that section. Before we do that, let's move the other story into the gate using the `am change-status` command.
+Another way to change the status is to use the `am change-status` command. Let's move the other story into the gate using the `am change-status` command.
 
 ```
 am change-status -s h
@@ -121,7 +121,7 @@ e
 Now there are two stories at the gate, which we can see using `am work`
 
 ```
-m work -s g
+am work -s g
 Status: gate
 -------------------------------------------------------
  User       | Title                            | Points
@@ -131,4 +131,21 @@ Status: gate
 -------------------------------------------------------
 ```
 
-To change the priority of these, go to the root directory of the wiki and edit the order of the stories in a text editor.
+### Changing priorities
+
+Things at the gate should be stack ranked, with the most important story at the top of the gate. This is how engineers know which story to work on next. To change the order of the stories at the gate, or in any of the other status lists, you can open the overview page for the project, cut / paste the story in the list.
+
+To edit the overview page, go to the root directory of your git repo. The overview page has the same name as your backlog.
+
+```
+pwd
+/Users/mreider/agilemarkdown.wiki/agilemarkdown-project
+cd ..
+atom agilemarkdown-project.md
+```
+
+![Alt text](https://monosnap.com/image/SHzG7snkXCH62fG737Y8F9lm8lkXYq.png)
+
+Use the `am sync` command after you make the change to send the new priority order up to Github.
+
+It's important to understand that the overview page and the order of your stories is regenerated everytime you use `am sync`. If you move a story to a different section of the list, or delete a story from the list, it will re-appear in the right section the next time you run `am sync`. Moving a story to a different section (hangar to gate) will not work unless you change the status of the story in the story file itself, or by using `am change-status`.
