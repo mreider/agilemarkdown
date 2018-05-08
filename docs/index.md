@@ -1,13 +1,14 @@
 ## About the project
 
-Agilemarkdown is framework for managing agile projects using markdown files, rather than tools like JIRA, Pivotal Tracker, Trello, etc. The arguments for using simple markdown files to manage a project are:
+Agilemarkdown is framework for managing agile projects using markdown files.
 
-- It's easy to understand. All of your artifacts are just files.
-- It's easy to read. Stakeholders won't be distracted by a heavy or distracting interface.
-- It integrates well with Github, so it's convenient for your engineers to read and update.
-- It can be used offline. Editing files can be done anywhere, with or without an Internet connection.
-- The history of your project is preserved in Git.
-- It forces conversations by forcing you to git merge a story conflict.
+Here's why we built it:
+
+- We like the flexibility of files over the opinionated structure of a web interface
+- We'd rather use open source software than hand money over to Pivotal, Atlassian, Rally, or Aha
+- We want to cut down on the number of tools we use and integrate with existing ones
+- Our engineers spend all their time on the command line, in text editors, and in git
+- We thought it would be fun to build it
 
 ## Getting started
 
@@ -17,48 +18,55 @@ The best way to get started is to use Github's Wiki feature as a place to manage
 
 Since you can't clone an empty Github wiki, you must create a home page. Begin by accessing your repo's wiki and creating the first page. It's just a placeholder for now - with a simple welcome message.
 
-![Github Wiki Welcome Message](https://monosnap.com/image/hxSCiIhhs67Af8ym5TgWb3JllBjvXq.png)
+![Github Wiki Welcome Message](https://monosnap.com/image/VdA9yvJv9iWbYWqkccdpcU4XVt1kP6.png)
+![First page](https://monosnap.com/image/6csVFgCZrTUWwWXAuGaSivpnmAuBAy.png)
 
 After creating the first page, you can clone the wiki to your local machine. Github Wiki repositories use the repository address with the word 'wiki' in the file extension:
 
 ```
-git clone git@github.com:mreider/agilemarkdown.wiki.git agile-backlog
-Cloning into 'agilemarkdown.wiki'...
-remote: Counting objects: 3, done.
-remote: Total 3 (delta 0), reused 0 (delta 0), pack-reused 0
-Receiving objects: 100% (3/3), done.
+git clone git@github.com:mreider/agileproject.wiki.git
+ Cloning into 'agileproject'...
+ remote: Counting objects: 4, done.
+ remote: Compressing objects: 100% (4/4), done.
+ remote: Total 4 (delta 0), reused 0 (delta 0), pack-reused 0
+ Receiving objects: 100% (4/4), done.
 ```
 
 With the Github Wiki page on your local machine you can create your first backlog using agilemarkdown
 
 ```
-cd agile-backlog
-am create-backlog our-project
+cd agileproject
+am create-backlog paint-the-house
 ```
 
-Cool. Now you have a backlog named our-project. Now sync your project with Github and look at your wiki page online. The overview page should appear with nothing in your backlog. That overview page is automatically generated based on the items you have created and landed.
+Cool. Now you have a backlog named paint-the-house. Now sync your project with Github and look at your wiki page online. The overview page should appear with a link to your project and a graph of your velocity, which is zero of course.
 
 ```
 am sync
 ```
 
-![Github wiki project view](https://monosnap.com/image/Myuk0ga2ZLYJ0FE3bAQ15g86NVEInt.png)
+![Project View](https://monosnap.com/image/F8raU3cNHhf5WpYVFptEPxfCfaTMjn.png)
 
 ## Creating stories in a backlog
 
 Use the `create-item` command to create items in your backlog. The story is created as a markdown file.
 
 ```
-am create-item smart-automerge
+cd paint-the-house
+am create-item figure out which colors to buy
 ls
-smart-automerge.md
+ figure_out_which_colors_to_buy.md
 ```
 
 Once the file is created you can start editing the story using your favorite text editor. We like [Atom](https://atom.io/).
 
-![Edit the story in a text editor](https://monosnap.com/image/qZq7zbKCBbUMYJXOXjg2OodzP4gZMc.png)
+![Edit the story in a text editor](https://monosnap.com/image/dgLPinN9gCJLTruBMqTwGdwb0sllan.png)
 
-After you edit the file, you could sync to the wiki using `am sync` to make your changes are available. If you do this, you might notice that the home page on the wiki looks the same as it did before. That's because nobody has started working on these stories. This will be explained in the next section.
+After you edit the file, you could sync to the wiki using `am sync` to make your changes are available. If you do this, you might notice that the home page on the wiki looks the same as it did before. That's because nobody has started working on these stories - and nothing is planned.
+
+From the home page you can click on the project page to see the story listed.
+
+![Project page](https://monosnap.com/image/EC6liJITrt6Fwg6fmG3OaWDWQ89ZIc.png)
 
 ## Managing stories in a backlog
 
@@ -68,83 +76,76 @@ To manage stories you must set different keys at the top of each story file. The
 
 - **Estimate**: The number of points for this story. This number is used to generate the progress graphs that are available in `am progress` and on the overview page.
 
-- **Status**: The status of a story describes whether it is unplanned, planned, started, or finished. Instead of using these terms, though, we think about stories like airplanes. If a story is in the **hangar** it is not planned. It's just sitting there, waiting for a mechanic to show up and get it ready. This is where stories begin. If a story is at the **gate** it's ready to go, but not actually flying yet. Nobody is working on it, but it's planned to depart at some point. If a story is **flying** someone is working on it. It's in flight, going from point A to B, and eventually it will be **landed**, which means it's done.
+- **Status**: The status of a story describes whether it is unplanned, planned, doing, or finished.
 
 ### Status overview
 
-✈️ ✈️ ✈️ ✈️ ✈️ ✈️
+| Status | Explanation |
+|---|---|
+| Unplanned | You are figuring these stories out. These stories need some research, clarity, approval, or input from other people in order to prioritize them.|
+| Planned   | These stories are well understood and important. Your team will work on these stories soon.|
+| Doing     | These are the stories your engineers are working on right now.|
+| Finished  | All the things your team as completed since the project started.|
 
-| Hangar | Gate | Flying | Landed |
-|---|---|---|---|
-| Not planned | Planned | Being worked on  |  Finished |
 
+### Editing keys
 
-### Changing the status of a story
+By default, when you create a new story, it us unplanned. If the story is important - you need do the research required to move it into the planned section.
 
-By default, when you create a new story, it lives in the hangar. If the story is important - you need to get it out of the hangar, into the gate and up into the air.
+Stories in the planned section should be pointed, and have an assignee, though this is not required. You can change those items directly in the story.
 
-To understand how to change a status, let's begin by creating a new story. Notice that spaces in the story are replaced with underscores.
+![Change estimate and assignee ](https://monosnap.com/image/axlg12y1EqPaFokU8Uw2T1IuvzSioT.png)
 
-```
-am create-item overview page needs unique names
-ls
-overview_page_needs_unique_names.md	smart-automerge.md
-```
+You could also change the status of the story to `planned` in the editor or use the `change-status` command as follows:
 
-Now we open our favorite text editor and outline the story a bit, so the engineer can understand it. That's what the hangar is for. A place to get things ready.
-
-![Getting a story ready](https://monosnap.com/image/i3yxrZ7qP5hjbi4oBsLDoiqehmG02C.png)
-
-Once we agree on the story, and it's ready to go, the engineer should give it an estimate. Then we can move it to the gate.
-
-![Giving an estimate](https://monosnap.com/image/9RNiCCjt5s9Duaupiqmml8kzuRsvGL.png)
-
-Now the story has an estimate of 1, and a status of 'gate' in that section
-
-Another way to change the status is to use the `am change-status` command. Let's move the other story into the gate using the `am change-status` command.
 
 ```
-am change-status -s h
-Status: hangar
---------------------------------------------
-   # | User       | Title           | Points
---------------------------------------------
-   1 | falconandy | smart-automerge |
---------------------------------------------
+am change-status -s u
+ Status: unplanned
+ ------------------------------------------------------------
+    # | User       | Title                          | Points
+ ------------------------------------------------------------
+    1 | falconandy | figure out which colors to buy |      1
+ ------------------------------------------------------------
 
-Enter a number to a story number followed by a status, or e to exit
-1 g
-Enter a number to a story number followed by a status, or e to exit
+ Enter a number to a story number followed by a status, or e to exit
+1 p
+ Enter a number to a story number followed by a status, or e to exit
 e
 ```
 
-Now there are two stories at the gate, which we can see using `am work`
+The `change-status` command takes a status argument `-s` - we passed `u` (unplanned) to view a list of unplanned stories. From that list we can move as many stories as we want from unplanned to planned. This command is intended for sprint planning meetings when you want to move a handful of stories from one status to another without opening each one separately.
+
+### Listing stories
+
+Use the `am work` command to see a list of stories. You can also pass a status like `-s p` to see a list of stories in a certain status.
 
 ```
-am work -s g
-Status: gate
--------------------------------------------------------
- User       | Title                            | Points
--------------------------------------------------------
- falconandy | overview page needs unique names |      1
- falconandy | smart-automerge                  |
--------------------------------------------------------
+am work -s p
+ Status: planned
+ ------------------------------------------------------
+  User       | Title                          | Points
+ ------------------------------------------------------
+  falconandy | figure out which colors to buy |      1
+ ------------------------------------------------------
 ```
 
 ### Changing priorities
 
-Things at the gate should be stack ranked, with the most important story at the top of the gate. This is how engineers know which story to work on next. To change the order of the stories at the gate, or in any of the other status lists, you can open the overview page for the project, cut / paste the story in the list.
+Things in the planned section should be stack ranked, with the most important story at the top. This is how engineers know which story to work on next. To change the order of the stories in any status list, you must open the project page for the project and cut / paste things according to your plans.
 
 To edit the overview page, go to the root directory of your git repo. The overview page has the same name as your backlog.
 
 ```
 pwd
-/Users/mreider/agilemarkdown.wiki/agilemarkdown-project
+ /Users/mreider/agileproject/agileproject.wiki/paint-the-house
 cd ..
-atom agilemarkdown-project.md
+ls
+ Home.md			_Sidebar.md		my-backlog.md		paint-the-house		paint-the-house.md
+atom paint-the-house.md
 ```
 
-![Alt text](https://monosnap.com/image/SHzG7snkXCH62fG737Y8F9lm8lkXYq.png)
+![Alt text](https://monosnap.com/image/Gjkt9GCEsYg3u55nks1kdhnqQmavMn.png)
 
 Use the `am sync` command after you make the change to keep the Github wiki up to date. The order will be preserved unless you move a story to a different section or delete a story from the list.
 
@@ -155,3 +156,16 @@ Moving a story to a different section (hangar to gate) will not work. You must e
 The main page of the Wiki shows how many points your team has landed over the course of the last few weeks. You can also look at this by using the command `am progress`
 
 ![Alt text](https://monosnap.com/image/sqrDGVQVmwFRWQVFyuOYEKtjlmoy6p.png)
+
+## Importing stories from Pivotal Tracker
+
+We switched to agilemarkdown from Pivotal Tracker. We also built an import command for Pivotal Tracker backlogs. Begin by exporting your tracker backlog using the export feature.
+
+![Pivotal Tracker Export](https://monosnap.com/image/mW5fJGIPxEkI2niaMDAaVcT4DsUnpJ.png)
+
+Now import the csv file using the `am import` command.
+
+```
+am import
+
+```
