@@ -7,7 +7,11 @@ const (
 )
 
 func getCurrentTimestamp() string {
-	return time.Now().Format(timestampLayout)
+	return getTimestamp(time.Now())
+}
+
+func getTimestamp(moment time.Time) string {
+	return moment.Format(timestampLayout)
 }
 
 func parseTimestamp(timestamp string) (time.Time, error) {

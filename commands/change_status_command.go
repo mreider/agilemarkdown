@@ -49,7 +49,7 @@ var ChangeStatusCommand = cli.Command{
 					continue
 				}
 				item := items[itemIndex]
-				item.SetStatus(backlog.StatusNameByCode(statusCode))
+				item.SetStatus(backlog.StatusByCode(statusCode))
 				item.Save()
 			}
 		}

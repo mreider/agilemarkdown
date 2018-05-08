@@ -3,6 +3,7 @@ package backlog
 import (
 	"bytes"
 	"fmt"
+	"github.com/mreider/agilemarkdown/utils"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -93,11 +94,16 @@ func (content *MarkdownContent) Save() error {
 }
 
 func (content *MarkdownContent) Content(timestamp string) []byte {
-	if content.metadata.IsAllowedKey(CreatedMetadataKey) && content.MetadataValue(CreatedMetadataKey) == "" {
+	emptyCreated := content.MetadataValue(CreatedMetadataKey) == ""
+	if content.metadata.IsAllowedKey(CreatedMetadataKey) && emptyCreated {
 		content.SetMetadataValue(CreatedMetadataKey, timestamp)
 	}
 	if content.metadata.IsAllowedKey(ModifiedMetadataKey) {
-		content.SetMetadataValue(ModifiedMetadataKey, timestamp)
+		if content.MetadataValue(ModifiedMetadataKey) != "" || emptyCreated {
+			content.SetMetadataValue(ModifiedMetadataKey, timestamp)
+		} else {
+			content.SetMetadataValue(ModifiedMetadataKey, content.MetadataValue(CreatedMetadataKey))
+		}
 	}
 	result := bytes.NewBuffer(nil)
 	result.WriteString(strings.Join(content.metadata.RawLines(), "\n"))
@@ -145,6 +151,15 @@ func (content *MarkdownContent) Group(title string) *MarkdownGroup {
 
 func (content *MarkdownContent) addGroup(group *MarkdownGroup) {
 	content.groups = append(content.groups, group)
+	content.markDirty()
+}
+
+func (content *MarkdownContent) SetFreeText(freeText []string) {
+	if utils.AreEqualStrings(content.freeText, freeText) {
+		return
+	}
+
+	content.freeText = freeText
 	content.markDirty()
 }
 
