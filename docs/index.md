@@ -146,6 +146,10 @@ atom agilemarkdown-project.md
 
 ![Alt text](https://monosnap.com/image/SHzG7snkXCH62fG737Y8F9lm8lkXYq.png)
 
-Use the `am sync` command after you make the change to keep the Github wiki up to date.
+Use the `am sync` command after you make the change to keep the Github wiki up to date. The order will be preserved unless you move a story to a different section or delete a story from the list.
 
-The overview page and the order of your stories is regenerated everytime you use `am sync`. If you move a story to a different section of the list, or delete a story from the list, it will re-appear in the right section the next time you run `am sync`. Moving a story to a different section (hangar to gate) will not work unless you change the status of the story in the story file itself, or by using `am change-status`.
+Moving a story to a different section (hangar to gate) will not work. You must edit the story or use `am change-status` instead.
+
+### Measuring velocity
+
+The main page of the Wiki shows how many points your team has landed over the course of the last few weeks. You can also look at this by using the command `am progress`
