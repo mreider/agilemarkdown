@@ -43,7 +43,7 @@ var CreateItemCommand = cli.Command{
 		item.SetCreated("")
 		item.SetModified()
 		item.SetAuthor(currentUser)
-		item.SetStatus(backlog.StatusByCode("h"))
+		item.SetStatus(backlog.UnplannedStatus)
 		item.SetAssigned("")
 		item.SetEstimate("")
 		return item.Save()

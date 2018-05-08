@@ -75,15 +75,15 @@ func (imp *CsvImporter) cellValue(line []string, header string) string {
 func (imp *CsvImporter) stateToStatus(state string) *BacklogItemStatus {
 	switch strings.ToLower(state) {
 	case "accepted":
-		return StatusByCode("l")
+		return FinishedStatus
 	case "delivered", "finished", "started":
-		return StatusByCode("f")
+		return DoingStatus
 	case "unstarted":
-		return StatusByCode("g")
+		return PlannedStatus
 	case "unscheduled":
-		return StatusByCode("h")
+		return UnplannedStatus
 	}
-	return StatusByCode("h")
+	return UnplannedStatus
 }
 
 func (imp *CsvImporter) getItemName(title string) string {

@@ -109,11 +109,11 @@ func (a *SyncAction) updateHome(rootDir string) error {
 		chart = chartColorCodeRe.ReplaceAllString(chart, "")
 		lines = append(lines, utils.WrapLinesToMarkdownCodeBlock(strings.Split(chart, "\n"))...)
 
-		flying := backlog.StatusByCode("f")
-		items := bck.ItemsByStatus(flying.Code)
-		overview.SortItems(flying, items)
+		doing := backlog.DoingStatus
+		items := bck.ItemsByStatus(doing.Code)
+		overview.SortItems(doing, items)
 		itemsLines := backlog.BacklogView{}.WriteMarkdownTable(items)
-		lines = append(lines, fmt.Sprintf("#### %s", flying.CapitalizedName()))
+		lines = append(lines, fmt.Sprintf("#### %s", doing.CapitalizedName()))
 		lines = append(lines, itemsLines...)
 	}
 	err = ioutil.WriteFile(filepath.Join(rootDir, "Home.md"), []byte(strings.Join(lines, "  \n")), 0644)
