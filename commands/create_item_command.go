@@ -40,10 +40,10 @@ var CreateItemCommand = cli.Command{
 			return err
 		}
 		item.SetTitle(itemName)
-		item.SetCreated()
+		item.SetCreated("")
 		item.SetModified()
 		item.SetAuthor(currentUser)
-		item.SetStatus(backlog.StatusNameByCode("h"))
+		item.SetStatus(backlog.StatusByCode("h"))
 		item.SetAssigned("")
 		item.SetEstimate("")
 		return item.Save()

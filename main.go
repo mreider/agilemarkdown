@@ -34,6 +34,7 @@ func main() {
 		commands.ChangeStatusCommand,
 		commands.ProgressCommand,
 		commands.AliasCommand,
+		commands.ImportCommand,
 	}
 
 	err = app.Run(os.Args)

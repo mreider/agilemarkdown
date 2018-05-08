@@ -54,8 +54,8 @@ func (item *BacklogItem) SetTitle(title string) {
 	item.markdown.SetMetadataValue(BacklogItemTitleMetadataKey, title)
 }
 
-func (item *BacklogItem) SetCreated() {
-	item.markdown.SetMetadataValue(CreatedMetadataKey, "")
+func (item *BacklogItem) SetCreated(timestamp string) {
+	item.markdown.SetMetadataValue(CreatedMetadataKey, timestamp)
 }
 
 func (item *BacklogItem) Modified() time.Time {
@@ -79,8 +79,8 @@ func (item *BacklogItem) Status() string {
 	return item.markdown.MetadataValue(BacklogItemStatusMetadataKey)
 }
 
-func (item *BacklogItem) SetStatus(status string) {
-	item.markdown.SetMetadataValue(BacklogItemStatusMetadataKey, status)
+func (item *BacklogItem) SetStatus(status *BacklogItemStatus) {
+	item.markdown.SetMetadataValue(BacklogItemStatusMetadataKey, status.Name)
 }
 
 func (item *BacklogItem) Assigned() string {
@@ -97,4 +97,12 @@ func (item *BacklogItem) Estimate() string {
 
 func (item *BacklogItem) SetEstimate(estimate string) {
 	item.markdown.SetMetadataValue(BacklogItemEstimateMetadataKey, estimate)
+}
+
+func (item *BacklogItem) SetDescription(description string) {
+	if description != "" {
+		description = "\n" + description
+	}
+
+	item.markdown.SetFreeText(strings.Split(description, "\n"))
 }
