@@ -85,7 +85,7 @@ func TestOverviewUpdate(t *testing.T) {
 }
 
 func createBacklogItem(name, title, status, points, assigned string) *backlog.BacklogItem {
-	item := backlog.NewBacklogItem(name)
+	item := backlog.NewBacklogItem(name, "")
 	item.SetTitle(title)
 	item.SetStatus(backlog.StatusByName(status))
 	item.SetEstimate(points)
