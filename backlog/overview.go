@@ -1,13 +1,17 @@
 package backlog
 
 import (
+	"fmt"
 	"math"
 	"regexp"
 	"sort"
+	"strings"
 )
 
 const (
 	BacklogOverviewTitleMetadataKey = "Title"
+	ExcerptMaxSize                  = 100
+	ClarificationsTitle             = "Clarifications"
 )
 
 var (
@@ -145,6 +149,13 @@ NextStatus:
 
 func (overview *BacklogOverview) sortGroupsByStatus() {
 	sort.Slice(overview.markdown.groups, func(i, j int) bool {
+		if overview.markdown.groups[i].title == ClarificationsTitle {
+			return true
+		}
+		if overview.markdown.groups[j].title == ClarificationsTitle {
+			return false
+		}
+
 		iStatus, jStatus := StatusByName(overview.markdown.groups[i].title), StatusByName(overview.markdown.groups[j].title)
 		iIndex, jIndex := int(math.MaxInt32), int(math.MaxInt32)
 		if iStatus != nil {
@@ -160,4 +171,39 @@ func (overview *BacklogOverview) sortGroupsByStatus() {
 
 		return i < j
 	})
+}
+
+func (overview *BacklogOverview) UpdateClarifications(items []*BacklogItem) {
+	group := overview.markdown.Group(ClarificationsTitle)
+	if group == nil {
+		group = &MarkdownGroup{content: overview.markdown, title: ClarificationsTitle}
+		overview.markdown.addGroup(group)
+	}
+
+	lines := []string{" User | Excerpt | Story ", "---|---|---"}
+	for _, item := range items {
+		for _, comment := range item.Comments() {
+			if comment.Closed {
+				continue
+			}
+			var text []string
+			var textSize int
+			for _, textLine := range comment.Text {
+				if textSize+len(textLine) <= ExcerptMaxSize {
+					text = append(text, textLine)
+					textSize += len(textLine)
+				} else {
+					text = append(text, textLine[:ExcerptMaxSize-textSize]+"...")
+					textSize += ExcerptMaxSize
+				}
+				if textSize >= ExcerptMaxSize {
+					break
+				}
+			}
+
+			lines = append(lines, fmt.Sprintf(" %s | %s | [%s](%s) ", comment.User, strings.Join(text, " "), item.Title(), item.Name()))
+		}
+	}
+	group.ReplaceLines(lines)
+	overview.Save()
 }

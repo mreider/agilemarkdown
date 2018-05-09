@@ -19,13 +19,20 @@ var SyncCommand = cli.Command{
 	Name:      "sync",
 	Usage:     "Sync state",
 	ArgsUsage: " ",
+	Flags: []cli.Flag{
+		cli.BoolFlag{
+			Name:   "test",
+			Hidden: true,
+		},
+	},
 	Action: func(c *cli.Context) error {
-		action := &SyncAction{}
+		action := &SyncAction{testMode: c.Bool("test")}
 		return action.Execute()
 	},
 }
 
 type SyncAction struct {
+	testMode bool
 }
 
 func (a *SyncAction) Execute() error {
@@ -49,6 +56,10 @@ func (a *SyncAction) Execute() error {
 	err = a.updateSidebar(rootDir)
 	if err != nil {
 		return err
+	}
+
+	if a.testMode {
+		return nil
 	}
 
 	return a.syncToGit()
@@ -75,6 +86,7 @@ func (a *SyncAction) updateOverviews(rootDir string) error {
 
 		items := bck.Items()
 		overview.Update(items)
+		overview.UpdateClarifications(items)
 	}
 	return nil
 }
