@@ -25,11 +25,11 @@ After creating the first page, you can clone the wiki to your local machine. Git
 
 ```
 git clone git@github.com:mreider/agileproject.wiki.git
- Cloning into 'agileproject'...
- remote: Counting objects: 4, done.
- remote: Compressing objects: 100% (4/4), done.
- remote: Total 4 (delta 0), reused 0 (delta 0), pack-reused 0
- Receiving objects: 100% (4/4), done.
+Cloning into 'agileproject'...
+remote: Counting objects: 4, done.
+remote: Compressing objects: 100% (4/4), done.
+remote: Total 4 (delta 0), reused 0 (delta 0), pack-reused 0
+Receiving objects: 100% (4/4), done.
 ```
 
 With the Github Wiki page on your local machine you can create your first backlog using agilemarkdown
@@ -55,7 +55,7 @@ Use the `create-item` command to create items in your backlog. The story is crea
 cd paint-the-house
 am create-item figure out which colors to buy
 ls
- figure_out_which_colors_to_buy.md
+figure_out_which_colors_to_buy.md
 ```
 
 Once the file is created you can start editing the story using your favorite text editor. We like [Atom](https://atom.io/).
@@ -101,16 +101,16 @@ You could also change the status of the story to `planned` in the editor or use 
 
 ```
 am change-status -s u
- Status: unplanned
- ------------------------------------------------------------
-    # | User       | Title                          | Points
- ------------------------------------------------------------
-    1 | falconandy | figure out which colors to buy |      1
- ------------------------------------------------------------
+Status: unplanned
+------------------------------------------------------------
+  # | User       | Title                          | Points
+------------------------------------------------------------
+  1 | falconandy | figure out which colors to buy |      1
+------------------------------------------------------------
 
- Enter a number to a story number followed by a status, or e to exit
+Enter a number to a story number followed by a status, or e to exit
 1 p
- Enter a number to a story number followed by a status, or e to exit
+Enter a number to a story number followed by a status, or e to exit
 e
 ```
 
@@ -122,12 +122,12 @@ Use the `am work` command to see a list of stories. You can also pass a status l
 
 ```
 am work -s p
- Status: planned
- ------------------------------------------------------
-  User       | Title                          | Points
- ------------------------------------------------------
-  falconandy | figure out which colors to buy |      1
- ------------------------------------------------------
+Status: planned
+------------------------------------------------------
+User       | Title                          | Points
+------------------------------------------------------
+falconandy | figure out which colors to buy |      1
+------------------------------------------------------
 ```
 
 ### Changing priorities
@@ -138,18 +138,22 @@ To edit the overview page, go to the root directory of your git repo. The overvi
 
 ```
 pwd
- /Users/mreider/agileproject/agileproject.wiki/paint-the-house
+/Users/mreider/agileproject/agileproject.wiki/paint-the-house
 cd ..
 ls
- Home.md			_Sidebar.md		my-backlog.md		paint-the-house		paint-the-house.md
+Home.md			_Sidebar.md		my-backlog.md		paint-the-house		paint-the-house.md
 atom paint-the-house.md
 ```
 
 ![Alt text](https://monosnap.com/image/Gjkt9GCEsYg3u55nks1kdhnqQmavMn.png)
 
-Use the `am sync` command after you make the change to keep the Github wiki up to date. The order will be preserved unless you move a story to a different section or delete a story from the list.
+### Syncing the project page
 
-Moving a story to a different section (hangar to gate) will not work. You must edit the story or use `am change-status` instead.
+TL;DR - The project page is destroyed and regenerated every time you sync. The order of your stories will be preserved when it is regenerated.
+
+More confusing version:
+
+The order of your stories within each status will remain as you left it unless you changed the status of a story since the last time you synced. Any story that changed status will go to the bottom of that list until you decide to move it elsewhere. If you delete a story from the list, without deleting the file, the story will just come back next time you sync. There's no need to delete items from the list as it will only show things on the file system. Because `am sync` regenerates the list from the keys in each file = moving a story to a different section (unplanned to planned) won't work. You must edit the story or use `am change-status` instead.
 
 ### Measuring velocity
 
@@ -157,15 +161,60 @@ The main page of the Wiki shows how many points your team has landed over the co
 
 ![Alt text](https://monosnap.com/image/sqrDGVQVmwFRWQVFyuOYEKtjlmoy6p.png)
 
+## Working as a team
+
+### Asking for a clarification
+
+You can make a comment in your markdown file when you need clarify something with a teammate. Agilemarkdown will read tagged usernames, starting with an @ symbol, and put a list of clarification requests at the top of your project page.
+
+![Tagging a user](https://monosnap.com/image/pXM5u3aOH6C8TVm12L8STprOTXpaq8.png)
+
+The next time you run `am sync` this clarification request will appear at the top of your project page.
+
+### Resolving a clarification
+
+Clarifying something could be done in the story itself, or by making another comment for the user who asked for the clarification. To get the clarification out the list, put a space, or a tab in front of the @username in the comment section. This will remove the clarification from the project page, but keep the comment intact in the story.
+
 ## Importing stories from Pivotal Tracker
 
 We switched to agilemarkdown from Pivotal Tracker. We also built an import command for Pivotal Tracker backlogs. Begin by exporting your tracker backlog using the export feature.
 
 ![Pivotal Tracker Export](https://monosnap.com/image/mW5fJGIPxEkI2niaMDAaVcT4DsUnpJ.png)
 
-Now import the csv file using the `am import` command.
+Now import the csv file using the `am import` command. You can test this yourself using this [file](https://gist.github.com/mreider/e346d82c82b4d20d53858565aaa8470e).
 
 ```
-am import
+am import ~/Downloads/paint_our_house_20180430_1429.csv
 
+```
+
+Now use the `am work` command to see all of the stories you just created.
+
+```
+am work
+Status: doing
+-------------------------------------------------------------
+ User        | Title                                | Points
+-------------------------------------------------------------
+ Matt Reider | Buy supplies at OSH                  |      2
+ Matt Reider | Figure out which paint colors to buy |      5
+ Matt Reider | Lay out our work areas               |      2
+-------------------------------------------------------------
+
+Status: planned
+----------------------------------------------------
+ User | Title                              | Points
+----------------------------------------------------
+      | Apply two coats to siding and trim |      8
+      | Prep the house                     |      8
+      | Prime the siding and trim          |      5
+----------------------------------------------------
+
+Status: unplanned
+--------------------------------------------------------------------
+ User | Title                                              | Points
+--------------------------------------------------------------------
+      | Take "after" pictures of every part of the house.  |      2
+      | Take "before" pictures of every part of the house. |      2
+--------------------------------------------------------------------
 ```
