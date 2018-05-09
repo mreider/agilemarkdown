@@ -37,6 +37,7 @@ func (imp *CsvImporter) Import() error {
 	}
 	defer csvFile.Close()
 	reader := csv.NewReader(bufio.NewReader(csvFile))
+	reader.FieldsPerRecord = -1
 	for {
 		line, err := reader.Read()
 		if err == io.EOF {
