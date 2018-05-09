@@ -2,8 +2,10 @@ package backlog
 
 import (
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
+	"unicode"
 )
 
 const (
@@ -13,6 +15,17 @@ const (
 	BacklogItemAssignedMetadataKey = "Assigned"
 	BacklogItemEstimateMetadataKey = "Estimate"
 )
+
+var (
+	commentsTitleRe = regexp.MustCompile(`^#{1,3}\s+Comments\s*$`)
+	commentRe       = regexp.MustCompile(`^(\s*)@([\w.-_]+)(\s+.*)?$`)
+)
+
+type Comment struct {
+	User   string
+	Text   []string
+	Closed bool
+}
 
 type BacklogItem struct {
 	name     string
@@ -31,8 +44,8 @@ func LoadBacklogItem(itemPath string) (*BacklogItem, error) {
 	return &BacklogItem{name, markdown}, nil
 }
 
-func NewBacklogItem(name string) *BacklogItem {
-	markdown := NewMarkdown("", "", []string{
+func NewBacklogItem(name string, markdownData string) *BacklogItem {
+	markdown := NewMarkdown(markdownData, "", []string{
 		BacklogItemTitleMetadataKey, CreatedMetadataKey, ModifiedMetadataKey, BacklogItemAuthorMetadataKey,
 		BacklogItemStatusMetadataKey, BacklogItemAssignedMetadataKey, BacklogItemEstimateMetadataKey}, false)
 	return &BacklogItem{name, markdown}
@@ -56,6 +69,11 @@ func (item *BacklogItem) SetTitle(title string) {
 
 func (item *BacklogItem) SetCreated(timestamp string) {
 	item.markdown.SetMetadataValue(CreatedMetadataKey, timestamp)
+}
+
+func (item *BacklogItem) Created() time.Time {
+	value, _ := parseTimestamp(item.markdown.MetadataValue(CreatedMetadataKey))
+	return value
 }
 
 func (item *BacklogItem) Modified() time.Time {
@@ -105,4 +123,51 @@ func (item *BacklogItem) SetDescription(description string) {
 	}
 
 	item.markdown.SetFreeText(strings.Split(description, "\n"))
+}
+
+func (item *BacklogItem) Comments() []*Comment {
+	commentsStartIndex := -1
+	for i := len(item.markdown.freeText) - 1; i >= 0; i-- {
+		if commentsTitleRe.MatchString(item.markdown.freeText[i]) {
+			commentsStartIndex = i + 1
+			break
+		}
+	}
+	if commentsStartIndex == -1 {
+		return nil
+	}
+
+	comments := make([]*Comment, 0)
+	var comment *Comment
+	for i := commentsStartIndex; i < len(item.markdown.freeText); i++ {
+		line := strings.TrimRightFunc(item.markdown.freeText[i], unicode.IsSpace)
+		if line == "" {
+			continue
+		}
+		if strings.HasPrefix(line, "#") {
+			break
+		}
+		matches := commentRe.FindStringSubmatch(line)
+		if len(matches) > 0 {
+			if comment != nil {
+				comments = append(comments, comment)
+			}
+			comment = &Comment{User: strings.TrimSuffix(matches[2], ".")}
+			if len(matches[1]) > 0 {
+				comment.Closed = true
+			}
+			text := strings.TrimSpace(matches[3])
+			if text != "" {
+				comment.Text = append(comment.Text, text)
+			}
+		} else {
+			if comment != nil {
+				comment.Text = append(comment.Text, strings.TrimSpace(line))
+			}
+		}
+	}
+	if comment != nil {
+		comments = append(comments, comment)
+	}
+	return comments
 }
