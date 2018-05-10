@@ -149,7 +149,7 @@ atom paint-the-house.md
 
 ### Syncing the project page
 
-The project page is destroyed and regenerated every time you sync. The order of your stories will be preserved when it is regenerated. If you change a stories status, the story will appear at the bottom of that list next time you sync.
+The project page is destroyed and regenerated every time you sync. The order of your stories will be preserved when it is regenerated. If you change a story's status, the story will appear at the bottom of that list next time you sync.
 
 ### Measuring velocity
 
