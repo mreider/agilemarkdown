@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
-	"unicode"
 )
 
 const (
@@ -61,7 +60,7 @@ func NewMarkdown(data, markdownPath string, metadataKeys []string, parseGroups b
 					currentGroup = &MarkdownGroup{content: content, title: strings.TrimSpace(strings.TrimPrefix(line, GroupTitlePrefix))}
 				} else if currentGroup != nil {
 					if strings.TrimSpace(line) != "" {
-						currentGroup.lines = append(currentGroup.lines, strings.TrimRightFunc(line, unicode.IsSpace))
+						currentGroup.lines = append(currentGroup.lines, line)
 					}
 				}
 			}

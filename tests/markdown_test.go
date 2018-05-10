@@ -42,10 +42,10 @@ func TestMarkdownLoad(t *testing.T) {
 	assert.Equal(t, "Finished", content.Group("Finished").Title())
 	assert.Equal(t, 1, content.Group("Finished").Count())
 
-	assert.Equal(t, "Story 1 [link1](link1.md) (points) (assigned)", content.Group("Doing").Line(0))
-	assert.Equal(t, "Story 7 [link7](link7.md) (points) (assigned)", content.Group("Planned").Line(2))
-	assert.Equal(t, "Story 3 [link3](link3.md) (points) (assigned)", content.Group("Unplanned").Line(1))
-	assert.Equal(t, "Story 8 [link8](link8.md) (points) (assigned)", content.Group("Finished").Line(0))
+	assert.Equal(t, "Story 1 [link1](link1.md) (points) (assigned)  ", content.Group("Doing").Line(0))
+	assert.Equal(t, "Story 7 [link7](link7.md) (points) (assigned)  ", content.Group("Planned").Line(2))
+	assert.Equal(t, "Story 3 [link3](link3.md) (points) (assigned)  ", content.Group("Unplanned").Line(1))
+	assert.Equal(t, "Story 8 [link8](link8.md) (points) (assigned)  ", content.Group("Finished").Line(0))
 }
 
 func TestMarkdownSave(t *testing.T) {
@@ -54,16 +54,16 @@ Data: test
 
 ### Doing
 Story 1 [link1](link1.md) 12 Mike
-Story 2 [link2](link2.md) (points) (assigned)
+Story 2 [link2](link2.md) (points) (assigned)  
 
 ### Planned
-Story 5 [link5](link5.md) (points) (assigned)
-Story 6 [link6](link6.md) (points) (assigned)
-Story 7 [link7](link7.md) (points) (assigned)
+Story 5 [link5](link5.md) (points) (assigned)  
+Story 6 [link6](link6.md) (points) (assigned)  
+Story 7 [link7](link7.md) (points) (assigned)  
 Story 9 [link9](link9.md) 9 Robert
 
 ### Unplanned
-Story 4 [link4](link4.md) (points) (assigned)
+Story 4 [link4](link4.md) (points) (assigned)  
 
 ### Finished
 

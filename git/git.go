@@ -40,8 +40,20 @@ func AddAll() error {
 	return err
 }
 
+func Add(fileName string) error {
+	args := []string{"add", fileName}
+	_, err := runGitCommand(args)
+	return err
+}
+
 func Commit(msg string) error {
 	args := []string{"commit", "-m", msg}
+	_, err := runGitCommand(args)
+	return err
+}
+
+func CommitNoEdit() error {
+	args := []string{"commit", "--no-edit"}
 	_, err := runGitCommand(args)
 	return err
 }
@@ -78,6 +90,21 @@ func SetUpstream() error {
 func Status() (string, error) {
 	args := []string{"status"}
 	return runGitCommand(args)
+}
+
+func ConflictFiles() ([]string, error) {
+	args := []string{"diff", "--name-only", "--diff-filter=U"}
+	out, err := runGitCommand(args)
+	if err != nil {
+		return nil, err
+	}
+	return strings.Split(out, "\n"), nil
+}
+
+func CheckoutOurVersion(fileName string) error {
+	args := []string{"checkout", "--ours", fileName}
+	_, err := runGitCommand(args)
+	return err
 }
 
 func runGitCommand(args []string) (string, error) {
