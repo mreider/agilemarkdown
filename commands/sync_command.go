@@ -5,6 +5,7 @@ import (
 	"github.com/mreider/agilemarkdown/backlog"
 	"github.com/mreider/agilemarkdown/git"
 	"github.com/mreider/agilemarkdown/utils"
+	"github.com/pkg/errors"
 	"gopkg.in/urfave/cli.v1"
 	"io/ioutil"
 	"path/filepath"
@@ -43,26 +44,38 @@ func (a *SyncAction) Execute() error {
 		return err
 	}
 
-	err := a.updateOverviews(rootDir)
-	if err != nil {
-		return err
-	}
+	attempts := 10
+	for attempts > 0 {
+		attempts--
 
-	err = a.updateHome(rootDir)
-	if err != nil {
-		return err
-	}
+		err := a.updateOverviews(rootDir)
+		if err != nil {
+			return err
+		}
 
-	err = a.updateSidebar(rootDir)
-	if err != nil {
-		return err
-	}
+		err = a.updateHome(rootDir)
+		if err != nil {
+			return err
+		}
 
-	if a.testMode {
-		return nil
-	}
+		err = a.updateSidebar(rootDir)
+		if err != nil {
+			return err
+		}
 
-	return a.syncToGit()
+		if a.testMode {
+			return nil
+		}
+
+		ok, err := a.syncToGit()
+		if err != nil {
+			return err
+		}
+		if ok {
+			return nil
+		}
+	}
+	return errors.New("can't sync: too many failed attempts")
 }
 
 func (a *SyncAction) updateOverviews(rootDir string) error {
@@ -153,30 +166,47 @@ func (a *SyncAction) updateSidebar(rootDir string) error {
 	return err
 }
 
-func (a *SyncAction) syncToGit() error {
+func (a *SyncAction) syncToGit() (bool, error) {
 	err := git.AddAll()
 	if err != nil {
-		return err
+		return false, err
 	}
 	git.Commit("sync") // TODO commit message
 	err = git.Fetch()
 	if err != nil {
-		return fmt.Errorf("can't fetch: %v", err)
+		return false, fmt.Errorf("can't fetch: %v", err)
 	}
-	output, err := git.Merge()
-	if err != nil {
+	mergeOutput, mergeErr := git.Merge()
+	if mergeErr != nil {
 		status, _ := git.Status()
 		if !strings.Contains(status, "Your branch is based on 'origin/master', but the upstream is gone.") {
-			fmt.Println(output)
-			git.AbortMerge()
-			return fmt.Errorf("can't merge: %v", err)
+			conflictFiles, conflictErr := git.ConflictFiles()
+			hasConflictItems := false
+			for _, fileName := range conflictFiles {
+				if strings.Contains(fileName, "/") {
+					hasConflictItems = true
+					break
+				}
+			}
+			if conflictErr != nil || hasConflictItems {
+				fmt.Println(mergeOutput)
+				git.AbortMerge()
+				return false, fmt.Errorf("can't merge: %v", mergeErr)
+			}
+			for _, conflictFile := range conflictFiles {
+				git.CheckoutOurVersion(conflictFile)
+				git.Add(conflictFile)
+				fmt.Printf("Remote changes to %s are ignored\n", conflictFile)
+			}
+			git.CommitNoEdit()
+			return false, nil
 		}
 	}
 	err = git.Push()
 	if err != nil {
-		return fmt.Errorf("can't push: %v", err)
+		return false, fmt.Errorf("can't push: %v", err)
 	}
-	return nil
+	return true, nil
 }
 
 func (a *SyncAction) backlogDirs(rootDir string) ([]string, error) {
