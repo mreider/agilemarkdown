@@ -149,11 +149,7 @@ atom paint-the-house.md
 
 ### Syncing the project page
 
-TL;DR - The project page is destroyed and regenerated every time you sync. The order of your stories will be preserved when it is regenerated.
-
-More confusing version:
-
-The order of your stories within each status will remain as you left it unless you changed the status of a story since the last time you synced. Any story that changed status will go to the bottom of that list until you decide to move it elsewhere. If you delete a story from the list, without deleting the file, the story will just come back next time you sync. There's no need to delete items from the list as it will only show things on the file system. Because `am sync` regenerates the list from the keys in each file = moving a story to a different section (unplanned to planned) won't work. You must edit the story or use `am change-status` instead.
+The project page is destroyed and regenerated every time you sync. The order of your stories will be preserved when it is regenerated. If you change a stories status, the story will appear at the bottom of that list next time you sync.
 
 ### Measuring velocity
 
