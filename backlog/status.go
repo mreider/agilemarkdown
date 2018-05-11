@@ -2,6 +2,7 @@ package backlog
 
 import (
 	"fmt"
+	"github.com/mreider/agilemarkdown/utils"
 	"strings"
 )
 
@@ -78,5 +79,5 @@ func AllStatusesList() string {
 }
 
 func (status *BacklogItemStatus) CapitalizedName() string {
-	return strings.ToUpper(status.Name[0:1]) + status.Name[1:]
+	return utils.TitleFirstLetter(status.Name)
 }
