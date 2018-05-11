@@ -62,6 +62,8 @@ func NewMarkdown(data, markdownPath string, metadataKeys []string, parseGroups b
 					if strings.TrimSpace(line) != "" {
 						currentGroup.lines = append(currentGroup.lines, line)
 					}
+				} else {
+					content.freeText = append(content.freeText, line)
 				}
 			}
 			if currentGroup != nil {
@@ -107,18 +109,18 @@ func (content *MarkdownContent) Content(timestamp string) []byte {
 	result := bytes.NewBuffer(nil)
 	result.WriteString(strings.Join(content.metadata.RawLines(), "\n"))
 	result.WriteString("\n")
+	for i, line := range content.freeText {
+		result.WriteString(line)
+		if i < len(content.freeText)-1 {
+			result.WriteString("\n")
+		}
+	}
 	if len(content.groups) > 0 {
 		for _, group := range content.groups {
 			result.WriteString("\n")
 			result.WriteString(fmt.Sprintf("%s%s", GroupTitlePrefix, group.title))
 			result.WriteString("\n")
 			result.WriteString(strings.Join(group.RawLines(), "\n"))
-			result.WriteString("\n")
-		}
-	}
-	for i, line := range content.freeText {
-		result.WriteString(line)
-		if i < len(content.freeText)-1 {
 			result.WriteString("\n")
 		}
 	}

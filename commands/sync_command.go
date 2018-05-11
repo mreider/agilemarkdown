@@ -4,17 +4,13 @@ import (
 	"fmt"
 	"github.com/mreider/agilemarkdown/backlog"
 	"github.com/mreider/agilemarkdown/git"
-	"github.com/mreider/agilemarkdown/utils"
 	"github.com/pkg/errors"
 	"gopkg.in/urfave/cli.v1"
 	"io/ioutil"
 	"path/filepath"
-	"regexp"
 	"sort"
 	"strings"
 )
-
-var chartColorCodeRe = regexp.MustCompile(`.\[\d+m`)
 
 var SyncCommand = cli.Command{
 	Name:      "sync",
@@ -49,16 +45,6 @@ func (a *SyncAction) Execute() error {
 		attempts--
 
 		err := a.updateOverviews(rootDir)
-		if err != nil {
-			return err
-		}
-
-		err = a.updateHome(rootDir)
-		if err != nil {
-			return err
-		}
-
-		err = a.updateSidebar(rootDir)
 		if err != nil {
 			return err
 		}
@@ -100,70 +86,12 @@ func (a *SyncAction) updateOverviews(rootDir string) error {
 		items := bck.Items()
 		overview.Update(items)
 		overview.UpdateClarifications(items)
+		err = overview.UpdateProgress(bck)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
-}
-
-func (a *SyncAction) updateHome(rootDir string) error {
-	var lines []string
-	backlogDirs, err := a.backlogDirs(rootDir)
-	if err != nil {
-		return err
-	}
-	for _, backlogDir := range backlogDirs {
-		overviewPath, ok := findOverviewFileInRootDirectory(backlogDir)
-		if !ok {
-			return fmt.Errorf("the index file isn't found for %s", backlogDir)
-		}
-		overview, err := backlog.LoadBacklogOverview(overviewPath)
-		if err != nil {
-			return err
-		}
-		lines = append(lines, fmt.Sprintf("### [%s](%s)", overview.Title(), strings.TrimSuffix(filepath.Base(overviewPath), ".md")))
-		bck, err := backlog.LoadBacklog(backlogDir)
-		if err != nil {
-			return err
-		}
-
-		progressAction := NewProgressAction(60)
-		chart, err := progressAction.Execute(backlogDir, 12)
-		if err != nil {
-			return err
-		}
-
-		chart = chartColorCodeRe.ReplaceAllString(chart, "")
-		lines = append(lines, utils.WrapLinesToMarkdownCodeBlock(strings.Split(chart, "\n"))...)
-
-		doing := backlog.DoingStatus
-		items := bck.ItemsByStatus(doing.Code)
-		overview.SortItems(doing, items)
-		itemsLines := backlog.BacklogView{}.WriteMarkdownTable(items)
-		lines = append(lines, fmt.Sprintf("#### %s", doing.CapitalizedName()))
-		lines = append(lines, itemsLines...)
-	}
-	err = ioutil.WriteFile(filepath.Join(rootDir, "Home.md"), []byte(strings.Join(lines, "  \n")), 0644)
-	return err
-}
-
-func (a *SyncAction) updateSidebar(rootDir string) error {
-	var lines []string
-	backlogDirs, err := a.backlogDirs(rootDir)
-	if err != nil {
-		return err
-	}
-	for _, backlogDir := range backlogDirs {
-		overviewPath, ok := findOverviewFileInRootDirectory(backlogDir)
-		if !ok {
-			return fmt.Errorf("the index file isn't found for %s", backlogDir)
-		}
-		overview, err := backlog.LoadBacklogOverview(overviewPath)
-		if err != nil {
-			return err
-		}
-		lines = append(lines, fmt.Sprintf("[%s](%s)", overview.Title(), strings.TrimSuffix(filepath.Base(overviewPath), ".md")))
-	}
-	err = ioutil.WriteFile(filepath.Join(rootDir, "_Sidebar.md"), []byte(strings.Join(lines, "  \n")), 0644)
-	return err
 }
 
 func (a *SyncAction) syncToGit() (bool, error) {

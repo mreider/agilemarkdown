@@ -2,12 +2,9 @@ package commands
 
 import (
 	"fmt"
-	"github.com/buger/goterm"
 	"github.com/mreider/agilemarkdown/backlog"
-	"github.com/mreider/agilemarkdown/utils"
 	"gopkg.in/urfave/cli.v1"
 	"strconv"
-	"time"
 )
 
 var ProgressCommand = cli.Command{
@@ -28,8 +25,11 @@ var ProgressCommand = cli.Command{
 			return nil
 		}
 
-		action := NewProgressAction(84)
-		chart, err := action.Execute(".", weekCount)
+		bck, err := backlog.LoadBacklog(".")
+		if err != nil {
+			return err
+		}
+		chart, err := backlog.BacklogView{}.Progress(bck, weekCount, 84)
 		if err != nil {
 			return err
 		}
@@ -37,43 +37,4 @@ var ProgressCommand = cli.Command{
 
 		return nil
 	},
-}
-
-type ProgressAction struct {
-	width int
-}
-
-func NewProgressAction(width int) *ProgressAction {
-	return &ProgressAction{width: width}
-}
-
-func (a *ProgressAction) Execute(backlogDir string, weekCount int) (string, error) {
-	bck, err := backlog.LoadBacklog(backlogDir)
-	if err != nil {
-		return "", err
-	}
-
-	currentDate := time.Now().UTC()
-	items := bck.ItemsByStatus(backlog.FinishedStatus.Code)
-	pointsByWeekDelta := make(map[int]float64)
-	for _, item := range items {
-		modified := item.Modified()
-		weekDelta := utils.WeekDelta(currentDate, modified)
-		if -weekCount < weekDelta && weekDelta <= 0 {
-			itemPoints, _ := strconv.ParseFloat(item.Estimate(), 64)
-			pointsByWeekDelta[weekDelta] += itemPoints
-		}
-	}
-
-	chart := goterm.NewLineChart(a.width, 20)
-
-	data := new(goterm.DataTable)
-	data.AddColumn("Week")
-	data.AddColumn("Points")
-
-	for i := -weekCount + 1; i <= 0; i++ {
-		data.AddRow(float64(i), pointsByWeekDelta[i])
-	}
-
-	return chart.Draw(data), nil
 }
