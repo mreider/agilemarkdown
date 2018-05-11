@@ -2,9 +2,11 @@ package backlog
 
 import (
 	"fmt"
+	"github.com/buger/goterm"
 	"github.com/mreider/agilemarkdown/utils"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type BacklogView struct {
@@ -69,4 +71,30 @@ func (bv BacklogView) WriteMarkdownTable(items []*BacklogItem) []string {
 		result = append(result, line)
 	}
 	return result
+}
+
+func (bv BacklogView) Progress(bck *Backlog, weekCount, width int) (string, error) {
+	items := bck.ItemsByStatus(FinishedStatus.Code)
+	currentDate := time.Now().UTC()
+	pointsByWeekDelta := make(map[int]float64)
+	for _, item := range items {
+		modified := item.Modified()
+		weekDelta := utils.WeekDelta(currentDate, modified)
+		if -weekCount < weekDelta && weekDelta <= 0 {
+			itemPoints, _ := strconv.ParseFloat(item.Estimate(), 64)
+			pointsByWeekDelta[weekDelta] += itemPoints
+		}
+	}
+
+	chart := goterm.NewLineChart(width, 20)
+
+	data := new(goterm.DataTable)
+	data.AddColumn("Week")
+	data.AddColumn("Points")
+
+	for i := -weekCount + 1; i <= 0; i++ {
+		data.AddRow(float64(i), pointsByWeekDelta[i])
+	}
+
+	return chart.Draw(data), nil
 }
