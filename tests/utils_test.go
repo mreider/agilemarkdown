@@ -44,6 +44,14 @@ func TestWeekDelta(t *testing.T) {
 	assert.Equal(t, 2, utils.WeekDelta(baseValue, createDate(2018, 5, 7)))
 }
 
+func TestTitleFirstLetter(t *testing.T) {
+	assert.Equal(t, "A task", utils.TitleFirstLetter("a task"))
+	assert.Equal(t, "An apple", utils.TitleFirstLetter("An apple"))
+	assert.Equal(t, "2a task", utils.TitleFirstLetter("2a task"))
+	assert.Equal(t, "", utils.TitleFirstLetter(""))
+	assert.Equal(t, "X", utils.TitleFirstLetter("x"))
+}
+
 func createDate(year int, month time.Month, day int) time.Time {
 	return time.Date(year, month, day, 0, 0, 0, 0, time.Local)
 }

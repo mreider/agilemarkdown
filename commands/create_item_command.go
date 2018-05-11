@@ -4,10 +4,22 @@ import (
 	"fmt"
 	"github.com/mreider/agilemarkdown/backlog"
 	"github.com/mreider/agilemarkdown/git"
+	"github.com/mreider/agilemarkdown/utils"
 	"gopkg.in/urfave/cli.v1"
 	"path/filepath"
 	"strings"
 )
+
+const newItemTemplate = `# %s
+
+## Problem statement
+
+## Possible solution
+
+## Comments
+
+## Attachments
+`
 
 var CreateItemCommand = cli.Command{
 	Name:      "create-item",
@@ -22,9 +34,9 @@ var CreateItemCommand = cli.Command{
 			fmt.Println("an item name should be specified")
 			return nil
 		}
-		itemName := strings.Join(c.Args(), " ")
-		itemFileName := strings.Replace(itemName, " ", "_", -1)
-		itemPath := filepath.Join(".", fmt.Sprintf("%s.md", itemFileName))
+		itemTitle := strings.Join(c.Args(), " ")
+		itemName := strings.Replace(itemTitle, " ", "_", -1)
+		itemPath := filepath.Join(".", fmt.Sprintf("%s.md", itemName))
 		if existsFile(itemPath) {
 			fmt.Println("file exists")
 			return nil
@@ -39,13 +51,14 @@ var CreateItemCommand = cli.Command{
 		if err != nil {
 			return err
 		}
-		item.SetTitle(itemName)
+		item.SetTitle(itemTitle)
 		item.SetCreated("")
 		item.SetModified()
 		item.SetAuthor(currentUser)
 		item.SetStatus(backlog.UnplannedStatus)
 		item.SetAssigned("")
 		item.SetEstimate("")
+		item.SetDescription(fmt.Sprintf(newItemTemplate, utils.TitleFirstLetter(itemTitle)))
 		return item.Save()
 	},
 }

@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 )
 
 func PadIntLeft(value, width int) string {
@@ -56,4 +57,17 @@ func WrapLinesToMarkdownCodeBlock(lines []string) []string {
 		result = append(result, "```")
 	}
 	return result
+}
+
+func TitleFirstLetter(s string) string {
+	first := true
+	return strings.Map(
+		func(r rune) rune {
+			if first {
+				first = false
+				return unicode.ToTitle(r)
+			}
+			return r
+		},
+		s)
 }
