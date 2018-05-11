@@ -125,7 +125,7 @@ func (a *SyncAction) updateHome(rootDir string) error {
 			return err
 		}
 
-		progressAction := &ProgressAction{}
+		progressAction := NewProgressAction(60)
 		chart, err := progressAction.Execute(backlogDir, 12)
 		if err != nil {
 			return err

@@ -28,7 +28,7 @@ var ProgressCommand = cli.Command{
 			return nil
 		}
 
-		action := &ProgressAction{}
+		action := NewProgressAction(84)
 		chart, err := action.Execute(".", weekCount)
 		if err != nil {
 			return err
@@ -40,6 +40,11 @@ var ProgressCommand = cli.Command{
 }
 
 type ProgressAction struct {
+	width int
+}
+
+func NewProgressAction(width int) *ProgressAction {
+	return &ProgressAction{width: width}
 }
 
 func (a *ProgressAction) Execute(backlogDir string, weekCount int) (string, error) {
@@ -60,7 +65,7 @@ func (a *ProgressAction) Execute(backlogDir string, weekCount int) (string, erro
 		}
 	}
 
-	chart := goterm.NewLineChart(84, 20)
+	chart := goterm.NewLineChart(a.width, 20)
 
 	data := new(goterm.DataTable)
 	data.AddColumn("Week")
