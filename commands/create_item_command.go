@@ -54,6 +54,7 @@ var CreateItemCommand = cli.Command{
 		item.SetTitle(itemTitle)
 		item.SetCreated("")
 		item.SetModified()
+		item.SetTags(nil)
 		item.SetAuthor(currentUser)
 		item.SetStatus(backlog.UnplannedStatus)
 		item.SetAssigned("")

@@ -14,6 +14,7 @@ const (
 	BacklogItemStatusMetadataKey   = "Status"
 	BacklogItemAssignedMetadataKey = "Assigned"
 	BacklogItemEstimateMetadataKey = "Estimate"
+	BacklogItemTagsMetadataKey     = "Tags"
 )
 
 var (
@@ -35,7 +36,7 @@ type BacklogItem struct {
 func LoadBacklogItem(itemPath string) (*BacklogItem, error) {
 	markdown, err := LoadMarkdown(itemPath, []string{
 		BacklogItemTitleMetadataKey, CreatedMetadataKey, ModifiedMetadataKey, BacklogItemAuthorMetadataKey,
-		BacklogItemStatusMetadataKey, BacklogItemAssignedMetadataKey, BacklogItemEstimateMetadataKey}, false)
+		BacklogItemStatusMetadataKey, BacklogItemAssignedMetadataKey, BacklogItemEstimateMetadataKey, BacklogItemTagsMetadataKey}, false)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +48,7 @@ func LoadBacklogItem(itemPath string) (*BacklogItem, error) {
 func NewBacklogItem(name string, markdownData string) *BacklogItem {
 	markdown := NewMarkdown(markdownData, "", []string{
 		BacklogItemTitleMetadataKey, CreatedMetadataKey, ModifiedMetadataKey, BacklogItemAuthorMetadataKey,
-		BacklogItemStatusMetadataKey, BacklogItemAssignedMetadataKey, BacklogItemEstimateMetadataKey}, false)
+		BacklogItemStatusMetadataKey, BacklogItemAssignedMetadataKey, BacklogItemEstimateMetadataKey, BacklogItemTagsMetadataKey}, false)
 	return &BacklogItem{name, markdown}
 }
 
@@ -170,4 +171,13 @@ func (item *BacklogItem) Comments() []*Comment {
 		comments = append(comments, comment)
 	}
 	return comments
+}
+
+func (item *BacklogItem) Tags() []string {
+	rawTags := strings.TrimSpace(item.markdown.MetadataValue(BacklogItemTagsMetadataKey))
+	return strings.Fields(rawTags)
+}
+
+func (item *BacklogItem) SetTags(tags []string) {
+	item.markdown.SetMetadataValue(BacklogItemTagsMetadataKey, strings.Join(tags, " "))
 }

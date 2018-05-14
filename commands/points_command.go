@@ -27,10 +27,10 @@ var PointsCommand = cli.Command{
 	},
 	Action: func(c *cli.Context) error {
 		user := c.String("u")
-		status := c.String("s")
+		statusCode := c.String("s")
 
-		if !backlog.IsValidStatusCode(status) {
-			fmt.Printf("illegal status: %s\n", status)
+		if !backlog.IsValidStatusCode(statusCode) {
+			fmt.Printf("illegal status: %s\n", statusCode)
 			return nil
 		}
 		if err := checkIsBacklogDirectory(); err != nil {
@@ -42,11 +42,23 @@ var PointsCommand = cli.Command{
 			return err
 		}
 
-		items := bck.ItemsByStatusAndUser(status, user)
+		filter := &backlog.BacklogItemsAndFilter{}
+		filter.And(backlog.NewBacklogItemsStatusCodeFilter(statusCode))
+		filter.And(backlog.NewBacklogItemsAssignedFilter(user))
+		items := bck.FilteredItems(filter)
+
 		pointsByUser := make(map[string]float64)
+		tagsByUser := make(map[string][]string)
 		for _, item := range items {
 			estimated, _ := strconv.ParseFloat(item.Estimate(), 64)
 			pointsByUser[item.Assigned()] += estimated
+
+			tags := item.Tags()
+			for _, tag := range tags {
+				if !utils.ContainsStringIgnoreCase(tagsByUser[item.Assigned()], tag) {
+					tagsByUser[item.Assigned()] = append(tagsByUser[item.Assigned()], tag)
+				}
+			}
 		}
 		users := make([]string, 0, len(pointsByUser))
 		for user := range pointsByUser {
@@ -54,25 +66,31 @@ var PointsCommand = cli.Command{
 		}
 		sort.Strings(users)
 
-		userHeader, pointsHeader := "User", "Total Points"
-		maxUserLen := len(userHeader)
+		userHeader, pointsHeader, tagsHeader := "User", "Total Points", "Tags"
+		maxUserLen, maxTagsLen := len(userHeader), len(tagsHeader)
 		for _, user := range users {
 			if len(user) > maxUserLen {
 				maxUserLen = len(user)
 			}
+
+			tags := strings.Join(tagsByUser[user], " ")
+			if len(tags) > maxTagsLen {
+				maxTagsLen = len(tags)
+			}
 		}
 
-		fmt.Printf("Status: %s\n", backlog.StatusNameByCode(status))
-		fmt.Printf("-%s---%s\n", strings.Repeat("-", maxUserLen), strings.Repeat("-", len(pointsHeader)))
-		fmt.Printf(" %s | %s\n", utils.PadStringRight(userHeader, maxUserLen), pointsHeader)
-		fmt.Printf("-%s---%s\n", strings.Repeat("-", maxUserLen), strings.Repeat("-", len(pointsHeader)))
+		fmt.Printf("Status: %s\n", backlog.StatusNameByCode(statusCode))
+		fmt.Printf("-%s---%s---%s\n", strings.Repeat("-", maxUserLen), strings.Repeat("-", len(pointsHeader)), strings.Repeat("-", maxTagsLen))
+		fmt.Printf(" %s | %s | %s\n", utils.PadStringRight(userHeader, maxUserLen), pointsHeader, tagsHeader)
+		fmt.Printf("-%s---%s---%s\n", strings.Repeat("-", maxUserLen), strings.Repeat("-", len(pointsHeader)), strings.Repeat("-", maxTagsLen))
 		for _, user := range users {
 			points := int(pointsByUser[user])
 			pointsStr := utils.PadIntLeft(points, len(pointsHeader))
 			if points == 0 {
-				pointsStr = ""
+				pointsStr = strings.Repeat(" ", len(pointsHeader))
 			}
-			fmt.Printf(" %s | %s\n", utils.PadStringRight(user, maxUserLen), pointsStr)
+			tags := strings.Join(tagsByUser[user], " ")
+			fmt.Printf(" %s | %s | %s\n", utils.PadStringRight(user, maxUserLen), pointsStr, tags)
 		}
 
 		return nil

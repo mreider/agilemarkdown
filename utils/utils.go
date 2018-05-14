@@ -71,3 +71,13 @@ func TitleFirstLetter(s string) string {
 		},
 		s)
 }
+
+func ContainsStringIgnoreCase(items []string, item string) bool {
+	item = strings.ToLower(item)
+	for i := range items {
+		if strings.ToLower(items[i]) == item {
+			return true
+		}
+	}
+	return false
+}
