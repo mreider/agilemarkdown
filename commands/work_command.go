@@ -21,10 +21,20 @@ var WorkCommand = cli.Command{
 			Name:  "s",
 			Usage: fmt.Sprintf("Status - %s", backlog.AllStatusesList()),
 		},
+		cli.StringFlag{
+			Name:  "t",
+			Usage: "List of Tags",
+		},
 	},
 	Action: func(c *cli.Context) error {
 		user := c.String("u")
 		statusCode := c.String("s")
+		tags := c.String("t")
+
+		if c.NArg() > 0 {
+			fmt.Printf("illegal arguments: %s\n", strings.Join(c.Args(), " "))
+			return nil
+		}
 
 		if statusCode != "" && !backlog.IsValidStatusCode(statusCode) {
 			fmt.Printf("illegal status: %s\n", statusCode)
@@ -58,7 +68,12 @@ var WorkCommand = cli.Command{
 		}
 
 		for _, status := range statuses {
-			items := bck.ItemsByStatusAndUser(status.Code, user)
+			filter := &backlog.BacklogItemsAndFilter{}
+			filter.And(backlog.NewBacklogItemsStatusCodeFilter(status.Code))
+			filter.And(backlog.NewBacklogItemsAssignedFilter(user))
+			filter.And(backlog.NewBacklogItemsTagsFilter(tags))
+			items := bck.FilteredItems(filter)
+
 			overview.SortItems(status, items)
 			lines := backlog.BacklogView{}.WriteAsciiTable(items, fmt.Sprintf("Status: %s", status.Name), false)
 			fmt.Println(strings.Join(lines, "\n"))

@@ -13,14 +13,18 @@ type BacklogView struct {
 }
 
 func (bv BacklogView) WriteAsciiTable(items []*BacklogItem, title string, withOrderNumber bool) []string {
-	userHeader, titleHeader, pointsHeader := "User", "Title", "Points"
-	maxAssignedLen, maxTitleLen := len(userHeader), len(titleHeader)
+	userHeader, titleHeader, pointsHeader, tagsHeader := "User", "Title", "Points", "Tags"
+	maxAssignedLen, maxTitleLen, maxTagsLen := len(userHeader), len(titleHeader), len(tagsHeader)
 	for _, item := range items {
 		if len(item.Assigned()) > maxAssignedLen {
 			maxAssignedLen = len(item.Assigned())
 		}
 		if len(item.Title()) > maxTitleLen {
 			maxTitleLen = len(item.Title())
+		}
+		tags := strings.Join(item.Tags(), " ")
+		if len(tags) > maxTagsLen {
+			maxTagsLen = len(tags)
 		}
 	}
 
@@ -29,9 +33,9 @@ func (bv BacklogView) WriteAsciiTable(items []*BacklogItem, title string, withOr
 		result = append(result, fmt.Sprintf("%s", title))
 	}
 	headers := make([]string, 0, 3)
-	headers = append(headers, fmt.Sprintf("-%s---%s---%s-", strings.Repeat("-", maxAssignedLen), strings.Repeat("-", maxTitleLen), strings.Repeat("-", len(pointsHeader))))
-	headers = append(headers, fmt.Sprintf(" %s | %s | %s ", utils.PadStringRight(userHeader, maxAssignedLen), utils.PadStringRight(titleHeader, maxTitleLen), pointsHeader))
-	headers = append(headers, fmt.Sprintf("-%s---%s---%s-", strings.Repeat("-", maxAssignedLen), strings.Repeat("-", maxTitleLen), strings.Repeat("-", len(pointsHeader))))
+	headers = append(headers, fmt.Sprintf("-%s---%s---%s---%s-", strings.Repeat("-", maxAssignedLen), strings.Repeat("-", maxTitleLen), strings.Repeat("-", len(pointsHeader)), strings.Repeat("-", maxTagsLen)))
+	headers = append(headers, fmt.Sprintf(" %s | %s | %s | %s ", utils.PadStringRight(userHeader, maxAssignedLen), utils.PadStringRight(titleHeader, maxTitleLen), pointsHeader, tagsHeader))
+	headers = append(headers, fmt.Sprintf("-%s---%s---%s---%s-", strings.Repeat("-", maxAssignedLen), strings.Repeat("-", maxTitleLen), strings.Repeat("-", len(pointsHeader)), strings.Repeat("-", maxTagsLen)))
 	if withOrderNumber {
 		headers[0] = "------" + headers[0]
 		headers[1] = "   # |" + headers[1]
@@ -42,16 +46,17 @@ func (bv BacklogView) WriteAsciiTable(items []*BacklogItem, title string, withOr
 		estimate, _ := strconv.ParseFloat(item.Estimate(), 64)
 		estimateStr := utils.PadIntLeft(int(estimate), len(pointsHeader))
 		if estimate == 0 {
-			estimateStr = strings.Repeat("", len(pointsHeader))
+			estimateStr = strings.Repeat(" ", len(pointsHeader))
 		}
-		line := fmt.Sprintf(" %s | %s | %s ", utils.PadStringRight(item.Assigned(), maxAssignedLen), utils.PadStringRight(item.Title(), maxTitleLen), estimateStr)
+		tags := strings.Join(item.Tags(), " ")
+		line := fmt.Sprintf(" %s | %s | %s | %s ", utils.PadStringRight(item.Assigned(), maxAssignedLen), utils.PadStringRight(item.Title(), maxTitleLen), estimateStr, utils.PadStringRight(tags, maxTagsLen))
 		if withOrderNumber {
 			line = fmt.Sprintf(" %s |", utils.PadIntLeft(i+1, 3)) + line
 		}
 		result = append(result, line)
 	}
 	if len(items) > 0 {
-		footer := fmt.Sprintf("-%s---%s---%s-", strings.Repeat("-", maxAssignedLen), strings.Repeat("-", maxTitleLen), strings.Repeat("-", len(pointsHeader)))
+		footer := fmt.Sprintf("-%s---%s---%s---%s-", strings.Repeat("-", maxAssignedLen), strings.Repeat("-", maxTitleLen), strings.Repeat("-", len(pointsHeader)), strings.Repeat("-", maxTagsLen))
 		if withOrderNumber {
 			footer = "------" + footer
 		}
@@ -63,11 +68,12 @@ func (bv BacklogView) WriteAsciiTable(items []*BacklogItem, title string, withOr
 func (bv BacklogView) WriteMarkdownTable(items []*BacklogItem) []string {
 	result := make([]string, 0, 50)
 	headers := make([]string, 0, 2)
-	headers = append(headers, fmt.Sprintf(" User | Title | Points "))
-	headers = append(headers, "---|---|:---:")
+	headers = append(headers, fmt.Sprintf(" User | Title | Points | Tags "))
+	headers = append(headers, "---|---|:---:|---")
 	result = append(result, headers...)
 	for _, item := range items {
-		line := fmt.Sprintf(" %s | [%s](%s) | %s ", item.Assigned(), item.Title(), item.Name(), item.Estimate())
+		tags := strings.Join(item.Tags(), " ")
+		line := fmt.Sprintf(" %s | [%s](%s) | %s | %s", item.Assigned(), item.Title(), item.Name(), item.Estimate(), tags)
 		result = append(result, line)
 	}
 	return result

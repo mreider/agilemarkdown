@@ -33,29 +33,8 @@ func (bck *Backlog) Items() []*BacklogItem {
 }
 
 func (bck *Backlog) ItemsByStatus(statusCode string) []*BacklogItem {
-	status := strings.ToLower(StatusNameByCode(statusCode))
-	result := make([]*BacklogItem, 0, 10)
-	for _, item := range bck.items {
-		if strings.ToLower(item.Status()) == status {
-			result = append(result, item)
-		}
-	}
-	return result
-}
-
-func (bck *Backlog) ItemsByStatusAndUser(statusCode, user string) []*BacklogItem {
-	items := bck.ItemsByStatus(statusCode)
-	if user == "" {
-		return items
-	}
-	user = strings.ToLower(user)
-	var result []*BacklogItem
-	for _, item := range items {
-		if strings.ToLower(item.Assigned()) == user {
-			result = append(result, item)
-		}
-	}
-	return result
+	filter := NewBacklogItemsStatusCodeFilter(statusCode)
+	return bck.FilteredItems(filter)
 }
 
 func (bck *Backlog) KnownUsers() []string {
@@ -71,6 +50,16 @@ func (bck *Backlog) KnownUsers() []string {
 	result := make([]string, 0, len(users))
 	for user := range users {
 		result = append(result, user)
+	}
+	return result
+}
+
+func (bck *Backlog) FilteredItems(filter BacklogItemsFilter) []*BacklogItem {
+	result := make([]*BacklogItem, 0)
+	for _, item := range bck.items {
+		if filter.Match(item) {
+			result = append(result, item)
+		}
 	}
 	return result
 }

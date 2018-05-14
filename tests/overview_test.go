@@ -42,27 +42,27 @@ func TestOverviewUpdate(t *testing.T) {
 	updatedOverviewData := `Title: new backlog  
 
 ### Doing
- User | Title | Points 
----|---|:---:
- mike | [First story](Story1) | 10 
-  | [Story 5](Story5) | 20 
+ User | Title | Points | Tags 
+---|---|:---:|---
+ mike | [First story](Story1) | 10 | 
+  | [Story 5](Story5) | 20 | 
 
 ### Planned
- User | Title | Points 
----|---|:---:
-  | [Story 7](Story7) |  
+ User | Title | Points | Tags 
+---|---|:---:|---
+  | [Story 7](Story7) |  | 
 
 ### Unplanned
- User | Title | Points 
----|---|:---:
-  | [Story 4](Story4) | 30 
-  | [Story Six](Story6) |  
+ User | Title | Points | Tags 
+---|---|:---:|---
+  | [Story 4](Story4) | 30 | 
+  | [Story Six](Story6) |  | 
 
 ### Finished
- User | Title | Points 
----|---|:---:
-  | [Story 8](Story8) |  
- robert | [Second story](Story2) | 15 
+ User | Title | Points | Tags 
+---|---|:---:|---
+  | [Story 8](Story8) |  | 
+ robert | [Second story](Story2) | 15 | 
 `
 
 	markdown := backlog.NewMarkdown(markdownOverviewData, "", []string{"Title", "Data"}, true)
