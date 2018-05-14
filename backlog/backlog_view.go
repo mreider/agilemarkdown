@@ -12,7 +12,7 @@ import (
 type BacklogView struct {
 }
 
-func (bv BacklogView) WriteAsciiTable(items []*BacklogItem, title string, withOrderNumber bool) []string {
+func (bv BacklogView) WriteAsciiItems(items []*BacklogItem, title string, withOrderNumber bool) []string {
 	userHeader, titleHeader, pointsHeader, tagsHeader := "User", "Title", "Points", "Tags"
 	maxAssignedLen, maxTitleLen, maxTagsLen := len(userHeader), len(titleHeader), len(tagsHeader)
 	for _, item := range items {
@@ -65,7 +65,7 @@ func (bv BacklogView) WriteAsciiTable(items []*BacklogItem, title string, withOr
 	return result
 }
 
-func (bv BacklogView) WriteMarkdownTable(items []*BacklogItem) []string {
+func (bv BacklogView) WriteMarkdownItems(items []*BacklogItem) []string {
 	result := make([]string, 0, 50)
 	headers := make([]string, 0, 2)
 	headers = append(headers, fmt.Sprintf(" User | Title | Points | Tags "))
@@ -103,4 +103,18 @@ func (bv BacklogView) Progress(bck *Backlog, weekCount, width int) (string, erro
 	}
 
 	return chart.Draw(data), nil
+}
+
+func (bv BacklogView) WriteMarkdownIdeas(ideas []*BacklogIdea) []string {
+	result := make([]string, 0, 50)
+	headers := make([]string, 0, 2)
+	headers = append(headers, fmt.Sprintf(" Author | Idea | Tags "))
+	headers = append(headers, "---|---|---")
+	result = append(result, headers...)
+	for _, idea := range ideas {
+		tags := strings.Join(idea.Tags(), " ")
+		line := fmt.Sprintf(" %s | [%s](%s) | %s", idea.Author(), idea.Title(), idea.Name(), tags)
+		result = append(result, line)
+	}
+	return result
 }

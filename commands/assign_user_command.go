@@ -66,7 +66,7 @@ var AssignUserCommand = cli.Command{
 		}
 
 		overview.SortItems(status, items)
-		lines := backlog.BacklogView{}.WriteAsciiTable(items, fmt.Sprintf("Status: %s", status.Name), true)
+		lines := backlog.BacklogView{}.WriteAsciiItems(items, fmt.Sprintf("Status: %s", status.Name), true)
 		for _, line := range lines {
 			fmt.Println(line)
 		}

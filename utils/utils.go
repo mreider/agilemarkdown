@@ -7,6 +7,10 @@ import (
 	"unicode"
 )
 
+const (
+	timestampLayout = "2006-01-02 03:04 PM"
+)
+
 func PadIntLeft(value, width int) string {
 	result := strconv.Itoa(value)
 	if len(result) < width {
@@ -80,4 +84,16 @@ func ContainsStringIgnoreCase(items []string, item string) bool {
 		}
 	}
 	return false
+}
+
+func GetCurrentTimestamp() string {
+	return GetTimestamp(time.Now())
+}
+
+func GetTimestamp(moment time.Time) string {
+	return moment.Format(timestampLayout)
+}
+
+func ParseTimestamp(timestamp string) (time.Time, error) {
+	return time.Parse(timestampLayout, timestamp)
 }

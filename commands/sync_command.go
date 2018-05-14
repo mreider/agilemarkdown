@@ -4,12 +4,15 @@ import (
 	"fmt"
 	"github.com/mreider/agilemarkdown/backlog"
 	"github.com/mreider/agilemarkdown/git"
+	"github.com/mreider/agilemarkdown/utils"
 	"github.com/pkg/errors"
 	"gopkg.in/urfave/cli.v1"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 )
 
 var SyncCommand = cli.Command{
@@ -45,6 +48,11 @@ func (a *SyncAction) Execute() error {
 		attempts--
 
 		err := a.updateOverviews(rootDir)
+		if err != nil {
+			return err
+		}
+
+		err = a.updateIdeas(rootDir)
 		if err != nil {
 			return err
 		}
@@ -144,11 +152,77 @@ func (a *SyncAction) backlogDirs(rootDir string) ([]string, error) {
 	}
 	result := make([]string, 0, len(infos))
 	for _, info := range infos {
-		if !info.IsDir() || strings.HasPrefix(info.Name(), ".") {
+		if !info.IsDir() || strings.HasPrefix(info.Name(), ".") || isForbiddenBacklogName(info.Name()) {
 			continue
 		}
 		result = append(result, filepath.Join(rootDir, info.Name()))
 	}
 	sort.Strings(result)
 	return result, nil
+}
+
+func (a *SyncAction) updateIdeas(rootDir string) error {
+	ideasDir := filepath.Join(rootDir, "ideas")
+	infos, err := ioutil.ReadDir(ideasDir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return err
+	}
+
+	ideasPaths := make([]string, 0, len(infos))
+	for _, info := range infos {
+		if info.IsDir() {
+			continue
+		}
+		ideaPath := filepath.Join(ideasDir, info.Name())
+		ideasPaths = append(ideasPaths, ideaPath)
+	}
+
+	sort.Strings(ideasPaths)
+
+	ideas := make([]*backlog.BacklogIdea, 0, len(ideasPaths))
+	for _, ideaPath := range ideasPaths {
+		idea, err := a.updateIdea(ideaPath)
+		if err != nil {
+			fmt.Printf("can't update idea '%s'\n", err)
+			continue
+		}
+		ideas = append(ideas, idea)
+	}
+
+	lines := backlog.BacklogView{}.WriteMarkdownIdeas(ideas)
+	return ioutil.WriteFile(filepath.Join(rootDir, "ideas.md"), []byte(strings.Join(lines, "\n")), 0644)
+}
+
+func (a *SyncAction) updateIdea(ideaPath string) (*backlog.BacklogIdea, error) {
+	idea, err := backlog.LoadBacklogIdea(ideaPath)
+	if err != nil {
+		return nil, err
+	}
+	if !idea.HasMetadata() {
+		author, created, err := git.InitCommitInfo(ideaPath)
+		if err != nil {
+			return nil, err
+		}
+		if author == "" {
+			author, _ = git.CurrentUser()
+			created = time.Now()
+		}
+
+		ideaName := filepath.Base(ideaPath)
+		ideaName = strings.TrimSuffix(ideaName, filepath.Ext(ideaName))
+		ideaTitle := strings.Replace(ideaName, "-", " ", -1)
+		ideaTitle = strings.Replace(ideaTitle, "_", " ", -1)
+		ideaTitle = utils.TitleFirstLetter(ideaTitle)
+		idea.SetTitle(ideaTitle)
+		idea.SetCreated(utils.GetTimestamp(created))
+		idea.SetModified(utils.GetTimestamp(created))
+		idea.SetAuthor(author)
+		idea.SetTags(nil)
+		idea.SetText(idea.Text())
+		idea.Save()
+	}
+	return idea, nil
 }

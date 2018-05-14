@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"regexp"
 	"strings"
+	"time"
 )
 
 var (
@@ -105,6 +106,22 @@ func CheckoutOurVersion(fileName string) error {
 	args := []string{"checkout", "--ours", fileName}
 	_, err := runGitCommand(args)
 	return err
+}
+
+func InitCommitInfo(fileName string) (user string, created time.Time, err error) {
+	args := []string{"log", "--reverse", "--format=format:%an|%ai", "--follow", "--", fileName}
+	out, err := runGitCommand(args)
+	if err != nil {
+		return "", time.Time{}, err
+	}
+	firstLine := strings.TrimSpace(strings.SplitN(out, "\n", 2)[0])
+	if firstLine == "" {
+		return "", time.Time{}, nil
+	}
+	parts := strings.SplitN(firstLine, "|", 2)
+	user = parts[0]
+	created, _ = time.Parse("2006-01-02 15:04:05 -0700", parts[1])
+	return user, created, nil
 }
 
 func runGitCommand(args []string) (string, error) {

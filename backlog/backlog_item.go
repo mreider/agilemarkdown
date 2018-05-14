@@ -1,6 +1,7 @@
 package backlog
 
 import (
+	"github.com/mreider/agilemarkdown/utils"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -73,12 +74,12 @@ func (item *BacklogItem) SetCreated(timestamp string) {
 }
 
 func (item *BacklogItem) Created() time.Time {
-	value, _ := parseTimestamp(item.markdown.MetadataValue(CreatedMetadataKey))
+	value, _ := utils.ParseTimestamp(item.markdown.MetadataValue(CreatedMetadataKey))
 	return value
 }
 
 func (item *BacklogItem) Modified() time.Time {
-	value, _ := parseTimestamp(item.markdown.MetadataValue(ModifiedMetadataKey))
+	value, _ := utils.ParseTimestamp(item.markdown.MetadataValue(ModifiedMetadataKey))
 	return value
 }
 

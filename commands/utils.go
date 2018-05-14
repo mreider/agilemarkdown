@@ -8,7 +8,20 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 )
+
+var ForbiddenBacklogNames = []string{"ideas"}
+
+func isForbiddenBacklogName(backlogName string) bool {
+	backlogName = strings.ToLower(backlogName)
+	for _, name := range ForbiddenBacklogNames {
+		if strings.ToLower(name) == backlogName {
+			return true
+		}
+	}
+	return false
+}
 
 func checkIsBacklogDirectory() error {
 	_, ok := findOverviewFileInRootDirectory(".")
@@ -21,7 +34,11 @@ func checkIsBacklogDirectory() error {
 func findOverviewFileInRootDirectory(dir string) (string, bool) {
 	dir, _ = filepath.Abs(dir)
 	rootDir := filepath.Dir(dir)
-	overviewFileName := fmt.Sprintf("%s.md", filepath.Base(dir))
+	overviewName := filepath.Base(dir)
+	if isForbiddenBacklogName(overviewName) {
+		return "", false
+	}
+	overviewFileName := fmt.Sprintf("%s.md", overviewName)
 
 	infos, err := ioutil.ReadDir(rootDir)
 	if err != nil {
@@ -90,7 +107,7 @@ func showBacklogItems(c *cli.Context) ([]*backlog.BacklogItem, error) {
 	}
 
 	overview.SortItems(status, items)
-	lines := backlog.BacklogView{}.WriteAsciiTable(items, fmt.Sprintf("Status: %s", status.Name), true)
+	lines := backlog.BacklogView{}.WriteAsciiItems(items, fmt.Sprintf("Status: %s", status.Name), true)
 	for _, line := range lines {
 		fmt.Println(line)
 	}
