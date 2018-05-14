@@ -95,3 +95,7 @@ func (m *MarkdownMetadata) ParseLines(lines []string) int {
 	}
 	return parsed
 }
+
+func (m *MarkdownMetadata) Empty() bool {
+	return len(m.items) == 0
+}

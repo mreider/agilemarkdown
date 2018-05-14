@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/csv"
 	"fmt"
+	"github.com/mreider/agilemarkdown/utils"
 	"io"
 	"os"
 	"path/filepath"
@@ -126,7 +127,7 @@ func (imp *CsvImporter) createItemIfNotExists(line []string) error {
 
 	if createdDate, err := time.Parse("Jan 2, 2006", created); err == nil {
 		createdDate = createdDate.Add(time.Hour * 12)
-		created = getTimestamp(createdDate)
+		created = utils.GetTimestamp(createdDate)
 	}
 
 	item.SetTitle(title)

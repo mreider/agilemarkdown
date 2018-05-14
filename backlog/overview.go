@@ -122,7 +122,7 @@ func (overview *BacklogOverview) Update(items []*BacklogItem) {
 				items = append(items, item)
 			}
 		}
-		newLines := BacklogView{}.WriteMarkdownTable(items)
+		newLines := BacklogView{}.WriteMarkdownItems(items)
 		group.ReplaceLines(newLines)
 	}
 	overview.Save()

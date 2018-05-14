@@ -85,7 +85,7 @@ func (content *MarkdownContent) Save() error {
 	if !content.isDirty {
 		return nil
 	}
-	data := content.Content(getCurrentTimestamp())
+	data := content.Content(utils.GetCurrentTimestamp())
 	err := ioutil.WriteFile(content.contentPath, data, 0644)
 	if err != nil {
 		return err
