@@ -25,7 +25,7 @@ var CreateBacklogCommand = cli.Command{
 		}
 
 		backlogName := strings.Join(c.Args(), " ")
-		backlogFileName := strings.Replace(backlogName, " ", "_", -1)
+		backlogFileName := strings.Replace(backlogName, " ", "-", -1)
 		backlogDir := filepath.Join(".", backlogFileName)
 		if info, err := os.Stat(backlogDir); err != nil && !os.IsNotExist(err) {
 			return err
