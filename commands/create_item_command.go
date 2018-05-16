@@ -42,6 +42,11 @@ var CreateItemCommand = cli.Command{
 			return nil
 		}
 
+		if backlog.IsForbiddenItemName(itemName) {
+			fmt.Printf("'%s' can't be used as an item name\n", itemName)
+			return nil
+		}
+
 		currentUser, err := git.CurrentUser()
 		if err != nil {
 			currentUser = "unknown"

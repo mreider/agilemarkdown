@@ -25,7 +25,7 @@ var CreateBacklogCommand = cli.Command{
 		}
 
 		backlogName := strings.Join(c.Args(), " ")
-		if isForbiddenBacklogName(backlogName) {
+		if backlog.IsForbiddenBacklogName(backlogName) {
 			fmt.Printf("'%s' can't be used as a backlog name\n", backlogName)
 			return nil
 		}

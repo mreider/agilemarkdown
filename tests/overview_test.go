@@ -24,13 +24,15 @@ Story 7 [Story7](Story7) - -
 
 ### Finished
 Story 8 [Story8](Story8) - -  
-`
+
+[Archived stories](archive.md)`
 )
 
 func TestOverviewCreate(t *testing.T) {
-	markdown := backlog.NewMarkdown(markdownOverviewData, "", []string{"Title", "Data"}, true)
+	markdown := backlog.NewMarkdown(markdownOverviewData, "", []string{"Title", "Data"}, true, backlog.OverviewFooterRe)
 	overview := backlog.NewBacklogOverview(markdown)
-	itemsByStatus := overview.SortedItemsByStatus()
+	sorter := backlog.NewBacklogItemsSorter(overview)
+	itemsByStatus := sorter.SortedItemsByStatus()
 	assert.Equal(t, 4, len(itemsByStatus))
 	assert.Equal(t, []string{"Story1", "Story2"}, itemsByStatus["doing"])
 	assert.Equal(t, []string{"Story5", "Story6", "Story7"}, itemsByStatus["planned"])
@@ -63,10 +65,12 @@ func TestOverviewUpdate(t *testing.T) {
 ---|---|:---:|---
   | [Story 8](Story8) |  | 
  robert | [Second story](Story2) | 15 | 
-`
 
-	markdown := backlog.NewMarkdown(markdownOverviewData, "", []string{"Title", "Data"}, true)
+[Archived stories](archive.md)`
+
+	markdown := backlog.NewMarkdown(markdownOverviewData, "", []string{"Title", "Data"}, true, backlog.OverviewFooterRe)
 	overview := backlog.NewBacklogOverview(markdown)
+	sorter := backlog.NewBacklogItemsSorter(overview)
 	overview.SetTitle("new backlog")
 
 	story1 := createBacklogItem("Story1", "First story", "doing", "10", "mike")
@@ -78,7 +82,7 @@ func TestOverviewUpdate(t *testing.T) {
 	story8 := createBacklogItem("Story8", "Story 8", "finished", "", "")
 	overview.Update([]*backlog.BacklogItem{
 		story1, story2, story5, story6, story7, story4, story8,
-	})
+	}, sorter)
 
 	updatedData := string(overview.Content(""))
 	assert.Equal(t, updatedOverviewData, updatedData)

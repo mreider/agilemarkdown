@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/mreider/agilemarkdown/utils"
 	"math"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
@@ -18,6 +19,7 @@ const (
 var (
 	overviewItemRe   = regexp.MustCompile(`^.* \[.*]\(([^)]+)\).*$`)
 	chartColorCodeRe = regexp.MustCompile(`.\[\d+m`)
+	OverviewFooterRe = regexp.MustCompile(`^\[Archived stories]\([^]]+\).*`)
 )
 
 type BacklogOverview struct {
@@ -25,7 +27,7 @@ type BacklogOverview struct {
 }
 
 func LoadBacklogOverview(overviewPath string) (*BacklogOverview, error) {
-	markdown, err := LoadMarkdown(overviewPath, []string{BacklogOverviewTitleMetadataKey, CreatedMetadataKey, ModifiedMetadataKey}, true)
+	markdown, err := LoadMarkdown(overviewPath, []string{BacklogOverviewTitleMetadataKey, CreatedMetadataKey, ModifiedMetadataKey}, true, OverviewFooterRe)
 	if err != nil {
 		return nil, err
 	}
@@ -59,49 +61,8 @@ func (overview *BacklogOverview) SetCreated() {
 	overview.markdown.SetMetadataValue(CreatedMetadataKey, "")
 }
 
-func (overview *BacklogOverview) SortedItemsByStatus() map[string][]string {
-	result := make(map[string][]string)
-	for _, status := range AllStatuses {
-		title := status.CapitalizedName()
-		group := overview.markdown.Group(title)
-		if group == nil {
-			result[status.Name] = nil
-			continue
-		}
-		for _, line := range group.lines {
-			matches := overviewItemRe.FindStringSubmatch(line)
-			if len(matches) > 0 {
-				result[status.Name] = append(result[status.Name], matches[1])
-			}
-		}
-	}
-	return result
-}
-
-func (overview *BacklogOverview) SortItems(status *BacklogItemStatus, items []*BacklogItem) {
-	itemsNames := overview.SortedItemsByStatus()[status.Name]
-	itemsOrder := make(map[string]int, len(itemsNames))
-	for i, itemName := range itemsNames {
-		itemsOrder[itemName] = i
-	}
-	sort.Slice(items, func(i, j int) bool {
-		iIndex1, iOk := itemsOrder[items[i].Name()]
-		jIndex1, jOk := itemsOrder[items[j].Name()]
-		if iOk && jOk {
-			return iIndex1 < jIndex1
-		}
-		if iOk {
-			return true
-		}
-		if jOk {
-			return false
-		}
-		return i < j
-	})
-}
-
-func (overview *BacklogOverview) Update(items []*BacklogItem) {
-	itemsByStatus := overview.SortedItemsByStatus()
+func (overview *BacklogOverview) Update(items []*BacklogItem, sorter *BacklogItemsSorter) {
+	itemsByStatus := sorter.SortedItemsByStatus()
 	itemsByName := make(map[string]*BacklogItem)
 	for _, item := range items {
 		itemsByName[item.Name()] = item
@@ -245,4 +206,18 @@ func (overview *BacklogOverview) UpdateProgress(bck *Backlog) error {
 	overview.markdown.SetFreeText(newFreeText)
 	overview.Save()
 	return nil
+}
+
+func (overview *BacklogOverview) UpdateArchiveLink(hasArchiveItems bool, archivePath string) {
+	if hasArchiveItems {
+		archiveFileName := filepath.Base(archivePath)
+		overview.markdown.SetFooter([]string{fmt.Sprintf("[Archived stories](%s)", strings.TrimSuffix(archiveFileName, filepath.Ext(archiveFileName)))})
+	} else {
+		overview.markdown.SetFooter(nil)
+	}
+	overview.Save()
+}
+
+func (overview *BacklogOverview) SetHideEmptyGroups(value bool) {
+	overview.markdown.HideEmptyGroups = value
 }

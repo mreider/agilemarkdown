@@ -31,6 +31,12 @@ type BacklogItemsTagsFilter struct {
 	filter BacklogItemsFilter
 }
 
+type BacklogItemsActiveFilter struct {
+}
+
+type BacklogItemsArchivedFilter struct {
+}
+
 type tagFilter struct {
 	tag string
 }
@@ -122,4 +128,12 @@ func (f *tagFilter) Match(item *BacklogItem) bool {
 		}
 	}
 	return false
+}
+
+func (f *BacklogItemsActiveFilter) Match(item *BacklogItem) bool {
+	return !item.Archived()
+}
+
+func (f *BacklogItemsArchivedFilter) Match(item *BacklogItem) bool {
+	return item.Archived()
 }
