@@ -90,12 +90,13 @@ func (overview *BacklogOverview) Update(items []*BacklogItem, sorter *BacklogIte
 }
 
 func (overview *BacklogOverview) updateItem(item *BacklogItem, itemsByStatus map[string][]string) {
+	itemStatus := strings.ToLower(item.Status())
 NextStatus:
 	for _, status := range AllStatuses {
 		items := itemsByStatus[status.Name]
 		for i, it := range items {
 			if it == item.Name() {
-				if status.Name == item.Status() {
+				if status.Name == itemStatus {
 					continue NextStatus
 				} else {
 					copy(items[i:], items[i+1:])
@@ -104,7 +105,7 @@ NextStatus:
 				}
 			}
 		}
-		if status.Name == item.Status() {
+		if status.Name == itemStatus {
 			itemsByStatus[status.Name] = append(itemsByStatus[status.Name], item.Name())
 		}
 	}
