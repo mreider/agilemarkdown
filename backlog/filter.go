@@ -8,6 +8,10 @@ type BacklogItemsFilter interface {
 	Match(item *BacklogItem) bool
 }
 
+type BacklogItemsOrFilter struct {
+	filters []BacklogItemsFilter
+}
+
 type BacklogItemsAndFilter struct {
 	filters []BacklogItemsFilter
 }
@@ -29,6 +33,20 @@ type BacklogItemsTagsFilter struct {
 
 type tagFilter struct {
 	tag string
+}
+
+func (f *BacklogItemsOrFilter) Match(item *BacklogItem) bool {
+	for _, filter := range f.filters {
+		if filter.Match(item) {
+			return true
+		}
+	}
+	return false
+}
+
+func (f *BacklogItemsOrFilter) Or(filter BacklogItemsFilter) *BacklogItemsOrFilter {
+	f.filters = append(f.filters, filter)
+	return f
 }
 
 func (f *BacklogItemsAndFilter) Match(item *BacklogItem) bool {
@@ -83,12 +101,12 @@ func (f *BacklogItemsTagsFilter) parseFilter(filter string) {
 		return
 	}
 
-	andParts := strings.Fields(filter)
-	andFilter := &BacklogItemsAndFilter{}
-	for _, andPart := range andParts {
-		andFilter.And(&tagFilter{tag: andPart})
+	orParts := strings.Fields(filter)
+	orFilter := &BacklogItemsOrFilter{}
+	for _, orPart := range orParts {
+		orFilter.Or(&tagFilter{tag: orPart})
 	}
-	f.filter = andFilter
+	f.filter = orFilter
 }
 
 func (f *BacklogItemsTagsFilter) Match(item *BacklogItem) bool {
