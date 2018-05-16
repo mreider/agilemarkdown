@@ -2,6 +2,7 @@ package backlog
 
 import (
 	"github.com/mreider/agilemarkdown/utils"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -16,6 +17,7 @@ const (
 	BacklogItemAssignedMetadataKey = "Assigned"
 	BacklogItemEstimateMetadataKey = "Estimate"
 	BacklogItemTagsMetadataKey     = "Tags"
+	BacklogItemArchiveMetadataKey  = "Archive"
 )
 
 var (
@@ -37,7 +39,8 @@ type BacklogItem struct {
 func LoadBacklogItem(itemPath string) (*BacklogItem, error) {
 	markdown, err := LoadMarkdown(itemPath, []string{
 		BacklogItemTitleMetadataKey, CreatedMetadataKey, ModifiedMetadataKey, BacklogItemAuthorMetadataKey,
-		BacklogItemStatusMetadataKey, BacklogItemAssignedMetadataKey, BacklogItemEstimateMetadataKey, BacklogItemTagsMetadataKey}, false)
+		BacklogItemStatusMetadataKey, BacklogItemAssignedMetadataKey, BacklogItemEstimateMetadataKey,
+		BacklogItemTagsMetadataKey, BacklogItemArchiveMetadataKey}, false, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +52,8 @@ func LoadBacklogItem(itemPath string) (*BacklogItem, error) {
 func NewBacklogItem(name string, markdownData string) *BacklogItem {
 	markdown := NewMarkdown(markdownData, "", []string{
 		BacklogItemTitleMetadataKey, CreatedMetadataKey, ModifiedMetadataKey, BacklogItemAuthorMetadataKey,
-		BacklogItemStatusMetadataKey, BacklogItemAssignedMetadataKey, BacklogItemEstimateMetadataKey, BacklogItemTagsMetadataKey}, false)
+		BacklogItemStatusMetadataKey, BacklogItemAssignedMetadataKey, BacklogItemEstimateMetadataKey,
+		BacklogItemTagsMetadataKey, BacklogItemArchiveMetadataKey}, false, nil)
 	return &BacklogItem{name, markdown}
 }
 
@@ -181,4 +185,36 @@ func (item *BacklogItem) Tags() []string {
 
 func (item *BacklogItem) SetTags(tags []string) {
 	item.markdown.SetMetadataValue(BacklogItemTagsMetadataKey, strings.Join(tags, " "))
+}
+
+func (item *BacklogItem) Archived() bool {
+	archive := strings.ToLower(item.markdown.MetadataValue(BacklogItemArchiveMetadataKey))
+	return archive == "1" || archive == "true" || archive == "yes"
+}
+
+func (item *BacklogItem) MoveToBacklogDirectory() error {
+	markdownDir := filepath.Dir(item.markdown.contentPath)
+	if filepath.Base(markdownDir) == ArchiveDirectoryName {
+		newContentPath := filepath.Join(filepath.Dir(markdownDir), filepath.Base(item.markdown.contentPath))
+		err := os.Rename(item.markdown.contentPath, newContentPath)
+		if err != nil {
+			return err
+		}
+		item.markdown.contentPath = newContentPath
+	}
+	return nil
+}
+
+func (item *BacklogItem) MoveToBacklogArchiveDirectory() error {
+	markdownDir := filepath.Dir(item.markdown.contentPath)
+	if filepath.Base(markdownDir) != ArchiveDirectoryName {
+		newContentPath := filepath.Join(markdownDir, ArchiveDirectoryName, filepath.Base(item.markdown.contentPath))
+		os.MkdirAll(filepath.Dir(newContentPath), 0777)
+		err := os.Rename(item.markdown.contentPath, newContentPath)
+		if err != nil {
+			return err
+		}
+		item.markdown.contentPath = newContentPath
+	}
+	return nil
 }

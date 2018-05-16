@@ -8,20 +8,9 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
-var ForbiddenBacklogNames = []string{"ideas"}
-
-func isForbiddenBacklogName(backlogName string) bool {
-	backlogName = strings.ToLower(backlogName)
-	for _, name := range ForbiddenBacklogNames {
-		if strings.ToLower(name) == backlogName {
-			return true
-		}
-	}
-	return false
-}
+const ArchiveFileName = "archive.md"
 
 func checkIsBacklogDirectory() error {
 	_, ok := findOverviewFileInRootDirectory(".")
@@ -35,7 +24,7 @@ func findOverviewFileInRootDirectory(dir string) (string, bool) {
 	dir, _ = filepath.Abs(dir)
 	rootDir := filepath.Dir(dir)
 	overviewName := filepath.Base(dir)
-	if isForbiddenBacklogName(overviewName) {
+	if backlog.IsForbiddenBacklogName(overviewName) {
 		return "", false
 	}
 	overviewFileName := fmt.Sprintf("%s.md", overviewName)
@@ -50,6 +39,20 @@ func findOverviewFileInRootDirectory(dir string) (string, bool) {
 		}
 	}
 	return "", false
+}
+
+func findArchiveFileInDirectory(dir string) (string, bool) {
+	dir, _ = filepath.Abs(dir)
+	infos, err := ioutil.ReadDir(dir)
+	if err != nil {
+		return "", false
+	}
+	for _, info := range infos {
+		if info.Name() == ArchiveFileName {
+			return filepath.Join(dir, info.Name()), true
+		}
+	}
+	return filepath.Join(dir, ArchiveFileName), false
 }
 
 func checkIsRootDirectory() error {
@@ -92,21 +95,28 @@ func showBacklogItems(c *cli.Context) ([]*backlog.BacklogItem, error) {
 
 	overviewPath, ok := findOverviewFileInRootDirectory(backlogDir)
 	if !ok {
-		return nil, fmt.Errorf("the index file isn't found for %s", backlogDir)
+		return nil, fmt.Errorf("the overview file isn't found for %s", backlogDir)
 	}
 	overview, err := backlog.LoadBacklogOverview(overviewPath)
 	if err != nil {
 		return nil, err
 	}
 
-	items := bck.ItemsByStatus(statusCode)
+	archivePath, _ := findArchiveFileInDirectory(backlogDir)
+	archive, err := backlog.LoadBacklogOverview(archivePath)
+	if err != nil {
+		return nil, err
+	}
+
+	items := bck.AllItemsByStatus(statusCode)
 	status := backlog.StatusByCode(statusCode)
 	if len(items) == 0 {
 		fmt.Printf("No items with status '%s'\n", status.Name)
 		return nil, nil
 	}
 
-	overview.SortItems(status, items)
+	sorter := backlog.NewBacklogItemsSorter(overview, archive)
+	sorter.SortItems(status, items)
 	lines := backlog.BacklogView{}.WriteAsciiItems(items, fmt.Sprintf("Status: %s", status.Name), true)
 	for _, line := range lines {
 		fmt.Println(line)

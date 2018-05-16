@@ -6,6 +6,7 @@ import (
 	"github.com/mreider/agilemarkdown/utils"
 	"io/ioutil"
 	"os"
+	"regexp"
 	"strings"
 )
 
@@ -21,9 +22,12 @@ type MarkdownContent struct {
 	metadata    *MarkdownMetadata
 	groups      []*MarkdownGroup
 	freeText    []string
+	footer      []string
+
+	HideEmptyGroups bool
 }
 
-func LoadMarkdown(markdownPath string, metadataKeys []string, parseGroups bool) (*MarkdownContent, error) {
+func LoadMarkdown(markdownPath string, metadataKeys []string, parseGroups bool, footerRe *regexp.Regexp) (*MarkdownContent, error) {
 	var err error
 	if _, err = os.Stat(markdownPath); err != nil && !os.IsNotExist(err) {
 		return nil, err
@@ -41,10 +45,10 @@ func LoadMarkdown(markdownPath string, metadataKeys []string, parseGroups bool) 
 			return nil, err
 		}
 	}
-	return NewMarkdown(string(data), markdownPath, metadataKeys, parseGroups), nil
+	return NewMarkdown(string(data), markdownPath, metadataKeys, parseGroups, footerRe), nil
 }
 
-func NewMarkdown(data, markdownPath string, metadataKeys []string, parseGroups bool) *MarkdownContent {
+func NewMarkdown(data, markdownPath string, metadataKeys []string, parseGroups bool, footerRe *regexp.Regexp) *MarkdownContent {
 	content := &MarkdownContent{contentPath: markdownPath, metadata: NewMarkdownMetadata(metadataKeys)}
 	if len(data) > 0 {
 		lines := strings.Split(data, "\n")
@@ -59,11 +63,21 @@ func NewMarkdown(data, markdownPath string, metadataKeys []string, parseGroups b
 					}
 					currentGroup = &MarkdownGroup{content: content, title: strings.TrimSpace(strings.TrimPrefix(line, GroupTitlePrefix))}
 				} else if currentGroup != nil {
-					if strings.TrimSpace(line) != "" {
-						currentGroup.lines = append(currentGroup.lines, line)
+					if footerRe != nil && footerRe.MatchString(line) {
+						content.addGroup(currentGroup)
+						currentGroup = nil
+						content.footer = append(content.footer, line)
+					} else {
+						if strings.TrimSpace(line) != "" {
+							currentGroup.lines = append(currentGroup.lines, line)
+						}
 					}
 				} else {
-					content.freeText = append(content.freeText, line)
+					if len(content.footer) > 0 {
+						content.footer = append(content.footer, line)
+					} else {
+						content.freeText = append(content.freeText, line)
+					}
 				}
 			}
 			if currentGroup != nil {
@@ -117,11 +131,29 @@ func (content *MarkdownContent) Content(timestamp string) []byte {
 	}
 	if len(content.groups) > 0 {
 		for _, group := range content.groups {
-			result.WriteString("\n")
-			result.WriteString(fmt.Sprintf("%s%s", GroupTitlePrefix, group.title))
-			result.WriteString("\n")
-			result.WriteString(strings.Join(group.RawLines(), "\n"))
-			result.WriteString("\n")
+			lines := group.RawLines()
+			var nonEmptyLineCount int
+			for _, line := range lines {
+				if strings.TrimSpace(line) != "" {
+					nonEmptyLineCount++
+				}
+			}
+			if nonEmptyLineCount > 2 || !content.HideEmptyGroups {
+				result.WriteString("\n")
+				result.WriteString(fmt.Sprintf("%s%s", GroupTitlePrefix, group.title))
+				result.WriteString("\n")
+				result.WriteString(strings.Join(lines, "\n"))
+				result.WriteString("\n")
+			}
+		}
+	}
+	if len(content.footer) > 0 {
+		result.WriteString("\n")
+		for i, line := range content.footer {
+			result.WriteString(line)
+			if i < len(content.footer)-1 {
+				result.WriteString("\n")
+			}
 		}
 	}
 	return result.Bytes()
@@ -161,6 +193,19 @@ func (content *MarkdownContent) SetFreeText(freeText []string) {
 	}
 
 	content.freeText = freeText
+	content.markDirty()
+}
+
+func (content *MarkdownContent) Footer() []string {
+	return content.footer
+}
+
+func (content *MarkdownContent) SetFooter(footer []string) {
+	if utils.AreEqualStrings(content.footer, footer) {
+		return
+	}
+
+	content.footer = footer
 	content.markDirty()
 }
 

@@ -60,6 +60,12 @@ var WorkCommand = cli.Command{
 			return err
 		}
 
+		archivePath, _ := findArchiveFileInDirectory(backlogDir)
+		archive, err := backlog.LoadBacklogOverview(archivePath)
+		if err != nil {
+			return err
+		}
+
 		var statuses []*backlog.BacklogItemStatus
 		if statusCode == "" {
 			statuses = []*backlog.BacklogItemStatus{backlog.DoingStatus, backlog.PlannedStatus, backlog.UnplannedStatus}
@@ -67,6 +73,7 @@ var WorkCommand = cli.Command{
 			statuses = []*backlog.BacklogItemStatus{backlog.StatusByCode(statusCode)}
 		}
 
+		sorter := backlog.NewBacklogItemsSorter(overview, archive)
 		for _, status := range statuses {
 			filter := &backlog.BacklogItemsAndFilter{}
 			filter.And(backlog.NewBacklogItemsStatusCodeFilter(status.Code))
@@ -74,7 +81,7 @@ var WorkCommand = cli.Command{
 			filter.And(backlog.NewBacklogItemsTagsFilter(tags))
 			items := bck.FilteredItems(filter)
 
-			overview.SortItems(status, items)
+			sorter.SortItems(status, items)
 			lines := backlog.BacklogView{}.WriteAsciiItems(items, fmt.Sprintf("Status: %s", status.Name), false)
 			fmt.Println(strings.Join(lines, "\n"))
 			fmt.Println("")

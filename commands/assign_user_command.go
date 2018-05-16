@@ -58,14 +58,21 @@ var AssignUserCommand = cli.Command{
 			return err
 		}
 
-		items := bck.ItemsByStatus(statusCode)
+		archivePath, _ := findArchiveFileInDirectory(backlogDir)
+		archive, err := backlog.LoadBacklogOverview(archivePath)
+		if err != nil {
+			return err
+		}
+
+		items := bck.AllItemsByStatus(statusCode)
 		status := backlog.StatusByCode(statusCode)
 		if len(items) == 0 {
 			fmt.Printf("No items with status '%s'\n", status.Name)
 			return nil
 		}
 
-		overview.SortItems(status, items)
+		sorter := backlog.NewBacklogItemsSorter(overview, archive)
+		sorter.SortItems(status, items)
 		lines := backlog.BacklogView{}.WriteAsciiItems(items, fmt.Sprintf("Status: %s", status.Name), true)
 		for _, line := range lines {
 			fmt.Println(line)

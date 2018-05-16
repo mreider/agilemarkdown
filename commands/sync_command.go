@@ -80,8 +80,14 @@ func (a *SyncAction) updateOverviews(rootDir string) error {
 	for _, backlogDir := range backlogDirs {
 		overviewPath, ok := findOverviewFileInRootDirectory(backlogDir)
 		if !ok {
-			return fmt.Errorf("the index file isn't found for %s", backlogDir)
+			return fmt.Errorf("the overview file isn't found for %s", backlogDir)
 		}
+
+		err = a.moveItemsToActiveAndArchiveDirectory(backlogDir)
+		if err != nil {
+			return err
+		}
+
 		overview, err := backlog.LoadBacklogOverview(overviewPath)
 		if err != nil {
 			return err
@@ -91,13 +97,29 @@ func (a *SyncAction) updateOverviews(rootDir string) error {
 			return err
 		}
 
-		items := bck.Items()
-		overview.Update(items)
-		overview.UpdateClarifications(items)
+		archivePath, _ := findArchiveFileInDirectory(backlogDir)
+		archive, err := backlog.LoadBacklogOverview(archivePath)
+		if err != nil {
+			return err
+		}
+		archive.SetHideEmptyGroups(true)
+
+		sorter := backlog.NewBacklogItemsSorter(overview, archive)
+
+		activeItems := bck.ActiveItems()
+		overview.Update(activeItems, sorter)
+		overview.UpdateClarifications(activeItems)
+
+		archivedItems := bck.ArchivedItems()
+		archive.Update(archivedItems, sorter)
+		archive.UpdateClarifications(archivedItems)
+
 		err = overview.UpdateProgress(bck)
 		if err != nil {
 			return err
 		}
+
+		overview.UpdateArchiveLink(len(archivedItems) > 0, archivePath)
 	}
 	return nil
 }
@@ -119,6 +141,7 @@ func (a *SyncAction) syncToGit() (bool, error) {
 			conflictFiles, conflictErr := git.ConflictFiles()
 			hasConflictItems := false
 			for _, fileName := range conflictFiles {
+				fileName = strings.TrimSuffix(fileName, string(os.PathSeparator) + ArchiveFileName)
 				if strings.Contains(fileName, "/") {
 					hasConflictItems = true
 					break
@@ -152,7 +175,7 @@ func (a *SyncAction) backlogDirs(rootDir string) ([]string, error) {
 	}
 	result := make([]string, 0, len(infos))
 	for _, info := range infos {
-		if !info.IsDir() || strings.HasPrefix(info.Name(), ".") || isForbiddenBacklogName(info.Name()) {
+		if !info.IsDir() || strings.HasPrefix(info.Name(), ".") || backlog.IsForbiddenBacklogName(info.Name()) {
 			continue
 		}
 		result = append(result, filepath.Join(rootDir, info.Name()))
@@ -225,4 +248,27 @@ func (a *SyncAction) updateIdea(ideaPath string) (*backlog.BacklogIdea, error) {
 		idea.Save()
 	}
 	return idea, nil
+}
+
+func (a *SyncAction) moveItemsToActiveAndArchiveDirectory(backlogDir string) error {
+	bck, err := backlog.LoadBacklog(backlogDir)
+	if err != nil {
+		return err
+	}
+
+	for _, item := range bck.ActiveItems() {
+		err := item.MoveToBacklogDirectory()
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, item := range bck.ArchivedItems() {
+		err := item.MoveToBacklogArchiveDirectory()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

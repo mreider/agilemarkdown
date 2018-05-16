@@ -2,8 +2,15 @@ package backlog
 
 import (
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
+)
+
+var (
+	ArchiveDirectoryName  = "archive"
+	ForbiddenBacklogNames = []string{"ideas", ArchiveDirectoryName}
+	ForbiddenItemNames    = []string{ArchiveDirectoryName}
 )
 
 type Backlog struct {
@@ -11,28 +18,59 @@ type Backlog struct {
 }
 
 func LoadBacklog(backlogDir string) (*Backlog, error) {
-	infos, err := ioutil.ReadDir(backlogDir)
+	var items []*BacklogItem
+	activeItems, err := loadItems(backlogDir)
 	if err != nil {
+		return nil, err
+	}
+	items = append(items, activeItems...)
+
+	archivedItems, err := loadItems(filepath.Join(backlogDir, ArchiveDirectoryName))
+	if err != nil {
+		return nil, err
+	}
+	items = append(items, archivedItems...)
+
+	return &Backlog{items: items}, nil
+}
+
+func loadItems(dir string) ([]*BacklogItem, error) {
+	infos, err := ioutil.ReadDir(dir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, nil
+		}
 		return nil, err
 	}
 	var items []*BacklogItem
 	for _, info := range infos {
-		if !info.IsDir() && strings.HasSuffix(info.Name(), ".md") {
-			item, err := LoadBacklogItem(filepath.Join(backlogDir, info.Name()))
+		baseName := strings.TrimSuffix(info.Name(), filepath.Ext(info.Name()))
+		if !info.IsDir() && strings.HasSuffix(info.Name(), ".md") && !IsForbiddenItemName(baseName) {
+			item, err := LoadBacklogItem(filepath.Join(dir, info.Name()))
 			if err != nil {
 				return nil, err
 			}
 			items = append(items, item)
 		}
 	}
-	return &Backlog{items: items}, nil
+	return items, nil
 }
 
-func (bck *Backlog) Items() []*BacklogItem {
+func (bck *Backlog) AllItems() []*BacklogItem {
 	return bck.items
 }
 
-func (bck *Backlog) ItemsByStatus(statusCode string) []*BacklogItem {
+func (bck *Backlog) ActiveItems() []*BacklogItem {
+	filter := &BacklogItemsActiveFilter{}
+	return bck.FilteredItems(filter)
+}
+
+func (bck *Backlog) ArchivedItems() []*BacklogItem {
+	filter := &BacklogItemsArchivedFilter{}
+	return bck.FilteredItems(filter)
+}
+
+func (bck *Backlog) AllItemsByStatus(statusCode string) []*BacklogItem {
 	filter := NewBacklogItemsStatusCodeFilter(statusCode)
 	return bck.FilteredItems(filter)
 }
@@ -62,4 +100,24 @@ func (bck *Backlog) FilteredItems(filter BacklogItemsFilter) []*BacklogItem {
 		}
 	}
 	return result
+}
+
+func IsForbiddenBacklogName(backlogName string) bool {
+	backlogName = strings.ToLower(backlogName)
+	for _, name := range ForbiddenBacklogNames {
+		if strings.ToLower(name) == backlogName {
+			return true
+		}
+	}
+	return false
+}
+
+func IsForbiddenItemName(itemName string) bool {
+	itemName = strings.ToLower(itemName)
+	for _, name := range ForbiddenItemNames {
+		if strings.ToLower(name) == itemName {
+			return true
+		}
+	}
+	return false
 }
