@@ -72,9 +72,10 @@ func (overview *BacklogOverview) Update(items []*BacklogItem, sorter *BacklogIte
 		title := status.CapitalizedName()
 		statusItems := itemsByStatus[status.Name]
 		group := overview.markdown.Group(title)
+		isNewGroup := false
 		if group == nil {
 			group = &MarkdownGroup{content: overview.markdown, title: title}
-			overview.markdown.addGroup(group)
+			isNewGroup = true
 		}
 		items := make([]*BacklogItem, 0, len(statusItems))
 		for _, itemName := range statusItems {
@@ -83,8 +84,13 @@ func (overview *BacklogOverview) Update(items []*BacklogItem, sorter *BacklogIte
 				items = append(items, item)
 			}
 		}
-		newLines := BacklogView{}.WriteMarkdownItems(items, filepath.Dir(overview.markdown.contentPath))
-		group.ReplaceLines(newLines)
+		if len(items) > 0 || !overview.markdown.HideEmptyGroups || !isNewGroup {
+			if isNewGroup {
+				overview.markdown.addGroup(group)
+			}
+			newLines := BacklogView{}.WriteMarkdownItems(items, filepath.Dir(overview.markdown.contentPath))
+			group.ReplaceLines(newLines)
+		}
 	}
 	overview.Save()
 }
@@ -139,12 +145,14 @@ func (overview *BacklogOverview) sortGroupsByStatus() {
 
 func (overview *BacklogOverview) UpdateClarifications(items []*BacklogItem) {
 	group := overview.markdown.Group(ClarificationsTitle)
+	isNewGroup := false
 	if group == nil {
 		group = &MarkdownGroup{content: overview.markdown, title: ClarificationsTitle}
-		overview.markdown.addGroup(group)
+		isNewGroup = true
 	}
 
-	lines := []string{"| User | Excerpt | Story |", "|---|---|---|"}
+	header := []string{"| User | Excerpt | Story |", "|---|---|---|"}
+	var lines []string
 	for _, item := range items {
 		for _, comment := range item.Comments() {
 			if comment.Closed {
@@ -168,7 +176,13 @@ func (overview *BacklogOverview) UpdateClarifications(items []*BacklogItem) {
 			lines = append(lines, fmt.Sprintf("| %s | %s | %s |", comment.User, strings.Join(text, " "), MakeItemLink(item, filepath.Dir(overview.markdown.contentPath))))
 		}
 	}
-	group.ReplaceLines(lines)
+	if len(lines) > 0 || !overview.markdown.HideEmptyGroups || !isNewGroup {
+		if isNewGroup {
+			overview.markdown.addGroup(group)
+		}
+		lines = append(header, lines...)
+		group.ReplaceLines(lines)
+	}
 	overview.Save()
 }
 
