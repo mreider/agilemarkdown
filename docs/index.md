@@ -2,50 +2,35 @@
 
 Agilemarkdown is framework for managing agile projects using markdown files.
 
-Here's why we built it:
-
-- We like the flexibility of files over the opinionated structure of a web interface
-- We'd rather use open source software than hand money over to Pivotal, Atlassian, Rally, or Aha
-- We want to cut down on the number of tools we use and integrate with existing ones
-- Our engineers spend all their time on the command line, in text editors, and in git
-- We thought it would be fun to build it
-
-## Getting started
+## Installation
 
 Before you get started visit the [readme page](https://github.com/mreider/agilemarkdown) and install the agilemarkdown CLI.
 
-The best way to get started is to use Github's Wiki feature as a place to manage agilemarkdown backlogs. If your team uses a number of Github repositories, or already uses the wiki of the main repository, you should create a new repo just for backlog management. If your team uses one Github repository, and there is no existing wiki content, use that.
-
-Since you can't clone an empty Github wiki, you must create a home page. Begin by accessing your repo's wiki and creating the first page. It's just a placeholder for now - with a simple welcome message.
-
-![Github Wiki Welcome Message](https://monosnap.com/image/VdA9yvJv9iWbYWqkccdpcU4XVt1kP6.png)
-![First page](https://monosnap.com/image/6csVFgCZrTUWwWXAuGaSivpnmAuBAy.png)
-
-After creating the first page, you can clone the wiki to your local machine. Github Wiki repositories use the repository address with the word 'wiki' in the file extension:
+The best way to get started is to create an empty Github repository for your markdown files and clone it locally.
 
 ```
-git clone git@github.com:mreider/agileproject.wiki.git
-Cloning into 'agileproject'...
+git clone git@github.com:mreider/agile-project.git
+Cloning into 'agile-project'...
 remote: Counting objects: 4, done.
 remote: Compressing objects: 100% (4/4), done.
 remote: Total 4 (delta 0), reused 0 (delta 0), pack-reused 0
 Receiving objects: 100% (4/4), done.
 ```
 
-With the Github Wiki page on your local machine you can create your first backlog using agilemarkdown
+With the Github repo on your local machine you can create your first backlog using agilemarkdown.
 
 ```
-cd agileproject
-am create-backlog paint-the-house
+cd agile-project
+am create-backlog paint the house
 ```
 
-Cool. Now you have a backlog named paint-the-house. Now sync your project with Github and look at your wiki page online. The overview page should appear with a link to your project and a graph of your velocity, which is zero of course.
+Cool. Now you have a backlog named paint-the-house. You also have a few new files, and folders, on your machine:
 
-```
-am sync
-```
+- index.md is an overview page that shows all of your backlogs. So far we only have one.
+- agile-project.md is a project page that shows all of the stories in your backlog. We don't have any yet.
+- agile-project is a folder that will contain all of your stories. So far we have none.
+- ideas is a folder where users will drop ideas that you can decide to put in your backlog
 
-![Project View](https://monosnap.com/image/F8raU3cNHhf5WpYVFptEPxfCfaTMjn.png)
 
 ## Creating stories in a backlog
 
@@ -62,11 +47,9 @@ Once the file is created you can start editing the story using your favorite tex
 
 ![Edit the story in a text editor](https://monosnap.com/image/dgLPinN9gCJLTruBMqTwGdwb0sllan.png)
 
-After you edit the file, you could sync to the wiki using `am sync` to make your changes are available. If you do this, you might notice that the home page on the wiki looks the same as it did before. That's because nobody has started working on these stories - and nothing is planned.
+After you edit the file, you could sync to the wiki using `am sync` to generate new project pages and push everything up to github.
 
-From the home page you can click on the project page to see the story listed.
-
-![Project page](https://monosnap.com/image/EC6liJITrt6Fwg6fmG3OaWDWQ89ZIc.png)
+`am sync`
 
 ## Managing stories in a backlog
 
