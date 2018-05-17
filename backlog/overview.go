@@ -83,7 +83,7 @@ func (overview *BacklogOverview) Update(items []*BacklogItem, sorter *BacklogIte
 				items = append(items, item)
 			}
 		}
-		newLines := BacklogView{}.WriteMarkdownItems(items)
+		newLines := BacklogView{}.WriteMarkdownItems(items, filepath.Dir(overview.markdown.contentPath))
 		group.ReplaceLines(newLines)
 	}
 	overview.Save()
@@ -144,7 +144,7 @@ func (overview *BacklogOverview) UpdateClarifications(items []*BacklogItem) {
 		overview.markdown.addGroup(group)
 	}
 
-	lines := []string{" User | Excerpt | Story ", "---|---|---"}
+	lines := []string{"| User | Excerpt | Story |", "|---|---|---|"}
 	for _, item := range items {
 		for _, comment := range item.Comments() {
 			if comment.Closed {
@@ -165,7 +165,7 @@ func (overview *BacklogOverview) UpdateClarifications(items []*BacklogItem) {
 				}
 			}
 
-			lines = append(lines, fmt.Sprintf(" %s | %s | [%s](%s) ", comment.User, strings.Join(text, " "), item.Title(), item.Name()))
+			lines = append(lines, fmt.Sprintf("| %s | %s | %s |", comment.User, strings.Join(text, " "), MakeItemLink(item, filepath.Dir(overview.markdown.contentPath))))
 		}
 	}
 	group.ReplaceLines(lines)
@@ -212,7 +212,7 @@ func (overview *BacklogOverview) UpdateProgress(bck *Backlog) error {
 func (overview *BacklogOverview) UpdateArchiveLink(hasArchiveItems bool, archivePath string) {
 	if hasArchiveItems {
 		archiveFileName := filepath.Base(archivePath)
-		overview.markdown.SetFooter([]string{fmt.Sprintf("[Archived stories](%s)", strings.TrimSuffix(archiveFileName, filepath.Ext(archiveFileName)))})
+		overview.markdown.SetFooter([]string{utils.MakeMarkdownLink("Archived stories", archiveFileName, filepath.Dir(overview.markdown.contentPath))})
 	} else {
 		overview.markdown.SetFooter(nil)
 	}

@@ -1,6 +1,9 @@
 package utils
 
 import (
+	"fmt"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -96,4 +99,13 @@ func GetTimestamp(moment time.Time) string {
 
 func ParseTimestamp(timestamp string) (time.Time, error) {
 	return time.Parse(timestampLayout, timestamp)
+}
+
+func MakeMarkdownLink(linkTitle, linkPath, baseDir string) string {
+	linkPath, _ = filepath.Abs(linkPath)
+	baseDir, _ = filepath.Abs(baseDir)
+	linkPath = strings.TrimPrefix(linkPath, baseDir)
+	linkPath = strings.TrimPrefix(linkPath, string(os.PathSeparator))
+
+	return fmt.Sprintf("[%s](%s)", linkTitle, linkPath)
 }

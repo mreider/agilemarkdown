@@ -141,7 +141,7 @@ func (a *SyncAction) syncToGit() (bool, error) {
 			conflictFiles, conflictErr := git.ConflictFiles()
 			hasConflictItems := false
 			for _, fileName := range conflictFiles {
-				fileName = strings.TrimSuffix(fileName, string(os.PathSeparator) + ArchiveFileName)
+				fileName = strings.TrimSuffix(fileName, string(os.PathSeparator)+ArchiveFileName)
 				if strings.Contains(fileName, "/") {
 					hasConflictItems = true
 					break
@@ -215,7 +215,7 @@ func (a *SyncAction) updateIdeas(rootDir string) error {
 		ideas = append(ideas, idea)
 	}
 
-	lines := backlog.BacklogView{}.WriteMarkdownIdeas(ideas)
+	lines := backlog.BacklogView{}.WriteMarkdownIdeas(ideas, rootDir)
 	return ioutil.WriteFile(filepath.Join(rootDir, "ideas.md"), []byte(strings.Join(lines, "\n")), 0644)
 }
 

@@ -1,6 +1,10 @@
 package backlog
 
-import "sort"
+import (
+	"path/filepath"
+	"sort"
+	"strings"
+)
 
 type BacklogItemsSorter struct {
 	sortedItemsByStatus map[string][]string
@@ -53,7 +57,10 @@ func (s *BacklogItemsSorter) updateSortedItems(overview *BacklogOverview, sorted
 		for _, line := range group.lines {
 			matches := overviewItemRe.FindStringSubmatch(line)
 			if len(matches) > 0 {
-				sortedItemsByStatus[status.Name] = append(sortedItemsByStatus[status.Name], matches[1])
+				itemPath := matches[1]
+				itemName := filepath.Base(itemPath)
+				itemName = strings.TrimSuffix(itemName, filepath.Ext(itemName))
+				sortedItemsByStatus[status.Name] = append(sortedItemsByStatus[status.Name], itemName)
 			}
 		}
 	}
