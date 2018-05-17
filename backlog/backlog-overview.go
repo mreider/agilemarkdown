@@ -27,7 +27,7 @@ type BacklogOverview struct {
 }
 
 func LoadBacklogOverview(overviewPath string) (*BacklogOverview, error) {
-	markdown, err := LoadMarkdown(overviewPath, []string{BacklogOverviewTitleMetadataKey, CreatedMetadataKey, ModifiedMetadataKey}, true, OverviewFooterRe)
+	markdown, err := LoadMarkdown(overviewPath, []string{BacklogOverviewTitleMetadataKey, CreatedMetadataKey, ModifiedMetadataKey}, "### ", OverviewFooterRe)
 	if err != nil {
 		return nil, err
 	}

@@ -40,7 +40,7 @@ func LoadBacklogItem(itemPath string) (*BacklogItem, error) {
 	markdown, err := LoadMarkdown(itemPath, []string{
 		BacklogItemTitleMetadataKey, CreatedMetadataKey, ModifiedMetadataKey, BacklogItemAuthorMetadataKey,
 		BacklogItemStatusMetadataKey, BacklogItemAssignedMetadataKey, BacklogItemEstimateMetadataKey,
-		BacklogItemTagsMetadataKey, BacklogItemArchiveMetadataKey}, false, nil)
+		BacklogItemTagsMetadataKey, BacklogItemArchiveMetadataKey}, "", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func NewBacklogItem(name string, markdownData string) *BacklogItem {
 	markdown := NewMarkdown(markdownData, "", []string{
 		BacklogItemTitleMetadataKey, CreatedMetadataKey, ModifiedMetadataKey, BacklogItemAuthorMetadataKey,
 		BacklogItemStatusMetadataKey, BacklogItemAssignedMetadataKey, BacklogItemEstimateMetadataKey,
-		BacklogItemTagsMetadataKey, BacklogItemArchiveMetadataKey}, false, nil)
+		BacklogItemTagsMetadataKey, BacklogItemArchiveMetadataKey}, "", nil)
 	return &BacklogItem{name, markdown}
 }
 

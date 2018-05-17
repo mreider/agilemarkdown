@@ -13,21 +13,22 @@ import (
 const (
 	CreatedMetadataKey  = "Created"
 	ModifiedMetadataKey = "Modified"
-	GroupTitlePrefix    = "### "
 )
 
 type MarkdownContent struct {
-	contentPath string
-	isDirty     bool
-	metadata    *MarkdownMetadata
-	groups      []*MarkdownGroup
-	freeText    []string
-	footer      []string
+	contentPath      string
+	groupTitlePrefix string
+
+	isDirty  bool
+	metadata *MarkdownMetadata
+	groups   []*MarkdownGroup
+	freeText []string
+	footer   []string
 
 	HideEmptyGroups bool
 }
 
-func LoadMarkdown(markdownPath string, metadataKeys []string, parseGroups bool, footerRe *regexp.Regexp) (*MarkdownContent, error) {
+func LoadMarkdown(markdownPath string, metadataKeys []string, groupTitlePrefix string, footerRe *regexp.Regexp) (*MarkdownContent, error) {
 	var err error
 	if _, err = os.Stat(markdownPath); err != nil && !os.IsNotExist(err) {
 		return nil, err
@@ -45,23 +46,23 @@ func LoadMarkdown(markdownPath string, metadataKeys []string, parseGroups bool, 
 			return nil, err
 		}
 	}
-	return NewMarkdown(string(data), markdownPath, metadataKeys, parseGroups, footerRe), nil
+	return NewMarkdown(string(data), markdownPath, metadataKeys, groupTitlePrefix, footerRe), nil
 }
 
-func NewMarkdown(data, markdownPath string, metadataKeys []string, parseGroups bool, footerRe *regexp.Regexp) *MarkdownContent {
-	content := &MarkdownContent{contentPath: markdownPath, metadata: NewMarkdownMetadata(metadataKeys)}
+func NewMarkdown(data, markdownPath string, metadataKeys []string, groupTitlePrefix string, footerRe *regexp.Regexp) *MarkdownContent {
+	content := &MarkdownContent{contentPath: markdownPath, groupTitlePrefix: groupTitlePrefix, metadata: NewMarkdownMetadata(metadataKeys)}
 	if len(data) > 0 {
 		lines := strings.Split(data, "\n")
 		parsed := content.metadata.ParseLines(lines)
 
-		if parseGroups {
+		if groupTitlePrefix != "" {
 			var currentGroup *MarkdownGroup
 			for _, line := range lines[parsed:] {
-				if strings.HasPrefix(line, GroupTitlePrefix) {
+				if strings.HasPrefix(line, groupTitlePrefix) {
 					if currentGroup != nil {
 						content.addGroup(currentGroup)
 					}
-					currentGroup = &MarkdownGroup{content: content, title: strings.TrimSpace(strings.TrimPrefix(line, GroupTitlePrefix))}
+					currentGroup = &MarkdownGroup{content: content, title: strings.TrimSpace(strings.TrimPrefix(line, groupTitlePrefix))}
 				} else if currentGroup != nil {
 					if footerRe != nil && footerRe.MatchString(line) {
 						content.addGroup(currentGroup)
@@ -121,8 +122,10 @@ func (content *MarkdownContent) Content(timestamp string) []byte {
 		}
 	}
 	result := bytes.NewBuffer(nil)
-	result.WriteString(strings.Join(content.metadata.RawLines(), "\n"))
-	result.WriteString("\n")
+	if !content.metadata.Empty() {
+		result.WriteString(strings.Join(content.metadata.RawLines(), "\n"))
+		result.WriteString("\n")
+	}
 	for i, line := range content.freeText {
 		result.WriteString(line)
 		if i < len(content.freeText)-1 {
@@ -140,7 +143,7 @@ func (content *MarkdownContent) Content(timestamp string) []byte {
 			}
 			if nonEmptyLineCount > 2 || !content.HideEmptyGroups {
 				result.WriteString("\n")
-				result.WriteString(fmt.Sprintf("%s%s", GroupTitlePrefix, group.title))
+				result.WriteString(fmt.Sprintf("%s%s", content.groupTitlePrefix, group.title))
 				result.WriteString("\n")
 				result.WriteString(strings.Join(lines, "\n"))
 				result.WriteString("\n")
@@ -174,8 +177,9 @@ func (content *MarkdownContent) GroupCount() int {
 }
 
 func (content *MarkdownContent) Group(title string) *MarkdownGroup {
+	title = strings.ToLower(title)
 	for _, group := range content.groups {
-		if group.title == title {
+		if strings.ToLower(group.title) == title {
 			return group
 		}
 	}

@@ -20,7 +20,7 @@ type BacklogIdea struct {
 
 func LoadBacklogIdea(ideaPath string) (*BacklogIdea, error) {
 	markdown, err := LoadMarkdown(ideaPath, []string{
-		BacklogIdeaTitleMetadataKey, CreatedMetadataKey, ModifiedMetadataKey, BacklogIdeaAuthorMetadataKey, BacklogIdeaTagsMetadataKey}, false, nil)
+		BacklogIdeaTitleMetadataKey, CreatedMetadataKey, ModifiedMetadataKey, BacklogIdeaAuthorMetadataKey, BacklogIdeaTagsMetadataKey}, "", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +31,7 @@ func LoadBacklogIdea(ideaPath string) (*BacklogIdea, error) {
 
 func NewBacklogIdea(name string, markdownData string) *BacklogIdea {
 	markdown := NewMarkdown(markdownData, "", []string{
-		BacklogIdeaTitleMetadataKey, CreatedMetadataKey, ModifiedMetadataKey, BacklogIdeaAuthorMetadataKey, BacklogIdeaTagsMetadataKey}, false, nil)
+		BacklogIdeaTitleMetadataKey, CreatedMetadataKey, ModifiedMetadataKey, BacklogIdeaAuthorMetadataKey, BacklogIdeaTagsMetadataKey}, "", nil)
 	return &BacklogIdea{name, markdown}
 }
 
