@@ -51,7 +51,9 @@ func (s *BacklogItemsSorter) updateSortedItems(overview *BacklogOverview, sorted
 		title := status.CapitalizedName()
 		group := overview.markdown.Group(title)
 		if group == nil {
-			sortedItemsByStatus[status.Name] = nil
+			if _, ok := sortedItemsByStatus[status.Name]; !ok {
+				sortedItemsByStatus[status.Name] = nil
+			}
 			continue
 		}
 		for _, line := range group.lines {
