@@ -19,3 +19,13 @@ func MakeIdeaLink(idea *BacklogIdea, baseDir string) string {
 	}
 	return utils.MakeMarkdownLink(idea.Title(), ideaPath, baseDir)
 }
+
+func MakeOverviewLink(overview *BacklogOverview, baseDir string) string {
+	overviewPath := overview.markdown.contentPath
+	return utils.MakeMarkdownLink(overview.Title(), overviewPath, baseDir)
+}
+
+func MakeArchiveLink(archive *BacklogOverview, title string, baseDir string) string {
+	archivePath := archive.markdown.contentPath
+	return utils.MakeMarkdownLink(title, archivePath, baseDir)
+}

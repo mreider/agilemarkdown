@@ -29,7 +29,7 @@ Story 8 [Story8](Story8) - -
 )
 
 func TestOverviewCreate(t *testing.T) {
-	markdown := backlog.NewMarkdown(markdownOverviewData, "", []string{"Title", "Data"}, true, backlog.OverviewFooterRe)
+	markdown := backlog.NewMarkdown(markdownOverviewData, "", []string{"Title", "Data"}, "### ", backlog.OverviewFooterRe)
 	overview := backlog.NewBacklogOverview(markdown)
 	sorter := backlog.NewBacklogItemsSorter(overview)
 	itemsByStatus := sorter.SortedItemsByStatus()
@@ -68,7 +68,7 @@ func TestOverviewUpdate(t *testing.T) {
 
 [Archived stories](archive.md)`
 
-	markdown := backlog.NewMarkdown(markdownOverviewData, "", []string{"Title", "Data"}, true, backlog.OverviewFooterRe)
+	markdown := backlog.NewMarkdown(markdownOverviewData, "", []string{"Title", "Data"}, "### ", backlog.OverviewFooterRe)
 	overview := backlog.NewBacklogOverview(markdown)
 	sorter := backlog.NewBacklogItemsSorter(overview)
 	overview.SetTitle("new backlog")

@@ -15,6 +15,10 @@ import (
 	"time"
 )
 
+const (
+	IdeasFileName = "ideas.md"
+)
+
 var SyncCommand = cli.Command{
 	Name:      "sync",
 	Usage:     "Sync state",
@@ -47,7 +51,7 @@ func (a *SyncAction) Execute() error {
 	for attempts > 0 {
 		attempts--
 
-		err := a.updateOverviews(rootDir)
+		err := a.updateOverviewsAndIndex(rootDir)
 		if err != nil {
 			return err
 		}
@@ -72,11 +76,26 @@ func (a *SyncAction) Execute() error {
 	return errors.New("can't sync: too many failed attempts")
 }
 
-func (a *SyncAction) updateOverviews(rootDir string) error {
+func (a *SyncAction) updateOverviewsAndIndex(rootDir string) error {
 	backlogDirs, err := a.backlogDirs(rootDir)
 	if err != nil {
 		return err
 	}
+	indexPath := filepath.Join(rootDir, "index.md")
+	index, err := backlog.LoadGlobalIndex(indexPath)
+	if err != nil {
+		return err
+	}
+	if len(index.FreeText()) == 0 {
+		index.SetFreeText([]string{
+			"# Agile Markdown",
+			"",
+			"Welcome to Agilemarkdown, an open source backlog manager that uses Markdown and Git. To read more about the project visit [agilemarkdown.com](http://agilemarkdown.com)",
+			"",
+		})
+	}
+	overviews := make([]*backlog.BacklogOverview, 0, len(backlogDirs))
+	archives := make([]*backlog.BacklogOverview, 0, len(backlogDirs))
 	for _, backlogDir := range backlogDirs {
 		overviewPath, ok := findOverviewFileInRootDirectory(backlogDir)
 		if !ok {
@@ -104,6 +123,9 @@ func (a *SyncAction) updateOverviews(rootDir string) error {
 		}
 		archive.SetHideEmptyGroups(true)
 
+		overviews = append(overviews, overview)
+		archives = append(archives, archive)
+
 		sorter := backlog.NewBacklogItemsSorter(overview, archive)
 
 		activeItems := bck.ActiveItems()
@@ -121,6 +143,9 @@ func (a *SyncAction) updateOverviews(rootDir string) error {
 
 		overview.UpdateArchiveLink(len(archivedItems) > 0, archivePath)
 	}
+	index.UpdateBacklogs(overviews, archives, rootDir)
+	index.UpdateIdeas(filepath.Join(rootDir, IdeasFileName), rootDir)
+
 	return nil
 }
 
@@ -216,7 +241,7 @@ func (a *SyncAction) updateIdeas(rootDir string) error {
 	}
 
 	lines := backlog.BacklogView{}.WriteMarkdownIdeas(ideas, rootDir)
-	return ioutil.WriteFile(filepath.Join(rootDir, "ideas.md"), []byte(strings.Join(lines, "\n")), 0644)
+	return ioutil.WriteFile(filepath.Join(rootDir, IdeasFileName), []byte(strings.Join(lines, "\n")), 0644)
 }
 
 func (a *SyncAction) updateIdea(ideaPath string) (*backlog.BacklogIdea, error) {
