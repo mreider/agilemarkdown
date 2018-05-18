@@ -40,6 +40,7 @@ func (index *GlobalIndex) UpdateBacklogs(overviews []*BacklogOverview, archives 
 		lines = append(lines, MakeArchiveLink(archives[i], "archive", baseDir))
 		if i < len(overviews)-1 {
 			lines = append(lines, "")
+			lines = append(lines, "---")
 		}
 	}
 
