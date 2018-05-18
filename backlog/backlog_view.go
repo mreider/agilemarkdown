@@ -107,10 +107,10 @@ func (bv BacklogView) Progress(bck *Backlog, weekCount, width int) (string, erro
 
 func (bv BacklogView) WriteMarkdownIdeas(ideas []*BacklogIdea, baseDir string) []string {
 	result := make([]string, 0, 50)
-	headers := make([]string, 0, 2)
-	headers = append(headers, fmt.Sprintf("| Author | Idea | Tags |"))
-	headers = append(headers, "|---|---|---|")
-	result = append(result, headers...)
+	result = append(result, "# Ideas")
+	result = append(result, "")
+	result = append(result, fmt.Sprintf("| Author | Idea | Tags |"))
+	result = append(result, "|---|---|---|")
 	for _, idea := range ideas {
 		tags := strings.Join(idea.Tags(), " ")
 		line := fmt.Sprintf("| %s | %s | %s |", idea.Author(), MakeIdeaLink(idea, baseDir), tags)
