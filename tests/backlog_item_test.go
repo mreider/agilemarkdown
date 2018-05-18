@@ -7,15 +7,14 @@ import (
 )
 
 const (
-	itemMarkdownData = `Title: support for clarification requests  
+	itemMarkdownData = `# Support for clarification requests
+
 Created: 2018-05-03 03:32 PM  
 Modified: 2018-05-08 09:18 PM  
 Author: mreider  
 Status: doing  
 Assigned: falconandy  
 Estimate: 3  
-
-# Support for clarification requests
 
 ## Problem statement
 
@@ -44,7 +43,7 @@ How to do?
 func TestBacklogItem(t *testing.T) {
 	item := backlog.NewBacklogItem("comments", itemMarkdownData)
 
-	assert.Equal(t, "support for clarification requests", item.Title())
+	assert.Equal(t, "Support for clarification requests", item.Title())
 	assert.Equal(t, "2018-05-03 15:32", item.Created().Format("2006-01-02 15:04"))
 	assert.Equal(t, "2018-05-08 21:18", item.Modified().Format("2006-01-02 15:04"))
 	assert.Equal(t, "mreider", item.Author())

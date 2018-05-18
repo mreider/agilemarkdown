@@ -10,9 +10,7 @@ import (
 	"strings"
 )
 
-const newItemTemplate = `# %s
-
-## Problem statement
+const newItemTemplate = `## Problem statement
 
 ## Possible solution
 
@@ -56,7 +54,7 @@ var CreateItemCommand = cli.Command{
 		if err != nil {
 			return err
 		}
-		item.SetTitle(itemTitle)
+		item.SetTitle(utils.TitleFirstLetter(itemTitle))
 		item.SetCreated("")
 		item.SetModified()
 		item.SetTags(nil)
@@ -64,7 +62,7 @@ var CreateItemCommand = cli.Command{
 		item.SetStatus(backlog.UnplannedStatus)
 		item.SetAssigned("")
 		item.SetEstimate("")
-		item.SetDescription(fmt.Sprintf(newItemTemplate, utils.TitleFirstLetter(itemTitle)))
+		item.SetDescription(newItemTemplate)
 		return item.Save()
 	},
 }

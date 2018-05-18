@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	markdownOverviewData = `Title: test backlog  
+	markdownOverviewData = `# Test backlog  
 
 ### Doing
 Story 1 [Story1](Story1) - -  
@@ -41,7 +41,7 @@ func TestOverviewCreate(t *testing.T) {
 }
 
 func TestOverviewUpdate(t *testing.T) {
-	updatedOverviewData := `Title: new backlog  
+	updatedOverviewData := `# New backlog
 
 ### Doing
 | User | Title | Points | Tags |
@@ -71,7 +71,7 @@ func TestOverviewUpdate(t *testing.T) {
 	markdown := backlog.NewMarkdown(markdownOverviewData, "", []string{"Title", "Data"}, "### ", backlog.OverviewFooterRe)
 	overview := backlog.NewBacklogOverview(markdown)
 	sorter := backlog.NewBacklogItemsSorter(overview)
-	overview.SetTitle("new backlog")
+	overview.SetTitle("New backlog")
 
 	story1 := createBacklogItem("Story1", "First story", "doing", "10", "mike")
 	story2 := createBacklogItem("Story2", "Second story", "finished", "15", "robert")

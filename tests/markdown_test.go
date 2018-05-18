@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	markdownData = `Title: test backlog
+	markdownData = `# Test backlog
+
 Data: test
 
 ### Doing
@@ -30,8 +31,8 @@ Story 8 [link8](link8.md) (points) (assigned)
 )
 
 func TestMarkdownLoad(t *testing.T) {
-	content := backlog.NewMarkdown(markdownData, "", []string{"Title", "Data"}, "### ", backlog.OverviewFooterRe)
-	assert.Equal(t, "test backlog", content.MetadataValue("title"))
+	content := backlog.NewMarkdown(markdownData, "", []string{"Data"}, "### ", backlog.OverviewFooterRe)
+	assert.Equal(t, "Test backlog", content.Title())
 	assert.Equal(t, 4, content.GroupCount())
 
 	assert.Equal(t, "Doing", content.Group("Doing").Title())
@@ -53,7 +54,8 @@ func TestMarkdownLoad(t *testing.T) {
 }
 
 func TestMarkdownSave(t *testing.T) {
-	updatedData := `Title: new backlog  
+	updatedData := `# New backlog
+
 Data: test  
 
 ### Doing
@@ -75,8 +77,8 @@ Story 4 [link4](link4.md) (points) (assigned)
 footer1
 footer2`
 
-	content := backlog.NewMarkdown(markdownData, "", []string{"Title", "Data"}, "### ", backlog.OverviewFooterRe)
-	content.SetMetadataValue("title", "new backlog")
+	content := backlog.NewMarkdown(markdownData, "", []string{"Data"}, "### ", backlog.OverviewFooterRe)
+	content.SetTitle("New backlog")
 	content.Group("Doing").SetLine(0, "Story 1 [link1](link1.md) 12 Mike")
 	content.Group("Planned").AddLine("Story 9 [link9](link9.md) 9 Robert")
 	content.Group("Unplanned").DeleteLine(1)

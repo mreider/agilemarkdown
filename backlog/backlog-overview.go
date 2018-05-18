@@ -11,9 +11,8 @@ import (
 )
 
 const (
-	BacklogOverviewTitleMetadataKey = "Title"
-	ExcerptMaxSize                  = 100
-	ClarificationsTitle             = "Clarifications"
+	ExcerptMaxSize      = 100
+	ClarificationsTitle = "Clarifications"
 )
 
 var (
@@ -27,7 +26,7 @@ type BacklogOverview struct {
 }
 
 func LoadBacklogOverview(overviewPath string) (*BacklogOverview, error) {
-	markdown, err := LoadMarkdown(overviewPath, []string{BacklogOverviewTitleMetadataKey, CreatedMetadataKey, ModifiedMetadataKey}, "### ", OverviewFooterRe)
+	markdown, err := LoadMarkdown(overviewPath, []string{CreatedMetadataKey, ModifiedMetadataKey}, "### ", OverviewFooterRe)
 	if err != nil {
 		return nil, err
 	}
@@ -50,11 +49,11 @@ func (overview *BacklogOverview) Content(timestamp string) []byte {
 }
 
 func (overview *BacklogOverview) Title() string {
-	return overview.markdown.MetadataValue(BacklogOverviewTitleMetadataKey)
+	return overview.markdown.Title()
 }
 
 func (overview *BacklogOverview) SetTitle(title string) {
-	overview.markdown.SetMetadataValue(BacklogOverviewTitleMetadataKey, title)
+	overview.markdown.SetTitle(title)
 }
 
 func (overview *BacklogOverview) SetCreated() {
