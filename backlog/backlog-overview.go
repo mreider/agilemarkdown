@@ -187,7 +187,7 @@ func (overview *BacklogOverview) UpdateClarifications(items []*BacklogItem) {
 }
 
 func (overview *BacklogOverview) UpdateProgress(bck *Backlog) error {
-	chart, err := BacklogView{}.Progress(bck, 12, 60)
+	chart, err := BacklogView{}.Progress(bck, 12, 84)
 	if err != nil {
 		return err
 	}
