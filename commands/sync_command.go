@@ -133,6 +133,7 @@ func (a *SyncAction) updateOverviewsAndIndex(rootDir string) error {
 		overview.UpdateClarifications(activeItems)
 
 		archivedItems := bck.ArchivedItems()
+		archive.SetTitle(fmt.Sprintf("Archive: %s", overview.Title()))
 		archive.Update(archivedItems, sorter)
 		archive.UpdateClarifications(archivedItems)
 

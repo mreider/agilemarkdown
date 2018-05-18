@@ -8,7 +8,6 @@ import (
 )
 
 const (
-	BacklogIdeaTitleMetadataKey  = "Title"
 	BacklogIdeaAuthorMetadataKey = "Author"
 	BacklogIdeaTagsMetadataKey   = "Tags"
 )
@@ -20,7 +19,7 @@ type BacklogIdea struct {
 
 func LoadBacklogIdea(ideaPath string) (*BacklogIdea, error) {
 	markdown, err := LoadMarkdown(ideaPath, []string{
-		BacklogIdeaTitleMetadataKey, CreatedMetadataKey, ModifiedMetadataKey, BacklogIdeaAuthorMetadataKey, BacklogIdeaTagsMetadataKey}, "", nil)
+		CreatedMetadataKey, ModifiedMetadataKey, BacklogIdeaAuthorMetadataKey, BacklogIdeaTagsMetadataKey}, "", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +30,7 @@ func LoadBacklogIdea(ideaPath string) (*BacklogIdea, error) {
 
 func NewBacklogIdea(name string, markdownData string) *BacklogIdea {
 	markdown := NewMarkdown(markdownData, "", []string{
-		BacklogIdeaTitleMetadataKey, CreatedMetadataKey, ModifiedMetadataKey, BacklogIdeaAuthorMetadataKey, BacklogIdeaTagsMetadataKey}, "", nil)
+		CreatedMetadataKey, ModifiedMetadataKey, BacklogIdeaAuthorMetadataKey, BacklogIdeaTagsMetadataKey}, "", nil)
 	return &BacklogIdea{name, markdown}
 }
 
@@ -48,11 +47,11 @@ func (idea *BacklogIdea) HasMetadata() bool {
 }
 
 func (idea *BacklogIdea) Title() string {
-	return idea.markdown.MetadataValue(BacklogIdeaTitleMetadataKey)
+	return idea.markdown.Title()
 }
 
 func (idea *BacklogIdea) SetTitle(title string) {
-	idea.markdown.SetMetadataValue(BacklogIdeaTitleMetadataKey, title)
+	idea.markdown.SetTitle(title)
 }
 
 func (idea *BacklogIdea) SetCreated(timestamp string) {

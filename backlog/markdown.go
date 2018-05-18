@@ -20,6 +20,7 @@ type MarkdownContent struct {
 	groupTitlePrefix string
 
 	isDirty  bool
+	title    string
 	metadata *MarkdownMetadata
 	groups   []*MarkdownGroup
 	freeText []string
@@ -53,7 +54,12 @@ func NewMarkdown(data, markdownPath string, metadataKeys []string, groupTitlePre
 	content := &MarkdownContent{contentPath: markdownPath, groupTitlePrefix: groupTitlePrefix, metadata: NewMarkdownMetadata(metadataKeys)}
 	if len(data) > 0 {
 		lines := strings.Split(data, "\n")
-		parsed := content.metadata.ParseLines(lines)
+		metadataIndex := 0
+		if strings.HasPrefix(lines[0], "# ") {
+			content.title = strings.TrimSpace(strings.TrimPrefix(lines[0], "# "))
+			metadataIndex = 1
+		}
+		parsed := content.metadata.ParseLines(lines[metadataIndex:]) + metadataIndex
 
 		if groupTitlePrefix != "" {
 			var currentGroup *MarkdownGroup
@@ -122,7 +128,12 @@ func (content *MarkdownContent) Content(timestamp string) []byte {
 		}
 	}
 	result := bytes.NewBuffer(nil)
+	if content.title != "" {
+		result.WriteString(fmt.Sprintf("# %s", content.title))
+		result.WriteString("\n")
+	}
 	if !content.metadata.Empty() {
+		result.WriteString("\n")
 		result.WriteString(strings.Join(content.metadata.RawLines(), "\n"))
 		result.WriteString("\n")
 	}
@@ -215,4 +226,15 @@ func (content *MarkdownContent) SetFooter(footer []string) {
 
 func (content *MarkdownContent) markDirty() {
 	content.isDirty = true
+}
+
+func (content *MarkdownContent) Title() string {
+	return content.title
+}
+
+func (content *MarkdownContent) SetTitle(title string) {
+	if content.title != title {
+		content.title = title
+		content.markDirty()
+	}
 }
