@@ -15,12 +15,17 @@ const (
 	ModifiedMetadataKey = "Modified"
 )
 
+var (
+	linksRe = regexp.MustCompile(`^(\[[^])]+]\([^])]+\)\s*)+$`)
+)
+
 type MarkdownContent struct {
 	contentPath      string
 	groupTitlePrefix string
 
 	isDirty  bool
 	title    string
+	links    string
 	metadata *MarkdownMetadata
 	groups   []*MarkdownGroup
 	freeText []string
@@ -58,6 +63,18 @@ func NewMarkdown(data, markdownPath string, metadataKeys []string, groupTitlePre
 		if strings.HasPrefix(lines[0], "# ") {
 			content.title = strings.TrimSpace(strings.TrimPrefix(lines[0], "# "))
 			metadataIndex = 1
+		}
+		for metadataIndex < len(lines) {
+			line := strings.TrimSpace(lines[metadataIndex])
+			if linksRe.MatchString(line) {
+				content.links = line
+				metadataIndex++
+				break
+			}
+			if line != "" {
+				break
+			}
+			metadataIndex++
 		}
 		parsed := content.metadata.ParseLines(lines[metadataIndex:]) + metadataIndex
 
@@ -130,6 +147,11 @@ func (content *MarkdownContent) Content(timestamp string) []byte {
 	result := bytes.NewBuffer(nil)
 	if content.title != "" {
 		result.WriteString(fmt.Sprintf("# %s", content.title))
+		result.WriteString("\n")
+	}
+	if content.links != "" {
+		result.WriteString("\n")
+		result.WriteString(content.links)
 		result.WriteString("\n")
 	}
 	if !content.metadata.Empty() {
@@ -235,6 +257,17 @@ func (content *MarkdownContent) Title() string {
 func (content *MarkdownContent) SetTitle(title string) {
 	if content.title != title {
 		content.title = title
+		content.markDirty()
+	}
+}
+
+func (content *MarkdownContent) Links() string {
+	return content.links
+}
+
+func (content *MarkdownContent) SetLinks(links string) {
+	if content.links != links {
+		content.links = links
 		content.markDirty()
 	}
 }

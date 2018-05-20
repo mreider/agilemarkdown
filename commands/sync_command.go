@@ -15,10 +15,6 @@ import (
 	"time"
 )
 
-const (
-	IdeasFileName = "ideas.md"
-)
-
 var SyncCommand = cli.Command{
 	Name:      "sync",
 	Usage:     "Sync state",
@@ -86,7 +82,7 @@ func (a *SyncAction) updateOverviewsAndIndex(rootDir string) error {
 	if err != nil {
 		return err
 	}
-	indexPath := filepath.Join(rootDir, "index.md")
+	indexPath := filepath.Join(rootDir, backlog.IndexFileName)
 	index, err := backlog.LoadGlobalIndex(indexPath)
 	if err != nil {
 		return err
@@ -134,23 +130,30 @@ func (a *SyncAction) updateOverviewsAndIndex(rootDir string) error {
 		sorter := backlog.NewBacklogItemsSorter(overview, archive)
 
 		activeItems := bck.ActiveItems()
+		overview.UpdateLinks("archive", archivePath, rootDir, rootDir)
 		overview.Update(activeItems, sorter)
 		overview.UpdateClarifications(activeItems)
+		overview.Save()
 
 		archivedItems := bck.ArchivedItems()
 		archive.SetTitle(fmt.Sprintf("Archive: %s", overview.Title()))
+		archive.UpdateLinks("project", overviewPath, rootDir, backlogDir)
 		archive.Update(archivedItems, sorter)
 		archive.UpdateClarifications(archivedItems)
+		archive.Save()
 
 		err = overview.UpdateProgress(bck)
 		if err != nil {
 			return err
 		}
 
-		overview.UpdateArchiveLink(len(archivedItems) > 0, archivePath)
+		for _, item := range bck.AllItems() {
+			item.UpdateLinks(rootDir, overviewPath, archivePath)
+		}
 	}
 	index.UpdateBacklogs(overviews, archives, rootDir)
-	index.UpdateIdeas(filepath.Join(rootDir, IdeasFileName), rootDir)
+	index.UpdateIdeas(filepath.Join(rootDir, backlog.IdeasFileName), rootDir)
+	index.UpdateTags(filepath.Join(rootDir, backlog.TagsFileName), rootDir)
 
 	return nil
 }
@@ -172,7 +175,7 @@ func (a *SyncAction) syncToGit() (bool, error) {
 			conflictFiles, conflictErr := git.ConflictFiles()
 			hasConflictItems := false
 			for _, fileName := range conflictFiles {
-				if fileName == backlog.TagsPageFileName || strings.HasPrefix(fileName, backlog.TagsDirectoryName+string(os.PathSeparator)) {
+				if fileName == backlog.TagsFileName || strings.HasPrefix(fileName, backlog.TagsDirectoryName+string(os.PathSeparator)) {
 					continue
 				}
 
@@ -227,7 +230,7 @@ func (a *SyncAction) updateIdeas(rootDir string) error {
 	}
 
 	for _, idea := range ideas {
-		err := a.updateIdea(idea)
+		err := a.updateIdea(rootDir, idea)
 		if err != nil {
 			fmt.Printf("can't update idea '%s'\n", err)
 			continue
@@ -235,11 +238,13 @@ func (a *SyncAction) updateIdeas(rootDir string) error {
 	}
 
 	lines := []string{"# Ideas", ""}
+	lines = append(lines, fmt.Sprintf("%s %s", utils.MakeMarkdownLink("index", backlog.IndexFileName, ""), utils.MakeMarkdownLink("tags", backlog.TagsFileName, "")))
+	lines = append(lines, "")
 	lines = append(lines, backlog.BacklogView{}.WriteMarkdownIdeas(ideas, rootDir)...)
-	return ioutil.WriteFile(filepath.Join(rootDir, IdeasFileName), []byte(strings.Join(lines, "\n")), 0644)
+	return ioutil.WriteFile(filepath.Join(rootDir, backlog.IdeasFileName), []byte(strings.Join(lines, "\n")), 0644)
 }
 
-func (a *SyncAction) updateIdea(idea *backlog.BacklogIdea) error {
+func (a *SyncAction) updateIdea(rootDir string, idea *backlog.BacklogIdea) error {
 	if !idea.HasMetadata() {
 		author, created, err := git.InitCommitInfo(idea.Path())
 		if err != nil {
@@ -263,6 +268,7 @@ func (a *SyncAction) updateIdea(idea *backlog.BacklogIdea) error {
 		idea.SetText(idea.Text())
 		idea.Save()
 	}
+	idea.UpdateLinks(rootDir)
 	return nil
 }
 
@@ -343,7 +349,7 @@ func (a *SyncAction) updateTags(rootDir string) error {
 	for tag := range allTags {
 		tagItems := itemsTags[tag]
 		tagIdeas := ideasTags[tag]
-		err := a.updateTagPage(tagsDir, tag, tagItems, overviews, tagIdeas)
+		err := a.updateTagPage(rootDir, tagsDir, tag, tagItems, overviews, tagIdeas)
 		if err != nil {
 			return err
 		}
@@ -365,7 +371,7 @@ func (a *SyncAction) updateTags(rootDir string) error {
 	return nil
 }
 
-func (a *SyncAction) updateTagPage(tagsDir, tag string, items []*backlog.BacklogItem, overviews map[*backlog.BacklogItem]*backlog.BacklogOverview, ideas []*backlog.BacklogIdea) error {
+func (a *SyncAction) updateTagPage(rootDir, tagsDir, tag string, items []*backlog.BacklogItem, overviews map[*backlog.BacklogItem]*backlog.BacklogOverview, ideas []*backlog.BacklogIdea) error {
 	itemsByStatus := make(map[string][]*backlog.BacklogItem)
 	for _, item := range items {
 		itemStatus := strings.ToLower(item.Status())
@@ -376,7 +382,15 @@ func (a *SyncAction) updateTagPage(tagsDir, tag string, items []*backlog.Backlog
 		sorter.SortItemsByModifiedDesc(statusItems)
 	}
 
-	lines := []string{fmt.Sprintf("# Tag: %s", tag), ""}
+	lines := []string{
+		fmt.Sprintf("# Tag: %s", tag),
+		"",
+		fmt.Sprintf("%s %s %s",
+			utils.MakeMarkdownLink("index", filepath.Join(rootDir, backlog.IndexFileName), tagsDir),
+			utils.MakeMarkdownLink("ideas", filepath.Join(rootDir, backlog.IdeasFileName), tagsDir),
+			utils.MakeMarkdownLink("tags", filepath.Join(rootDir, backlog.TagsFileName), tagsDir)),
+		"",
+	}
 	for _, status := range backlog.AllStatuses {
 		statusItems := itemsByStatus[strings.ToLower(status.Name)]
 		if len(statusItems) == 0 {
@@ -405,8 +419,10 @@ func (a *SyncAction) updateTagsPage(rootDir, tagsDir string, tags map[string][]*
 	sort.Strings(allTags)
 
 	lines := []string{"# Tags", ""}
+	lines = append(lines, fmt.Sprintf("%s %s", utils.MakeMarkdownLink("index", backlog.IndexFileName, ""), utils.MakeMarkdownLink("ideas", backlog.IdeasFileName, "")))
+	lines = append(lines, "", "---", "")
 	for _, tag := range allTags {
 		lines = append(lines, fmt.Sprintf("%s", utils.MakeMarkdownLink(tag, filepath.Join(tagsDir, fmt.Sprintf("%s.md", tag)), rootDir)))
 	}
-	return ioutil.WriteFile(filepath.Join(rootDir, backlog.TagsPageFileName), []byte(strings.Join(lines, "  \n")), 0644)
+	return ioutil.WriteFile(filepath.Join(rootDir, backlog.TagsFileName), []byte(strings.Join(lines, "  \n")), 0644)
 }

@@ -106,7 +106,7 @@ func MakeMarkdownLink(linkTitle, linkPath, baseDir string) string {
 	baseDir, _ = filepath.Abs(baseDir)
 
 	upCount := 0
-	for !strings.HasPrefix(linkPath, baseDir) {
+	for !strings.HasPrefix(linkPath, baseDir+string(os.PathSeparator)) {
 		upCount++
 		baseDir = filepath.Dir(baseDir)
 	}
