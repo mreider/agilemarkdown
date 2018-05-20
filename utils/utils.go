@@ -104,8 +104,19 @@ func ParseTimestamp(timestamp string) (time.Time, error) {
 func MakeMarkdownLink(linkTitle, linkPath, baseDir string) string {
 	linkPath, _ = filepath.Abs(linkPath)
 	baseDir, _ = filepath.Abs(baseDir)
+
+	upCount := 0
+	for !strings.HasPrefix(linkPath, baseDir) {
+		upCount++
+		baseDir = filepath.Dir(baseDir)
+	}
+
 	linkPath = strings.TrimPrefix(linkPath, baseDir)
 	linkPath = strings.TrimPrefix(linkPath, string(os.PathSeparator))
+
+	if upCount > 0 {
+		linkPath = strings.Repeat(fmt.Sprintf("..%c", os.PathSeparator), upCount) + linkPath
+	}
 
 	return fmt.Sprintf("[%s](%s)", linkTitle, linkPath)
 }

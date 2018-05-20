@@ -20,7 +20,7 @@ func NewBacklogItemsSorter(overviews ...*BacklogOverview) *BacklogItemsSorter {
 	return s
 }
 
-func (s *BacklogItemsSorter) SortItems(status *BacklogItemStatus, items []*BacklogItem) {
+func (s *BacklogItemsSorter) SortItemsByStatus(status *BacklogItemStatus, items []*BacklogItem) {
 	itemsNames := s.sortedItemsByStatus[status.Name]
 	itemsOrder := make(map[string]int, len(itemsNames))
 	for i, itemName := range itemsNames {
@@ -66,4 +66,13 @@ func (s *BacklogItemsSorter) updateSortedItems(overview *BacklogOverview, sorted
 			}
 		}
 	}
+}
+
+func (s *BacklogItemsSorter) SortItemsByModifiedDesc(items []*BacklogItem) {
+	sort.Slice(items, func(i, j int) bool {
+		if items[i].Modified() != items[j].Modified() {
+			return items[i].Modified().After(items[j].Modified())
+		}
+		return items[i].Name() < items[j].Name()
+	})
 }

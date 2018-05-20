@@ -8,8 +8,11 @@ import (
 )
 
 var (
+	IdeasDirectoryName    = "ideas"
 	ArchiveDirectoryName  = "archive"
-	ForbiddenBacklogNames = []string{"ideas", ArchiveDirectoryName}
+	TagsDirectoryName     = "tags"
+	TagsPageFileName      = "tags.md"
+	ForbiddenBacklogNames = []string{IdeasDirectoryName, ArchiveDirectoryName, TagsDirectoryName}
 	ForbiddenItemNames    = []string{ArchiveDirectoryName}
 )
 
