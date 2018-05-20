@@ -57,6 +57,7 @@ var CreateBacklogCommand = cli.Command{
 			return err
 		}
 		overview.SetTitle(backlogName)
+		overview.UpdateLinks("archive", filepath.Join(backlogDir, ArchiveFileName), ".", ".")
 		overview.SetCreated()
 		return overview.Save()
 	},

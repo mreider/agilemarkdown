@@ -66,3 +66,17 @@ func (index *GlobalIndex) UpdateIdeas(ideasPath, baseDir string) {
 	ideasGroup.ReplaceLines(lines)
 	index.Save()
 }
+
+func (index *GlobalIndex) UpdateTags(tagsPath, baseDir string) {
+	lines := make([]string, 0, 2)
+	lines = append(lines, "")
+	lines = append(lines, utils.MakeMarkdownLink("tags", tagsPath, baseDir))
+
+	tagsGroup := index.markdown.Group("Tags")
+	if tagsGroup == nil {
+		tagsGroup = &MarkdownGroup{title: "Tags", content: index.markdown}
+		index.markdown.addGroup(tagsGroup)
+	}
+	tagsGroup.ReplaceLines(lines)
+	index.Save()
+}

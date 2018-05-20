@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/mreider/agilemarkdown/utils"
 	"math"
+	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -222,16 +223,19 @@ func (overview *BacklogOverview) UpdateProgress(bck *Backlog) error {
 	return nil
 }
 
-func (overview *BacklogOverview) UpdateArchiveLink(hasArchiveItems bool, archivePath string) {
-	if hasArchiveItems {
-		archiveFileName := filepath.Base(archivePath)
-		overview.markdown.SetFooter([]string{utils.MakeMarkdownLink("Archived stories", archiveFileName, filepath.Dir(overview.markdown.contentPath))})
-	} else {
-		overview.markdown.SetFooter(nil)
-	}
-	overview.Save()
-}
-
 func (overview *BacklogOverview) SetHideEmptyGroups(value bool) {
 	overview.markdown.HideEmptyGroups = value
+}
+
+func (overview *BacklogOverview) UpdateLinks(firstLinkTitle, firstLinkPath, rootDir, baseDir string) {
+	var links []string
+	if _, err := os.Stat(firstLinkPath); err == nil {
+		links = append(links, utils.MakeMarkdownLink(firstLinkTitle, firstLinkPath, baseDir))
+	}
+	links = append(links,
+		utils.MakeMarkdownLink("index", filepath.Join(rootDir, IndexFileName), baseDir),
+		utils.MakeMarkdownLink("ideas", filepath.Join(rootDir, IdeasFileName), baseDir),
+		utils.MakeMarkdownLink("tags", filepath.Join(rootDir, TagsFileName), baseDir))
+	overview.markdown.SetLinks(strings.Join(links, " "))
+	overview.Save()
 }
