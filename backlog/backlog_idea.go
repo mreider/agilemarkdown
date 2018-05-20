@@ -2,7 +2,10 @@ package backlog
 
 import (
 	"github.com/mreider/agilemarkdown/utils"
+	"io/ioutil"
+	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 )
@@ -99,4 +102,39 @@ func (idea *BacklogIdea) SetText(text string) {
 
 func (idea *BacklogIdea) Text() string {
 	return strings.Join(idea.markdown.freeText, "\n")
+}
+
+func LoadIdeas(ideasDir string) ([]*BacklogIdea, error) {
+	infos, err := ioutil.ReadDir(ideasDir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	ideasPaths := make([]string, 0, len(infos))
+	for _, info := range infos {
+		if info.IsDir() {
+			continue
+		}
+		ideaPath := filepath.Join(ideasDir, info.Name())
+		ideasPaths = append(ideasPaths, ideaPath)
+	}
+
+	sort.Strings(ideasPaths)
+
+	ideas := make([]*BacklogIdea, 0, len(ideasPaths))
+	for _, ideaPath := range ideasPaths {
+		idea, err := LoadBacklogIdea(ideaPath)
+		if err != nil {
+			return nil, err
+		}
+		ideas = append(ideas, idea)
+	}
+	return ideas, nil
+}
+
+func (idea *BacklogIdea) Path() string {
+	return idea.markdown.contentPath
 }

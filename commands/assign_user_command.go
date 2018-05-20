@@ -72,7 +72,7 @@ var AssignUserCommand = cli.Command{
 		}
 
 		sorter := backlog.NewBacklogItemsSorter(overview, archive)
-		sorter.SortItems(status, items)
+		sorter.SortItemsByStatus(status, items)
 		lines := backlog.BacklogView{}.WriteAsciiItems(items, fmt.Sprintf("Status: %s", status.Name), true)
 		for _, line := range lines {
 			fmt.Println(line)

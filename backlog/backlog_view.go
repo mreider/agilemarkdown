@@ -79,6 +79,20 @@ func (bv BacklogView) WriteMarkdownItems(items []*BacklogItem, baseDir string) [
 	return result
 }
 
+func (bv BacklogView) WriteMarkdownItemsWithProject(overviews map[*BacklogItem]*BacklogOverview, items []*BacklogItem, baseDir string) []string {
+	result := make([]string, 0, 50)
+	headers := make([]string, 0, 2)
+	headers = append(headers, fmt.Sprintf("| User | Project | Title | Points | Tags |"))
+	headers = append(headers, "|---|---|---|:---:|---|")
+	result = append(result, headers...)
+	for _, item := range items {
+		tags := strings.Join(item.Tags(), " ")
+		line := fmt.Sprintf("| %s | %s | %s | %s | %s |", item.Assigned(), MakeOverviewLink(overviews[item], baseDir), MakeItemLink(item, baseDir), item.Estimate(), tags)
+		result = append(result, line)
+	}
+	return result
+}
+
 func (bv BacklogView) Progress(bck *Backlog, weekCount, width int) (string, error) {
 	items := bck.AllItemsByStatus(FinishedStatus.Code)
 	currentDate := time.Now().UTC()
@@ -107,8 +121,6 @@ func (bv BacklogView) Progress(bck *Backlog, weekCount, width int) (string, erro
 
 func (bv BacklogView) WriteMarkdownIdeas(ideas []*BacklogIdea, baseDir string) []string {
 	result := make([]string, 0, 50)
-	result = append(result, "# Ideas")
-	result = append(result, "")
 	result = append(result, fmt.Sprintf("| Author | Idea | Tags |"))
 	result = append(result, "|---|---|---|")
 	for _, idea := range ideas {
