@@ -18,6 +18,7 @@ var (
 	dashes                  = regexp.MustCompile(`[\-]+`)
 	illegalName             = regexp.MustCompile(`[^[:alnum:]-]`)
 	startsFromCapitalLetter = regexp.MustCompile(`^[A-Z][a-z].*`)
+	spacesRe                = regexp.MustCompile(`\s+`)
 )
 
 type CsvImporter struct {
@@ -102,6 +103,7 @@ func (imp *CsvImporter) getItemName(title string) string {
 
 func (imp *CsvImporter) createItemIfNotExists(line []string) error {
 	title := imp.cellValue(line, "title")
+	labels := spacesRe.Split(imp.cellValue(line, "labels"), -1)
 	itemName := imp.getItemName(title)
 	itemPath := filepath.Join(imp.backlogDir, fmt.Sprintf("%s.md", itemName))
 	_, err := os.Stat(itemPath)
@@ -116,6 +118,15 @@ func (imp *CsvImporter) createItemIfNotExists(line []string) error {
 	item, err := LoadBacklogItem(itemPath)
 	if err != nil {
 		return err
+	}
+
+	tagSet := make(map[string]bool)
+	var tags []string
+	for _, label := range labels {
+		if label != "" && !tagSet[strings.ToLower(label)] {
+			tagSet[label] = true
+			tags = append(tags, label)
+		}
 	}
 
 	estimate := imp.cellValue(line, "estimate")
@@ -137,6 +148,7 @@ func (imp *CsvImporter) createItemIfNotExists(line []string) error {
 	item.SetStatus(status)
 	item.SetAssigned(assigned)
 	item.SetEstimate(estimate)
+	item.SetTags(tags)
 	item.SetDescription(description)
 	return item.Save()
 }
