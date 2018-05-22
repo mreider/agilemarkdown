@@ -233,9 +233,9 @@ func (overview *BacklogOverview) UpdateLinks(firstLinkTitle, firstLinkPath, root
 		links = append(links, utils.MakeMarkdownLink(firstLinkTitle, firstLinkPath, baseDir))
 	}
 	links = append(links,
-		utils.MakeMarkdownLink("index", filepath.Join(rootDir, IndexFileName), baseDir),
-		utils.MakeMarkdownLink("ideas", filepath.Join(rootDir, IdeasFileName), baseDir),
-		utils.MakeMarkdownLink("tags", filepath.Join(rootDir, TagsFileName), baseDir))
-	overview.markdown.SetLinks(strings.Join(links, " "))
+		MakeIndexLink(rootDir, baseDir),
+		MakeIdeasLink(rootDir, baseDir),
+		MakeTagsLink(rootDir, baseDir))
+	overview.markdown.SetLinks(utils.JoinMarkdownLinks(links...))
 	overview.Save()
 }
