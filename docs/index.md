@@ -1,6 +1,6 @@
 ## About the project
 
-Agilemarkdown is framework for managing agile projects using markdown files.
+Agilemarkdown is a framework for managing agile projects using markdown files.
 
 ## Installation
 
