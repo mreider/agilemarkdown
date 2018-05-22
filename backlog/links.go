@@ -2,6 +2,7 @@ package backlog
 
 import (
 	"github.com/mreider/agilemarkdown/utils"
+	"path/filepath"
 )
 
 func MakeItemLink(item *BacklogItem, baseDir string) string {
@@ -28,4 +29,16 @@ func MakeOverviewLink(overview *BacklogOverview, baseDir string) string {
 func MakeArchiveLink(archive *BacklogOverview, title string, baseDir string) string {
 	archivePath := archive.markdown.contentPath
 	return utils.MakeMarkdownLink(title, archivePath, baseDir)
+}
+
+func MakeIndexLink(rootDir, baseDir string) string {
+	return utils.MakeMarkdownLink("home", filepath.Join(rootDir, IndexFileName), baseDir)
+}
+
+func MakeIdeasLink(rootDir, baseDir string) string {
+	return utils.MakeMarkdownLink("idea list", filepath.Join(rootDir, IdeasFileName), baseDir)
+}
+
+func MakeTagsLink(rootDir, baseDir string) string {
+	return utils.MakeMarkdownLink("tag list", filepath.Join(rootDir, TagsFileName), baseDir)
 }

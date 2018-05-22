@@ -137,7 +137,7 @@ func (a *SyncAction) updateOverviewsAndIndex(rootDir string) error {
 
 		archivedItems := bck.ArchivedItems()
 		archive.SetTitle(fmt.Sprintf("Archive: %s", overview.Title()))
-		archive.UpdateLinks("project", overviewPath, rootDir, backlogDir)
+		archive.UpdateLinks("project page", overviewPath, rootDir, backlogDir)
 		archive.Update(archivedItems, sorter)
 		archive.UpdateClarifications(archivedItems)
 		archive.Save()
@@ -152,8 +152,7 @@ func (a *SyncAction) updateOverviewsAndIndex(rootDir string) error {
 		}
 	}
 	index.UpdateBacklogs(overviews, archives, rootDir)
-	index.UpdateIdeas(filepath.Join(rootDir, backlog.IdeasFileName), rootDir)
-	index.UpdateTags(filepath.Join(rootDir, backlog.TagsFileName), rootDir)
+	index.UpdateLinks(rootDir)
 
 	return nil
 }
@@ -238,7 +237,7 @@ func (a *SyncAction) updateIdeas(rootDir string) error {
 	}
 
 	lines := []string{"# Ideas", ""}
-	lines = append(lines, fmt.Sprintf("%s %s", utils.MakeMarkdownLink("index", backlog.IndexFileName, ""), utils.MakeMarkdownLink("tags", backlog.TagsFileName, "")))
+	lines = append(lines, fmt.Sprintf(utils.JoinMarkdownLinks(backlog.MakeIndexLink(rootDir, rootDir), backlog.MakeTagsLink(rootDir, rootDir))))
 	lines = append(lines, "")
 	lines = append(lines, backlog.BacklogView{}.WriteMarkdownIdeas(ideas, rootDir)...)
 	return ioutil.WriteFile(filepath.Join(rootDir, backlog.IdeasFileName), []byte(strings.Join(lines, "\n")), 0644)
@@ -385,10 +384,10 @@ func (a *SyncAction) updateTagPage(rootDir, tagsDir, tag string, items []*backlo
 	lines := []string{
 		fmt.Sprintf("# Tag: %s", tag),
 		"",
-		fmt.Sprintf("%s %s %s",
-			utils.MakeMarkdownLink("index", filepath.Join(rootDir, backlog.IndexFileName), tagsDir),
-			utils.MakeMarkdownLink("ideas", filepath.Join(rootDir, backlog.IdeasFileName), tagsDir),
-			utils.MakeMarkdownLink("tags", filepath.Join(rootDir, backlog.TagsFileName), tagsDir)),
+		fmt.Sprintf(utils.JoinMarkdownLinks(
+			backlog.MakeIndexLink(rootDir, tagsDir),
+			backlog.MakeIdeasLink(rootDir, tagsDir),
+			backlog.MakeTagsLink(rootDir, tagsDir))),
 		"",
 	}
 	for _, status := range backlog.AllStatuses {
@@ -419,7 +418,7 @@ func (a *SyncAction) updateTagsPage(rootDir, tagsDir string, tags map[string][]*
 	sort.Strings(allTags)
 
 	lines := []string{"# Tags", ""}
-	lines = append(lines, fmt.Sprintf("%s %s", utils.MakeMarkdownLink("index", backlog.IndexFileName, ""), utils.MakeMarkdownLink("ideas", backlog.IdeasFileName, "")))
+	lines = append(lines, fmt.Sprintf(utils.JoinMarkdownLinks(backlog.MakeIndexLink(rootDir, rootDir), backlog.MakeIdeasLink(rootDir, rootDir))))
 	lines = append(lines, "", "---", "")
 	for _, tag := range allTags {
 		lines = append(lines, fmt.Sprintf("%s", utils.MakeMarkdownLink(tag, filepath.Join(tagsDir, fmt.Sprintf("%s.md", tag)), rootDir)))

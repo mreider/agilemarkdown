@@ -1,6 +1,9 @@
 package backlog
 
-import "github.com/mreider/agilemarkdown/utils"
+import (
+	"github.com/mreider/agilemarkdown/utils"
+	"path/filepath"
+)
 
 type GlobalIndex struct {
 	markdown *MarkdownContent
@@ -35,9 +38,7 @@ func (index *GlobalIndex) UpdateBacklogs(overviews []*BacklogOverview, archives 
 	lines := make([]string, 0, len(overviews)*5)
 	for i := range overviews {
 		lines = append(lines, "")
-		lines = append(lines, MakeOverviewLink(overviews[i], baseDir))
-		lines = append(lines, "")
-		lines = append(lines, MakeArchiveLink(archives[i], "archive", baseDir))
+		lines = append(lines, utils.JoinMarkdownLinks(MakeOverviewLink(overviews[i], baseDir), MakeArchiveLink(archives[i], "archive", baseDir)))
 		if i < len(overviews)-1 {
 			lines = append(lines, "")
 			lines = append(lines, "---")
@@ -53,30 +54,11 @@ func (index *GlobalIndex) UpdateBacklogs(overviews []*BacklogOverview, archives 
 	index.Save()
 }
 
-func (index *GlobalIndex) UpdateIdeas(ideasPath, baseDir string) {
-	lines := make([]string, 0, 2)
-	lines = append(lines, "")
-	lines = append(lines, utils.MakeMarkdownLink("idea board", ideasPath, baseDir))
-
-	ideasGroup := index.markdown.Group("Idea board")
-	if ideasGroup == nil {
-		ideasGroup = &MarkdownGroup{title: "Idea board", content: index.markdown}
-		index.markdown.addGroup(ideasGroup)
+func (index *GlobalIndex) UpdateLinks(rootDir string) {
+	links := []string{
+		MakeIdeasLink(rootDir, filepath.Dir(index.markdown.contentPath)),
+		MakeTagsLink(rootDir, filepath.Dir(index.markdown.contentPath)),
 	}
-	ideasGroup.ReplaceLines(lines)
-	index.Save()
-}
-
-func (index *GlobalIndex) UpdateTags(tagsPath, baseDir string) {
-	lines := make([]string, 0, 2)
-	lines = append(lines, "")
-	lines = append(lines, utils.MakeMarkdownLink("tags", tagsPath, baseDir))
-
-	tagsGroup := index.markdown.Group("Tags")
-	if tagsGroup == nil {
-		tagsGroup = &MarkdownGroup{title: "Tags", content: index.markdown}
-		index.markdown.addGroup(tagsGroup)
-	}
-	tagsGroup.ReplaceLines(lines)
+	index.markdown.SetLinks(utils.JoinMarkdownLinks(links...))
 	index.Save()
 }

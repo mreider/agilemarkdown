@@ -16,7 +16,7 @@ const (
 )
 
 var (
-	linksRe = regexp.MustCompile(`^(\[[^])]+]\([^])]+\)\s*)+$`)
+	linksRe = regexp.MustCompile(`^(\[[^])]+]\([^])]+\)(\s*(\|\|)?\s*)?)+$`)
 )
 
 type MarkdownContent struct {

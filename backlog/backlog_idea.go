@@ -141,10 +141,10 @@ func (idea *BacklogIdea) Path() string {
 
 func (idea *BacklogIdea) UpdateLinks(rootDir string) {
 	links := []string{
-		utils.MakeMarkdownLink("index", filepath.Join(rootDir, IndexFileName), filepath.Dir(idea.markdown.contentPath)),
-		utils.MakeMarkdownLink("ideas", filepath.Join(rootDir, IdeasFileName), filepath.Dir(idea.markdown.contentPath)),
-		utils.MakeMarkdownLink("tags", filepath.Join(rootDir, TagsFileName), filepath.Dir(idea.markdown.contentPath)),
+		MakeIndexLink(rootDir, filepath.Dir(idea.markdown.contentPath)),
+		MakeIdeasLink(rootDir, filepath.Dir(idea.markdown.contentPath)),
+		MakeTagsLink(rootDir, filepath.Dir(idea.markdown.contentPath)),
 	}
-	idea.markdown.SetLinks(strings.Join(links, " "))
+	idea.markdown.SetLinks(utils.JoinMarkdownLinks(links...))
 	idea.Save()
 }

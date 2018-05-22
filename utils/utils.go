@@ -120,3 +120,7 @@ func MakeMarkdownLink(linkTitle, linkPath, baseDir string) string {
 
 	return fmt.Sprintf("[%s](%s)", linkTitle, linkPath)
 }
+
+func JoinMarkdownLinks(links ...string) string {
+	return strings.Join(links, " || ")
+}
