@@ -56,6 +56,7 @@ func (index *GlobalIndex) UpdateBacklogs(overviews []*BacklogOverview, archives 
 
 func (index *GlobalIndex) UpdateLinks(rootDir string) {
 	links := []string{
+		MakeIndexLink(rootDir, filepath.Dir(index.markdown.contentPath)),
 		MakeIdeasLink(rootDir, filepath.Dir(index.markdown.contentPath)),
 		MakeTagsLink(rootDir, filepath.Dir(index.markdown.contentPath)),
 	}

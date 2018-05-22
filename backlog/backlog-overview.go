@@ -227,15 +227,15 @@ func (overview *BacklogOverview) SetHideEmptyGroups(value bool) {
 	overview.markdown.HideEmptyGroups = value
 }
 
-func (overview *BacklogOverview) UpdateLinks(firstLinkTitle, firstLinkPath, rootDir, baseDir string) {
-	var links []string
-	if _, err := os.Stat(firstLinkPath); err == nil {
-		links = append(links, utils.MakeMarkdownLink(firstLinkTitle, firstLinkPath, baseDir))
-	}
-	links = append(links,
+func (overview *BacklogOverview) UpdateLinks(lastLinkTitle, lastLinkPath, rootDir, baseDir string) {
+	links := []string{
 		MakeIndexLink(rootDir, baseDir),
 		MakeIdeasLink(rootDir, baseDir),
-		MakeTagsLink(rootDir, baseDir))
+		MakeTagsLink(rootDir, baseDir),
+	}
+	if _, err := os.Stat(lastLinkPath); err == nil {
+		links = append(links, utils.MakeMarkdownLink(lastLinkTitle, lastLinkPath, baseDir))
+	}
 	overview.markdown.SetLinks(utils.JoinMarkdownLinks(links...))
 	overview.Save()
 }
