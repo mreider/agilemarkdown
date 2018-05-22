@@ -81,3 +81,11 @@ func AllStatusesList() string {
 func (status *BacklogItemStatus) CapitalizedName() string {
 	return utils.TitleFirstLetter(status.Name)
 }
+
+func (status *BacklogItemStatus) Hint() string {
+	if strings.HasPrefix(status.Name, status.Code) {
+		return fmt.Sprintf("(%s)%s", status.Code, strings.TrimPrefix(status.Name, status.Code))
+	} else {
+		return fmt.Sprintf("(%s)%s", status.Code, status.Name)
+	}
+}
