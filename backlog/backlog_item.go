@@ -191,6 +191,10 @@ func (item *BacklogItem) Archived() bool {
 	return archive == "1" || archive == "true" || archive == "yes"
 }
 
+func (item *BacklogItem) SetArchived(archived bool) {
+	item.markdown.SetMetadataValue(BacklogItemArchiveMetadataKey, "true")
+}
+
 func (item *BacklogItem) MoveToBacklogDirectory() error {
 	markdownDir := filepath.Dir(item.markdown.contentPath)
 	if filepath.Base(markdownDir) == ArchiveDirectoryName {

@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	itemStatusRe = regexp.MustCompile(`^(\d+)\s+([dpuf])$`)
+	itemStatusRe = regexp.MustCompile(`^(\d+)\s+([dpufa])$`)
 )
 
 var ChangeStatusCommand = cli.Command{
@@ -33,7 +33,8 @@ var ChangeStatusCommand = cli.Command{
 		}
 		reader := bufio.NewReader(os.Stdin)
 		for {
-			fmt.Println("Enter a number to a story number followed by a status, or e to exit")
+			hints := []string{backlog.UnplannedStatus.Hint(), backlog.PlannedStatus.Hint(), backlog.DoingStatus.Hint(), backlog.FinishedStatus.Hint(), "(a)rchive"}
+			fmt.Printf("Enter story # number and status %s or e to exit (example: 1 f changes #1 to finished)\n", strings.Join(hints, ", "))
 			text, _ := reader.ReadString('\n')
 			text = strings.ToLower(strings.TrimSpace(text))
 			if text == "e" {
@@ -49,7 +50,11 @@ var ChangeStatusCommand = cli.Command{
 					continue
 				}
 				item := items[itemIndex]
-				item.SetStatus(backlog.StatusByCode(statusCode))
+				if statusCode != "a" {
+					item.SetStatus(backlog.StatusByCode(statusCode))
+				} else {
+					item.SetArchived(true)
+				}
 				item.Save()
 			}
 		}
