@@ -50,6 +50,11 @@ var CreateBacklogCommand = cli.Command{
 			return err
 		}
 
+		err = os.MkdirAll(filepath.Join(filepath.Join(".", backlog.IdeasDirectoryName)), 0777)
+		if err != nil {
+			return err
+		}
+
 		overviewFileName := fmt.Sprintf("%s.md", backlogFileName)
 		overviewPath := filepath.Join(".", overviewFileName)
 		overview, err := backlog.LoadBacklogOverview(overviewPath)
