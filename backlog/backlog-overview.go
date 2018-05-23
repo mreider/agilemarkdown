@@ -17,7 +17,7 @@ const (
 )
 
 var (
-	overviewItemRe   = regexp.MustCompile(`^.* \[.*]\(([^)]+)\).*$`)
+	overviewItemRe   = regexp.MustCompile(`\[[^]]*]\(([^)]+)\)`)
 	chartColorCodeRe = regexp.MustCompile(`.\[\d+m`)
 	OverviewFooterRe = regexp.MustCompile(`^\[Archived stories]\([^]]+\).*`)
 )
@@ -88,7 +88,8 @@ func (overview *BacklogOverview) Update(items []*BacklogItem, sorter *BacklogIte
 			if isNewGroup {
 				overview.markdown.addGroup(group)
 			}
-			newLines := BacklogView{}.WriteMarkdownItems(items, filepath.Dir(overview.markdown.contentPath))
+			rootDir := filepath.Dir(overview.markdown.contentPath)
+			newLines := BacklogView{}.WriteMarkdownItems(items, rootDir, filepath.Join(rootDir, TagsDirectoryName))
 			group.ReplaceLines(newLines)
 		}
 	}

@@ -1,8 +1,10 @@
 package backlog
 
 import (
+	"fmt"
 	"github.com/mreider/agilemarkdown/utils"
 	"path/filepath"
+	"strings"
 )
 
 func MakeItemLink(item *BacklogItem, baseDir string) string {
@@ -41,4 +43,17 @@ func MakeIdeasLink(rootDir, baseDir string) string {
 
 func MakeTagsLink(rootDir, baseDir string) string {
 	return utils.MakeMarkdownLink("tag list", filepath.Join(rootDir, TagsFileName), baseDir)
+}
+
+func MakeTagLink(tag, tagsDir, baseDir string) string {
+	return utils.MakeMarkdownLink(tag, filepath.Join(tagsDir, fmt.Sprintf("%s.md", strings.ToLower(tag))), baseDir)
+}
+
+func MakeTagLinks(tags []string, tagsDir, baseDir string) string {
+	links := make([]string, 0, len(tags))
+	for _, tag := range tags {
+		links = append(links, MakeTagLink(tag, tagsDir, baseDir))
+	}
+
+	return strings.Join(links, " ")
 }
