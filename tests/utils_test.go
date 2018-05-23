@@ -23,6 +23,14 @@ func TestPadStringRight(t *testing.T) {
 	assert.Equal(t, "12  ", utils.PadStringRight("12", 4))
 }
 
+func TestPadStringLeft(t *testing.T) {
+	assert.Equal(t, "12", utils.PadStringLeft("12", 0))
+	assert.Equal(t, "12", utils.PadStringLeft("12", 1))
+	assert.Equal(t, "12", utils.PadStringLeft("12", 2))
+	assert.Equal(t, " 12", utils.PadStringLeft("12", 3))
+	assert.Equal(t, "  12", utils.PadStringLeft("12", 4))
+}
+
 func TestWeekStart(t *testing.T) {
 	assert.Equal(t, createDate(2018, 4, 23), utils.WeekStart(createDate(2018, 4, 23)))
 	assert.Equal(t, createDate(2018, 4, 23), utils.WeekStart(createDate(2018, 4, 25)))

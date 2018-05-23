@@ -13,6 +13,7 @@ import (
 const (
 	BacklogIdeaAuthorMetadataKey = "Author"
 	BacklogIdeaTagsMetadataKey   = "Tags"
+	BacklogIdeaRankMetadataKey   = "Rank"
 )
 
 type BacklogIdea struct {
@@ -22,7 +23,7 @@ type BacklogIdea struct {
 
 func LoadBacklogIdea(ideaPath string) (*BacklogIdea, error) {
 	markdown, err := LoadMarkdown(ideaPath, []string{
-		CreatedMetadataKey, ModifiedMetadataKey, BacklogIdeaAuthorMetadataKey, BacklogIdeaTagsMetadataKey}, "", nil)
+		CreatedMetadataKey, ModifiedMetadataKey, BacklogIdeaAuthorMetadataKey, BacklogIdeaTagsMetadataKey, BacklogIdeaRankMetadataKey}, "", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +34,7 @@ func LoadBacklogIdea(ideaPath string) (*BacklogIdea, error) {
 
 func NewBacklogIdea(name string, markdownData string) *BacklogIdea {
 	markdown := NewMarkdown(markdownData, "", []string{
-		CreatedMetadataKey, ModifiedMetadataKey, BacklogIdeaAuthorMetadataKey, BacklogIdeaTagsMetadataKey}, "", nil)
+		CreatedMetadataKey, ModifiedMetadataKey, BacklogIdeaAuthorMetadataKey, BacklogIdeaTagsMetadataKey, BacklogIdeaRankMetadataKey}, "", nil)
 	return &BacklogIdea{name, markdown}
 }
 
@@ -147,4 +148,8 @@ func (idea *BacklogIdea) UpdateLinks(rootDir string) {
 	}
 	idea.markdown.SetLinks(utils.JoinMarkdownLinks(links...))
 	idea.Save()
+}
+
+func (idea *BacklogIdea) Rank() string {
+	return utils.PadStringLeft(idea.markdown.MetadataValue(BacklogIdeaRankMetadataKey), 10)
 }
