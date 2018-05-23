@@ -65,29 +65,27 @@ func (bv BacklogView) WriteAsciiItems(items []*BacklogItem, title string, withOr
 	return result
 }
 
-func (bv BacklogView) WriteMarkdownItems(items []*BacklogItem, baseDir string) []string {
+func (bv BacklogView) WriteMarkdownItems(items []*BacklogItem, baseDir, tagsDir string) []string {
 	result := make([]string, 0, 50)
 	headers := make([]string, 0, 2)
 	headers = append(headers, fmt.Sprintf("| User | Title | Points | Tags |"))
 	headers = append(headers, "|---|---|:---:|---|")
 	result = append(result, headers...)
 	for _, item := range items {
-		tags := strings.Join(item.Tags(), " ")
-		line := fmt.Sprintf("| %s | %s | %s | %s |", item.Assigned(), MakeItemLink(item, baseDir), item.Estimate(), tags)
+		line := fmt.Sprintf("| %s | %s | %s | %s |", item.Assigned(), MakeItemLink(item, baseDir), item.Estimate(), MakeTagLinks(item.Tags(), tagsDir, baseDir))
 		result = append(result, line)
 	}
 	return result
 }
 
-func (bv BacklogView) WriteMarkdownItemsWithProject(overviews map[*BacklogItem]*BacklogOverview, items []*BacklogItem, baseDir string) []string {
+func (bv BacklogView) WriteMarkdownItemsWithProject(overviews map[*BacklogItem]*BacklogOverview, items []*BacklogItem, baseDir, tagsDir string) []string {
 	result := make([]string, 0, 50)
 	headers := make([]string, 0, 2)
 	headers = append(headers, fmt.Sprintf("| User | Project | Title | Points | Tags |"))
 	headers = append(headers, "|---|---|---|:---:|---|")
 	result = append(result, headers...)
 	for _, item := range items {
-		tags := strings.Join(item.Tags(), " ")
-		line := fmt.Sprintf("| %s | %s | %s | %s | %s |", item.Assigned(), MakeOverviewLink(overviews[item], baseDir), MakeItemLink(item, baseDir), item.Estimate(), tags)
+		line := fmt.Sprintf("| %s | %s | %s | %s | %s |", item.Assigned(), MakeOverviewLink(overviews[item], baseDir), MakeItemLink(item, baseDir), item.Estimate(), MakeTagLinks(item.Tags(), tagsDir, baseDir))
 		result = append(result, line)
 	}
 	return result
@@ -119,13 +117,12 @@ func (bv BacklogView) Progress(bck *Backlog, weekCount, width int) (string, erro
 	return chart.Draw(data), nil
 }
 
-func (bv BacklogView) WriteMarkdownIdeas(ideas []*BacklogIdea, baseDir string) []string {
+func (bv BacklogView) WriteMarkdownIdeas(ideas []*BacklogIdea, baseDir, tagsDir string) []string {
 	result := make([]string, 0, 50)
 	result = append(result, fmt.Sprintf("| Author | Idea | Tags |"))
 	result = append(result, "|---|---|---|")
 	for _, idea := range ideas {
-		tags := strings.Join(idea.Tags(), " ")
-		line := fmt.Sprintf("| %s | %s | %s |", idea.Author(), MakeIdeaLink(idea, baseDir), tags)
+		line := fmt.Sprintf("| %s | %s | %s |", idea.Author(), MakeIdeaLink(idea, baseDir), MakeTagLinks(idea.Tags(), tagsDir, baseDir))
 		result = append(result, line)
 	}
 	return result

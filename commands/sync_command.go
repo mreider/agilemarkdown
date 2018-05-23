@@ -256,7 +256,7 @@ func (a *SyncAction) updateIdeas(rootDir string) error {
 			lines = append(lines, "## Rank: unassigned")
 		}
 		lines = append(lines, "")
-		lines = append(lines, backlog.BacklogView{}.WriteMarkdownIdeas(ideasByRank[strings.TrimSpace(rank)], rootDir)...)
+		lines = append(lines, backlog.BacklogView{}.WriteMarkdownIdeas(ideasByRank[strings.TrimSpace(rank)], rootDir, filepath.Join(rootDir, backlog.TagsDirectoryName))...)
 		lines = append(lines, "")
 	}
 	return ioutil.WriteFile(filepath.Join(rootDir, backlog.IdeasFileName), []byte(strings.Join(lines, "\n")), 0644)
@@ -415,14 +415,14 @@ func (a *SyncAction) updateTagPage(rootDir, tagsDir, tag string, items []*backlo
 			continue
 		}
 		lines = append(lines, fmt.Sprintf("## %s", status.CapitalizedName()))
-		itemsLines := backlog.BacklogView{}.WriteMarkdownItemsWithProject(overviews, statusItems, tagsDir)
+		itemsLines := backlog.BacklogView{}.WriteMarkdownItemsWithProject(overviews, statusItems, tagsDir, tagsDir)
 		lines = append(lines, itemsLines...)
 		lines = append(lines, "")
 	}
 	if len(ideas) > 0 {
 		lines = append(lines, "## Ideas")
 		lines = append(lines, "")
-		ideasLines := backlog.BacklogView{}.WriteMarkdownIdeas(ideas, tagsDir)
+		ideasLines := backlog.BacklogView{}.WriteMarkdownIdeas(ideas, tagsDir, tagsDir)
 		lines = append(lines, ideasLines...)
 		lines = append(lines, "")
 	}
