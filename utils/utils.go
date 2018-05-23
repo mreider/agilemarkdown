@@ -30,6 +30,14 @@ func PadStringRight(value string, width int) string {
 	return result
 }
 
+func PadStringLeft(value string, width int) string {
+	result := value
+	if len(result) < width {
+		result = strings.Repeat(" ", width-len(result)) + result
+	}
+	return result
+}
+
 func WeekStart(value time.Time) time.Time {
 	weekday := value.Weekday()
 	if weekday == 0 {

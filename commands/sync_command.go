@@ -228,18 +228,37 @@ func (a *SyncAction) updateIdeas(rootDir string) error {
 		return err
 	}
 
+	ideasByRank := make(map[string][]*backlog.BacklogIdea)
+	var ranks []string
 	for _, idea := range ideas {
 		err := a.updateIdea(rootDir, idea)
 		if err != nil {
 			fmt.Printf("can't update idea '%s'\n", err)
-			continue
 		}
+		rank := idea.Rank()
+		ranks = append(ranks, rank)
+		ideasByRank[strings.TrimSpace(rank)] = append(ideasByRank[strings.TrimSpace(rank)], idea)
+	}
+
+	sort.Strings(ranks)
+	if len(ranks) > 0 && strings.TrimSpace(ranks[0]) == "" {
+		ranks = append(ranks, "")
+		ranks = ranks[1:]
 	}
 
 	lines := []string{"# Ideas", ""}
 	lines = append(lines, fmt.Sprintf(utils.JoinMarkdownLinks(backlog.MakeIndexLink(rootDir, rootDir), backlog.MakeIdeasLink(rootDir, rootDir), backlog.MakeTagsLink(rootDir, rootDir))))
 	lines = append(lines, "")
-	lines = append(lines, backlog.BacklogView{}.WriteMarkdownIdeas(ideas, rootDir)...)
+	for _, rank := range ranks {
+		if rank != "" {
+			lines = append(lines, fmt.Sprintf("## Rank: %s", strings.TrimSpace(rank)))
+		} else {
+			lines = append(lines, "## Rank: unassigned")
+		}
+		lines = append(lines, "")
+		lines = append(lines, backlog.BacklogView{}.WriteMarkdownIdeas(ideasByRank[strings.TrimSpace(rank)], rootDir)...)
+		lines = append(lines, "")
+	}
 	return ioutil.WriteFile(filepath.Join(rootDir, backlog.IdeasFileName), []byte(strings.Join(lines, "\n")), 0644)
 }
 
