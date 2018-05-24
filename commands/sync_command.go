@@ -401,7 +401,7 @@ func (a *SyncAction) updateTagPage(rootDir, tagsDir, tag string, items []*backlo
 	}
 
 	lines := []string{
-		fmt.Sprintf("# Tag %s", tag),
+		fmt.Sprintf("# Tag: %s", tag),
 		"",
 		fmt.Sprintf(utils.JoinMarkdownLinks(
 			backlog.MakeIndexLink(rootDir, tagsDir),
