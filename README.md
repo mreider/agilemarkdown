@@ -19,8 +19,7 @@ Compile the code
 
 ```
 cd $GOPATH/src/github.com/mreider/agilemarkdown
-go install
-go build
+./build.sh
 ```
 
 Create an alias for the binary

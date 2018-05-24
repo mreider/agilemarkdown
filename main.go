@@ -8,7 +8,12 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"strconv"
 	"time"
+)
+
+var (
+	version = "0.0.0"
 )
 
 func main() {
@@ -19,7 +24,13 @@ func main() {
 
 	rand.Seed(time.Now().Unix())
 
+	i, err := strconv.ParseInt(version, 10, 64)
+	if err == nil {
+		version = time.Unix(i, 0).UTC().Format("2006.01.02.150405")
+	}
+
 	app := cli.NewApp()
+	app.Version = version
 	app.EnableBashCompletion = true
 	app.Description = "A framework for managing a backlog using Git, Markdown, and YAML"
 	app.Usage = app.Description
