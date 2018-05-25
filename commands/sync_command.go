@@ -426,7 +426,7 @@ func (a *SyncAction) updateTagPage(rootDir, tagsDir, tag string, items []*backlo
 		lines = append(lines, ideasLines...)
 		lines = append(lines, "")
 	}
-	return ioutil.WriteFile(filepath.Join(tagsDir, fmt.Sprintf("%s.md", tag)), []byte(strings.Join(lines, "  \n")), 0644)
+	return ioutil.WriteFile(filepath.Join(tagsDir, fmt.Sprintf("%s.md", tag)), []byte(strings.Join(lines, "\n")), 0644)
 }
 
 func (a *SyncAction) updateTagsPage(rootDir, tagsDir string, tags map[string][]*backlog.BacklogItem) error {
