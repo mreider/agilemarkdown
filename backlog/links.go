@@ -46,7 +46,7 @@ func MakeTagsLink(rootDir, baseDir string) string {
 }
 
 func MakeTagLink(tag, tagsDir, baseDir string) string {
-	return utils.MakeMarkdownLink(tag, filepath.Join(tagsDir, fmt.Sprintf("%s.md", strings.ToLower(tag))), baseDir)
+	return utils.MakeMarkdownLink(tag, filepath.Join(tagsDir, fmt.Sprintf("%s.md", utils.GetValidFileName(strings.ToLower(tag)))), baseDir)
 }
 
 func MakeTagLinks(tags []string, tagsDir, baseDir string) string {

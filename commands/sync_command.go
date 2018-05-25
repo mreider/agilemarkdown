@@ -364,19 +364,20 @@ func (a *SyncAction) updateTags(rootDir string) error {
 		}
 	}
 
+	tagsFileNames := make(map[string]bool)
 	for tag := range allTags {
 		tagItems := itemsTags[tag]
 		tagIdeas := ideasTags[tag]
-		err := a.updateTagPage(rootDir, tagsDir, tag, tagItems, overviews, tagIdeas)
+		tagFileName, err := a.updateTagPage(rootDir, tagsDir, tag, tagItems, overviews, tagIdeas)
 		if err != nil {
 			return err
 		}
+		tagsFileNames[tagFileName] = true
 	}
 
 	infos, _ := ioutil.ReadDir(tagsDir)
 	for _, info := range infos {
-		existingTag := strings.TrimSuffix(info.Name(), filepath.Ext(info.Name()))
-		if _, ok := itemsTags[existingTag]; !ok {
+		if _, ok := tagsFileNames[info.Name()]; !ok {
 			os.Remove(filepath.Join(tagsDir, info.Name()))
 		}
 	}
@@ -389,7 +390,7 @@ func (a *SyncAction) updateTags(rootDir string) error {
 	return nil
 }
 
-func (a *SyncAction) updateTagPage(rootDir, tagsDir, tag string, items []*backlog.BacklogItem, overviews map[*backlog.BacklogItem]*backlog.BacklogOverview, ideas []*backlog.BacklogIdea) error {
+func (a *SyncAction) updateTagPage(rootDir, tagsDir, tag string, items []*backlog.BacklogItem, overviews map[*backlog.BacklogItem]*backlog.BacklogOverview, ideas []*backlog.BacklogIdea) (string, error) {
 	itemsByStatus := make(map[string][]*backlog.BacklogItem)
 	for _, item := range items {
 		itemStatus := strings.ToLower(item.Status())
@@ -426,7 +427,9 @@ func (a *SyncAction) updateTagPage(rootDir, tagsDir, tag string, items []*backlo
 		lines = append(lines, ideasLines...)
 		lines = append(lines, "")
 	}
-	return ioutil.WriteFile(filepath.Join(tagsDir, fmt.Sprintf("%s.md", tag)), []byte(strings.Join(lines, "\n")), 0644)
+	tagFileName := fmt.Sprintf("%s.md", utils.GetValidFileName(tag))
+	err := ioutil.WriteFile(filepath.Join(tagsDir, tagFileName), []byte(strings.Join(lines, "\n")), 0644)
+	return tagFileName, err
 }
 
 func (a *SyncAction) updateTagsPage(rootDir, tagsDir string, tags map[string][]*backlog.BacklogItem) error {
@@ -440,7 +443,7 @@ func (a *SyncAction) updateTagsPage(rootDir, tagsDir string, tags map[string][]*
 	lines = append(lines, fmt.Sprintf(utils.JoinMarkdownLinks(backlog.MakeIndexLink(rootDir, rootDir), backlog.MakeIdeasLink(rootDir, rootDir), backlog.MakeTagsLink(rootDir, rootDir))))
 	lines = append(lines, "", "---", "")
 	for _, tag := range allTags {
-		lines = append(lines, fmt.Sprintf("%s", utils.MakeMarkdownLink(tag, filepath.Join(tagsDir, fmt.Sprintf("%s.md", tag)), rootDir)))
+		lines = append(lines, fmt.Sprintf("%s", backlog.MakeTagLink(tag, tagsDir, rootDir)))
 	}
 	return ioutil.WriteFile(filepath.Join(rootDir, backlog.TagsFileName), []byte(strings.Join(lines, "  \n")), 0644)
 }
