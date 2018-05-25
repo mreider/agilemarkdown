@@ -158,12 +158,33 @@ Next, you can start pendulum and pipe output to dev/null to keep using the comma
 
 `pendulum -port 8004 -contents example.org/project/ &>/dev/null &`
 
-In your caddy file, you can serve pendulum at example.org/ideas which will map to example.org/project/ideas. This seems like a good place to allow users to edit files. They can also navigate to other markdown files, and move around to different directories, if they want to.
+In your caddy file, you can serve pendulum via a different port. Your users can navigate to edit files, and move around to different directories, if they want to.
+
+At the bottom of your caddyfile:
 
 ```
-proxy /ideas localhost:8004
-proxy /static localhost:8004
-proxy /api localhost:8004
+example.org:666 {
+gzip
+log example.org/access.log
+root example.org
+
+proxy / localhost:8004
+jwt {
+   path /
+   redirect /login
+   allow role user
+   except /css
+}
+
+login {
+   success_url /project
+   google client_id=fff,client_secret=fff,scope=https://www.googleapis.com/auth/userinfo.email
+   user_file example.org/users.yml
+   template login.html
+}
+
+
+}
 ```
 
 Here's what it looks like:
