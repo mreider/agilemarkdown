@@ -60,6 +60,12 @@ func TestTitleFirstLetter(t *testing.T) {
 	assert.Equal(t, "X", utils.TitleFirstLetter("x"))
 }
 
+func TestGetValidFileName(t *testing.T) {
+	assert.Equal(t, "apple", utils.GetValidFileName("apple"))
+	assert.Equal(t, "apple-red", utils.GetValidFileName("apple/red"))
+	assert.Equal(t, "apple-red-green", utils.GetValidFileName("apple:red:green"))
+}
+
 func createDate(year int, month time.Month, day int) time.Time {
 	return time.Date(year, month, day, 0, 0, 0, 0, time.Local)
 }

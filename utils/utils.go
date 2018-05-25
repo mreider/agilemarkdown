@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -12,6 +13,12 @@ import (
 
 const (
 	timestampLayout = "2006-01-02 03:04 PM"
+)
+
+var (
+	separators  = regexp.MustCompile(`[ \\/&_=+:]`)
+	dashes      = regexp.MustCompile(`[\-]+`)
+	illegalName = regexp.MustCompile(`[^[:alnum:]-]`)
 )
 
 func PadIntLeft(value, width int) string {
@@ -131,4 +138,12 @@ func MakeMarkdownLink(linkTitle, linkPath, baseDir string) string {
 
 func JoinMarkdownLinks(links ...string) string {
 	return strings.Join(links, " || ")
+}
+
+func GetValidFileName(name string) string {
+	fileName := strings.TrimSpace(name)
+	fileName = separators.ReplaceAllString(fileName, "-")
+	fileName = illegalName.ReplaceAllString(fileName, "")
+	fileName = dashes.ReplaceAllString(fileName, "-")
+	return fileName
 }

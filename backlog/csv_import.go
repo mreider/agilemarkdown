@@ -14,9 +14,6 @@ import (
 )
 
 var (
-	separators              = regexp.MustCompile(`[ \\/&_=+:]`)
-	dashes                  = regexp.MustCompile(`[\-]+`)
-	illegalName             = regexp.MustCompile(`[^[:alnum:]-]`)
 	startsFromCapitalLetter = regexp.MustCompile(`^[A-Z][a-z].*`)
 	spacesRe                = regexp.MustCompile(`\s+`)
 )
@@ -90,10 +87,7 @@ func (imp *CsvImporter) stateToStatus(state string) *BacklogItemStatus {
 }
 
 func (imp *CsvImporter) getItemName(title string) string {
-	itemName := strings.TrimSpace(title)
-	itemName = separators.ReplaceAllString(itemName, "-")
-	itemName = illegalName.ReplaceAllString(itemName, "")
-	itemName = dashes.ReplaceAllString(itemName, "-")
+	itemName := utils.GetValidFileName(title)
 	if startsFromCapitalLetter.MatchString(itemName) {
 		itemName = strings.ToLower(itemName[0:1]) + itemName[1:]
 	}
