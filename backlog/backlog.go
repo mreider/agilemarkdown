@@ -67,17 +67,17 @@ func (bck *Backlog) AllItems() []*BacklogItem {
 
 func (bck *Backlog) ActiveItems() []*BacklogItem {
 	filter := &BacklogItemsActiveFilter{}
-	return bck.FilteredItems(filter)
+	return bck.filteredItems(filter)
 }
 
 func (bck *Backlog) ArchivedItems() []*BacklogItem {
 	filter := &BacklogItemsArchivedFilter{}
-	return bck.FilteredItems(filter)
+	return bck.filteredItems(filter)
 }
 
 func (bck *Backlog) AllItemsByStatus(statusCode string) []*BacklogItem {
 	filter := NewBacklogItemsStatusCodeFilter(statusCode)
-	return bck.FilteredItems(filter)
+	return bck.filteredItems(filter)
 }
 
 func (bck *Backlog) KnownUsers() []string {
@@ -97,7 +97,14 @@ func (bck *Backlog) KnownUsers() []string {
 	return result
 }
 
-func (bck *Backlog) FilteredItems(filter BacklogItemsFilter) []*BacklogItem {
+func (bck *Backlog) FilteredActiveItems(filter BacklogItemsFilter) []*BacklogItem {
+	resultFilter := &BacklogItemsAndFilter{}
+	resultFilter.And(&BacklogItemsActiveFilter{})
+	resultFilter.And(filter)
+	return bck.filteredItems(resultFilter)
+}
+
+func (bck *Backlog) filteredItems(filter BacklogItemsFilter) []*BacklogItem {
 	result := make([]*BacklogItem, 0)
 	for _, item := range bck.items {
 		if filter.Match(item) {

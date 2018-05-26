@@ -45,7 +45,7 @@ var PointsCommand = cli.Command{
 		filter := &backlog.BacklogItemsAndFilter{}
 		filter.And(backlog.NewBacklogItemsStatusCodeFilter(statusCode))
 		filter.And(backlog.NewBacklogItemsAssignedFilter(user))
-		items := bck.FilteredItems(filter)
+		items := bck.FilteredActiveItems(filter)
 
 		pointsByUser := make(map[string]float64)
 		tagsByUser := make(map[string][]string)

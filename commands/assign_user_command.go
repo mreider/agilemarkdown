@@ -64,7 +64,8 @@ var AssignUserCommand = cli.Command{
 			return err
 		}
 
-		items := bck.AllItemsByStatus(statusCode)
+		filter := backlog.NewBacklogItemsStatusCodeFilter(statusCode)
+		items := bck.FilteredActiveItems(filter)
 		status := backlog.StatusByCode(statusCode)
 		if len(items) == 0 {
 			fmt.Printf("No items with status '%s'\n", status.Name)
