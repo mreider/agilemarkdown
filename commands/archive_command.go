@@ -36,7 +36,8 @@ var ArchiveCommand = cli.Command{
 
 		var itemsToArchive []*backlog.BacklogItem
 		for _, item := range bck.ActiveItems() {
-			if item.Created().Before(beforeDate) {
+			// beforeDate doesn't contain time part. So '<= beforeDate' means '< beforeDate+1day'
+			if item.Modified().Before(beforeDate.Add(time.Hour * 24)) {
 				itemsToArchive = append(itemsToArchive, item)
 			}
 		}
