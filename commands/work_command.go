@@ -79,7 +79,7 @@ var WorkCommand = cli.Command{
 			filter.And(backlog.NewBacklogItemsStatusCodeFilter(status.Code))
 			filter.And(backlog.NewBacklogItemsAssignedFilter(user))
 			filter.And(backlog.NewBacklogItemsTagsFilter(tags))
-			items := bck.FilteredItems(filter)
+			items := bck.FilteredActiveItems(filter)
 
 			sorter.SortItemsByStatus(status, items)
 			lines := backlog.BacklogView{}.WriteAsciiItems(items, fmt.Sprintf("Status: %s", status.Name), false)
