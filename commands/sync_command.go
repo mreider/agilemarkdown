@@ -236,7 +236,9 @@ func (a *SyncAction) updateIdeas(rootDir string) error {
 			fmt.Printf("can't update idea '%s'\n", err)
 		}
 		rank := idea.Rank()
-		ranks = append(ranks, rank)
+		if _, ok := ideasByRank[strings.TrimSpace(rank)]; !ok {
+			ranks = append(ranks, rank)
+		}
 		ideasByRank[strings.TrimSpace(rank)] = append(ideasByRank[strings.TrimSpace(rank)], idea)
 	}
 
