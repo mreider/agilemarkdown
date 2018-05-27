@@ -384,7 +384,7 @@ func (a *SyncAction) updateTags(rootDir string) error {
 		}
 	}
 
-	err = a.updateTagsPage(rootDir, tagsDir, itemsTags)
+	err = a.updateTagsPage(rootDir, tagsDir, itemsTags, ideasTags)
 	if err != nil {
 		return err
 	}
@@ -434,10 +434,20 @@ func (a *SyncAction) updateTagPage(rootDir, tagsDir, tag string, items []*backlo
 	return tagFileName, err
 }
 
-func (a *SyncAction) updateTagsPage(rootDir, tagsDir string, tags map[string][]*backlog.BacklogItem) error {
-	allTags := make([]string, 0, len(tags))
-	for tag := range tags {
-		allTags = append(allTags, tag)
+func (a *SyncAction) updateTagsPage(rootDir, tagsDir string, itemsTags map[string][]*backlog.BacklogItem, ideasTags map[string][]*backlog.BacklogIdea) error {
+	allTagsSet := make(map[string]bool)
+	allTags := make([]string, 0, len(itemsTags)+len(ideasTags))
+	for tag := range itemsTags {
+		if !allTagsSet[tag] {
+			allTagsSet[tag] = true
+			allTags = append(allTags, tag)
+		}
+	}
+	for tag := range ideasTags {
+		if !allTagsSet[tag] {
+			allTagsSet[tag] = true
+			allTags = append(allTags, tag)
+		}
 	}
 	sort.Strings(allTags)
 
