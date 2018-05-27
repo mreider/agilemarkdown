@@ -38,6 +38,7 @@ func main() {
 	app.Commands = []cli.Command{
 		commands.CreateBacklogCommand,
 		commands.CreateItemCommand,
+		commands.CreateIdeaCommand,
 		commands.SyncCommand,
 		commands.WorkCommand,
 		commands.PointsCommand,

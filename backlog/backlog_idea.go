@@ -153,3 +153,7 @@ func (idea *BacklogIdea) UpdateLinks(rootDir string) {
 func (idea *BacklogIdea) Rank() string {
 	return utils.PadStringLeft(idea.markdown.MetadataValue(BacklogIdeaRankMetadataKey), 10)
 }
+
+func (idea *BacklogIdea) Content() []byte {
+	return idea.markdown.Content(utils.GetCurrentTimestamp())
+}
