@@ -236,3 +236,7 @@ func (item *BacklogItem) UpdateLinks(rootDir string, overviewPath, archivePath s
 	item.markdown.SetLinks(utils.JoinMarkdownLinks(links...))
 	item.Save()
 }
+
+func (item *BacklogItem) Content() []byte {
+	return item.markdown.Content(utils.GetCurrentTimestamp())
+}

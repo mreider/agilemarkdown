@@ -23,25 +23,41 @@ var CreateItemCommand = cli.Command{
 	Name:      "create-item",
 	Usage:     "Create a new item for the backlog",
 	ArgsUsage: "ITEM_NAME",
+	Flags: []cli.Flag{
+		cli.BoolFlag{
+			Name:   "simulate",
+			Hidden: true,
+		},
+	},
 	Action: func(c *cli.Context) error {
+		simulate := c.Bool("simulate")
+
 		if err := checkIsBacklogDirectory(); err != nil {
 			fmt.Println(err)
 			return nil
 		}
 		if c.NArg() == 0 {
-			fmt.Println("an item name should be specified")
+			if !simulate {
+				fmt.Println("an item name should be specified")
+			}
 			return nil
 		}
 		itemTitle := strings.Join(c.Args(), " ")
 		itemName := strings.Replace(itemTitle, " ", "-", -1)
 		itemPath := filepath.Join(".", fmt.Sprintf("%s.md", itemName))
 		if existsFile(itemPath) {
-			fmt.Println("file exists")
+			if !simulate {
+				fmt.Println("file exists")
+			} else {
+				fmt.Println(itemPath)
+			}
 			return nil
 		}
 
 		if backlog.IsForbiddenItemName(itemName) {
-			fmt.Printf("'%s' can't be used as an item name\n", itemName)
+			if !simulate {
+				fmt.Printf("'%s' can't be used as an item name\n", itemName)
+			}
 			return nil
 		}
 
@@ -63,6 +79,15 @@ var CreateItemCommand = cli.Command{
 		item.SetAssigned("")
 		item.SetEstimate("")
 		item.SetDescription(newItemTemplate)
-		return item.Save()
+
+		if !simulate {
+			return item.Save()
+		} else {
+			itemPath, _ := filepath.Abs(itemPath)
+			rootDir := filepath.Dir(filepath.Dir(itemPath))
+			fmt.Println(strings.TrimPrefix(itemPath, rootDir))
+			fmt.Print(string(item.Content()))
+			return nil
+		}
 	},
 }
