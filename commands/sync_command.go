@@ -148,6 +148,7 @@ func (a *SyncAction) updateOverviewsAndIndex(rootDir string) error {
 		}
 
 		for _, item := range bck.AllItems() {
+			item.SetHeader(fmt.Sprintf("Project: %s", overview.Title()))
 			item.UpdateLinks(rootDir, overviewPath, archivePath)
 		}
 	}
