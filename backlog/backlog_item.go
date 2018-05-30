@@ -240,3 +240,16 @@ func (item *BacklogItem) UpdateLinks(rootDir string, overviewPath, archivePath s
 func (item *BacklogItem) Content() []byte {
 	return item.markdown.Content(utils.GetCurrentTimestamp())
 }
+
+func (item *BacklogItem) Links() string {
+	return item.markdown.links
+}
+
+func (item *BacklogItem) Header() string {
+	return item.markdown.header
+}
+
+func (item *BacklogItem) SetHeader(header string) {
+	item.markdown.SetHeader(header)
+	item.Save()
+}

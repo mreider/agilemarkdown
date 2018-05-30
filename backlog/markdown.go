@@ -25,6 +25,7 @@ type MarkdownContent struct {
 
 	isDirty  bool
 	title    string
+	header   string
 	links    string
 	metadata *MarkdownMetadata
 	groups   []*MarkdownGroup
@@ -64,6 +65,7 @@ func NewMarkdown(data, markdownPath string, metadataKeys []string, groupTitlePre
 			content.title = strings.TrimSpace(strings.TrimPrefix(lines[0], "# "))
 			metadataIndex = 1
 		}
+	NextLine:
 		for metadataIndex < len(lines) {
 			line := strings.TrimSpace(lines[metadataIndex])
 			if linksRe.MatchString(line) {
@@ -72,7 +74,25 @@ func NewMarkdown(data, markdownPath string, metadataKeys []string, groupTitlePre
 				break
 			}
 			if line != "" {
-				break
+				if strings.HasPrefix(line, "#") {
+					break
+				}
+				if content.header == "" {
+					if !strings.Contains(line, ":") {
+						content.header = line
+					} else {
+						parts := strings.SplitN(line, ":", 2)
+						key := strings.ToLower(strings.TrimSpace(parts[0]))
+						for _, mKey := range metadataKeys {
+							if key == strings.ToLower(mKey) {
+								break NextLine
+							}
+						}
+						content.header = line
+					}
+				} else {
+					break
+				}
 			}
 			metadataIndex++
 		}
@@ -147,6 +167,11 @@ func (content *MarkdownContent) Content(timestamp string) []byte {
 	result := bytes.NewBuffer(nil)
 	if content.title != "" {
 		result.WriteString(fmt.Sprintf("# %s", content.title))
+		result.WriteString("\n")
+	}
+	if content.header != "" {
+		result.WriteString("\n")
+		result.WriteString(content.header)
 		result.WriteString("\n")
 	}
 	if content.links != "" {
@@ -268,6 +293,17 @@ func (content *MarkdownContent) Links() string {
 func (content *MarkdownContent) SetLinks(links string) {
 	if content.links != links {
 		content.links = links
+		content.markDirty()
+	}
+}
+
+func (content *MarkdownContent) Header() string {
+	return content.header
+}
+
+func (content *MarkdownContent) SetHeader(header string) {
+	if content.header != header {
+		content.header = header
 		content.markDirty()
 	}
 }

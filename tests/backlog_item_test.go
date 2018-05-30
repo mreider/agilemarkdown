@@ -9,6 +9,10 @@ import (
 const (
 	itemMarkdownData = `# Support for clarification requests
 
+Project: Test job
+
+[title1](link1) [title2](link2)
+
 Created: 2018-05-03 03:32 PM  
 Modified: 2018-05-08 09:18 PM  
 Author: mreider  
@@ -44,6 +48,8 @@ func TestBacklogItem(t *testing.T) {
 	item := backlog.NewBacklogItem("comments", itemMarkdownData)
 
 	assert.Equal(t, "Support for clarification requests", item.Title())
+	assert.Equal(t, "Project: Test job", item.Header())
+	assert.Equal(t, "[title1](link1) [title2](link2)", item.Links())
 	assert.Equal(t, "2018-05-03 15:32", item.Created().Format("2006-01-02 15:04"))
 	assert.Equal(t, "2018-05-08 21:18", item.Modified().Format("2006-01-02 15:04"))
 	assert.Equal(t, "mreider", item.Author())
