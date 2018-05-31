@@ -19,9 +19,14 @@ var CreateIdeaCommand = cli.Command{
 			Name:   "simulate",
 			Hidden: true,
 		},
+		cli.StringFlag{
+			Name:   "user",
+			Hidden: true,
+		},
 	},
 	Action: func(c *cli.Context) error {
 		simulate := c.Bool("simulate")
+		user := c.String("user")
 
 		rootDir, _ := filepath.Abs(".")
 		if err := checkIsBacklogDirectory(); err == nil {
@@ -50,9 +55,13 @@ var CreateIdeaCommand = cli.Command{
 			return nil
 		}
 
-		currentUser, err := git.CurrentUser()
-		if err != nil {
-			currentUser = "unknown"
+		currentUser := user
+		if currentUser == "" {
+			var err error
+			currentUser, err = git.CurrentUser()
+			if err != nil {
+				currentUser = "unknown"
+			}
 		}
 
 		idea, err := backlog.LoadBacklogIdea(ideaPath)
