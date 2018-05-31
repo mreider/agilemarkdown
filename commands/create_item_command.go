@@ -28,9 +28,14 @@ var CreateItemCommand = cli.Command{
 			Name:   "simulate",
 			Hidden: true,
 		},
+		cli.StringFlag{
+			Name:   "user",
+			Hidden: true,
+		},
 	},
 	Action: func(c *cli.Context) error {
 		simulate := c.Bool("simulate")
+		user := c.String("user")
 
 		if err := checkIsBacklogDirectory(); err != nil {
 			fmt.Println(err)
@@ -61,9 +66,13 @@ var CreateItemCommand = cli.Command{
 			return nil
 		}
 
-		currentUser, err := git.CurrentUser()
-		if err != nil {
-			currentUser = "unknown"
+		currentUser := user
+		if currentUser == "" {
+			var err error
+			currentUser, err = git.CurrentUser()
+			if err != nil {
+				currentUser = "unknown"
+			}
 		}
 
 		item, err := backlog.LoadBacklogItem(itemPath)
