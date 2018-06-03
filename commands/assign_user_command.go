@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/mreider/agilemarkdown/backlog"
-	"github.com/mreider/agilemarkdown/git"
+	"github.com/mreider/agilemarkdown/users"
 	"gopkg.in/urfave/cli.v1"
 	"os"
 	"path/filepath"
@@ -80,28 +80,11 @@ var AssignUserCommand = cli.Command{
 		}
 		fmt.Println("")
 
-		gitUsers, _ := git.KnownUsers()
-		knownUsers := bck.KnownUsers()
-		usersSet := make(map[string]bool)
-		for _, user := range gitUsers {
-			usersSet[user] = true
-		}
-		for _, user := range knownUsers {
-			usersSet[user] = true
-		}
-		users := make([]string, 0, len(usersSet))
-		for user := range usersSet {
-			users = append(users, user)
-		}
-		sort.Strings(users)
+		userList := users.NewUserList(filepath.Join(backlogDir, "..", backlog.UsersDirectoryName))
+		allUsers := userList.AllUsers()
+		sort.Strings(allUsers)
 
-		// TODO: need users check?
-		//usersSet := make(map[string]bool)
-		//for _, user := range users {
-		//	usersSet[strings.ToLower(user)] = true
-		//}
-
-		fmt.Printf("Users: %s\n", strings.Join(users, ", "))
+		fmt.Printf("Users: %s\n", strings.Join(allUsers, ", "))
 		fmt.Println()
 		reader := bufio.NewReader(os.Stdin)
 		for {

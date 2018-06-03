@@ -9,30 +9,39 @@ import (
 )
 
 var (
-	usersRe = regexp.MustCompile(`^\d+\s+(.*)$`)
+	usersRe = regexp.MustCompile(`^\d+\s+(.*)\s+<([^>]+)>$`)
 )
 
-func CurrentUser() (string, error) {
-	args := []string{"config", "user.name"}
-	return runGitCommand(args)
+func CurrentUser() (name, email string, err error) {
+	name, err = runGitCommand([]string{"config", "user.name"})
+	if err != nil {
+		return "", "", nil
+	}
+	email, err = runGitCommand([]string{"config", "user.email"})
+	if err != nil {
+		return "", "", nil
+	}
+	return name, email, nil
 }
 
-func KnownUsers() ([]string, error) {
-	args := []string{"shortlog", "--summary", "HEAD"}
+func KnownUsers() (names, emails []string, err error) {
+	args := []string{"shortlog", "--summary", "-e", "HEAD"}
 	output, err := runGitCommand(args)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	lines := strings.Split(output, "\n")
-	users := make([]string, 0, len(lines))
+	userNames := make([]string, 0, len(lines))
+	userEmails := make([]string, 0, len(lines))
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 		match := usersRe.FindStringSubmatch(line)
 		if match != nil {
-			users = append(users, match[1])
+			userNames = append(userNames, match[1])
+			userEmails = append(userEmails, match[2])
 		}
 	}
-	return users, nil
+	return userNames, userEmails, nil
 }
 
 func AddAll() error {

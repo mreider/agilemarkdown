@@ -55,8 +55,8 @@ func findArchiveFileInDirectory(dir string) (string, bool) {
 	return filepath.Join(dir, ArchiveFileName), false
 }
 
-func checkIsRootDirectory() error {
-	gitFolder := filepath.Join(".", ".git")
+func checkIsRootDirectory(dir string) error {
+	gitFolder := filepath.Join(dir, ".git")
 	_, err := os.Stat(gitFolder)
 	if err != nil {
 		return errors.New("Error, please change directory to a root git folder")

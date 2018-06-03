@@ -19,6 +19,7 @@ var (
 	separators  = regexp.MustCompile(`[ \\/&_=+:]`)
 	dashes      = regexp.MustCompile(`[\-]+`)
 	illegalName = regexp.MustCompile(`[^[:alnum:]-]`)
+	spacesRe    = regexp.MustCompile(`\s+`)
 )
 
 func PadIntLeft(value, width int) string {
@@ -146,4 +147,8 @@ func GetValidFileName(name string) string {
 	fileName = illegalName.ReplaceAllString(fileName, "")
 	fileName = dashes.ReplaceAllString(fileName, "-")
 	return fileName
+}
+
+func CollapseWhiteSpaces(value string) string {
+	return strings.TrimSpace(spacesRe.ReplaceAllString(value, " "))
 }

@@ -33,7 +33,7 @@ var CreateIdeaCommand = cli.Command{
 			rootDir = filepath.Dir(rootDir)
 		} else if filepath.Base(rootDir) == backlog.IdeasDirectoryName {
 			rootDir = filepath.Dir(rootDir)
-		} else if err := checkIsRootDirectory(); err != nil {
+		} else if err := checkIsRootDirectory("."); err != nil {
 			return err
 		}
 
@@ -58,7 +58,7 @@ var CreateIdeaCommand = cli.Command{
 		currentUser := user
 		if currentUser == "" {
 			var err error
-			currentUser, err = git.CurrentUser()
+			currentUser, _, err = git.CurrentUser()
 			if err != nil {
 				currentUser = "unknown"
 			}

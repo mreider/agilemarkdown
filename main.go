@@ -3,11 +3,14 @@ package main
 import (
 	"fmt"
 	"github.com/mreider/agilemarkdown/autocomplete"
+	"github.com/mreider/agilemarkdown/backlog"
 	"github.com/mreider/agilemarkdown/commands"
+	"github.com/mreider/agilemarkdown/users"
 	"gopkg.in/urfave/cli.v1"
 	"log"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 )
@@ -17,6 +20,16 @@ var (
 )
 
 func main() {
+	rootDir, _ := filepath.Abs(".")
+	for rootDir != "" {
+		_, err := os.Stat(filepath.Join(rootDir, ".git"))
+		if err == nil {
+			break
+		}
+		rootDir = filepath.Dir(rootDir)
+	}
+	users.NewUserList(filepath.Join(rootDir, backlog.UsersDirectoryName))
+
 	err := setBashAutoComplete()
 	if err != nil {
 		fmt.Printf("can't set bash autocomplete: %v\n", err)
@@ -48,6 +61,7 @@ func main() {
 		commands.AliasCommand,
 		commands.ImportCommand,
 		commands.ArchiveCommand,
+		commands.CreateUserCommand,
 	}
 
 	err = app.Run(os.Args)

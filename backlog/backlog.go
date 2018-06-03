@@ -14,7 +14,8 @@ var (
 	ArchiveDirectoryName  = "archive"
 	TagsDirectoryName     = "tags"
 	TagsFileName          = "tags.md"
-	ForbiddenBacklogNames = []string{IdeasDirectoryName, ArchiveDirectoryName, TagsDirectoryName}
+	UsersDirectoryName    = "users"
+	ForbiddenBacklogNames = []string{IdeasDirectoryName, ArchiveDirectoryName, TagsDirectoryName, UsersDirectoryName}
 	ForbiddenItemNames    = []string{ArchiveDirectoryName}
 )
 
@@ -78,23 +79,6 @@ func (bck *Backlog) ArchivedItems() []*BacklogItem {
 func (bck *Backlog) AllItemsByStatus(statusCode string) []*BacklogItem {
 	filter := NewBacklogItemsStatusCodeFilter(statusCode)
 	return bck.filteredItems(filter)
-}
-
-func (bck *Backlog) KnownUsers() []string {
-	users := make(map[string]bool)
-	for _, item := range bck.items {
-		if item.Assigned() != "" {
-			users[item.Assigned()] = true
-		}
-		if item.Author() != "" {
-			users[item.Author()] = true
-		}
-	}
-	result := make([]string, 0, len(users))
-	for user := range users {
-		result = append(result, user)
-	}
-	return result
 }
 
 func (bck *Backlog) FilteredActiveItems(filter BacklogItemsFilter) []*BacklogItem {
