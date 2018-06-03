@@ -39,7 +39,7 @@ func (a *SyncAction) Execute() error {
 	rootDir, _ := filepath.Abs(".")
 	if err := checkIsBacklogDirectory(); err == nil {
 		rootDir = filepath.Dir(rootDir)
-	} else if err := checkIsRootDirectory(); err != nil {
+	} else if err := checkIsRootDirectory("."); err != nil {
 		return err
 	}
 
@@ -272,7 +272,7 @@ func (a *SyncAction) updateIdea(rootDir string, idea *backlog.BacklogIdea) error
 			return err
 		}
 		if author == "" {
-			author, _ = git.CurrentUser()
+			author, _, _ = git.CurrentUser()
 			created = time.Now()
 		}
 

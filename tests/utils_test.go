@@ -66,6 +66,13 @@ func TestGetValidFileName(t *testing.T) {
 	assert.Equal(t, "apple-red-green", utils.GetValidFileName("apple:red:green"))
 }
 
+func TestCollapseWhiteSpaces(t *testing.T) {
+	assert.Equal(t, "", utils.CollapseWhiteSpaces(""))
+	assert.Equal(t, "", utils.CollapseWhiteSpaces(" "))
+	assert.Equal(t, "", utils.CollapseWhiteSpaces(" \n"))
+	assert.Equal(t, "it is a test", utils.CollapseWhiteSpaces(" it \n  is a    \t  test  "))
+}
+
 func createDate(year int, month time.Month, day int) time.Time {
 	return time.Date(year, month, day, 0, 0, 0, 0, time.Local)
 }

@@ -15,7 +15,7 @@ var CreateBacklogCommand = cli.Command{
 	Usage:     "Create a new backlog",
 	ArgsUsage: "BACKLOG_NAME",
 	Action: func(c *cli.Context) error {
-		if err := checkIsRootDirectory(); err != nil {
+		if err := checkIsRootDirectory("."); err != nil {
 			return err
 		}
 

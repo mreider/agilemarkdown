@@ -69,7 +69,7 @@ var CreateItemCommand = cli.Command{
 		currentUser := user
 		if currentUser == "" {
 			var err error
-			currentUser, err = git.CurrentUser()
+			currentUser, _, err = git.CurrentUser()
 			if err != nil {
 				currentUser = "unknown"
 			}
