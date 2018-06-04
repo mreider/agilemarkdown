@@ -56,14 +56,20 @@ func Add(fileName string) error {
 	return err
 }
 
-func Commit(msg string) error {
+func Commit(msg, author string) error {
 	args := []string{"commit", "-m", msg}
+	if author != "" {
+		args = append(args, "--author", author)
+	}
 	_, err := runGitCommand(args)
 	return err
 }
 
-func CommitNoEdit() error {
+func CommitNoEdit(author string) error {
 	args := []string{"commit", "--no-edit"}
+	if author != "" {
+		args = append(args, "--author", author)
+	}
 	_, err := runGitCommand(args)
 	return err
 }
