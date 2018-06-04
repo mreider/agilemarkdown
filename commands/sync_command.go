@@ -24,15 +24,20 @@ var SyncCommand = cli.Command{
 			Name:   "test",
 			Hidden: true,
 		},
+		cli.StringFlag{
+			Name:   "author",
+			Hidden: true,
+		},
 	},
 	Action: func(c *cli.Context) error {
-		action := &SyncAction{testMode: c.Bool("test")}
+		action := &SyncAction{testMode: c.Bool("test"), author: c.String("author")}
 		return action.Execute()
 	},
 }
 
 type SyncAction struct {
 	testMode bool
+	author   string
 }
 
 func (a *SyncAction) Execute() error {
@@ -163,7 +168,7 @@ func (a *SyncAction) syncToGit() (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	git.Commit("sync") // TODO commit message
+	git.Commit("sync", a.author) // TODO commit message
 	err = git.Fetch()
 	if err != nil {
 		return false, fmt.Errorf("can't fetch: %v", err)
@@ -195,7 +200,7 @@ func (a *SyncAction) syncToGit() (bool, error) {
 				git.Add(conflictFile)
 				fmt.Printf("Remote changes to %s are ignored\n", conflictFile)
 			}
-			git.CommitNoEdit()
+			git.CommitNoEdit(a.author)
 			return false, nil
 		}
 	}
