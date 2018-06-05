@@ -30,6 +30,10 @@ func (u *User) Email() string {
 }
 
 func (u *User) Nick() string {
+	if u.email == "" {
+		return strings.Replace(u.name, " ", ".", -1)
+	}
+
 	parts := strings.SplitN(u.email, "@", 2)
 	return parts[0]
 }
@@ -41,10 +45,15 @@ func NewUserList(usersDir string) *UserList {
 	return userList
 }
 
-func (ul *UserList) User(nameOrNick string) *User {
-	nameOrNick = strings.ToLower(utils.CollapseWhiteSpaces(nameOrNick))
+func (ul *UserList) User(nameOrNickOrEmail string) *User {
+	nameOrNickOrEmail = strings.ToLower(utils.CollapseWhiteSpaces(nameOrNickOrEmail))
 	for _, user := range ul.users {
-		if strings.ToLower(user.Name()) == nameOrNick || strings.ToLower(user.Nick()) == "" {
+		if strings.ToLower(user.email) == nameOrNickOrEmail {
+			return user
+		}
+	}
+	for _, user := range ul.users {
+		if strings.ToLower(user.Name()) == nameOrNickOrEmail || strings.ToLower(user.Nick()) == nameOrNickOrEmail {
 			return user
 		}
 	}

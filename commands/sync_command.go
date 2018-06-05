@@ -3,7 +3,9 @@ package commands
 import (
 	"fmt"
 	"github.com/mreider/agilemarkdown/backlog"
+	"github.com/mreider/agilemarkdown/config"
 	"github.com/mreider/agilemarkdown/git"
+	"github.com/mreider/agilemarkdown/users"
 	"github.com/mreider/agilemarkdown/utils"
 	"github.com/pkg/errors"
 	"gopkg.in/urfave/cli.v1"
@@ -15,29 +17,32 @@ import (
 	"time"
 )
 
-var SyncCommand = cli.Command{
-	Name:      "sync",
-	Usage:     "Sync state",
-	ArgsUsage: " ",
-	Flags: []cli.Flag{
-		cli.BoolFlag{
-			Name:   "test",
-			Hidden: true,
+func NewSyncCommand(cfg *config.Config) cli.Command {
+	return cli.Command{
+		Name:      "sync",
+		Usage:     "Sync state",
+		ArgsUsage: " ",
+		Flags: []cli.Flag{
+			cli.BoolFlag{
+				Name:   "test",
+				Hidden: true,
+			},
+			cli.StringFlag{
+				Name:   "author",
+				Hidden: true,
+			},
 		},
-		cli.StringFlag{
-			Name:   "author",
-			Hidden: true,
+		Action: func(c *cli.Context) error {
+			action := &SyncAction{testMode: c.Bool("test"), author: c.String("author"), cfg: cfg}
+			return action.Execute()
 		},
-	},
-	Action: func(c *cli.Context) error {
-		action := &SyncAction{testMode: c.Bool("test"), author: c.String("author")}
-		return action.Execute()
-	},
+	}
 }
 
 type SyncAction struct {
 	testMode bool
 	author   string
+	cfg      *config.Config
 }
 
 func (a *SyncAction) Execute() error {
@@ -137,6 +142,7 @@ func (a *SyncAction) updateOverviewsAndIndex(rootDir string) error {
 		activeItems := bck.ActiveItems()
 		overview.UpdateLinks("archive", archivePath, rootDir, rootDir)
 		overview.Update(activeItems, sorter)
+		a.sendNewComments(rootDir, overview, activeItems)
 		overview.UpdateClarifications(activeItems)
 		overview.Save()
 
@@ -464,4 +470,62 @@ func (a *SyncAction) updateTagsPage(rootDir, tagsDir string, itemsTags map[strin
 		lines = append(lines, fmt.Sprintf("%s", backlog.MakeTagLink(tag, tagsDir, rootDir)))
 	}
 	return ioutil.WriteFile(filepath.Join(rootDir, backlog.TagsFileName), []byte(strings.Join(lines, "  \n")), 0644)
+}
+
+func (a *SyncAction) sendNewComments(rootDir string, overview *backlog.BacklogOverview, activeItems []*backlog.BacklogItem) {
+	userList := users.NewUserList(filepath.Join(rootDir, backlog.UsersDirectoryName))
+	var mailSender *utils.MailSender
+	if a.cfg.SmtpServer != "" {
+		mailSender = utils.NewMailSender(a.cfg.SmtpServer, a.cfg.SmtpUser, a.cfg.SmtpPassword)
+	}
+	remoteOriginUrl, _ := git.RemoteOriginUrl()
+	remoteOriginUrl = strings.TrimSuffix(remoteOriginUrl, ".git")
+
+	from := a.author
+	sepIndex := strings.LastIndexByte(from, ' ')
+	if sepIndex >= 0 {
+		from = from[sepIndex+1:]
+		from = strings.Trim(from, "<>")
+	}
+	if from == "" {
+		from, _, _ = git.CurrentUser()
+	}
+	overview.SendNewComments(activeItems, func(item *backlog.BacklogItem, to string, comment []string) (me string, err error) {
+		meUser := userList.User(from)
+		if meUser == nil {
+			return "", fmt.Errorf("unknown user %s", from)
+		}
+		toUser := userList.User(to)
+		if toUser == nil {
+			return meUser.Nick(), fmt.Errorf("unknown user %s", to)
+		}
+		if mailSender == nil {
+			return meUser.Nick(), errors.New("SMTP server isn't configured")
+		}
+
+		msgText := strings.Join(comment, "\n")
+		if remoteOriginUrl != "" {
+			var itemUrl string
+			itemPath := strings.TrimPrefix(item.Path(), rootDir)
+			itemPath = strings.TrimPrefix(itemPath, string(os.PathSeparator))
+			itemPath = strings.Replace(itemPath, string(os.PathSeparator), "/", -1)
+			if a.cfg.RemoteGitUrlFormat != "" {
+				itemUrl = fmt.Sprintf(a.cfg.RemoteGitUrlFormat, remoteOriginUrl, itemPath)
+			} else {
+				itemUrl = fmt.Sprintf("%s/%s", remoteOriginUrl, itemPath)
+			}
+			msgText += fmt.Sprintf("\n\n%s\n", itemUrl)
+		}
+
+		fromSubject := meUser.Nick()
+		if meUser.Name() != meUser.Nick() {
+			fromSubject += fmt.Sprintf(" (%s)", meUser.Name())
+		}
+
+		err = mailSender.SendEmail(
+			[]string{toUser.Email()},
+			fmt.Sprintf("%s. New comment from %s", overview.Title(), fromSubject),
+			msgText)
+		return meUser.Nick(), err
+	})
 }

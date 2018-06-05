@@ -5,18 +5,30 @@ import (
 	"github.com/mreider/agilemarkdown/autocomplete"
 	"github.com/mreider/agilemarkdown/backlog"
 	"github.com/mreider/agilemarkdown/commands"
+	"github.com/mreider/agilemarkdown/config"
 	"github.com/mreider/agilemarkdown/users"
 	"gopkg.in/urfave/cli.v1"
+	"io/ioutil"
 	"log"
 	"math/rand"
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
+	"unicode"
 )
 
 var (
-	version = "0.0.0"
+	version       = "0.0.0"
+	configName    = ".config.json"
+	defaultConfig = `
+{
+  "SmtpServer": "",
+  "SmtpUser": "",
+  "SmtpPassword": "",
+  "RemoteGitUrlFormat": "%s/blob/master/%s"
+}`
 )
 
 func main() {
@@ -28,9 +40,17 @@ func main() {
 		}
 		rootDir = filepath.Dir(rootDir)
 	}
+	addConfigAndGitIgnore(rootDir)
+
+	cfgPath := filepath.Join(rootDir, configName)
+	cfg, err := config.LoadConfig(cfgPath)
+	if err != nil {
+		log.Fatalf("Can't load the config file %s: %v\n", cfgPath, err)
+	}
+
 	users.NewUserList(filepath.Join(rootDir, backlog.UsersDirectoryName))
 
-	err := setBashAutoComplete()
+	err = setBashAutoComplete()
 	if err != nil {
 		fmt.Printf("can't set bash autocomplete: %v\n", err)
 	}
@@ -52,7 +72,7 @@ func main() {
 		commands.CreateBacklogCommand,
 		commands.CreateItemCommand,
 		commands.CreateIdeaCommand,
-		commands.SyncCommand,
+		commands.NewSyncCommand(cfg),
 		commands.WorkCommand,
 		commands.PointsCommand,
 		commands.AssignUserCommand,
@@ -72,4 +92,15 @@ func main() {
 
 func setBashAutoComplete() error {
 	return autocomplete.AddAliasWithBashAutoComplete("")
+}
+
+func addConfigAndGitIgnore(rootDir string) {
+	configPath := filepath.Join(rootDir, configName)
+	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+		ioutil.WriteFile(configPath, []byte(strings.TrimLeftFunc(defaultConfig, unicode.IsSpace)), 0644)
+	}
+	gitIgnorePath := filepath.Join(rootDir, ".gitignore")
+	if _, err := os.Stat(gitIgnorePath); os.IsNotExist(err) {
+		ioutil.WriteFile(gitIgnorePath, []byte(configName), 0644)
+	}
 }
