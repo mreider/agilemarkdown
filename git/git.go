@@ -139,6 +139,14 @@ func InitCommitInfo(fileName string) (user string, created time.Time, err error)
 	return user, created, nil
 }
 
+func RemoteOriginUrl() (url string, err error) {
+	url, err = runGitCommand([]string{"config", "--get", "remote.origin.url"})
+	if err != nil {
+		return "", nil
+	}
+	return url, nil
+}
+
 func runGitCommand(args []string) (string, error) {
 	cmd := exec.Command("git", args...)
 	var out bytes.Buffer

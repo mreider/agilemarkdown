@@ -25,9 +25,11 @@ var (
 )
 
 type Comment struct {
-	User   string
-	Text   []string
-	Closed bool
+	User    string
+	Text    []string
+	rawText []string
+	Closed  bool
+	Unsent  bool
 }
 
 type BacklogItem struct {
@@ -147,6 +149,9 @@ func (item *BacklogItem) Comments() []*Comment {
 	for i := commentsStartIndex; i < len(item.markdown.freeText); i++ {
 		line := strings.TrimRightFunc(item.markdown.freeText[i], unicode.IsSpace)
 		if line == "" {
+			if comment != nil {
+				comment.rawText = append(comment.rawText, item.markdown.freeText[i])
+			}
 			continue
 		}
 		if strings.HasPrefix(line, "#") {
@@ -165,9 +170,17 @@ func (item *BacklogItem) Comments() []*Comment {
 			if text != "" {
 				comment.Text = append(comment.Text, text)
 			}
+			comment.rawText = append(comment.rawText, item.markdown.freeText[i])
 		} else {
 			if comment != nil {
-				comment.Text = append(comment.Text, strings.TrimSpace(line))
+				line := strings.TrimSpace(line)
+				if strings.HasPrefix(strings.ToLower(line), "sent by ") {
+					comment.Closed = true
+				} else if strings.HasPrefix(strings.ToLower(line), "can't send by ") {
+					comment.Unsent = true
+				}
+				comment.Text = append(comment.Text, line)
+				comment.rawText = append(comment.rawText, item.markdown.freeText[i])
 			}
 		}
 	}
@@ -175,6 +188,42 @@ func (item *BacklogItem) Comments() []*Comment {
 		comments = append(comments, comment)
 	}
 	return comments
+}
+
+func (item *BacklogItem) UpdateComments(comments []*Comment) {
+	commentsStartIndex := -1
+	for i := len(item.markdown.freeText) - 1; i >= 0; i-- {
+		if commentsTitleRe.MatchString(item.markdown.freeText[i]) {
+			commentsStartIndex = i + 1
+			break
+		}
+	}
+	if commentsStartIndex == -1 {
+		return
+	}
+
+	for commentsStartIndex < len(item.markdown.freeText) && strings.TrimSpace(item.markdown.freeText[commentsStartIndex]) == "" {
+		commentsStartIndex++
+	}
+
+	commentsFinishIndex := commentsStartIndex
+	for i := commentsStartIndex; i < len(item.markdown.freeText); i++ {
+		line := strings.TrimRightFunc(item.markdown.freeText[i], unicode.IsSpace)
+		commentsFinishIndex = i
+		if strings.HasPrefix(line, "#") {
+			break
+		}
+	}
+
+	newFreeText := make([]string, 0, len(item.markdown.freeText))
+	newFreeText = append(newFreeText, item.markdown.freeText[:commentsStartIndex]...)
+	for _, comment := range comments {
+		newFreeText = append(newFreeText, comment.rawText...)
+	}
+	newFreeText = append(newFreeText, item.markdown.freeText[commentsFinishIndex:]...)
+
+	item.markdown.SetFreeText(newFreeText)
+	item.Save()
 }
 
 func (item *BacklogItem) Tags() []string {
@@ -252,4 +301,19 @@ func (item *BacklogItem) Header() string {
 func (item *BacklogItem) SetHeader(header string) {
 	item.markdown.SetHeader(header)
 	item.Save()
+}
+
+func (c *Comment) AddLine(line string) {
+	c.Text = append(c.Text, line)
+
+	c.rawText = append(c.rawText, line)
+	i := len(c.rawText) - 1
+	for i > 0 && strings.TrimSpace(c.rawText[i-1]) == "" {
+		c.rawText[i-1], c.rawText[i] = c.rawText[i], c.rawText[i-1]
+		i--
+	}
+}
+
+func (item *BacklogItem) Path() string {
+	return item.markdown.contentPath
 }
