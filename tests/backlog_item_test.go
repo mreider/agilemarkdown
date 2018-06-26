@@ -30,9 +30,9 @@ We could add a comment section to each story, and in the overview page we could 
 
 ## Comments
 
-  @falcon Why so?
+  @falcon @bob Why so?
 
-@falconandy I think the problem here is that things are hard.
+@falconandy, @peter I think the problem here is that things are hard.
  @falcon I think the problem here is comment 2.
 
 	@falconandy. I think the problem here is comment 3.
@@ -60,27 +60,27 @@ func TestBacklogItem(t *testing.T) {
 	comments := item.Comments()
 	assert.Equal(t, 5, len(comments))
 
-	assert.Equal(t, "falcon", comments[0].User)
+	assert.Equal(t, []string{"falcon", "bob"}, comments[0].Users)
 	assert.True(t, comments[0].Closed)
 	assert.Equal(t, 1, len(comments[0].Text))
 	assert.Equal(t, "Why so?", comments[0].Text[0])
 
-	assert.Equal(t, "falconandy", comments[1].User)
+	assert.Equal(t, []string{"falconandy", "peter"}, comments[1].Users)
 	assert.False(t, comments[1].Closed)
 	assert.Equal(t, 1, len(comments[1].Text))
 	assert.Equal(t, "I think the problem here is that things are hard.", comments[1].Text[0])
 
-	assert.Equal(t, "falcon", comments[2].User)
+	assert.Equal(t, []string{"falcon"}, comments[2].Users)
 	assert.True(t, comments[2].Closed)
 	assert.Equal(t, 1, len(comments[2].Text))
 	assert.Equal(t, "I think the problem here is comment 2.", comments[2].Text[0])
 
-	assert.Equal(t, "falconandy", comments[3].User)
+	assert.Equal(t, []string{"falconandy"}, comments[3].Users)
 	assert.True(t, comments[3].Closed)
 	assert.Equal(t, 1, len(comments[3].Text))
 	assert.Equal(t, "I think the problem here is comment 3.", comments[3].Text[0])
 
-	assert.Equal(t, "mreider", comments[4].User)
+	assert.Equal(t, []string{"mreider"}, comments[4].Users)
 	assert.False(t, comments[4].Closed)
 	assert.Equal(t, 2, len(comments[4].Text))
 	assert.Equal(t, "What?", comments[4].Text[0])

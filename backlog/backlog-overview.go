@@ -174,7 +174,7 @@ func (overview *BacklogOverview) UpdateClarifications(items []*BacklogItem) {
 				}
 			}
 
-			lines = append(lines, fmt.Sprintf("| %s | %s | %s |", comment.User, strings.Join(text, " "), MakeItemLink(item, filepath.Dir(overview.markdown.contentPath))))
+			lines = append(lines, fmt.Sprintf("| %s | %s | %s |", strings.Join(comment.Users, " "), strings.Join(text, " "), MakeItemLink(item, filepath.Dir(overview.markdown.contentPath))))
 		}
 	}
 	if len(lines) > 0 || !overview.markdown.HideEmptyGroups || !isNewGroup {
@@ -187,7 +187,7 @@ func (overview *BacklogOverview) UpdateClarifications(items []*BacklogItem) {
 	overview.Save()
 }
 
-func (overview *BacklogOverview) SendNewComments(items []*BacklogItem, onSend func(item *BacklogItem, to string, comment []string) (me string, err error)) {
+func (overview *BacklogOverview) SendNewComments(items []*BacklogItem, onSend func(item *BacklogItem, to []string, comment []string) (me string, err error)) {
 	for _, item := range items {
 		comments := item.Comments()
 		hasChanges := false
@@ -195,7 +195,7 @@ func (overview *BacklogOverview) SendNewComments(items []*BacklogItem, onSend fu
 			if comment.Closed || comment.Unsent {
 				continue
 			}
-			me, err := onSend(item, comment.User, comment.Text)
+			me, err := onSend(item, comment.Users, comment.Text)
 			now := utils.GetCurrentTimestamp()
 			hasChanges = true
 			if err != nil {

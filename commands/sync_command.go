@@ -490,14 +490,18 @@ func (a *SyncAction) sendNewComments(rootDir string, overview *backlog.BacklogOv
 	if from == "" {
 		from, _, _ = git.CurrentUser()
 	}
-	overview.SendNewComments(activeItems, func(item *backlog.BacklogItem, to string, comment []string) (me string, err error) {
+	overview.SendNewComments(activeItems, func(item *backlog.BacklogItem, to []string, comment []string) (me string, err error) {
 		meUser := userList.User(from)
 		if meUser == nil {
 			return "", fmt.Errorf("unknown user %s", from)
 		}
-		toUser := userList.User(to)
-		if toUser == nil {
-			return meUser.Nick(), fmt.Errorf("unknown user %s", to)
+		toUsers := make([]*users.User, 0, len(to))
+		for _, user := range to {
+			toUser := userList.User(user)
+			if toUser == nil {
+				return meUser.Nick(), fmt.Errorf("unknown user %s", to)
+			}
+			toUsers = append(toUsers, toUser)
 		}
 		if mailSender == nil {
 			return meUser.Nick(), errors.New("SMTP server isn't configured")
@@ -522,8 +526,13 @@ func (a *SyncAction) sendNewComments(rootDir string, overview *backlog.BacklogOv
 			fromSubject += fmt.Sprintf(" (%s)", meUser.Name())
 		}
 
+		toEmails := make([]string, 0, len(toUsers))
+		for _, user := range toUsers {
+			toEmails = append(toEmails, user.Email())
+		}
+
 		err = mailSender.SendEmail(
-			[]string{toUser.Email()},
+			toEmails,
 			fmt.Sprintf("%s. New comment from %s", overview.Title(), fromSubject),
 			msgText)
 		return meUser.Nick(), err
