@@ -476,7 +476,7 @@ func (a *SyncAction) sendNewComments(rootDir string, overview *backlog.BacklogOv
 	userList := users.NewUserList(filepath.Join(rootDir, backlog.UsersDirectoryName))
 	var mailSender *utils.MailSender
 	if a.cfg.SmtpServer != "" {
-		mailSender = utils.NewMailSender(a.cfg.SmtpServer, a.cfg.SmtpUser, a.cfg.SmtpPassword)
+		mailSender = utils.NewMailSender(a.cfg.SmtpServer, a.cfg.SmtpUser, a.cfg.SmtpPassword, a.cfg.EmailFrom)
 	}
 	remoteOriginUrl, _ := git.RemoteOriginUrl()
 	remoteOriginUrl = strings.TrimSuffix(remoteOriginUrl, ".git")

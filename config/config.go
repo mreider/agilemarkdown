@@ -10,6 +10,7 @@ type Config struct {
 	SmtpServer         string `json:"SmtpServer"`
 	SmtpUser           string `json:"SmtpUser"`
 	SmtpPassword       string `json:"SmtpPassword"`
+	EmailFrom          string `json:"EmailFrom"`
 	RemoteGitUrlFormat string `json:"RemoteGitUrlFormat"`
 }
 
