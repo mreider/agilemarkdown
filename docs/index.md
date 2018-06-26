@@ -1,12 +1,40 @@
 ## About the project
 
-Agilemarkdown is a framework for managing agile projects using markdown files.
+Agilemarkdown is a project for managing agile projects using markdown files.
 
-## Installation
+The project consists of:
 
-Before you get started visit the [readme page](https://github.com/mreider/agilemarkdown) and install the agilemarkdown CLI.
+1. A command line tool (CLI) that creates backlogs, adds stories, and syncs with remote git repos
+2. A framework for hosting backlogs on a secure website
+3. A way to edit files, in a browser, for web users who don't know git or use text editors
+4. A way to organize external ideas, label things, send comments via email, track velocity, etc.
 
-The best way to get started is to create an empty Github repository for your markdown files and clone it locally.
+## Installing the CLI
+
+To install the CLI tool you need to have [GO](https://golang.org/doc/install) installed.
+
+Get the Go library
+
+```
+go get -u github.com/mreider/agilemarkdown
+```
+
+Compile the code
+
+```
+cd $GOPATH/src/github.com/mreider/agilemarkdown
+./build.sh
+```
+
+Create an alias for the binary
+
+```
+$GOPATH/bin/agilemarkdown alias am
+```
+
+## Creating a new backlog
+
+sdfsdf
 
 ```
 git clone git@github.com:mreider/agile-project.git
