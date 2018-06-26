@@ -20,12 +20,13 @@ const (
 )
 
 var (
-	commentsTitleRe = regexp.MustCompile(`^#{1,3}\s+Comments\s*$`)
-	commentRe       = regexp.MustCompile(`^(\s*)@([\w.-_]+)(\s+.*)?$`)
+	commentsTitleRe        = regexp.MustCompile(`^#{1,3}\s+Comments\s*$`)
+	commentRe              = regexp.MustCompile(`^(\s*)((@[\w.-_]+[\s,;]+)+)(.*)$`)
+	commentUserSeparatorRe = regexp.MustCompile(`[\s,;]+`)
 )
 
 type Comment struct {
-	User    string
+	Users   []string
 	Text    []string
 	rawText []string
 	Closed  bool
@@ -162,11 +163,25 @@ func (item *BacklogItem) Comments() []*Comment {
 			if comment != nil {
 				comments = append(comments, comment)
 			}
-			comment = &Comment{User: strings.TrimSuffix(matches[2], ".")}
+			rawUsers := commentUserSeparatorRe.Split(matches[2], -1)
+			allUsers := make(map[string]bool)
+			users := make([]string, 0, len(rawUsers))
+			for _, user := range rawUsers {
+				user = strings.TrimPrefix(user, "@")
+				user = strings.TrimSuffix(user, ".")
+				if user == "" {
+					continue
+				}
+				if !allUsers[user] {
+					users = append(users, user)
+					allUsers[user] = true
+				}
+			}
+			comment = &Comment{Users: users}
 			if len(matches[1]) > 0 {
 				comment.Closed = true
 			}
-			text := strings.TrimSpace(matches[3])
+			text := strings.TrimSpace(matches[4])
 			if text != "" {
 				comment.Text = append(comment.Text, text)
 			}
