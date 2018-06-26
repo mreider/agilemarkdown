@@ -17,7 +17,7 @@ import (
 	"time"
 )
 
-func NewSyncCommand(cfg *config.Config) cli.Command {
+func NewSyncCommand() cli.Command {
 	return cli.Command{
 		Name:      "sync",
 		Usage:     "Sync state",
@@ -33,7 +33,7 @@ func NewSyncCommand(cfg *config.Config) cli.Command {
 			},
 		},
 		Action: func(c *cli.Context) error {
-			action := &SyncAction{testMode: c.Bool("test"), author: c.String("author"), cfg: cfg}
+			action := &SyncAction{testMode: c.Bool("test"), author: c.String("author")}
 			return action.Execute()
 		},
 	}
@@ -42,7 +42,6 @@ func NewSyncCommand(cfg *config.Config) cli.Command {
 type SyncAction struct {
 	testMode bool
 	author   string
-	cfg      *config.Config
 }
 
 func (a *SyncAction) Execute() error {
@@ -53,11 +52,17 @@ func (a *SyncAction) Execute() error {
 		return err
 	}
 
+	cfgPath := filepath.Join(rootDir, configName)
+	cfg, err := config.LoadConfig(cfgPath)
+	if err != nil {
+		return fmt.Errorf("Can't load the config file %s: %v\n", cfgPath, err)
+	}
+
 	attempts := 10
 	for attempts > 0 {
 		attempts--
 
-		err := a.updateOverviewsAndIndex(rootDir)
+		err := a.updateOverviewsAndIndex(rootDir, cfg)
 		if err != nil {
 			return err
 		}
@@ -87,7 +92,7 @@ func (a *SyncAction) Execute() error {
 	return errors.New("can't sync: too many failed attempts")
 }
 
-func (a *SyncAction) updateOverviewsAndIndex(rootDir string) error {
+func (a *SyncAction) updateOverviewsAndIndex(rootDir string, cfg *config.Config) error {
 	backlogDirs, err := a.backlogDirs(rootDir)
 	if err != nil {
 		return err
@@ -142,7 +147,7 @@ func (a *SyncAction) updateOverviewsAndIndex(rootDir string) error {
 		activeItems := bck.ActiveItems()
 		overview.UpdateLinks("archive", archivePath, rootDir, rootDir)
 		overview.Update(activeItems, sorter)
-		a.sendNewComments(rootDir, overview, activeItems)
+		a.sendNewComments(cfg, rootDir, overview, activeItems)
 		overview.UpdateClarifications(activeItems)
 		overview.Save()
 
@@ -472,11 +477,11 @@ func (a *SyncAction) updateTagsPage(rootDir, tagsDir string, itemsTags map[strin
 	return ioutil.WriteFile(filepath.Join(rootDir, backlog.TagsFileName), []byte(strings.Join(lines, "  \n")), 0644)
 }
 
-func (a *SyncAction) sendNewComments(rootDir string, overview *backlog.BacklogOverview, activeItems []*backlog.BacklogItem) {
+func (a *SyncAction) sendNewComments(cfg *config.Config, rootDir string, overview *backlog.BacklogOverview, activeItems []*backlog.BacklogItem) {
 	userList := users.NewUserList(filepath.Join(rootDir, backlog.UsersDirectoryName))
 	var mailSender *utils.MailSender
-	if a.cfg.SmtpServer != "" {
-		mailSender = utils.NewMailSender(a.cfg.SmtpServer, a.cfg.SmtpUser, a.cfg.SmtpPassword, a.cfg.EmailFrom)
+	if cfg.SmtpServer != "" {
+		mailSender = utils.NewMailSender(cfg.SmtpServer, cfg.SmtpUser, cfg.SmtpPassword, cfg.EmailFrom)
 	}
 	remoteOriginUrl, _ := git.RemoteOriginUrl()
 	remoteOriginUrl = strings.TrimSuffix(remoteOriginUrl, ".git")
@@ -513,14 +518,14 @@ func (a *SyncAction) sendNewComments(rootDir string, overview *backlog.BacklogOv
 			itemPath := strings.TrimPrefix(item.Path(), rootDir)
 			itemPath = strings.TrimPrefix(itemPath, string(os.PathSeparator))
 			itemPath = strings.Replace(itemPath, string(os.PathSeparator), "/", -1)
-			if a.cfg.RemoteGitUrlFormat != "" {
-				itemGitUrl = fmt.Sprintf(a.cfg.RemoteGitUrlFormat, remoteOriginUrl, itemPath)
+			if cfg.RemoteGitUrlFormat != "" {
+				itemGitUrl = fmt.Sprintf(cfg.RemoteGitUrlFormat, remoteOriginUrl, itemPath)
 			} else {
 				itemGitUrl = fmt.Sprintf("%s/%s", remoteOriginUrl, itemPath)
 			}
 			msgText += fmt.Sprintf("\n\nView on Git: %s\n", itemGitUrl)
-			if a.cfg.RemoteWebUrlFormat != "" {
-				itemWebUrl := fmt.Sprintf(a.cfg.RemoteWebUrlFormat, itemPath)
+			if cfg.RemoteWebUrlFormat != "" {
+				itemWebUrl := fmt.Sprintf(cfg.RemoteWebUrlFormat, itemPath)
 				msgText += fmt.Sprintf("View on the web: %s\n", itemWebUrl)
 			}
 		}
