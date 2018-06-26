@@ -16,7 +16,16 @@ var CreateBacklogCommand = cli.Command{
 	ArgsUsage: "BACKLOG_NAME",
 	Action: func(c *cli.Context) error {
 		if err := checkIsRootDirectory("."); err != nil {
-			return err
+			out, statusErr := git.Status()
+			if statusErr != nil && strings.Contains(out, "fatal: not a git repository") {
+				err := git.Init()
+				if err != nil {
+					return err
+				}
+				AddConfigAndGitIgnore(".")
+			} else {
+				return err
+			}
 		}
 
 		if c.NArg() == 0 {

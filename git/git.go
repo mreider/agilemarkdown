@@ -2,7 +2,9 @@ package git
 
 import (
 	"bytes"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -145,6 +147,31 @@ func RemoteOriginUrl() (url string, err error) {
 		return "", nil
 	}
 	return url, nil
+}
+
+func Init() error {
+	_, err := runGitCommand([]string{"init"})
+	return err
+}
+
+func GetRootGitDirectory(dir string) string {
+	dir, _ = filepath.Abs(dir)
+	for {
+		if IsRootGitDirectory(dir) {
+			return dir
+		}
+		parentDir := filepath.Dir(dir)
+		if parentDir == dir {
+			return ""
+		}
+		dir = parentDir
+	}
+}
+
+func IsRootGitDirectory(dir string) bool {
+	gitFolder := filepath.Join(dir, ".git")
+	_, err := os.Stat(gitFolder)
+	return err == nil
 }
 
 func runGitCommand(args []string) (string, error) {
