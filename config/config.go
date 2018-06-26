@@ -12,6 +12,7 @@ type Config struct {
 	SmtpPassword       string `json:"SmtpPassword"`
 	EmailFrom          string `json:"EmailFrom"`
 	RemoteGitUrlFormat string `json:"RemoteGitUrlFormat"`
+	RemoteWebUrlFormat string `json:"RemoteWebUrlFormat"`
 }
 
 func LoadConfig(configPath string) (*Config, error) {

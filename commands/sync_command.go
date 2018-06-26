@@ -509,16 +509,20 @@ func (a *SyncAction) sendNewComments(rootDir string, overview *backlog.BacklogOv
 
 		msgText := strings.Join(comment, "\n")
 		if remoteOriginUrl != "" {
-			var itemUrl string
+			var itemGitUrl string
 			itemPath := strings.TrimPrefix(item.Path(), rootDir)
 			itemPath = strings.TrimPrefix(itemPath, string(os.PathSeparator))
 			itemPath = strings.Replace(itemPath, string(os.PathSeparator), "/", -1)
 			if a.cfg.RemoteGitUrlFormat != "" {
-				itemUrl = fmt.Sprintf(a.cfg.RemoteGitUrlFormat, remoteOriginUrl, itemPath)
+				itemGitUrl = fmt.Sprintf(a.cfg.RemoteGitUrlFormat, remoteOriginUrl, itemPath)
 			} else {
-				itemUrl = fmt.Sprintf("%s/%s", remoteOriginUrl, itemPath)
+				itemGitUrl = fmt.Sprintf("%s/%s", remoteOriginUrl, itemPath)
 			}
-			msgText += fmt.Sprintf("\n\n%s\n", itemUrl)
+			msgText += fmt.Sprintf("\n\nView on Git: %s\n", itemGitUrl)
+			if a.cfg.RemoteWebUrlFormat != "" {
+				itemWebUrl := fmt.Sprintf(a.cfg.RemoteWebUrlFormat, itemPath)
+				msgText += fmt.Sprintf("View on the web: %s\n", itemWebUrl)
+			}
 		}
 
 		fromSubject := meUser.Nick()
