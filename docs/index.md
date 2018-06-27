@@ -9,6 +9,10 @@ The project consists of:
 3. A way to edit files, in a browser, for web users who don't know git or use text editors
 4. A way to organize external ideas, label things, send comments via email, track velocity, etc.
 
+## Downloading the latest CLI
+
+You can download the latest CLI from the releases page [here](https://github.com/mreider/agilemarkdown/releases).
+
 ## Compiling the CLI from source
 
 To install the CLI from source tool you need to have [GO](https://golang.org/doc/install) installed.
