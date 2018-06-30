@@ -1,0 +1,12 @@
+language: go
+
+go:
+- "1.10.x"
+env:
+- "PATH=/home/travis/gopath/bin:$PATH REPO_VERSION=$(git log -1 --format=%cd --date=unix) REPO_TAG=$(date -d @$REPO_VERSION +%Y.%m.%d.%H%M%S)"
+before_install:
+- go get github.com/mitchellh/gox
+- go get github.com/tcnksm/ghr
+after_success:
+- gox -ldflags "-X main.version=$REPO_VERSION" -osarch="linux/amd64 windows/amd64 darwin/amd64" -output "dist/{{.Dir}}_{{.OS}}_{{.Arch}}"
+- ghr --username falconandy --token $GITHUB_TOKEN --replace --prerelease --debug $REPO_TAG dist/
