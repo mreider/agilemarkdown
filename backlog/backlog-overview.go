@@ -11,11 +11,6 @@ import (
 	"strings"
 )
 
-const (
-	ExcerptMaxSize      = 100
-	ClarificationsTitle = "Clarifications"
-)
-
 var (
 	overviewItemRe   = regexp.MustCompile(`\[[^]]*]\(([^)]+)\)`)
 	chartColorCodeRe = regexp.MustCompile(`.\[\d+m`)
@@ -120,13 +115,6 @@ NextStatus:
 
 func (overview *BacklogOverview) sortGroupsByStatus() {
 	sort.Slice(overview.markdown.groups, func(i, j int) bool {
-		if overview.markdown.groups[i].title == ClarificationsTitle {
-			return true
-		}
-		if overview.markdown.groups[j].title == ClarificationsTitle {
-			return false
-		}
-
 		iStatus, jStatus := StatusByName(overview.markdown.groups[i].title), StatusByName(overview.markdown.groups[j].title)
 		iIndex, jIndex := int(math.MaxInt32), int(math.MaxInt32)
 		if iStatus != nil {
@@ -142,49 +130,6 @@ func (overview *BacklogOverview) sortGroupsByStatus() {
 
 		return i < j
 	})
-}
-
-func (overview *BacklogOverview) UpdateClarifications(items []*BacklogItem) {
-	group := overview.markdown.Group(ClarificationsTitle)
-	isNewGroup := false
-	if group == nil {
-		group = &MarkdownGroup{content: overview.markdown, title: ClarificationsTitle}
-		isNewGroup = true
-	}
-
-	header := []string{"| User | Excerpt | Story |", "|---|---|---|"}
-	var lines []string
-	for _, item := range items {
-		for _, comment := range item.Comments() {
-			if comment.Closed {
-				continue
-			}
-			var text []string
-			var textSize int
-			for _, textLine := range comment.Text {
-				if textSize+len(textLine) <= ExcerptMaxSize {
-					text = append(text, textLine)
-					textSize += len(textLine)
-				} else {
-					text = append(text, textLine[:ExcerptMaxSize-textSize]+"...")
-					textSize += ExcerptMaxSize
-				}
-				if textSize >= ExcerptMaxSize {
-					break
-				}
-			}
-
-			lines = append(lines, fmt.Sprintf("| %s | %s | %s |", strings.Join(comment.Users, " "), strings.Join(text, " "), MakeItemLink(item, filepath.Dir(overview.markdown.contentPath))))
-		}
-	}
-	if len(lines) > 0 || !overview.markdown.HideEmptyGroups || !isNewGroup {
-		if isNewGroup {
-			overview.markdown.addGroup(group)
-		}
-		lines = append(header, lines...)
-		group.ReplaceLines(lines)
-	}
-	overview.Save()
 }
 
 func (overview *BacklogOverview) SendNewComments(items []*BacklogItem, onSend func(item *BacklogItem, to []string, comment []string) (me string, err error)) {
