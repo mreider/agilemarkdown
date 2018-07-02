@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/mreider/agilemarkdown.svg?branch=master)](https://travis-ci.org/mreider/agilemarkdown)
+
 # agilemarkdown
 A framework for managing backlogs using git and markdown
 
