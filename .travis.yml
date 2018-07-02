@@ -9,4 +9,4 @@ before_install:
 - go get github.com/tcnksm/ghr
 after_success:
 - gox -ldflags "-X main.version=$REPO_VERSION" -osarch="linux/amd64 windows/amd64 darwin/amd64" -output "dist/{{.Dir}}_{{.OS}}_{{.Arch}}"
-- ghr --username falconandy --token $GITHUB_TOKEN --replace --prerelease --debug $REPO_TAG dist/
+- ghr --username mreider --token $GITHUB_TOKEN --replace --prerelease --debug $REPO_TAG dist/
