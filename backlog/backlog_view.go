@@ -1,9 +1,11 @@
 package backlog
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/buger/goterm"
 	"github.com/mreider/agilemarkdown/utils"
+	"github.com/wcharczuk/go-chart"
 	"strconv"
 	"strings"
 	"time"
@@ -91,7 +93,7 @@ func (bv BacklogView) WriteMarkdownItemsWithProject(overviews map[*BacklogItem]*
 	return result
 }
 
-func (bv BacklogView) Velocity(bck *Backlog, weekCount, width int) (string, error) {
+func (bv BacklogView) VelocityText(bck *Backlog, weekCount, width int) (string, error) {
 	items := bck.AllItemsByStatus(FinishedStatus.Code)
 	currentDate := time.Now().UTC()
 	pointsByWeekDelta := make(map[int]float64)
@@ -104,7 +106,7 @@ func (bv BacklogView) Velocity(bck *Backlog, weekCount, width int) (string, erro
 		}
 	}
 
-	chart := goterm.NewLineChart(width, 20)
+	graph := goterm.NewLineChart(width, 20)
 
 	data := new(goterm.DataTable)
 	data.AddColumn("Week")
@@ -114,7 +116,74 @@ func (bv BacklogView) Velocity(bck *Backlog, weekCount, width int) (string, erro
 		data.AddRow(float64(i), pointsByWeekDelta[i])
 	}
 
-	return chart.Draw(data), nil
+	return graph.Draw(data), nil
+}
+
+func (bv BacklogView) VelocityImage(bck *Backlog, weekCount int) ([]byte, error) {
+	items := bck.AllItemsByStatus(FinishedStatus.Code)
+	currentDate := time.Now().UTC()
+	pointsByWeekDelta := make(map[int]float64)
+	maxPoints := 0.0
+	for _, item := range items {
+		modified := item.Modified()
+		weekDelta := utils.WeekDelta(currentDate, modified)
+		if -weekCount < weekDelta && weekDelta <= 0 {
+			itemPoints, _ := strconv.ParseFloat(item.Estimate(), 64)
+			pointsByWeekDelta[weekDelta] += itemPoints
+			if pointsByWeekDelta[weekDelta] > maxPoints {
+				maxPoints = pointsByWeekDelta[weekDelta]
+			}
+		}
+	}
+
+	maxIntPoints := int(maxPoints + 0.5)
+	tickSize := 5
+	yTicksCount := maxIntPoints/tickSize + 1
+	yTicks := make([]chart.Tick, yTicksCount+1)
+	for i := 0; i < yTicksCount+1; i++ {
+		label := ""
+		if i%2 == 0 {
+			label = strconv.Itoa(i * tickSize)
+		}
+		yTicks[i] = chart.Tick{Label: label, Value: float64(i * tickSize)}
+	}
+
+	xValues := make([]float64, 0, weekCount)
+	yValues := make([]float64, 0, weekCount)
+	xTicks := make([]chart.Tick, 0, weekCount)
+	for i := -weekCount + 1; i <= 0; i++ {
+		xValues = append(xValues, float64(i))
+		yValues = append(yValues, pointsByWeekDelta[i])
+		xTicks = append(xTicks, chart.Tick{Label: strconv.Itoa(i), Value: float64(i)})
+	}
+
+	graph := chart.Chart{
+		Series: []chart.Series{
+			chart.ContinuousSeries{
+				XValues: xValues,
+				YValues: yValues,
+			},
+		},
+		XAxis: chart.XAxis{
+			Style:     chart.Style{Show: true},
+			Ticks:     xTicks,
+			Name:      "Week",
+			NameStyle: chart.Style{Show: true},
+		},
+		YAxis: chart.YAxis{
+			Style:     chart.Style{Show: true},
+			Ticks:     yTicks,
+			Name:      "Points",
+			NameStyle: chart.Style{Show: true},
+		},
+	}
+
+	var buffer bytes.Buffer
+	err := graph.Render(chart.PNG, &buffer)
+	if err != nil {
+		return nil, err
+	}
+	return buffer.Bytes(), nil
 }
 
 func (bv BacklogView) WriteMarkdownIdeas(ideas []*BacklogIdea, baseDir, tagsDir string) []string {

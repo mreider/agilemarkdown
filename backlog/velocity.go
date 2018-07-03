@@ -2,8 +2,8 @@ package backlog
 
 import (
 	"github.com/mreider/agilemarkdown/utils"
+	"io/ioutil"
 	"path/filepath"
-	"strings"
 )
 
 type Velocity struct {
@@ -35,16 +35,20 @@ func (velocity *Velocity) SetTitle(title string) {
 	velocity.Save()
 }
 
-func (velocity *Velocity) Update(backlogs []*Backlog, overviews []*BacklogOverview, baseDir string) {
+func (velocity *Velocity) Update(backlogs []*Backlog, overviews []*BacklogOverview, backlogDirs []string, baseDir string) {
 	var lines []string
 	for i, bck := range backlogs {
 		overview := overviews[i]
+		velocityImagePath, err := velocity.generateVelocityImage(backlogDirs[i], bck, overview)
+		if err != nil {
+			continue
+		}
 		lines = append(lines, "")
 		lines = append(lines, "---")
 		lines = append(lines, "")
 		lines = append(lines, utils.JoinMarkdownLinks(MakeOverviewLink(overview, baseDir)))
 		lines = append(lines, "")
-		lines = append(lines, velocity.backlogVelocity(bck, overview)...)
+		lines = append(lines, utils.MakeMarkdownImageLink("velocity", velocityImagePath, baseDir))
 		lines = append(lines, "")
 	}
 	lines = append(lines, "")
@@ -53,39 +57,15 @@ func (velocity *Velocity) Update(backlogs []*Backlog, overviews []*BacklogOvervi
 	velocity.Save()
 }
 
-func (velocity *Velocity) backlogVelocity(bck *Backlog, overview *BacklogOverview) []string {
-	chart, err := BacklogView{}.Velocity(bck, 12, 84)
+func (velocity *Velocity) generateVelocityImage(backlogDir string, bck *Backlog, overview *BacklogOverview) (string, error) {
+	chart, err := BacklogView{}.VelocityImage(bck, 12)
 	if err != nil {
-		return nil
+		return "", nil
 	}
 
-	chartStart, chartEnd := -1, -1
-	for i, line := range overview.markdown.freeText {
-		line = strings.TrimSpace(line)
-		if line == "```" {
-			if chartStart == -1 {
-				chartStart = i
-			} else {
-				chartEnd = i
-				break
-			}
-		}
-	}
-
-	chart = chartColorCodeRe.ReplaceAllString(chart, "")
-	chartLines := utils.WrapLinesToMarkdownCodeBlock(strings.Split(chart, "\n"))
-	var newFreeText []string
-	if chartStart >= 0 && chartEnd >= 0 {
-		newFreeText = append(newFreeText, overview.markdown.freeText[:chartStart]...)
-		newFreeText = append(newFreeText, chartLines...)
-		newFreeText = append(newFreeText, overview.markdown.freeText[chartEnd+1:]...)
-	} else {
-		newFreeText = make([]string, 0, len(overview.markdown.freeText)+len(chartLines))
-		newFreeText = append(newFreeText, overview.markdown.freeText...)
-		newFreeText = append(newFreeText, chartLines...)
-	}
-
-	return newFreeText
+	velocityPngPath := filepath.Join(backlogDir, "velocity.png")
+	err = ioutil.WriteFile(velocityPngPath, chart, 0644)
+	return velocityPngPath, err
 }
 
 func (velocity *Velocity) UpdateLinks(rootDir string) {

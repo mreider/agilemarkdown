@@ -207,7 +207,7 @@ func (a *SyncAction) updateVelocity(rootDir string, cfg *config.Config) error {
 		overviews = append(overviews, overview)
 		backlogs = append(backlogs, bck)
 	}
-	velocity.Update(backlogs, overviews, rootDir)
+	velocity.Update(backlogs, overviews, backlogDirs, rootDir)
 	velocity.UpdateLinks(rootDir)
 
 	return nil

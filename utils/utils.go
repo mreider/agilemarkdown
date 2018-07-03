@@ -72,16 +72,6 @@ func AreEqualStrings(items1, items2 []string) bool {
 	return true
 }
 
-func WrapLinesToMarkdownCodeBlock(lines []string) []string {
-	result := make([]string, 0, len(lines)+2)
-	if len(lines) > 0 {
-		result = append(result, "```")
-		result = append(result, lines...)
-		result = append(result, "```")
-	}
-	return result
-}
-
 func TitleFirstLetter(s string) string {
 	first := true
 	return strings.Map(
@@ -135,6 +125,10 @@ func MakeMarkdownLink(linkTitle, linkPath, baseDir string) string {
 	}
 
 	return fmt.Sprintf("[%s](%s)", linkTitle, linkPath)
+}
+
+func MakeMarkdownImageLink(linkTitle, imagePath, baseDir string) string {
+	return fmt.Sprintf("!%s", MakeMarkdownLink(linkTitle, imagePath, baseDir))
 }
 
 func JoinMarkdownLinks(links ...string) string {

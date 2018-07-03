@@ -29,7 +29,7 @@ var VelocityCommand = cli.Command{
 		if err != nil {
 			return err
 		}
-		chart, err := backlog.BacklogView{}.Velocity(bck, weekCount, 84)
+		chart, err := backlog.BacklogView{}.VelocityText(bck, weekCount, 84)
 		if err != nil {
 			return err
 		}
