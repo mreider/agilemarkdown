@@ -13,7 +13,6 @@ import (
 
 var (
 	overviewItemRe   = regexp.MustCompile(`\[[^]]*]\(([^)]+)\)`)
-	chartColorCodeRe = regexp.MustCompile(`.\[\d+m`)
 	OverviewFooterRe = regexp.MustCompile(`^\[Archived stories]\([^]]+\).*`)
 )
 
@@ -156,7 +155,7 @@ func (overview *BacklogOverview) SendNewComments(items []*BacklogItem, onSend fu
 }
 
 func (overview *BacklogOverview) RemoveVelocity(bck *Backlog) {
-	overview.markdown.SetFreeText(nil)
+	overview.markdown.SetFreeText([]string{""})
 	overview.Save()
 }
 
