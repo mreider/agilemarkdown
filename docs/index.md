@@ -87,7 +87,7 @@ To manage stories you must set different keys at the top of each story file. The
 
 - **Assigned**: The engineer who will work on the story. You can see what stories they are working on using the `am work` command, and in the project overview.
 
-- **Estimate**: The number of points for this story. This number is used to generate the progress graphs that are available in `am progress` and on the overview page.
+- **Estimate**: The number of points for this story. This number is used to generate the velocity graphs that are available in `am velocity` and on the overview page.
 
 - **Status**: The status of a story describes whether it is unplanned, planned, doing, or finished.
 
@@ -166,7 +166,7 @@ The project page is destroyed and regenerated every time you sync. The order of 
 
 ### Measuring velocity
 
-The main page of the Wiki shows how many points your team has landed over the course of the last few weeks. You can also look at this by using the command `am progress`
+The main page of the Wiki shows how many points your team has landed over the course of the last few weeks. You can also look at this by using the command `am velocity`
 
 ![Alt text](https://monosnap.com/image/sqrDGVQVmwFRWQVFyuOYEKtjlmoy6p.png)
 

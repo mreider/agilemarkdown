@@ -55,7 +55,7 @@ func main() {
 		commands.PointsCommand,
 		commands.AssignUserCommand,
 		commands.ChangeStatusCommand,
-		commands.ProgressCommand,
+		commands.VelocityCommand,
 		commands.AliasCommand,
 		commands.ImportCommand,
 		commands.ArchiveCommand,
