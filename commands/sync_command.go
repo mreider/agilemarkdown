@@ -67,6 +67,11 @@ func (a *SyncAction) Execute() error {
 			return err
 		}
 
+		err = a.updateVelocity(rootDir, cfg)
+		if err != nil {
+			return err
+		}
+
 		err = a.updateIdeas(rootDir)
 		if err != nil {
 			return err
@@ -156,10 +161,7 @@ func (a *SyncAction) updateOverviewsAndIndex(rootDir string, cfg *config.Config)
 		archive.Update(archivedItems, sorter)
 		archive.Save()
 
-		err = overview.UpdateVelocity(bck)
-		if err != nil {
-			return err
-		}
+		overview.RemoveVelocity(bck)
 
 		for _, item := range bck.AllItems() {
 			item.SetHeader(fmt.Sprintf("Project: %s", overview.Title()))
@@ -168,6 +170,45 @@ func (a *SyncAction) updateOverviewsAndIndex(rootDir string, cfg *config.Config)
 	}
 	index.UpdateBacklogs(overviews, archives, rootDir)
 	index.UpdateLinks(rootDir)
+
+	return nil
+}
+
+func (a *SyncAction) updateVelocity(rootDir string, cfg *config.Config) error {
+	backlogDirs, err := a.backlogDirs(rootDir)
+	if err != nil {
+		return err
+	}
+	velocityPath := filepath.Join(rootDir, backlog.VelocityFileName)
+	velocity, err := backlog.LoadGlobalVelocity(velocityPath)
+	if err != nil {
+		return err
+	}
+	if velocity.Title() == "" {
+		velocity.SetTitle("Velocity")
+	}
+	overviews := make([]*backlog.BacklogOverview, 0, len(backlogDirs))
+	backlogs := make([]*backlog.Backlog, 0, len(backlogDirs))
+	for _, backlogDir := range backlogDirs {
+		overviewPath, ok := findOverviewFileInRootDirectory(backlogDir)
+		if !ok {
+			return fmt.Errorf("the overview file isn't found for %s", backlogDir)
+		}
+
+		overview, err := backlog.LoadBacklogOverview(overviewPath)
+		if err != nil {
+			return err
+		}
+		bck, err := backlog.LoadBacklog(backlogDir)
+		if err != nil {
+			return err
+		}
+
+		overviews = append(overviews, overview)
+		backlogs = append(backlogs, bck)
+	}
+	velocity.Update(backlogs, overviews, rootDir)
+	velocity.UpdateLinks(rootDir)
 
 	return nil
 }
@@ -264,7 +305,8 @@ func (a *SyncAction) updateIdeas(rootDir string) error {
 	}
 
 	lines := []string{"# Ideas", ""}
-	lines = append(lines, fmt.Sprintf(utils.JoinMarkdownLinks(backlog.MakeIndexLink(rootDir, rootDir), backlog.MakeIdeasLink(rootDir, rootDir), backlog.MakeTagsLink(rootDir, rootDir))))
+	lines = append(lines,
+		fmt.Sprintf(utils.JoinMarkdownLinks(backlog.MakeStandardLinks(rootDir, rootDir)...)))
 	lines = append(lines, "")
 	for _, rank := range ranks {
 		if rank != "" {
@@ -421,10 +463,7 @@ func (a *SyncAction) updateTagPage(rootDir, tagsDir, tag string, items []*backlo
 	lines := []string{
 		fmt.Sprintf("# Tag: %s", tag),
 		"",
-		fmt.Sprintf(utils.JoinMarkdownLinks(
-			backlog.MakeIndexLink(rootDir, tagsDir),
-			backlog.MakeIdeasLink(rootDir, tagsDir),
-			backlog.MakeTagsLink(rootDir, tagsDir))),
+		fmt.Sprintf(utils.JoinMarkdownLinks(backlog.MakeStandardLinks(rootDir, tagsDir)...)),
 		"",
 	}
 	for _, status := range backlog.AllStatuses {
@@ -467,7 +506,7 @@ func (a *SyncAction) updateTagsPage(rootDir, tagsDir string, itemsTags map[strin
 	sort.Strings(allTags)
 
 	lines := []string{"# Tags", ""}
-	lines = append(lines, fmt.Sprintf(utils.JoinMarkdownLinks(backlog.MakeIndexLink(rootDir, rootDir), backlog.MakeIdeasLink(rootDir, rootDir), backlog.MakeTagsLink(rootDir, rootDir))))
+	lines = append(lines, fmt.Sprintf(utils.JoinMarkdownLinks(backlog.MakeStandardLinks(rootDir, rootDir)...)))
 	lines = append(lines, "", "---", "")
 	for _, tag := range allTags {
 		lines = append(lines, fmt.Sprintf("%s", backlog.MakeTagLink(tag, tagsDir, rootDir)))
