@@ -132,7 +132,7 @@ func MakeMarkdownImageLink(linkTitle, imagePath, baseDir string) string {
 }
 
 func JoinMarkdownLinks(links ...string) string {
-	return strings.Join(links, " || ")
+	return strings.Join(links, " • ")
 }
 
 func GetValidFileName(name string) string {
