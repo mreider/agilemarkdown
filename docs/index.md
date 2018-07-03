@@ -1,5 +1,3 @@
-## About the project
-
 Agilemarkdown is a project for managing agile projects using markdown files.
 
 The project consists of:
