@@ -287,12 +287,8 @@ func (item *BacklogItem) MoveToBacklogArchiveDirectory() error {
 }
 
 func (item *BacklogItem) UpdateLinks(rootDir string, overviewPath, archivePath string) {
-	links := []string{
-		MakeIndexLink(rootDir, filepath.Dir(item.markdown.contentPath)),
-		MakeIdeasLink(rootDir, filepath.Dir(item.markdown.contentPath)),
-		MakeTagsLink(rootDir, filepath.Dir(item.markdown.contentPath)),
-		utils.MakeMarkdownLink("project page", overviewPath, filepath.Dir(item.markdown.contentPath)),
-	}
+	links := MakeStandardLinks(rootDir, filepath.Dir(item.markdown.contentPath))
+	links = append(links, utils.MakeMarkdownLink("project page", overviewPath, filepath.Dir(item.markdown.contentPath)))
 	if _, err := os.Stat(archivePath); err == nil {
 		links = append(links, utils.MakeMarkdownLink("archive", archivePath, filepath.Dir(item.markdown.contentPath)))
 	}

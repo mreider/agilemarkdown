@@ -155,41 +155,9 @@ func (overview *BacklogOverview) SendNewComments(items []*BacklogItem, onSend fu
 	}
 }
 
-func (overview *BacklogOverview) UpdateVelocity(bck *Backlog) error {
-	chart, err := BacklogView{}.Velocity(bck, 12, 84)
-	if err != nil {
-		return err
-	}
-
-	chartStart, chartEnd := -1, -1
-	for i, line := range overview.markdown.freeText {
-		line = strings.TrimSpace(line)
-		if line == "```" {
-			if chartStart == -1 {
-				chartStart = i
-			} else {
-				chartEnd = i
-				break
-			}
-		}
-	}
-
-	chart = chartColorCodeRe.ReplaceAllString(chart, "")
-	chartLines := utils.WrapLinesToMarkdownCodeBlock(strings.Split(chart, "\n"))
-	var newFreeText []string
-	if chartStart >= 0 && chartEnd >= 0 {
-		newFreeText = append(newFreeText, overview.markdown.freeText[:chartStart]...)
-		newFreeText = append(newFreeText, chartLines...)
-		newFreeText = append(newFreeText, overview.markdown.freeText[chartEnd+1:]...)
-	} else {
-		newFreeText = make([]string, 0, len(overview.markdown.freeText)+len(chartLines))
-		newFreeText = append(newFreeText, overview.markdown.freeText...)
-		newFreeText = append(newFreeText, chartLines...)
-	}
-
-	overview.markdown.SetFreeText(newFreeText)
+func (overview *BacklogOverview) RemoveVelocity(bck *Backlog) {
+	overview.markdown.SetFreeText(nil)
 	overview.Save()
-	return nil
 }
 
 func (overview *BacklogOverview) SetHideEmptyGroups(value bool) {
@@ -197,11 +165,7 @@ func (overview *BacklogOverview) SetHideEmptyGroups(value bool) {
 }
 
 func (overview *BacklogOverview) UpdateLinks(lastLinkTitle, lastLinkPath, rootDir, baseDir string) {
-	links := []string{
-		MakeIndexLink(rootDir, baseDir),
-		MakeIdeasLink(rootDir, baseDir),
-		MakeTagsLink(rootDir, baseDir),
-	}
+	links := MakeStandardLinks(rootDir, baseDir)
 	if _, err := os.Stat(lastLinkPath); err == nil {
 		links = append(links, utils.MakeMarkdownLink(lastLinkTitle, lastLinkPath, baseDir))
 	}

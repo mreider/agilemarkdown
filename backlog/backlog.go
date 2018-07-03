@@ -9,13 +9,14 @@ import (
 
 var (
 	IndexFileName         = "index.md"
+	VelocityFileName      = "velocity.md"
 	IdeasDirectoryName    = "ideas"
 	IdeasFileName         = "ideas.md"
 	ArchiveDirectoryName  = "archive"
 	TagsDirectoryName     = "tags"
 	TagsFileName          = "tags.md"
 	UsersDirectoryName    = "users"
-	ForbiddenBacklogNames = []string{IdeasDirectoryName, ArchiveDirectoryName, TagsDirectoryName, UsersDirectoryName}
+	ForbiddenBacklogNames = []string{IndexFileName, VelocityFileName, IdeasDirectoryName, ArchiveDirectoryName, TagsDirectoryName, UsersDirectoryName}
 	ForbiddenItemNames    = []string{ArchiveDirectoryName}
 )
 
