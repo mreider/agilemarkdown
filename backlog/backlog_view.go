@@ -91,7 +91,7 @@ func (bv BacklogView) WriteMarkdownItemsWithProject(overviews map[*BacklogItem]*
 	return result
 }
 
-func (bv BacklogView) Progress(bck *Backlog, weekCount, width int) (string, error) {
+func (bv BacklogView) Velocity(bck *Backlog, weekCount, width int) (string, error) {
 	items := bck.AllItemsByStatus(FinishedStatus.Code)
 	currentDate := time.Now().UTC()
 	pointsByWeekDelta := make(map[int]float64)

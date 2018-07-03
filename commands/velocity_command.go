@@ -7,9 +7,9 @@ import (
 	"strconv"
 )
 
-var ProgressCommand = cli.Command{
-	Name:      "progress",
-	Usage:     "Show the progress of a backlog over time",
+var VelocityCommand = cli.Command{
+	Name:      "velocity",
+	Usage:     "Show the velocity of a backlog over time",
 	ArgsUsage: "NUMBER_OF_WEEKS",
 	Action: func(c *cli.Context) error {
 		var weekCount int
@@ -29,7 +29,7 @@ var ProgressCommand = cli.Command{
 		if err != nil {
 			return err
 		}
-		chart, err := backlog.BacklogView{}.Progress(bck, weekCount, 84)
+		chart, err := backlog.BacklogView{}.Velocity(bck, weekCount, 84)
 		if err != nil {
 			return err
 		}

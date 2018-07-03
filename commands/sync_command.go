@@ -156,7 +156,7 @@ func (a *SyncAction) updateOverviewsAndIndex(rootDir string, cfg *config.Config)
 		archive.Update(archivedItems, sorter)
 		archive.Save()
 
-		err = overview.UpdateProgress(bck)
+		err = overview.UpdateVelocity(bck)
 		if err != nil {
 			return err
 		}

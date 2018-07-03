@@ -155,8 +155,8 @@ func (overview *BacklogOverview) SendNewComments(items []*BacklogItem, onSend fu
 	}
 }
 
-func (overview *BacklogOverview) UpdateProgress(bck *Backlog) error {
-	chart, err := BacklogView{}.Progress(bck, 12, 84)
+func (overview *BacklogOverview) UpdateVelocity(bck *Backlog) error {
+	chart, err := BacklogView{}.Velocity(bck, 12, 84)
 	if err != nil {
 		return err
 	}
