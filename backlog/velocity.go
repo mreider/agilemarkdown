@@ -1,8 +1,10 @@
 package backlog
 
 import (
+	"fmt"
 	"github.com/mreider/agilemarkdown/utils"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 )
 
@@ -63,7 +65,9 @@ func (velocity *Velocity) generateVelocityImage(backlogDir string, bck *Backlog,
 		return "", nil
 	}
 
-	velocityPngPath := filepath.Join(backlogDir, "velocity.png")
+	velocityDir := filepath.Join(filepath.Dir(backlogDir), "velocity")
+	os.MkdirAll(velocityDir, 0777)
+	velocityPngPath := filepath.Join(velocityDir, fmt.Sprintf("%s.png", filepath.Base(backlogDir)))
 	err = ioutil.WriteFile(velocityPngPath, chart, 0644)
 	return velocityPngPath, err
 }
