@@ -40,6 +40,14 @@ func TestWeekStart(t *testing.T) {
 	assert.Equal(t, createDate(2018, 4, 30), utils.WeekStart(createDate(2018, 5, 6)))
 }
 
+func TestWeekEnd(t *testing.T) {
+	assert.Equal(t, createDate(2018, 7, 8), utils.WeekEnd(createDate(2018, 7, 5)))
+	assert.Equal(t, createDate(2018, 7, 8), utils.WeekEnd(createDate(2018, 7, 8)))
+	assert.Equal(t, createDate(2018, 7, 8), utils.WeekEnd(createDate(2018, 7, 2)))
+	assert.Equal(t, createDate(2018, 7, 15), utils.WeekEnd(createDate(2018, 7, 9)))
+	assert.Equal(t, createDate(2018, 7, 1), utils.WeekEnd(createDate(2018, 7, 1)))
+}
+
 func TestWeekDelta(t *testing.T) {
 	baseValue := createDate(2018, 4, 25)
 	assert.Equal(t, 0, utils.WeekDelta(baseValue, baseValue))

@@ -154,7 +154,7 @@ func (bv BacklogView) VelocityImage(bck *Backlog, weekCount int) ([]byte, error)
 	for i := -weekCount + 1; i <= 0; i++ {
 		xValues = append(xValues, float64(i))
 		yValues = append(yValues, pointsByWeekDelta[i])
-		xTicks = append(xTicks, chart.Tick{Label: strconv.Itoa(i), Value: float64(i)})
+		xTicks = append(xTicks, chart.Tick{Label: utils.WeekEnd(currentDate.AddDate(0, 0, 7*i)).Format("January 2"), Value: float64(i)})
 	}
 
 	graph := chart.Chart{
