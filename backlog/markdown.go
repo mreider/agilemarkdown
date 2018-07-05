@@ -117,7 +117,9 @@ func NewMarkdown(data, markdownPath string, metadataKeys []string, groupTitlePre
 						}
 					}
 				} else {
-					if len(content.footer) > 0 {
+					if len(content.footer) == 0 && footerRe != nil && footerRe.MatchString(line) {
+						content.footer = append(content.footer, line)
+					} else if len(content.footer) > 0 {
 						content.footer = append(content.footer, line)
 					} else {
 						content.freeText = append(content.freeText, line)
@@ -236,6 +238,17 @@ func (content *MarkdownContent) Group(title string) *MarkdownGroup {
 func (content *MarkdownContent) addGroup(group *MarkdownGroup) {
 	content.groups = append(content.groups, group)
 	content.markDirty()
+}
+
+func (content *MarkdownContent) removeGroup(title string) {
+	title = strings.ToLower(title)
+	for i, group := range content.groups {
+		if strings.ToLower(group.title) == title {
+			content.groups = append(content.groups[:i], content.groups[i+1:]...)
+			content.markDirty()
+			break
+		}
+	}
 }
 
 func (content *MarkdownContent) SetFreeText(freeText []string) {

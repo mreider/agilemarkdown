@@ -1,8 +1,10 @@
 package backlog
 
 import (
+	"fmt"
 	"github.com/mreider/agilemarkdown/utils"
 	"path/filepath"
+	"regexp"
 )
 
 type GlobalIndex struct {
@@ -10,7 +12,7 @@ type GlobalIndex struct {
 }
 
 func LoadGlobalIndex(indexPath string) (*GlobalIndex, error) {
-	markdown, err := LoadMarkdown(indexPath, nil, "## ", nil)
+	markdown, err := LoadMarkdown(indexPath, nil, "## ", regexp.MustCompile(`^\|.*`))
 	if err != nil {
 		return nil, err
 	}
@@ -34,23 +36,22 @@ func (index *GlobalIndex) SetFreeText(freeText []string) {
 	index.Save()
 }
 
+func (index *GlobalIndex) SetFooter(footer []string) {
+	index.markdown.SetFooter(footer)
+	index.Save()
+}
+
 func (index *GlobalIndex) UpdateBacklogs(overviews []*BacklogOverview, archives []*BacklogOverview, baseDir string) {
 	lines := make([]string, 0, len(overviews)*5)
+	lines = append(lines, "| Backlog | Archive |")
+	lines = append(lines, "|---|---|")
 	for i := range overviews {
-		lines = append(lines, "")
-		lines = append(lines, utils.JoinMarkdownLinks(MakeOverviewLink(overviews[i], baseDir), MakeArchiveLink(archives[i], "archive", baseDir)))
-		if i < len(overviews)-1 {
-			lines = append(lines, "")
-			lines = append(lines, "---")
-		}
+		line := fmt.Sprintf("| %s | %s |", MakeOverviewLink(overviews[i], baseDir), MakeArchiveLink(archives[i], "archive", baseDir))
+		lines = append(lines, line)
 	}
 
-	backlogsGroup := index.markdown.Group("Backlogs")
-	if backlogsGroup == nil {
-		backlogsGroup = &MarkdownGroup{title: "Backlogs", content: index.markdown}
-		index.markdown.addGroup(backlogsGroup)
-	}
-	backlogsGroup.ReplaceLines(lines)
+	index.markdown.removeGroup("Backlogs")
+	index.SetFooter(lines)
 	index.Save()
 }
 
