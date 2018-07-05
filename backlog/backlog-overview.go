@@ -39,8 +39,8 @@ func (overview *BacklogOverview) Save() error {
 	return overview.markdown.Save()
 }
 
-func (overview *BacklogOverview) Content(timestamp string) []byte {
-	return overview.markdown.Content(timestamp)
+func (overview *BacklogOverview) Content() []byte {
+	return overview.markdown.Content()
 }
 
 func (overview *BacklogOverview) Title() string {
@@ -51,8 +51,8 @@ func (overview *BacklogOverview) SetTitle(title string) {
 	overview.markdown.SetTitle(title)
 }
 
-func (overview *BacklogOverview) SetCreated() {
-	overview.markdown.SetMetadataValue(CreatedMetadataKey, "")
+func (overview *BacklogOverview) SetCreated(timestamp string) {
+	overview.markdown.SetMetadataValue(CreatedMetadataKey, timestamp)
 }
 
 func (overview *BacklogOverview) Update(items []*BacklogItem, sorter *BacklogItemsSorter) {

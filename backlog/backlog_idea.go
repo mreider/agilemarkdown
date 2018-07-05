@@ -151,5 +151,5 @@ func (idea *BacklogIdea) Rank() string {
 }
 
 func (idea *BacklogIdea) Content() []byte {
-	return idea.markdown.Content(utils.GetCurrentTimestamp())
+	return idea.markdown.Content()
 }

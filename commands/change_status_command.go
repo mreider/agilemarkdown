@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/mreider/agilemarkdown/backlog"
+	"github.com/mreider/agilemarkdown/utils"
 	"gopkg.in/urfave/cli.v1"
 	"os"
 	"regexp"
@@ -52,6 +53,7 @@ var ChangeStatusCommand = cli.Command{
 				item := items[itemIndex]
 				if statusCode != "a" {
 					item.SetStatus(backlog.StatusByCode(statusCode))
+					item.SetModified(utils.GetCurrentTimestamp())
 				} else {
 					item.SetArchived(true)
 				}

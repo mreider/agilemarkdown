@@ -143,7 +143,7 @@ func (content *MarkdownContent) Save() error {
 	if !content.isDirty {
 		return nil
 	}
-	data := content.Content(utils.GetCurrentTimestamp())
+	data := content.Content()
 	err := ioutil.WriteFile(content.contentPath, data, 0644)
 	if err != nil {
 		return err
@@ -152,18 +152,7 @@ func (content *MarkdownContent) Save() error {
 	return nil
 }
 
-func (content *MarkdownContent) Content(timestamp string) []byte {
-	emptyCreated := content.MetadataValue(CreatedMetadataKey) == ""
-	if content.metadata.IsAllowedKey(CreatedMetadataKey) && emptyCreated {
-		content.SetMetadataValue(CreatedMetadataKey, timestamp)
-	}
-	if content.metadata.IsAllowedKey(ModifiedMetadataKey) {
-		if content.MetadataValue(ModifiedMetadataKey) != "" || emptyCreated {
-			content.SetMetadataValue(ModifiedMetadataKey, timestamp)
-		} else {
-			content.SetMetadataValue(ModifiedMetadataKey, content.MetadataValue(CreatedMetadataKey))
-		}
-	}
+func (content *MarkdownContent) Content() []byte {
 	result := bytes.NewBuffer(nil)
 	if content.title != "" {
 		result.WriteString(fmt.Sprintf("# %s", content.title))

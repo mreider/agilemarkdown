@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/mreider/agilemarkdown/backlog"
 	"github.com/mreider/agilemarkdown/git"
+	"github.com/mreider/agilemarkdown/utils"
 	"gopkg.in/urfave/cli.v1"
 	"os"
 	"path/filepath"
@@ -72,7 +73,7 @@ var CreateBacklogCommand = cli.Command{
 		}
 		overview.SetTitle(backlogName)
 		overview.UpdateLinks("archive", filepath.Join(backlogDir, ArchiveFileName), ".", ".")
-		overview.SetCreated()
+		overview.SetCreated(utils.GetCurrentTimestamp())
 		return overview.Save()
 	},
 }
