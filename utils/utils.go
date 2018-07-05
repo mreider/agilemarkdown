@@ -56,6 +56,10 @@ func WeekStart(value time.Time) time.Time {
 	return weekStart
 }
 
+func WeekEnd(value time.Time) time.Time {
+	return WeekStart(value).AddDate(0, 0, 6)
+}
+
 func WeekDelta(baseValue, value time.Time) int {
 	return int(WeekStart(value).Sub(WeekStart(baseValue)).Hours()) / 24 / 7
 }
