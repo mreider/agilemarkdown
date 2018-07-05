@@ -76,6 +76,10 @@ func (m *MarkdownMetadata) ParseLines(lines []string) int {
 			break
 		}
 		parts := strings.SplitN(trimmedLine, ":", 2)
+		if len(strings.Fields(parts[0])) > 5 {
+			break
+		}
+
 		var item *markdownMetadataItem
 		if len(parts) == 1 {
 			item = &markdownMetadataItem{strings.TrimSpace(parts[0]), ""}
