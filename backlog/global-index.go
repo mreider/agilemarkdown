@@ -43,7 +43,7 @@ func (index *GlobalIndex) SetFooter(footer []string) {
 
 func (index *GlobalIndex) UpdateBacklogs(overviews []*BacklogOverview, archives []*BacklogOverview, baseDir string) {
 	lines := make([]string, 0, len(overviews)*5)
-	lines = append(lines, "| Backlog | Archive |")
+	lines = append(lines, "| Backlogs |  |")
 	lines = append(lines, "|---|---|")
 	for i := range overviews {
 		line := fmt.Sprintf("| %s | %s |", MakeOverviewLink(overviews[i], baseDir), MakeArchiveLink(archives[i], "archive", baseDir))
