@@ -84,7 +84,7 @@ func TestOverviewUpdate(t *testing.T) {
 		story1, story2, story5, story6, story7, story4, story8,
 	}, sorter)
 
-	updatedData := string(overview.Content(""))
+	updatedData := string(overview.Content())
 	assert.Equal(t, updatedOverviewData, updatedData)
 }
 

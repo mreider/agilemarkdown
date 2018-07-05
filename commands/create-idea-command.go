@@ -68,9 +68,10 @@ var CreateIdeaCommand = cli.Command{
 		if err != nil {
 			return err
 		}
+		currentTimestamp := utils.GetCurrentTimestamp()
 		idea.SetTitle(utils.TitleFirstLetter(ideaTitle))
-		idea.SetCreated("")
-		idea.SetModified("")
+		idea.SetCreated(currentTimestamp)
+		idea.SetModified(currentTimestamp)
 		idea.SetAuthor(currentUser)
 		idea.SetTags(nil)
 

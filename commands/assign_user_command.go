@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/mreider/agilemarkdown/backlog"
 	"github.com/mreider/agilemarkdown/users"
+	"github.com/mreider/agilemarkdown/utils"
 	"gopkg.in/urfave/cli.v1"
 	"os"
 	"path/filepath"
@@ -105,6 +106,7 @@ var AssignUserCommand = cli.Command{
 				}
 				item := items[itemIndex]
 				item.SetAssigned(user)
+				item.SetModified(utils.GetCurrentTimestamp())
 				item.Save()
 			}
 		}

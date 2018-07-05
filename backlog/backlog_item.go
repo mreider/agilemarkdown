@@ -89,8 +89,8 @@ func (item *BacklogItem) Modified() time.Time {
 	return value
 }
 
-func (item *BacklogItem) SetModified() {
-	item.markdown.SetMetadataValue(ModifiedMetadataKey, "")
+func (item *BacklogItem) SetModified(timestamp string) {
+	item.markdown.SetMetadataValue(ModifiedMetadataKey, timestamp)
 }
 
 func (item *BacklogItem) Author() string {
@@ -298,7 +298,7 @@ func (item *BacklogItem) UpdateLinks(rootDir string, overviewPath, archivePath s
 }
 
 func (item *BacklogItem) Content() []byte {
-	return item.markdown.Content(utils.GetCurrentTimestamp())
+	return item.markdown.Content()
 }
 
 func (item *BacklogItem) Links() string {

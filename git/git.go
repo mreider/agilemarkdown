@@ -2,6 +2,7 @@ package git
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -154,6 +155,18 @@ func Init() error {
 	return err
 }
 
+func RepoVersion(repoDir, path string) (string, error) {
+	return runGitCommandInDirectory(repoDir, []string{"show", fmt.Sprintf("HEAD:%s", path)})
+}
+
+func ModifiedFiles(dir string) ([]string, error) {
+	out, err := runGitCommandInDirectory(dir, []string{"ls-files", "-m"})
+	if err != nil {
+		return nil, err
+	}
+	return strings.Split(out, "\n"), nil
+}
+
 func GetRootGitDirectory(dir string) string {
 	dir, _ = filepath.Abs(dir)
 	for {
@@ -175,11 +188,16 @@ func IsRootGitDirectory(dir string) bool {
 }
 
 func runGitCommand(args []string) (string, error) {
+	return runGitCommandInDirectory("", args)
+}
+
+func runGitCommandInDirectory(dir string, args []string) (string, error) {
 	cmd := exec.Command("git", args...)
 	var out bytes.Buffer
 	var stderr bytes.Buffer
 	cmd.Stdout = &out
 	cmd.Stderr = &stderr
+	cmd.Dir = dir
 	err := cmd.Run()
 	lines := make([]string, 0, 2)
 	if out.Len() > 0 {

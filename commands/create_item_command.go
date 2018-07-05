@@ -79,9 +79,10 @@ var CreateItemCommand = cli.Command{
 		if err != nil {
 			return err
 		}
+		currentTimestamp := utils.GetCurrentTimestamp()
 		item.SetTitle(utils.TitleFirstLetter(itemTitle))
-		item.SetCreated("")
-		item.SetModified()
+		item.SetCreated(currentTimestamp)
+		item.SetModified(currentTimestamp)
 		item.SetTags(nil)
 		item.SetAuthor(currentUser)
 		item.SetStatus(backlog.UnplannedStatus)

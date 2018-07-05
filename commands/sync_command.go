@@ -62,7 +62,12 @@ func (a *SyncAction) Execute() error {
 	for attempts > 0 {
 		attempts--
 
-		err := a.updateOverviewsAndIndex(rootDir, cfg)
+		err := a.updateItemsModifiedDate(rootDir)
+		if err != nil {
+			return err
+		}
+
+		err = a.updateOverviewsAndIndex(rootDir, cfg)
 		if err != nil {
 			return err
 		}
@@ -583,4 +588,45 @@ func (a *SyncAction) sendNewComments(cfg *config.Config, rootDir string, overvie
 			msgText)
 		return meUser.Nick(), err
 	})
+}
+
+func (a *SyncAction) updateItemsModifiedDate(rootDir string) error {
+	backlogDirs, err := a.backlogDirs(rootDir)
+	if err != nil {
+		return err
+	}
+	for _, backlogDir := range backlogDirs {
+		modifiedFiles, err := git.ModifiedFiles(backlogDir)
+		if len(modifiedFiles) == 0 {
+			continue
+		}
+
+		modifiedFilesSet := make(map[string]bool)
+		for _, file := range modifiedFiles {
+			modifiedFilesSet[file] = true
+		}
+
+		bck, err := backlog.LoadBacklog(backlogDir)
+		if err != nil {
+			return err
+		}
+		for _, item := range bck.AllItems() {
+			if modifiedFilesSet[filepath.Base(item.Path())] {
+				itemPath, _ := filepath.Rel(rootDir, item.Path())
+				itemPath = fmt.Sprintf("./%s", itemPath)
+				repoItemContent, err := git.RepoVersion(rootDir, itemPath)
+				if err != nil {
+					return err
+				}
+				repoItem := backlog.NewBacklogItem(filepath.Base(itemPath), repoItemContent)
+				if item.Assigned() != repoItem.Assigned() || item.Status() != repoItem.Status() || item.Estimate() != repoItem.Estimate() {
+					if item.Modified() == repoItem.Modified() {
+						item.SetModified(utils.GetCurrentTimestamp())
+						item.Save()
+					}
+				}
+			}
+		}
+	}
+	return nil
 }

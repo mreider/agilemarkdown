@@ -97,5 +97,5 @@ footer2`
 	content.Group("Finished").DeleteLine(0)
 	content.SetFooter([]string{"footer1", "footer2"})
 
-	assert.Equal(t, updatedData, string(content.Content("")))
+	assert.Equal(t, updatedData, string(content.Content()))
 }

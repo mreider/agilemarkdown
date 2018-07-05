@@ -139,7 +139,7 @@ func (imp *CsvImporter) createItemIfNotExists(line []string) error {
 
 	item.SetTitle(title)
 	item.SetCreated(created)
-	item.SetModified()
+	item.SetModified(created)
 	item.SetAuthor(author)
 	item.SetStatus(status)
 	item.SetAssigned(assigned)
