@@ -8,7 +8,9 @@ Absolutely. Yes. Here's why:
 4. Technical folks ♥ it cuz they can use a terminal all day
 5. Conflicts in git are good - they encourage conversations
 
-Agile Markdown consists of a handful of tools:
+So I built Agile Markdown.
+
+## What is it?
 
 1. A command line interface (CLI) for managing backlogs and stories in markdown using git
 2. A framework for managing backlogs and stories, locally, using any text editor
