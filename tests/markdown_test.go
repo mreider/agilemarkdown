@@ -31,11 +31,16 @@ Story 3 [link3](link3.md) (points) (assigned)
 ### Finished
 Story 8 [link8](link8.md) (points) (assigned)  
 
-[Archived stories](archive.md)`
+[Archived stories](archive.md)
+
+### Metadata
+
+Data2: test2  
+`
 )
 
 func TestMarkdownLoad(t *testing.T) {
-	content := backlog.NewMarkdown(markdownData, "", []string{"Data"}, "### ", backlog.OverviewFooterRe)
+	content := backlog.NewMarkdown(markdownData, "", []string{"Data"}, []string{"Data2"}, "### ", backlog.OverviewFooterRe)
 	assert.Equal(t, "Test backlog", content.Title())
 	assert.Equal(t, "Root: qwerty", content.Header())
 	assert.Equal(t, "[title1](link1) [title2](link2)", content.Links())
@@ -55,8 +60,9 @@ func TestMarkdownLoad(t *testing.T) {
 	assert.Equal(t, "Story 3 [link3](link3.md) (points) (assigned)  ", content.Group("Unplanned").Line(1))
 	assert.Equal(t, "Story 8 [link8](link8.md) (points) (assigned)  ", content.Group("Finished").Line(0))
 
-	assert.Equal(t, 1, len(content.Footer()))
+	assert.Equal(t, 2, len(content.Footer()))
 	assert.Equal(t, "[Archived stories](archive.md)", content.Footer()[0])
+	assert.Equal(t, "", content.Footer()[1])
 }
 
 func TestMarkdownSave(t *testing.T) {
@@ -85,9 +91,14 @@ Story 4 [link4](link4.md) (points) (assigned)
 
 
 footer1
-footer2`
+footer2
 
-	content := backlog.NewMarkdown(markdownData, "", []string{"Data"}, "### ", backlog.OverviewFooterRe)
+### Metadata
+
+Data2: test2  
+`
+
+	content := backlog.NewMarkdown(markdownData, "", []string{"Data"}, []string{"Data2"}, "### ", backlog.OverviewFooterRe)
 	content.SetTitle("New backlog")
 	content.SetHeader("Test: header")
 	content.SetLinks("[title1](link1) [title22](link22) [title3](link3)")
@@ -95,7 +106,7 @@ footer2`
 	content.Group("Planned").AddLine("Story 9 [link9](link9.md) 9 Robert")
 	content.Group("Unplanned").DeleteLine(1)
 	content.Group("Finished").DeleteLine(0)
-	content.SetFooter([]string{"footer1", "footer2"})
+	content.SetFooter([]string{"footer1", "footer2", ""})
 
 	assert.Equal(t, updatedData, string(content.Content()))
 }

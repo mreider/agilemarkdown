@@ -22,20 +22,16 @@ type BacklogIdea struct {
 }
 
 func LoadBacklogIdea(ideaPath string) (*BacklogIdea, error) {
-	markdown, err := LoadMarkdown(ideaPath, []string{
-		CreatedMetadataKey, ModifiedMetadataKey, BacklogIdeaAuthorMetadataKey, BacklogIdeaTagsMetadataKey, BacklogIdeaRankMetadataKey}, "", nil)
+	markdown, err := LoadMarkdown(ideaPath,
+		[]string{CreatedMetadataKey, ModifiedMetadataKey, BacklogIdeaAuthorMetadataKey, BacklogIdeaTagsMetadataKey, BacklogIdeaRankMetadataKey},
+		nil,
+		"", nil)
 	if err != nil {
 		return nil, err
 	}
 	name := filepath.Base(ideaPath)
 	name = strings.TrimSuffix(name, filepath.Ext(name))
 	return &BacklogIdea{name, markdown}, nil
-}
-
-func NewBacklogIdea(name string, markdownData string) *BacklogIdea {
-	markdown := NewMarkdown(markdownData, "", []string{
-		CreatedMetadataKey, ModifiedMetadataKey, BacklogIdeaAuthorMetadataKey, BacklogIdeaTagsMetadataKey, BacklogIdeaRankMetadataKey}, "", nil)
-	return &BacklogIdea{name, markdown}
 }
 
 func (idea *BacklogIdea) Save() error {
@@ -47,7 +43,7 @@ func (idea *BacklogIdea) Name() string {
 }
 
 func (idea *BacklogIdea) HasMetadata() bool {
-	return !idea.markdown.metadata.Empty()
+	return !idea.markdown.metadata.BottomEmpty() || !idea.markdown.metadata.TopEmpty()
 }
 
 func (idea *BacklogIdea) Title() string {
@@ -91,6 +87,10 @@ func (idea *BacklogIdea) Tags() []string {
 
 func (idea *BacklogIdea) SetTags(tags []string) {
 	idea.markdown.SetMetadataValue(BacklogIdeaTagsMetadataKey, strings.Join(tags, " "))
+}
+
+func (idea *BacklogIdea) SetRank(rank string) {
+	idea.markdown.SetMetadataValue(BacklogIdeaRankMetadataKey, rank)
 }
 
 func (idea *BacklogIdea) SetText(text string) {
