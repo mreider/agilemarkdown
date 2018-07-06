@@ -1,79 +1,90 @@
-Agilemarkdown is a project for managing agile projects using markdown files.
+What? You wanna manage backlogs in markdown? Are you a masochist?
 
-The project consists of:
+Absolutely. Yes. I do. So I built Agile Markdown. Here's why:
 
-1. A command line tool (CLI) that creates backlogs, adds stories, and syncs with remote git repos
-2. A framework for hosting backlogs on a secure website
-3. A way to edit files, in a browser, for web users who don't know git or use text editors
-4. A way to organize external ideas, label things, send comments via email, track velocity, etc.
+1. It's easy. Backlogs are directories. Stories are files.
+2. It's flexible. You can use any editor you want.
+3. Non technical folks can learn markdown easily
+4. Technical folks ♥ it cuz they can use a terminal all day
+5. Conflicts in git are good - they encourage conversations
 
-## Downloading the latest CLI
+Agile Markdown consists of a handful of tools:
 
-You can download the latest CLI from the releases page [here](https://github.com/mreider/agilemarkdown/releases).
+1. A command line interface (CLI) for managing backlogs and stories in markdown using git
+2. A framework for managing backlogs and stories, locally, using any text editor
+3. A simple way to share the backlog on a web server and sync everyone's copy using git
+4. A way to gather ideas (also in markdown) from different people and connect them to stories
+5. A simple set of generated charts showing a backlog's velocity
+6. A timeline of forecasted delivery - a.k.a. gantt charts
 
-## Compiling the CLI from source
+## Using the CLI
 
-To install the CLI from source tool you need to have [GO](https://golang.org/doc/install) installed.
-
-Get the Go library
-
-```
-go get -u github.com/mreider/agilemarkdown
-```
-
-Compile the code
+You can download the latest CLI from the releases page [here](https://github.com/mreider/agilemarkdown/releases). You can put the binary in your path, or not, and run the following command to create the `am` alias:
 
 ```
-cd $GOPATH/src/github.com/mreider/agilemarkdown
-./build.sh
+./agilemarkdown alias am
+Please, restart your terminal session to use the new alias
 ```
 
-Create an alias for the binary
+To see the list of commands use the `am help` command:
 
 ```
-$GOPATH/bin/agilemarkdown alias am
+am help
+NAME:
+   agilemarkdown - A framework for managing a backlog using Git, Markdown, and YAML
+
+USAGE:
+   agilemarkdown [global options] command [command options] [arguments...]
+
+VERSION:
+   2018.07.05.102952
+
+DESCRIPTION:
+   A framework for managing a backlog using Git, Markdown, and YAML
+
+COMMANDS:
+     create-backlog  Create a new backlog
+     create-item     Create a new item for the backlog
+     create-idea     Create a new idea
+     sync            Sync state
+     work            Show user work by status
+     points          Show total points by user and status
+     assign          Assign a story to a user
+     change-status   Change story status
+     velocity        Show the velocity of a backlog over time
+     alias           Add a Bash alias for the script
+     import          Import an existing Pivotal Tracker story
+     archive         Archive stories before a certain date
+     help, h         Shows a list of commands or help for one command
+
+GLOBAL OPTIONS:
+   --help, -h     show help
+   --version, -v  print the version
 ```
 
 ## Creating a new backlog
 
-sdfsdf44
+To create a new backlog use the `am create-backlog` command:
 
 ```
-git clone git@github.com:mreider/agile-project.git
-Cloning into 'agile-project'...
-remote: Counting objects: 4, done.
-remote: Compressing objects: 100% (4/4), done.
-remote: Total 4 (delta 0), reused 0 (delta 0), pack-reused 0
-Receiving objects: 100% (4/4), done.
-```
-
-With the Github repo on your local machine you can create your first backlog using agilemarkdown.
-
-```
-cd agile-project
+mkdir test
+cd test
 am create-backlog paint the house
 ```
 
-Cool. Now you have a backlog named paint-the-house. You also have a few new files, and folders, on your machine:
-
-- index.md is an overview page that shows all of your backlogs. So far we only have one.
-- agile-project.md is a project page that shows all of the stories in your backlog. We don't have any yet.
-- agile-project is a folder that will contain all of your stories. So far we have none.
-- ideas is a folder where users will drop ideas that you can decide to put in your backlog
+This creates a new directory named `paint-the-house` and performs a git init in the top directory `test.` You can create as many backlogs in the test directory as you want, and each will be located in its own subdirectory.
 
 
 ## Creating stories in a backlog
 
-Use the `create-item` command to create items in your backlog. The story is created as a markdown file.
+To create a story in the `paint-the-house` backlog, switch directories and use the `am create-item` command:
 
 ```
 cd paint-the-house
 am create-item figure out which colors to buy
-ls
-figure_out_which_colors_to_buy.md
 ```
 
-Once the file is created you can start editing the story using your favorite text editor. We like [Atom](https://atom.io/).
+This will create a markdown file that you can edit using your favorite text editor. We like [Atom](https://atom.io/).
 
 ![Edit the story in a text editor](https://monosnap.com/image/dgLPinN9gCJLTruBMqTwGdwb0sllan.png)
 
