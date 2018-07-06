@@ -48,7 +48,7 @@ var CreateItemCommand = cli.Command{
 			return nil
 		}
 		itemTitle := strings.Join(c.Args(), " ")
-		itemName := strings.Replace(itemTitle, " ", "-", -1)
+		itemName := utils.GetValidFileName(itemTitle)
 		itemPath := filepath.Join(".", fmt.Sprintf("%s.md", itemName))
 		if existsFile(itemPath) {
 			if !simulate {

@@ -40,7 +40,7 @@ var CreateBacklogCommand = cli.Command{
 			return nil
 		}
 
-		backlogFileName := strings.Replace(backlogName, " ", "-", -1)
+		backlogFileName := utils.GetValidFileName(backlogName)
 		backlogDir := filepath.Join(".", backlogFileName)
 		if info, err := os.Stat(backlogDir); err != nil && !os.IsNotExist(err) {
 			return err

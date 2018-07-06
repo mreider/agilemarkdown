@@ -44,7 +44,7 @@ var CreateIdeaCommand = cli.Command{
 			return nil
 		}
 		ideaTitle := strings.Join(c.Args(), " ")
-		ideaName := strings.Replace(ideaTitle, " ", "-", -1)
+		ideaName := utils.GetValidFileName(ideaTitle)
 		ideaPath := filepath.Join(rootDir, backlog.IdeasDirectoryName, fmt.Sprintf("%s.md", ideaName))
 		if existsFile(ideaPath) {
 			if !simulate {
