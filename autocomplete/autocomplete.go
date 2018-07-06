@@ -28,13 +28,16 @@ unset PROG
 `
 
 func getBashAutoCompleteScriptPath() (string, error) {
-	cmdDir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
-	autoCompleteScriptPath := filepath.Join(cmdDir, fmt.Sprintf("%s_bash_autocomplete", filepath.Base(os.Args[0])))
-	_, err := os.Stat(autoCompleteScriptPath)
+	absCmdPath, err := os.Executable()
+	if err != nil {
+		return "", err
+	}
+	cmdDir := filepath.Dir(absCmdPath)
+	autoCompleteScriptPath := filepath.Join(cmdDir, fmt.Sprintf("%s_bash_autocomplete", filepath.Base(absCmdPath)))
+	_, err = os.Stat(autoCompleteScriptPath)
 	if err != nil && !os.IsNotExist(err) {
 		return "", err
 	}
-	absCmdPath, _ := filepath.Abs(os.Args[0])
 	autoCompleteScript := []byte(fmt.Sprintf(bashAutoCompleteScript, absCmdPath))
 	if err == nil {
 		currentScript, err := ioutil.ReadFile(autoCompleteScriptPath)
@@ -60,11 +63,14 @@ func AddAliasWithBashAutoComplete(alias string) error {
 		return err
 	}
 
+	absCmdPath, err := os.Executable()
+	if err != nil {
+		return err
+	}
 	if alias == "" {
-		alias = filepath.Base(os.Args[0])
+		alias = filepath.Base(absCmdPath)
 	} else {
-		absCmdPath, _ := filepath.Abs(os.Args[0])
-		err := addLineToConfig(BashRcPath(), fmt.Sprintf("alias %s='%s'", alias, absCmdPath))
+		err = addLineToConfig(BashRcPath(), fmt.Sprintf("alias %s='%s'", alias, absCmdPath))
 		if err != nil {
 			return err
 		}
