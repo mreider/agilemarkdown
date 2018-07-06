@@ -12,7 +12,7 @@ type GlobalIndex struct {
 }
 
 func LoadGlobalIndex(indexPath string) (*GlobalIndex, error) {
-	markdown, err := LoadMarkdown(indexPath, nil, "## ", regexp.MustCompile(`^\|.*`))
+	markdown, err := LoadMarkdown(indexPath, nil, nil, "## ", regexp.MustCompile(`^\|.*`))
 	if err != nil {
 		return nil, err
 	}

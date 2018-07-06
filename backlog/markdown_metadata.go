@@ -6,8 +6,10 @@ import (
 )
 
 type MarkdownMetadata struct {
-	allowedKeys map[string]bool
-	items       []*markdownMetadataItem
+	allowedTopKeys    map[string]bool
+	allowedBottomKeys map[string]bool
+	items             []*markdownMetadataItem
+	bottomGroupLine   string
 }
 
 type markdownMetadataItem struct {
@@ -15,26 +17,48 @@ type markdownMetadataItem struct {
 	value string
 }
 
-func NewMarkdownMetadata(allowedKeys []string) *MarkdownMetadata {
+func NewMarkdownMetadata(allowedTopKeys, allowedBottomKeys []string) *MarkdownMetadata {
 	metadata := &MarkdownMetadata{
-		allowedKeys: make(map[string]bool, len(allowedKeys)),
+		allowedTopKeys:    make(map[string]bool, len(allowedTopKeys)),
+		allowedBottomKeys: make(map[string]bool, len(allowedBottomKeys)),
 	}
-	for _, key := range allowedKeys {
-		metadata.allowedKeys[strings.ToLower(key)] = true
+	for _, key := range allowedTopKeys {
+		metadata.allowedTopKeys[strings.ToLower(key)] = true
+	}
+	for _, key := range allowedBottomKeys {
+		metadata.allowedBottomKeys[strings.ToLower(key)] = true
 	}
 	return metadata
 }
 
-func (m *MarkdownMetadata) RawLines() []string {
+func (m *MarkdownMetadata) TopRawLines() []string {
 	result := make([]string, 0, len(m.items))
-	for _, item := range m.items {
-		result = append(result, fmt.Sprintf("%s: %s  ", item.key, item.value))
-	}
+	m.fillRawLines(&result, m.allowedTopKeys)
 	return result
 }
 
-func (m *MarkdownMetadata) IsAllowedKey(key string) bool {
-	return m.allowedKeys[strings.ToLower(key)]
+func (m *MarkdownMetadata) BottomRawLines() []string {
+	result := make([]string, 0, len(m.items))
+	bottomGroupLine := m.bottomGroupLine
+	if bottomGroupLine == "" {
+		bottomGroupLine = "## Metadata"
+	}
+	result = append(result, bottomGroupLine, "")
+	m.fillRawLines(&result, m.allowedBottomKeys)
+	return result
+}
+
+func (m *MarkdownMetadata) fillRawLines(lines *[]string, allowedKeys map[string]bool) {
+	for _, item := range m.items {
+		if allowedKeys[strings.ToLower(item.key)] {
+			*lines = append(*lines, fmt.Sprintf("%s: %s  ", item.key, item.value))
+		}
+	}
+}
+
+func (m *MarkdownMetadata) isAllowedKey(key string) bool {
+	key = strings.ToLower(key)
+	return m.allowedTopKeys[key] || m.allowedBottomKeys[key]
 }
 
 func (m *MarkdownMetadata) Value(key string) string {
@@ -54,7 +78,7 @@ func (m *MarkdownMetadata) SetValue(key, value string) bool {
 		}
 	}
 
-	if !m.IsAllowedKey(key) {
+	if !m.isAllowedKey(key) {
 		return false
 	}
 
@@ -64,7 +88,6 @@ func (m *MarkdownMetadata) SetValue(key, value string) bool {
 }
 
 func (m *MarkdownMetadata) ParseLines(lines []string) int {
-	m.items = nil
 	parsed := 0
 	for _, line := range lines {
 		trimmedLine := strings.TrimSpace(line)
@@ -100,6 +123,23 @@ func (m *MarkdownMetadata) ParseLines(lines []string) int {
 	return parsed
 }
 
-func (m *MarkdownMetadata) Empty() bool {
-	return len(m.items) == 0
+func (m *MarkdownMetadata) TopEmpty() bool {
+	return m.empty(m.allowedTopKeys)
+}
+
+func (m *MarkdownMetadata) BottomEmpty() bool {
+	return m.bottomGroupLine == "" && m.empty(m.allowedBottomKeys)
+}
+
+func (m *MarkdownMetadata) empty(allowedKeys map[string]bool) bool {
+	for _, item := range m.items {
+		if allowedKeys[strings.ToLower(item.key)] {
+			return false
+		}
+	}
+	return true
+}
+
+func (m *MarkdownMetadata) SetBottomGroupLine(line string) {
+	m.bottomGroupLine = line
 }

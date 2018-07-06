@@ -16,7 +16,8 @@ const (
 )
 
 var (
-	linksRe = regexp.MustCompile(`^(\[[^])]+]\([^])]+\)(\s*(•|(\|\|))?\s*)?)+$`)
+	linksRe         = regexp.MustCompile(`^(\[[^])]+]\([^])]+\)(\s*(•|(\|\|))?\s*)?)+$`)
+	metadataGroupRe = regexp.MustCompile(`^#+\s*metadata\s*$`)
 )
 
 type MarkdownContent struct {
@@ -35,7 +36,7 @@ type MarkdownContent struct {
 	HideEmptyGroups bool
 }
 
-func LoadMarkdown(markdownPath string, metadataKeys []string, groupTitlePrefix string, footerRe *regexp.Regexp) (*MarkdownContent, error) {
+func LoadMarkdown(markdownPath string, topMetadataKeys, bottomMetadataKeys []string, groupTitlePrefix string, footerRe *regexp.Regexp) (*MarkdownContent, error) {
 	var err error
 	if _, err = os.Stat(markdownPath); err != nil && !os.IsNotExist(err) {
 		return nil, err
@@ -53,13 +54,23 @@ func LoadMarkdown(markdownPath string, metadataKeys []string, groupTitlePrefix s
 			return nil, err
 		}
 	}
-	return NewMarkdown(string(data), markdownPath, metadataKeys, groupTitlePrefix, footerRe), nil
+	return NewMarkdown(string(data), markdownPath, topMetadataKeys, bottomMetadataKeys, groupTitlePrefix, footerRe), nil
 }
 
-func NewMarkdown(data, markdownPath string, metadataKeys []string, groupTitlePrefix string, footerRe *regexp.Regexp) *MarkdownContent {
-	content := &MarkdownContent{contentPath: markdownPath, groupTitlePrefix: groupTitlePrefix, metadata: NewMarkdownMetadata(metadataKeys)}
+func NewMarkdown(data, markdownPath string, topMetadataKeys, bottomMetadataKeys []string, groupTitlePrefix string, footerRe *regexp.Regexp) *MarkdownContent {
+	content := &MarkdownContent{contentPath: markdownPath, groupTitlePrefix: groupTitlePrefix, metadata: NewMarkdownMetadata(topMetadataKeys, bottomMetadataKeys)}
 	if len(data) > 0 {
 		lines := strings.Split(data, "\n")
+
+		bottomMetadataGroupIndex := content.findBottomMetadataGroup(lines)
+		if bottomMetadataGroupIndex >= 0 {
+			content.metadata.SetBottomGroupLine(lines[bottomMetadataGroupIndex])
+			if bottomMetadataGroupIndex < len(lines)-1 {
+				content.metadata.ParseLines(lines[bottomMetadataGroupIndex+1:])
+			}
+			lines = lines[:bottomMetadataGroupIndex]
+		}
+
 		metadataIndex := 0
 		if strings.HasPrefix(lines[0], "# ") {
 			content.title = strings.TrimSpace(strings.TrimPrefix(lines[0], "# "))
@@ -83,7 +94,12 @@ func NewMarkdown(data, markdownPath string, metadataKeys []string, groupTitlePre
 					} else {
 						parts := strings.SplitN(line, ":", 2)
 						key := strings.ToLower(strings.TrimSpace(parts[0]))
-						for _, mKey := range metadataKeys {
+						for _, mKey := range topMetadataKeys {
+							if key == strings.ToLower(mKey) {
+								break NextLine
+							}
+						}
+						for _, mKey := range bottomMetadataKeys {
 							if key == strings.ToLower(mKey) {
 								break NextLine
 							}
@@ -170,9 +186,9 @@ func (content *MarkdownContent) Content() []byte {
 		result.WriteString(content.links)
 		result.WriteString("\n")
 	}
-	if !content.metadata.Empty() {
+	if !content.metadata.TopEmpty() {
 		result.WriteString("\n")
-		result.WriteString(strings.Join(content.metadata.RawLines(), "\n"))
+		result.WriteString(strings.Join(content.metadata.TopRawLines(), "\n"))
 		result.WriteString("\n")
 	}
 	for i, line := range content.freeText {
@@ -207,6 +223,11 @@ func (content *MarkdownContent) Content() []byte {
 				result.WriteString("\n")
 			}
 		}
+	}
+	if !content.metadata.BottomEmpty() {
+		result.WriteString("\n")
+		result.WriteString(strings.Join(content.metadata.BottomRawLines(), "\n"))
+		result.WriteString("\n")
 	}
 	return result.Bytes()
 }
@@ -308,4 +329,15 @@ func (content *MarkdownContent) SetHeader(header string) {
 		content.header = header
 		content.markDirty()
 	}
+}
+
+func (content *MarkdownContent) findBottomMetadataGroup(lines []string) int {
+	metadataGroupIndex := -1
+	for i := len(lines) - 1; i >= 0; i-- {
+		if metadataGroupRe.MatchString(strings.ToLower(lines[i])) {
+			metadataGroupIndex = i
+			break
+		}
+	}
+	return metadataGroupIndex
 }

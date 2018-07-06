@@ -74,6 +74,7 @@ var CreateIdeaCommand = cli.Command{
 		idea.SetModified(currentTimestamp)
 		idea.SetAuthor(currentUser)
 		idea.SetTags(nil)
+		idea.SetRank("")
 
 		if !simulate {
 			return idea.Save()

@@ -39,10 +39,10 @@ type BacklogItem struct {
 }
 
 func LoadBacklogItem(itemPath string) (*BacklogItem, error) {
-	markdown, err := LoadMarkdown(itemPath, []string{
-		CreatedMetadataKey, ModifiedMetadataKey, BacklogItemAuthorMetadataKey,
-		BacklogItemStatusMetadataKey, BacklogItemAssignedMetadataKey, BacklogItemEstimateMetadataKey,
-		BacklogItemTagsMetadataKey, BacklogItemArchiveMetadataKey}, "", nil)
+	markdown, err := LoadMarkdown(itemPath,
+		[]string{BacklogItemTagsMetadataKey, BacklogItemStatusMetadataKey, BacklogItemAssignedMetadataKey, BacklogItemEstimateMetadataKey, BacklogItemArchiveMetadataKey},
+		[]string{CreatedMetadataKey, ModifiedMetadataKey, BacklogItemAuthorMetadataKey},
+		"", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -52,10 +52,10 @@ func LoadBacklogItem(itemPath string) (*BacklogItem, error) {
 }
 
 func NewBacklogItem(name string, markdownData string) *BacklogItem {
-	markdown := NewMarkdown(markdownData, "", []string{
-		CreatedMetadataKey, ModifiedMetadataKey, BacklogItemAuthorMetadataKey,
-		BacklogItemStatusMetadataKey, BacklogItemAssignedMetadataKey, BacklogItemEstimateMetadataKey,
-		BacklogItemTagsMetadataKey, BacklogItemArchiveMetadataKey}, "", nil)
+	markdown := NewMarkdown(markdownData, "",
+		[]string{BacklogItemTagsMetadataKey, BacklogItemStatusMetadataKey, BacklogItemAssignedMetadataKey, BacklogItemEstimateMetadataKey, BacklogItemArchiveMetadataKey},
+		[]string{CreatedMetadataKey, ModifiedMetadataKey, BacklogItemAuthorMetadataKey},
+		"", nil)
 	return &BacklogItem{name, markdown}
 }
 

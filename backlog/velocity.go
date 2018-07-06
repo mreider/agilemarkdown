@@ -13,7 +13,7 @@ type Velocity struct {
 }
 
 func LoadGlobalVelocity(velocityPath string) (*Velocity, error) {
-	markdown, err := LoadMarkdown(velocityPath, nil, "", nil)
+	markdown, err := LoadMarkdown(velocityPath, nil, nil, "", nil)
 	if err != nil {
 		return nil, err
 	}
