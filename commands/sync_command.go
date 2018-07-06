@@ -419,6 +419,7 @@ func (a *SyncAction) updateTags(rootDir string) error {
 		items := bck.ActiveItems()
 		for _, item := range items {
 			for _, tag := range item.Tags() {
+				tag = strings.ToLower(tag)
 				allTags[tag] = struct{}{}
 				itemsTags[tag] = append(itemsTags[tag], item)
 				overviews[item] = overview
@@ -428,6 +429,7 @@ func (a *SyncAction) updateTags(rootDir string) error {
 
 	for _, idea := range ideas {
 		for _, tag := range idea.Tags() {
+			tag = strings.ToLower(tag)
 			allTags[tag] = struct{}{}
 			ideasTags[tag] = append(ideasTags[tag], idea)
 		}
