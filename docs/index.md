@@ -8,9 +8,7 @@ Absolutely. Yes. Here's why:
 4. Technical folks ♥ it cuz they can use a terminal all day
 5. Conflicts in git are good - they encourage conversations
 
-So I built agilemarkdown.
-
-## What is agilemarkdown?
+## What is Agile Markdown?
 
 1. A command line interface (CLI) for managing backlogs and stories in markdown using git
 2. A framework for managing backlogs and stories, locally, using any text editor
@@ -77,7 +75,7 @@ am create-backlog paint the house
 This creates a new directory named `paint-the-house` and performs a git init in the top directory `test.` You can create as many backlogs in the test directory as you want, and each will be located in its own subdirectory.
 
 
-## Creating stories in a backlog
+## Creating stories
 
 To create a story in the `paint-the-house` backlog, switch directories and use the `am create-item` command:
 
