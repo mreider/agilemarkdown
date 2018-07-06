@@ -1,6 +1,6 @@
 What? You wanna manage backlogs in markdown? Are you a masochist?
 
-Absolutely. Yes. I do. So I built Agile Markdown. Here's why:
+Absolutely. Yes. Here's why:
 
 1. It's easy. Backlogs are directories. Stories are files.
 2. It's flexible. You can use any editor you want.
