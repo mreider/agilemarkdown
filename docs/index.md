@@ -64,15 +64,16 @@ GLOBAL OPTIONS:
 
 ## Creating a new backlog
 
-To create a new backlog use the `am create-backlog` command:
+To create a new backlog use the `am create-backlog` in a git initialized directory:
 
 ```
 mkdir test
 cd test
+git init
 am create-backlog paint the house
 ```
 
-This creates a new directory named `paint-the-house` and performs a git init in the top directory `test.` You can create as many backlogs in the test directory as you want, and each will be located in its own subdirectory.
+This creates a new directory named `paint-the-house` in the top directory `test.` You can create as many backlogs in the test directory as you want, and each will be located in its own subdirectory.
 
 
 ## Creating stories
@@ -84,9 +85,7 @@ cd paint-the-house
 am create-item figure out which colors to buy
 ```
 
-This will create a markdown file that you can edit using your favorite text editor. We like [Atom](https://atom.io/).
-
-![Edit the story in a text editor](https://monosnap.com/image/dgLPinN9gCJLTruBMqTwGdwb0sllan.png)
+This will create a markdown file with some placeholders. You can edit using your favorite text editor. We like [Atom](https://atom.io/) with a markdown preview tab open.
 
 After you edit the file, you could sync to the wiki using `am sync` to generate new project pages and push everything up to github.
 
