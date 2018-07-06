@@ -2,15 +2,15 @@ What? You wanna manage backlogs in markdown? Are you a masochist?
 
 Absolutely. Yes. Here's why:
 
-1. It's easy. Backlogs are directories. Stories are files.
-2. It's flexible. You can use any editor you want.
+1. It's easy. Backlogs are directories. Stories are files
+2. It's flexible. You can use any editor you want
 3. Non technical folks can learn markdown easily
 4. Technical folks ♥ it cuz they can use a terminal all day
 5. Conflicts in git are good - they encourage conversations
 
-So I built Agile Markdown.
+So I built agilemarkdown.
 
-## What is it?
+## What is agilemarkdown?
 
 1. A command line interface (CLI) for managing backlogs and stories in markdown using git
 2. A framework for managing backlogs and stories, locally, using any text editor
