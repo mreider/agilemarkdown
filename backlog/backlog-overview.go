@@ -3,6 +3,7 @@ package backlog
 import (
 	"fmt"
 	"github.com/mreider/agilemarkdown/utils"
+	"io/ioutil"
 	"math"
 	"os"
 	"path/filepath"
@@ -170,4 +171,19 @@ func (overview *BacklogOverview) UpdateLinks(lastLinkTitle, lastLinkPath, rootDi
 	}
 	overview.markdown.SetLinks(utils.JoinMarkdownLinks(links...))
 	overview.Save()
+}
+
+func (overview *BacklogOverview) UpdateItemLinkInOverviewFile(prevItemPath, newItemPath string) error {
+	data, err := ioutil.ReadFile(overview.markdown.contentPath)
+	if err != nil {
+		return err
+	}
+	info, err := os.Stat(overview.markdown.contentPath)
+	if err != nil {
+		return err
+	}
+	baseDir := filepath.Dir(overview.markdown.contentPath)
+	newData := strings.Replace(string(data), fmt.Sprintf("(%s)", utils.GetMarkdownLinkPath(prevItemPath, baseDir)), fmt.Sprintf("(%s)", utils.GetMarkdownLinkPath(newItemPath, baseDir)), -1)
+	err = ioutil.WriteFile(overview.markdown.contentPath, []byte(newData), info.Mode())
+	return err
 }

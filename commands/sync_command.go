@@ -67,6 +67,11 @@ func (a *SyncAction) Execute() error {
 			return err
 		}
 
+		err = a.updateItemsFileNames(rootDir)
+		if err != nil {
+			return err
+		}
+
 		err = a.updateOverviewsAndIndex(rootDir, cfg)
 		if err != nil {
 			return err
@@ -623,6 +628,43 @@ func (a *SyncAction) updateItemsModifiedDate(rootDir string) error {
 					if item.Modified() == repoItem.Modified() {
 						item.SetModified(utils.GetCurrentTimestamp())
 						item.Save()
+					}
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func (a *SyncAction) updateItemsFileNames(rootDir string) error {
+	backlogDirs, err := a.backlogDirs(rootDir)
+	if err != nil {
+		return err
+	}
+	for _, backlogDir := range backlogDirs {
+		overviewPath, ok := findOverviewFileInRootDirectory(backlogDir)
+		if !ok {
+			return fmt.Errorf("the overview file isn't found for %s", backlogDir)
+		}
+		overview, err := backlog.LoadBacklogOverview(overviewPath)
+		if err != nil {
+			return err
+		}
+
+		bck, err := backlog.LoadBacklog(backlogDir)
+		if err != nil {
+			return err
+		}
+		for _, item := range bck.AllItems() {
+			currentItemName := strings.ToLower(filepath.Base(item.Path()))
+			expectedItemName := strings.ToLower(utils.GetValidFileName(item.Title()) + ".md")
+			if currentItemName != expectedItemName {
+				newItemPath := filepath.Join(filepath.Dir(item.Path()), expectedItemName)
+				if _, err := os.Stat(newItemPath); os.IsNotExist(err) {
+					err := os.Rename(item.Path(), newItemPath)
+					if err == nil {
+						git.Add(newItemPath)
+						overview.UpdateItemLinkInOverviewFile(item.Path(), newItemPath)
 					}
 				}
 			}

@@ -112,6 +112,10 @@ func ParseTimestamp(timestamp string) (time.Time, error) {
 }
 
 func MakeMarkdownLink(linkTitle, linkPath, baseDir string) string {
+	return fmt.Sprintf("[%s](%s)", linkTitle, GetMarkdownLinkPath(linkPath, baseDir))
+}
+
+func GetMarkdownLinkPath(linkPath, baseDir string) string {
 	linkPath, _ = filepath.Abs(linkPath)
 	baseDir, _ = filepath.Abs(baseDir)
 
@@ -128,7 +132,7 @@ func MakeMarkdownLink(linkTitle, linkPath, baseDir string) string {
 		linkPath = strings.Repeat(fmt.Sprintf("..%c", os.PathSeparator), upCount) + linkPath
 	}
 
-	return fmt.Sprintf("[%s](%s)", linkTitle, linkPath)
+	return linkPath
 }
 
 func MakeMarkdownImageLink(linkTitle, imagePath, baseDir string) string {
