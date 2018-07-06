@@ -7,38 +7,37 @@ entries:
 
   - title: Overview
     output: web
-    folderitems:
-    - title: About the project
-      url: /index.html
-      output: web
-      type: homepage
-    - title: How it works
-      url: /how-it-works.html
-      output: web
-    - title: Use the CLI
-      url: /cli.html
-      output: web
-    - title: Manage a backlog
-      url: /managing.html
-      output: web
-    - title: Archive stories
-      url: /archive.html
-      output: web
-    - title: Sequence items
-      url: /sequence.html
-      output: web
-    - title: Gather ideas
-      url: /ideas.html
-      output: web
-    - title: Measure velocity
-      url: /velocity.html
-      output: web
-    - title: Set up a website
-      url: /website.html
-      output: web
-    - title: Send comments
-      url: /comments.html
-      output: web
-    - title: Import from Pivotal
-      url: /import.html
-      output: web
+  - title: About the project
+    url: /index.html
+    output: web
+    type: homepage
+  - title: How it works
+    url: /how-it-works.html
+    output: web
+  - title: Use the CLI
+    url: /cli.html
+    output: web
+  - title: Manage a backlog
+    url: /managing.html
+    output: web
+  - title: Archive stories
+    url: /archive.html
+    output: web
+  - title: Sequence items
+    url: /sequence.html
+    output: web
+  - title: Gather ideas
+    url: /ideas.html
+    output: web
+  - title: Measure velocity
+    url: /velocity.html
+    output: web
+  - title: Set up a website
+    url: /website.html
+    output: web
+  - title: Send comments
+    url: /comments.html
+    output: web
+  - title: Import from Pivotal
+    url: /import.html
+    output: web
