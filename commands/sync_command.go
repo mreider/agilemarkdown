@@ -288,6 +288,11 @@ func (a *SyncAction) backlogDirs(rootDir string) ([]string, error) {
 }
 
 func (a *SyncAction) updateIdeas(rootDir string) error {
+	_, itemsTags, ideasTags, overviews, err := a.getItemsAndIdeasTags(rootDir)
+	if err != nil {
+		return err
+	}
+
 	ideasDir := filepath.Join(rootDir, backlog.IdeasDirectoryName)
 	ideas, err := backlog.LoadIdeas(ideasDir)
 	if err != nil {
@@ -296,8 +301,9 @@ func (a *SyncAction) updateIdeas(rootDir string) error {
 
 	ideasByRank := make(map[string][]*backlog.BacklogIdea)
 	var ranks []string
+	tagsDir := filepath.Join(rootDir, backlog.TagsDirectoryName)
 	for _, idea := range ideas {
-		err := a.updateIdea(rootDir, idea)
+		err := a.updateIdea(rootDir, tagsDir, idea, ideasTags, itemsTags, overviews)
 		if err != nil {
 			fmt.Printf("can't update idea '%s'\n", err)
 		}
@@ -331,7 +337,7 @@ func (a *SyncAction) updateIdeas(rootDir string) error {
 	return ioutil.WriteFile(filepath.Join(rootDir, backlog.IdeasFileName), []byte(strings.Join(lines, "\n")), 0644)
 }
 
-func (a *SyncAction) updateIdea(rootDir string, idea *backlog.BacklogIdea) error {
+func (a *SyncAction) updateIdea(rootDir, tagsDir string, idea *backlog.BacklogIdea, ideasTags map[string][]*backlog.BacklogIdea, itemsTags map[string][]*backlog.BacklogItem, overviews map[*backlog.BacklogItem]*backlog.BacklogOverview) error {
 	if !idea.HasMetadata() {
 		author, created, err := git.InitCommitInfo(idea.Path())
 		if err != nil {
@@ -356,6 +362,42 @@ func (a *SyncAction) updateIdea(rootDir string, idea *backlog.BacklogIdea) error
 		idea.Save()
 	}
 	idea.UpdateLinks(rootDir)
+
+	ideaTags := make(map[string]struct{})
+NextTag:
+	for tag, tagIdeas := range ideasTags {
+		for _, tagIdea := range tagIdeas {
+			if tagIdea.Path() == idea.Path() {
+				ideaTags[tag] = struct{}{}
+				continue NextTag
+			}
+		}
+	}
+
+	itemsByStatus := make(map[string][]*backlog.BacklogItem)
+	for tag := range ideaTags {
+		for _, item := range itemsTags[tag] {
+			itemStatus := strings.ToLower(item.Status())
+			itemsByStatus[itemStatus] = append(itemsByStatus[itemStatus], item)
+		}
+	}
+	for _, statusItems := range itemsByStatus {
+		sorter := backlog.NewBacklogItemsSorter()
+		sorter.SortItemsByModifiedDesc(statusItems)
+	}
+
+	var items []*backlog.BacklogItem
+	for _, status := range backlog.AllStatuses {
+		items = append(items, itemsByStatus[strings.ToLower(status.Name)]...)
+	}
+
+	itemsLines := []string{"## Stories", ""}
+	if len(items) > 0 {
+		itemsLines = append(itemsLines, backlog.BacklogView{}.WriteMarkdownItemsWithProjectAndStatus(overviews, items, filepath.Dir(idea.Path()), tagsDir)...)
+	}
+	idea.SetFooter(itemsLines)
+	idea.Save()
+
 	return nil
 }
 
@@ -383,56 +425,12 @@ func (a *SyncAction) moveItemsToActiveAndArchiveDirectory(backlogDir string) err
 }
 
 func (a *SyncAction) updateTags(rootDir string) error {
-	backlogDirs, err := a.backlogDirs(rootDir)
-	if err != nil {
-		return err
-	}
 	tagsDir := filepath.Join(rootDir, backlog.TagsDirectoryName)
 	os.MkdirAll(tagsDir, 0777)
 
-	ideasDir := filepath.Join(rootDir, backlog.IdeasDirectoryName)
-	ideas, err := backlog.LoadIdeas(ideasDir)
+	allTags, itemsTags, ideasTags, overviews, err := a.getItemsAndIdeasTags(rootDir)
 	if err != nil {
 		return err
-	}
-
-	allTags := make(map[string]struct{})
-	itemsTags := make(map[string][]*backlog.BacklogItem)
-	ideasTags := make(map[string][]*backlog.BacklogIdea)
-
-	overviews := make(map[*backlog.BacklogItem]*backlog.BacklogOverview)
-	for _, backlogDir := range backlogDirs {
-		overviewPath, ok := findOverviewFileInRootDirectory(backlogDir)
-		if !ok {
-			return fmt.Errorf("the overview file isn't found for %s", backlogDir)
-		}
-		overview, err := backlog.LoadBacklogOverview(overviewPath)
-		if err != nil {
-			return err
-		}
-
-		bck, err := backlog.LoadBacklog(backlogDir)
-		if err != nil {
-			return err
-		}
-
-		items := bck.ActiveItems()
-		for _, item := range items {
-			for _, tag := range item.Tags() {
-				tag = strings.ToLower(tag)
-				allTags[tag] = struct{}{}
-				itemsTags[tag] = append(itemsTags[tag], item)
-				overviews[item] = overview
-			}
-		}
-	}
-
-	for _, idea := range ideas {
-		for _, tag := range idea.Tags() {
-			tag = strings.ToLower(tag)
-			allTags[tag] = struct{}{}
-			ideasTags[tag] = append(ideasTags[tag], idea)
-		}
 	}
 
 	tagsFileNames := make(map[string]bool)
@@ -673,4 +671,58 @@ func (a *SyncAction) updateItemsFileNames(rootDir string) error {
 		}
 	}
 	return nil
+}
+
+func (a *SyncAction) getItemsAndIdeasTags(rootDir string) (allTags map[string]struct{}, itemsTags map[string][]*backlog.BacklogItem, ideasTags map[string][]*backlog.BacklogIdea, itemsOverviews map[*backlog.BacklogItem]*backlog.BacklogOverview, err error) {
+	backlogDirs, err := a.backlogDirs(rootDir)
+	if err != nil {
+		return nil, nil, nil, nil, err
+	}
+
+	ideasDir := filepath.Join(rootDir, backlog.IdeasDirectoryName)
+	ideas, err := backlog.LoadIdeas(ideasDir)
+	if err != nil {
+		return nil, nil, nil, nil, err
+	}
+
+	allTags = make(map[string]struct{})
+	itemsTags = make(map[string][]*backlog.BacklogItem)
+	ideasTags = make(map[string][]*backlog.BacklogIdea)
+	itemsOverviews = make(map[*backlog.BacklogItem]*backlog.BacklogOverview)
+
+	for _, backlogDir := range backlogDirs {
+		overviewPath, ok := findOverviewFileInRootDirectory(backlogDir)
+		if !ok {
+			return nil, nil, nil, nil, fmt.Errorf("the overview file isn't found for %s", backlogDir)
+		}
+		overview, err := backlog.LoadBacklogOverview(overviewPath)
+		if err != nil {
+			return nil, nil, nil, nil, err
+		}
+
+		bck, err := backlog.LoadBacklog(backlogDir)
+		if err != nil {
+			return nil, nil, nil, nil, err
+		}
+
+		items := bck.ActiveItems()
+		for _, item := range items {
+			for _, tag := range item.Tags() {
+				tag = strings.ToLower(tag)
+				allTags[tag] = struct{}{}
+				itemsTags[tag] = append(itemsTags[tag], item)
+				itemsOverviews[item] = overview
+			}
+		}
+	}
+
+	for _, idea := range ideas {
+		for _, tag := range idea.Tags() {
+			tag = strings.ToLower(tag)
+			allTags[tag] = struct{}{}
+			ideasTags[tag] = append(ideasTags[tag], idea)
+		}
+	}
+
+	return allTags, itemsTags, ideasTags, itemsOverviews, nil
 }

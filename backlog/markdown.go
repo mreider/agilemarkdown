@@ -146,9 +146,17 @@ func NewMarkdown(data, markdownPath string, topMetadataKeys, bottomMetadataKeys 
 				content.addGroup(currentGroup)
 			}
 		} else {
-			content.freeText = lines[parsed:]
-		}
+			for _, line := range lines[parsed:] {
+				if len(content.footer) == 0 && footerRe != nil && footerRe.MatchString(line) {
+					content.footer = append(content.footer, line)
+				} else if len(content.footer) > 0 {
+					content.footer = append(content.footer, line)
+				} else {
+					content.freeText = append(content.freeText, line)
+				}
 
+			}
+		}
 	}
 	content.isDirty = false
 	return content
