@@ -93,6 +93,19 @@ func (bv BacklogView) WriteMarkdownItemsWithProject(overviews map[*BacklogItem]*
 	return result
 }
 
+func (bv BacklogView) WriteMarkdownItemsWithProjectAndStatus(overviews map[*BacklogItem]*BacklogOverview, items []*BacklogItem, baseDir, tagsDir string) []string {
+	result := make([]string, 0, 50)
+	headers := make([]string, 0, 2)
+	headers = append(headers, fmt.Sprintf("| User | Project | Title | Status | Points | Tags |"))
+	headers = append(headers, "|---|---|---|---|:---:|---|")
+	result = append(result, headers...)
+	for _, item := range items {
+		line := fmt.Sprintf("| %s | %s | %s | %s | %s | %s |", item.Assigned(), MakeOverviewLink(overviews[item], baseDir), MakeItemLink(item, baseDir), item.Status(), item.Estimate(), MakeTagLinks(item.Tags(), tagsDir, baseDir))
+		result = append(result, line)
+	}
+	return result
+}
+
 func (bv BacklogView) VelocityText(bck *Backlog, weekCount, width int) (string, error) {
 	items := bck.AllItemsByStatus(FinishedStatus.Code)
 	currentDate := time.Now().UTC()

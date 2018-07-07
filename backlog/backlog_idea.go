@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -16,6 +17,10 @@ const (
 	BacklogIdeaRankMetadataKey   = "Rank"
 )
 
+var (
+	RelatedItemsRegex = regexp.MustCompile(`(?i)^#+\s*stories\s*$`)
+)
+
 type BacklogIdea struct {
 	name     string
 	markdown *MarkdownContent
@@ -25,7 +30,7 @@ func LoadBacklogIdea(ideaPath string) (*BacklogIdea, error) {
 	markdown, err := LoadMarkdown(ideaPath,
 		[]string{CreatedMetadataKey, ModifiedMetadataKey, BacklogIdeaAuthorMetadataKey, BacklogIdeaTagsMetadataKey, BacklogIdeaRankMetadataKey},
 		nil,
-		"", nil)
+		"", RelatedItemsRegex)
 	if err != nil {
 		return nil, err
 	}
@@ -52,6 +57,10 @@ func (idea *BacklogIdea) Title() string {
 
 func (idea *BacklogIdea) SetTitle(title string) {
 	idea.markdown.SetTitle(title)
+}
+
+func (idea *BacklogIdea) SetFooter(footer []string) {
+	idea.markdown.SetFooter(footer)
 }
 
 func (idea *BacklogIdea) SetCreated(timestamp string) {
