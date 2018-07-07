@@ -2,42 +2,53 @@
 
 entries:
 - title: Sidebar
-  levels: one
   folders:
-
   - title: Overview
-    output: web
-  - title: About the project
-    url: /index.html
-    output: web
-    type: homepage
-  - title: How it works
-    url: /how-it-works.html
-    output: web
-  - title: Use the CLI
-    url: /cli.html
-    output: web
-  - title: Manage a backlog
-    url: /managing.html
-    output: web
-  - title: Archive stories
-    url: /archive.html
-    output: web
-  - title: Sequence items
-    url: /sequence.html
-    output: web
-  - title: Gather ideas
-    url: /ideas.html
-    output: web
-  - title: Measure velocity
-    url: /velocity.html
-    output: web
-  - title: Set up a website
-    url: /website.html
-    output: web
-  - title: Send comments
-    url: /comments.html
-    output: web
-  - title: Import from Pivotal
-    url: /import.html
-    output: web
+    folderitems:
+    - title: The basics
+      url: /index.html
+      output: web
+      type: homepage
+    - title: How it works
+      url: /how-it-works.html
+      output: web
+  - title: Using the CLI
+    folderitems:
+    - title: Downloading bits
+      url: /managing.html
+      output: web
+    - title: Creationg a backlog
+      url: /create.html
+      output: web
+    - title: Managing a backlog
+      url: /managing.html
+      output: web
+    - title: Archiving stories
+      url: /archive.html
+      output: web
+    - title: Sequencing items
+      url: /sequence.html
+      output: web
+    - title: Importing from Pivotal
+      url: /import.html
+      output: web
+  - title: Website setup
+    folderitems:
+    - title: Caddy set up
+      url: /caddy.html
+      output: web
+    - title: User authorization
+      url: /users.html
+      output: web
+    - title: Editing markdown
+      url: /editing.html
+      output: web
+    - title: Sending comments
+      url: /comments.html
+      output: web
+    - title: Gathering ideas
+      url: /ideas.html
+      output: web
+    - title: Charts
+      url: /charts.html
+      output: web
