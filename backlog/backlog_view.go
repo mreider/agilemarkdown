@@ -67,6 +67,67 @@ func (bv BacklogView) WriteAsciiItems(items []*BacklogItem, title string, withOr
 	return result
 }
 
+func (bv BacklogView) WriteAsciiItemsWithProjectAndStatus(items []*BacklogItem, overviews map[*BacklogItem]*BacklogOverview, title string, withOrderNumber bool, tag string) []string {
+	titleHeader, projectHeader, statusHeader, pointsHeader, startDateHeader, endDateHeader := "Title", "Project", "Status", "Points", "Start Date", "End Date"
+	maxTitleLen, maxProjectLen, maxStatusLen, maxStartDateLen, maxEndDateLen := len(titleHeader), len(projectHeader), len(statusHeader), len(startDateHeader), len(endDateHeader)
+	for _, item := range items {
+		overview := overviews[item]
+		if len(item.Title()) > maxTitleLen {
+			maxTitleLen = len(item.Title())
+		}
+		if len(overview.Title()) > maxProjectLen {
+			maxProjectLen = len(overview.Title())
+		}
+		if len(item.Status()) > maxStatusLen {
+			maxStatusLen = len(item.Status())
+		}
+		startDate, endDate := item.TimelineStr(tag)
+		if len(startDate) > maxStartDateLen {
+			maxStartDateLen = len(startDate)
+		}
+		if len(endDate) > maxEndDateLen {
+			maxEndDateLen = len(endDate)
+		}
+	}
+
+	result := make([]string, 0, 50)
+	if title != "" {
+		result = append(result, fmt.Sprintf("%s", title))
+	}
+	headers := make([]string, 0, 3)
+	headers = append(headers, fmt.Sprintf("-%s---%s---%s---%s---%s---%s-", strings.Repeat("-", maxTitleLen), strings.Repeat("-", maxProjectLen), strings.Repeat("-", maxStatusLen), strings.Repeat("-", len(pointsHeader)), strings.Repeat("-", maxStartDateLen), strings.Repeat("-", maxEndDateLen)))
+	headers = append(headers, fmt.Sprintf(" %s | %s | %s | %s | %s | %s ", utils.PadStringRight(titleHeader, maxTitleLen), utils.PadStringRight(projectHeader, maxProjectLen), utils.PadStringRight(statusHeader, maxStatusLen), pointsHeader, startDateHeader, endDateHeader))
+	headers = append(headers, fmt.Sprintf("-%s---%s---%s---%s---%s---%s-", strings.Repeat("-", maxTitleLen), strings.Repeat("-", maxProjectLen), strings.Repeat("-", maxStatusLen), strings.Repeat("-", len(pointsHeader)), strings.Repeat("-", maxStartDateLen), strings.Repeat("-", maxEndDateLen)))
+	if withOrderNumber {
+		headers[0] = "------" + headers[0]
+		headers[1] = "   # |" + headers[1]
+		headers[2] = "------" + headers[2]
+	}
+	result = append(result, headers...)
+	for i, item := range items {
+		overview := overviews[item]
+		estimate, _ := strconv.ParseFloat(item.Estimate(), 64)
+		estimateStr := utils.PadIntLeft(int(estimate), len(pointsHeader))
+		if estimate == 0 {
+			estimateStr = strings.Repeat(" ", len(pointsHeader))
+		}
+		startDate, endDate := item.TimelineStr(tag)
+		line := fmt.Sprintf(" %s | %s | %s | %s | %s | %s ", utils.PadStringRight(item.Title(), maxTitleLen), utils.PadStringRight(overview.Title(), maxProjectLen), utils.PadStringRight(item.Status(), maxStatusLen), estimateStr, utils.PadStringRight(startDate, maxStartDateLen), utils.PadStringRight(endDate, maxEndDateLen))
+		if withOrderNumber {
+			line = fmt.Sprintf(" %s |", utils.PadIntLeft(i+1, 3)) + line
+		}
+		result = append(result, line)
+	}
+	if len(items) > 0 {
+		footer := fmt.Sprintf("-%s---%s---%s---%s---%s---%s-", strings.Repeat("-", maxTitleLen), strings.Repeat("-", maxProjectLen), strings.Repeat("-", maxStatusLen), strings.Repeat("-", len(pointsHeader)), strings.Repeat("-", maxStartDateLen), strings.Repeat("-", maxEndDateLen))
+		if withOrderNumber {
+			footer = "------" + footer
+		}
+		result = append(result, footer)
+	}
+	return result
+}
+
 func (bv BacklogView) WriteMarkdownItems(items []*BacklogItem, baseDir, tagsDir string) []string {
 	result := make([]string, 0, 50)
 	headers := make([]string, 0, 2)

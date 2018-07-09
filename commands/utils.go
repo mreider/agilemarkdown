@@ -29,32 +29,11 @@ const (
 )
 
 func checkIsBacklogDirectory() error {
-	_, ok := findOverviewFileInRootDirectory(".")
+	_, ok := backlog.FindOverviewFileInRootDirectory(".")
 	if !ok {
 		return errors.New("Error, please change directory to a backlog folder")
 	}
 	return nil
-}
-
-func findOverviewFileInRootDirectory(dir string) (string, bool) {
-	dir, _ = filepath.Abs(dir)
-	rootDir := filepath.Dir(dir)
-	overviewName := filepath.Base(dir)
-	if backlog.IsForbiddenBacklogName(overviewName) {
-		return "", false
-	}
-	overviewFileName := fmt.Sprintf("%s.md", overviewName)
-
-	infos, err := ioutil.ReadDir(rootDir)
-	if err != nil {
-		return "", false
-	}
-	for _, info := range infos {
-		if info.Name() == overviewFileName {
-			return filepath.Join(rootDir, info.Name()), true
-		}
-	}
-	return "", false
 }
 
 func findArchiveFileInDirectory(dir string) (string, bool) {
@@ -107,7 +86,7 @@ func showBacklogItems(c *cli.Context) ([]*backlog.BacklogItem, error) {
 		return nil, err
 	}
 
-	overviewPath, ok := findOverviewFileInRootDirectory(backlogDir)
+	overviewPath, ok := backlog.FindOverviewFileInRootDirectory(backlogDir)
 	if !ok {
 		return nil, fmt.Errorf("the overview file isn't found for %s", backlogDir)
 	}

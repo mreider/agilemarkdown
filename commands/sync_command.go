@@ -108,7 +108,7 @@ func (a *SyncAction) Execute() error {
 }
 
 func (a *SyncAction) updateOverviewsAndIndex(rootDir string, cfg *config.Config) error {
-	backlogDirs, err := a.backlogDirs(rootDir)
+	backlogDirs, err := backlog.BacklogDirs(rootDir)
 	if err != nil {
 		return err
 	}
@@ -128,7 +128,7 @@ func (a *SyncAction) updateOverviewsAndIndex(rootDir string, cfg *config.Config)
 	overviews := make([]*backlog.BacklogOverview, 0, len(backlogDirs))
 	archives := make([]*backlog.BacklogOverview, 0, len(backlogDirs))
 	for _, backlogDir := range backlogDirs {
-		overviewPath, ok := findOverviewFileInRootDirectory(backlogDir)
+		overviewPath, ok := backlog.FindOverviewFileInRootDirectory(backlogDir)
 		if !ok {
 			return fmt.Errorf("the overview file isn't found for %s", backlogDir)
 		}
@@ -185,7 +185,7 @@ func (a *SyncAction) updateOverviewsAndIndex(rootDir string, cfg *config.Config)
 }
 
 func (a *SyncAction) updateVelocity(rootDir string, cfg *config.Config) error {
-	backlogDirs, err := a.backlogDirs(rootDir)
+	backlogDirs, err := backlog.BacklogDirs(rootDir)
 	if err != nil {
 		return err
 	}
@@ -200,7 +200,7 @@ func (a *SyncAction) updateVelocity(rootDir string, cfg *config.Config) error {
 	overviews := make([]*backlog.BacklogOverview, 0, len(backlogDirs))
 	backlogs := make([]*backlog.Backlog, 0, len(backlogDirs))
 	for _, backlogDir := range backlogDirs {
-		overviewPath, ok := findOverviewFileInRootDirectory(backlogDir)
+		overviewPath, ok := backlog.FindOverviewFileInRootDirectory(backlogDir)
 		if !ok {
 			return fmt.Errorf("the overview file isn't found for %s", backlogDir)
 		}
@@ -271,24 +271,8 @@ func (a *SyncAction) syncToGit() (bool, error) {
 	return true, nil
 }
 
-func (a *SyncAction) backlogDirs(rootDir string) ([]string, error) {
-	infos, err := ioutil.ReadDir(rootDir)
-	if err != nil {
-		return nil, err
-	}
-	result := make([]string, 0, len(infos))
-	for _, info := range infos {
-		if !info.IsDir() || strings.HasPrefix(info.Name(), ".") || backlog.IsForbiddenBacklogName(info.Name()) {
-			continue
-		}
-		result = append(result, filepath.Join(rootDir, info.Name()))
-	}
-	sort.Strings(result)
-	return result, nil
-}
-
 func (a *SyncAction) updateIdeas(rootDir string) error {
-	_, itemsTags, ideasTags, overviews, err := a.getItemsAndIdeasTags(rootDir)
+	_, itemsTags, ideasTags, overviews, err := backlog.ItemsAndIdeasTags(rootDir)
 	if err != nil {
 		return err
 	}
@@ -428,7 +412,7 @@ func (a *SyncAction) updateTags(rootDir string) error {
 	tagsDir := filepath.Join(rootDir, backlog.TagsDirectoryName)
 	os.MkdirAll(tagsDir, 0777)
 
-	allTags, itemsTags, ideasTags, overviews, err := a.getItemsAndIdeasTags(rootDir)
+	allTags, itemsTags, ideasTags, overviews, err := backlog.ItemsAndIdeasTags(rootDir)
 	if err != nil {
 		return err
 	}
@@ -596,7 +580,7 @@ func (a *SyncAction) sendNewComments(cfg *config.Config, rootDir string, overvie
 }
 
 func (a *SyncAction) updateItemsModifiedDate(rootDir string) error {
-	backlogDirs, err := a.backlogDirs(rootDir)
+	backlogDirs, err := backlog.BacklogDirs(rootDir)
 	if err != nil {
 		return err
 	}
@@ -637,12 +621,12 @@ func (a *SyncAction) updateItemsModifiedDate(rootDir string) error {
 }
 
 func (a *SyncAction) updateItemsFileNames(rootDir string) error {
-	backlogDirs, err := a.backlogDirs(rootDir)
+	backlogDirs, err := backlog.BacklogDirs(rootDir)
 	if err != nil {
 		return err
 	}
 	for _, backlogDir := range backlogDirs {
-		overviewPath, ok := findOverviewFileInRootDirectory(backlogDir)
+		overviewPath, ok := backlog.FindOverviewFileInRootDirectory(backlogDir)
 		if !ok {
 			return fmt.Errorf("the overview file isn't found for %s", backlogDir)
 		}
@@ -671,58 +655,4 @@ func (a *SyncAction) updateItemsFileNames(rootDir string) error {
 		}
 	}
 	return nil
-}
-
-func (a *SyncAction) getItemsAndIdeasTags(rootDir string) (allTags map[string]struct{}, itemsTags map[string][]*backlog.BacklogItem, ideasTags map[string][]*backlog.BacklogIdea, itemsOverviews map[*backlog.BacklogItem]*backlog.BacklogOverview, err error) {
-	backlogDirs, err := a.backlogDirs(rootDir)
-	if err != nil {
-		return nil, nil, nil, nil, err
-	}
-
-	ideasDir := filepath.Join(rootDir, backlog.IdeasDirectoryName)
-	ideas, err := backlog.LoadIdeas(ideasDir)
-	if err != nil {
-		return nil, nil, nil, nil, err
-	}
-
-	allTags = make(map[string]struct{})
-	itemsTags = make(map[string][]*backlog.BacklogItem)
-	ideasTags = make(map[string][]*backlog.BacklogIdea)
-	itemsOverviews = make(map[*backlog.BacklogItem]*backlog.BacklogOverview)
-
-	for _, backlogDir := range backlogDirs {
-		overviewPath, ok := findOverviewFileInRootDirectory(backlogDir)
-		if !ok {
-			return nil, nil, nil, nil, fmt.Errorf("the overview file isn't found for %s", backlogDir)
-		}
-		overview, err := backlog.LoadBacklogOverview(overviewPath)
-		if err != nil {
-			return nil, nil, nil, nil, err
-		}
-
-		bck, err := backlog.LoadBacklog(backlogDir)
-		if err != nil {
-			return nil, nil, nil, nil, err
-		}
-
-		items := bck.ActiveItems()
-		for _, item := range items {
-			for _, tag := range item.Tags() {
-				tag = strings.ToLower(tag)
-				allTags[tag] = struct{}{}
-				itemsTags[tag] = append(itemsTags[tag], item)
-				itemsOverviews[item] = overview
-			}
-		}
-	}
-
-	for _, idea := range ideas {
-		for _, tag := range idea.Tags() {
-			tag = strings.ToLower(tag)
-			allTags[tag] = struct{}{}
-			ideasTags[tag] = append(ideasTags[tag], idea)
-		}
-	}
-
-	return allTags, itemsTags, ideasTags, itemsOverviews, nil
 }

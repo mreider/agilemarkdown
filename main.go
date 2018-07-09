@@ -60,6 +60,7 @@ func main() {
 		commands.ImportCommand,
 		commands.ArchiveCommand,
 		commands.CreateUserCommand,
+		commands.TimelineCommand,
 	}
 
 	err = app.Run(os.Args)

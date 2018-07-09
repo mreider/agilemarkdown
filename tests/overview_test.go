@@ -3,6 +3,7 @@ package tests
 import (
 	"github.com/mreider/agilemarkdown/backlog"
 	"github.com/stretchr/testify/assert"
+	"regexp"
 	"testing"
 )
 
@@ -34,7 +35,10 @@ Data2: test2
 )
 
 func TestOverviewCreate(t *testing.T) {
-	markdown := backlog.NewMarkdown(markdownOverviewData, "", []string{"Title", "Data"}, []string{"Data2"}, "### ", backlog.OverviewFooterRe)
+	markdown := backlog.NewMarkdown(markdownOverviewData, "",
+		[]*regexp.Regexp{backlog.AllowedKeyAsRegex("Title"), backlog.AllowedKeyAsRegex("Data")},
+		[]*regexp.Regexp{backlog.AllowedKeyAsRegex("Data2")},
+		"### ", backlog.OverviewFooterRe)
 	overview := backlog.NewBacklogOverview(markdown)
 	sorter := backlog.NewBacklogItemsSorter(overview)
 	itemsByStatus := sorter.SortedItemsByStatus()
@@ -78,7 +82,10 @@ func TestOverviewUpdate(t *testing.T) {
 Data2: test2  
 `
 
-	markdown := backlog.NewMarkdown(markdownOverviewData, "", []string{"Title", "Data"}, []string{"Data2"}, "### ", backlog.OverviewFooterRe)
+	markdown := backlog.NewMarkdown(markdownOverviewData, "",
+		[]*regexp.Regexp{backlog.AllowedKeyAsRegex("Title"), backlog.AllowedKeyAsRegex("Data")},
+		[]*regexp.Regexp{backlog.AllowedKeyAsRegex("Data2")},
+		"### ", backlog.OverviewFooterRe)
 	overview := backlog.NewBacklogOverview(markdown)
 	sorter := backlog.NewBacklogItemsSorter(overview)
 	overview.SetTitle("New backlog")

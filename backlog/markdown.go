@@ -36,7 +36,7 @@ type MarkdownContent struct {
 	HideEmptyGroups bool
 }
 
-func LoadMarkdown(markdownPath string, topMetadataKeys, bottomMetadataKeys []string, groupTitlePrefix string, footerRe *regexp.Regexp) (*MarkdownContent, error) {
+func LoadMarkdown(markdownPath string, topMetadataKeys, bottomMetadataKeys []*regexp.Regexp, groupTitlePrefix string, footerRe *regexp.Regexp) (*MarkdownContent, error) {
 	var err error
 	if _, err = os.Stat(markdownPath); err != nil && !os.IsNotExist(err) {
 		return nil, err
@@ -57,7 +57,7 @@ func LoadMarkdown(markdownPath string, topMetadataKeys, bottomMetadataKeys []str
 	return NewMarkdown(string(data), markdownPath, topMetadataKeys, bottomMetadataKeys, groupTitlePrefix, footerRe), nil
 }
 
-func NewMarkdown(data, markdownPath string, topMetadataKeys, bottomMetadataKeys []string, groupTitlePrefix string, footerRe *regexp.Regexp) *MarkdownContent {
+func NewMarkdown(data, markdownPath string, topMetadataKeys, bottomMetadataKeys []*regexp.Regexp, groupTitlePrefix string, footerRe *regexp.Regexp) *MarkdownContent {
 	content := &MarkdownContent{contentPath: markdownPath, groupTitlePrefix: groupTitlePrefix, metadata: NewMarkdownMetadata(topMetadataKeys, bottomMetadataKeys)}
 	if len(data) > 0 {
 		lines := strings.Split(data, "\n")
@@ -93,16 +93,9 @@ func NewMarkdown(data, markdownPath string, topMetadataKeys, bottomMetadataKeys 
 						content.header = line
 					} else {
 						parts := strings.SplitN(line, ":", 2)
-						key := strings.ToLower(strings.TrimSpace(parts[0]))
-						for _, mKey := range topMetadataKeys {
-							if key == strings.ToLower(mKey) {
-								break NextLine
-							}
-						}
-						for _, mKey := range bottomMetadataKeys {
-							if key == strings.ToLower(mKey) {
-								break NextLine
-							}
+						key := strings.TrimSpace(parts[0])
+						if content.metadata.IsAllowedKey(key) {
+							break NextLine
 						}
 						content.header = line
 					}
@@ -246,6 +239,12 @@ func (content *MarkdownContent) MetadataValue(key string) string {
 
 func (content *MarkdownContent) SetMetadataValue(key, value string) {
 	if content.metadata.SetValue(key, value) {
+		content.markDirty()
+	}
+}
+
+func (content *MarkdownContent) RemoveMetadata(key string) {
+	if content.metadata.Remove(key) {
 		content.markDirty()
 	}
 }

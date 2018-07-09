@@ -1,6 +1,7 @@
 package backlog
 
 import (
+	"fmt"
 	"github.com/mreider/agilemarkdown/utils"
 	"os"
 	"path/filepath"
@@ -20,9 +21,10 @@ const (
 )
 
 var (
-	commentsTitleRe        = regexp.MustCompile(`^#{1,3}\s+Comments\s*$`)
-	commentRe              = regexp.MustCompile(`^(\s*)((@[\w.-_]+[\s,;]+)+)(.*)$`)
-	commentUserSeparatorRe = regexp.MustCompile(`[\s,;]+`)
+	commentsTitleRe                = regexp.MustCompile(`^#{1,3}\s+Comments\s*$`)
+	commentRe                      = regexp.MustCompile(`^(\s*)((@[\w.-_]+[\s,;]+)+)(.*)$`)
+	commentUserSeparatorRe         = regexp.MustCompile(`[\s,;]+`)
+	BacklogItemTimelineMetadataKey = regexp.MustCompile(`(?i)^Timeline\s+(\w+)$`)
 )
 
 type Comment struct {
@@ -40,8 +42,10 @@ type BacklogItem struct {
 
 func LoadBacklogItem(itemPath string) (*BacklogItem, error) {
 	markdown, err := LoadMarkdown(itemPath,
-		[]string{BacklogItemTagsMetadataKey, BacklogItemStatusMetadataKey, BacklogItemAssignedMetadataKey, BacklogItemEstimateMetadataKey, BacklogItemArchiveMetadataKey},
-		[]string{CreatedMetadataKey, ModifiedMetadataKey, BacklogItemAuthorMetadataKey},
+		[]*regexp.Regexp{
+			AllowedKeyAsRegex(BacklogItemTagsMetadataKey), AllowedKeyAsRegex(BacklogItemStatusMetadataKey), AllowedKeyAsRegex(BacklogItemAssignedMetadataKey),
+			AllowedKeyAsRegex(BacklogItemEstimateMetadataKey), AllowedKeyAsRegex(BacklogItemArchiveMetadataKey), BacklogItemTimelineMetadataKey},
+		[]*regexp.Regexp{AllowedKeyAsRegex(CreatedMetadataKey), AllowedKeyAsRegex(ModifiedMetadataKey), AllowedKeyAsRegex(BacklogItemAuthorMetadataKey)},
 		"", nil)
 	if err != nil {
 		return nil, err
@@ -53,8 +57,10 @@ func LoadBacklogItem(itemPath string) (*BacklogItem, error) {
 
 func NewBacklogItem(name string, markdownData string) *BacklogItem {
 	markdown := NewMarkdown(markdownData, "",
-		[]string{BacklogItemTagsMetadataKey, BacklogItemStatusMetadataKey, BacklogItemAssignedMetadataKey, BacklogItemEstimateMetadataKey, BacklogItemArchiveMetadataKey},
-		[]string{CreatedMetadataKey, ModifiedMetadataKey, BacklogItemAuthorMetadataKey},
+		[]*regexp.Regexp{
+			AllowedKeyAsRegex(BacklogItemTagsMetadataKey), AllowedKeyAsRegex(BacklogItemStatusMetadataKey), AllowedKeyAsRegex(BacklogItemAssignedMetadataKey),
+			AllowedKeyAsRegex(BacklogItemEstimateMetadataKey), AllowedKeyAsRegex(BacklogItemArchiveMetadataKey), BacklogItemTimelineMetadataKey},
+		[]*regexp.Regexp{AllowedKeyAsRegex(CreatedMetadataKey), AllowedKeyAsRegex(ModifiedMetadataKey), AllowedKeyAsRegex(BacklogItemAuthorMetadataKey)},
 		"", nil)
 	return &BacklogItem{name, markdown}
 }
@@ -123,6 +129,25 @@ func (item *BacklogItem) Estimate() string {
 
 func (item *BacklogItem) SetEstimate(estimate string) {
 	item.markdown.SetMetadataValue(BacklogItemEstimateMetadataKey, estimate)
+}
+
+func (item *BacklogItem) TimelineStr(tag string) (startDate, endDate string) {
+	value := item.markdown.MetadataValue(fmt.Sprintf("Timeline %s", tag))
+	parts := spacesRe.Split(value, 2)
+	switch len(parts) {
+	case 1:
+		return parts[0], ""
+	default:
+		return parts[0], parts[1]
+	}
+}
+
+func (item *BacklogItem) SetTimeline(tag string, startDate, endDate time.Time) {
+	item.markdown.SetMetadataValue(fmt.Sprintf("Timeline %s", tag), fmt.Sprintf("%s %s", startDate.Format("2006-01-02"), endDate.Format("2006-01-02")))
+}
+
+func (item *BacklogItem) ClearTimeline(tag string) {
+	item.markdown.RemoveMetadata(fmt.Sprintf("Timeline %s", tag))
 }
 
 func (item *BacklogItem) SetDescription(description string) {
