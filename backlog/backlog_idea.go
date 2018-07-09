@@ -28,7 +28,9 @@ type BacklogIdea struct {
 
 func LoadBacklogIdea(ideaPath string) (*BacklogIdea, error) {
 	markdown, err := LoadMarkdown(ideaPath,
-		[]string{CreatedMetadataKey, ModifiedMetadataKey, BacklogIdeaAuthorMetadataKey, BacklogIdeaTagsMetadataKey, BacklogIdeaRankMetadataKey},
+		[]*regexp.Regexp{
+			AllowedKeyAsRegex(CreatedMetadataKey), AllowedKeyAsRegex(ModifiedMetadataKey), AllowedKeyAsRegex(BacklogIdeaAuthorMetadataKey),
+			AllowedKeyAsRegex(BacklogIdeaTagsMetadataKey), AllowedKeyAsRegex(BacklogIdeaRankMetadataKey)},
 		nil,
 		"", RelatedItemsRegex)
 	if err != nil {

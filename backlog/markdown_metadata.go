@@ -2,12 +2,13 @@ package backlog
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 )
 
 type MarkdownMetadata struct {
-	allowedTopKeys    map[string]bool
-	allowedBottomKeys map[string]bool
+	allowedTopKeys    []*regexp.Regexp
+	allowedBottomKeys []*regexp.Regexp
 	items             []*markdownMetadataItem
 	bottomGroupLine   string
 }
@@ -17,16 +18,10 @@ type markdownMetadataItem struct {
 	value string
 }
 
-func NewMarkdownMetadata(allowedTopKeys, allowedBottomKeys []string) *MarkdownMetadata {
+func NewMarkdownMetadata(allowedTopKeys, allowedBottomKeys []*regexp.Regexp) *MarkdownMetadata {
 	metadata := &MarkdownMetadata{
-		allowedTopKeys:    make(map[string]bool, len(allowedTopKeys)),
-		allowedBottomKeys: make(map[string]bool, len(allowedBottomKeys)),
-	}
-	for _, key := range allowedTopKeys {
-		metadata.allowedTopKeys[strings.ToLower(key)] = true
-	}
-	for _, key := range allowedBottomKeys {
-		metadata.allowedBottomKeys[strings.ToLower(key)] = true
+		allowedTopKeys:    allowedTopKeys,
+		allowedBottomKeys: allowedBottomKeys,
 	}
 	return metadata
 }
@@ -48,17 +43,25 @@ func (m *MarkdownMetadata) BottomRawLines() []string {
 	return result
 }
 
-func (m *MarkdownMetadata) fillRawLines(lines *[]string, allowedKeys map[string]bool) {
+func (m *MarkdownMetadata) fillRawLines(lines *[]string, allowedKeys []*regexp.Regexp) {
 	for _, item := range m.items {
-		if allowedKeys[strings.ToLower(item.key)] {
+		if m.isAllowedKey(item.key, allowedKeys) {
 			*lines = append(*lines, fmt.Sprintf("%s: %s  ", item.key, item.value))
 		}
 	}
 }
 
-func (m *MarkdownMetadata) isAllowedKey(key string) bool {
-	key = strings.ToLower(key)
-	return m.allowedTopKeys[key] || m.allowedBottomKeys[key]
+func (m *MarkdownMetadata) IsAllowedKey(key string) bool {
+	return m.isAllowedKey(key, m.allowedTopKeys) || m.isAllowedKey(key, m.allowedBottomKeys)
+}
+
+func (m *MarkdownMetadata) isAllowedKey(key string, allowedKeys []*regexp.Regexp) bool {
+	for _, allowedKey := range allowedKeys {
+		if allowedKey.MatchString(key) {
+			return true
+		}
+	}
+	return false
 }
 
 func (m *MarkdownMetadata) Value(key string) string {
@@ -78,13 +81,23 @@ func (m *MarkdownMetadata) SetValue(key, value string) bool {
 		}
 	}
 
-	if !m.isAllowedKey(key) {
+	if !m.IsAllowedKey(key) {
 		return false
 	}
 
 	item := &markdownMetadataItem{key, value}
 	m.items = append(m.items, item)
 	return true
+}
+
+func (m *MarkdownMetadata) Remove(key string) bool {
+	for i, item := range m.items {
+		if strings.ToLower(item.key) == strings.ToLower(key) {
+			m.items = append(m.items[:i], m.items[i+1:]...)
+			return true
+		}
+	}
+	return false
 }
 
 func (m *MarkdownMetadata) ParseLines(lines []string) int {
@@ -131,9 +144,9 @@ func (m *MarkdownMetadata) BottomEmpty() bool {
 	return m.bottomGroupLine == "" && m.empty(m.allowedBottomKeys)
 }
 
-func (m *MarkdownMetadata) empty(allowedKeys map[string]bool) bool {
+func (m *MarkdownMetadata) empty(allowedKeys []*regexp.Regexp) bool {
 	for _, item := range m.items {
-		if allowedKeys[strings.ToLower(item.key)] {
+		if m.isAllowedKey(item.key, allowedKeys) {
 			return false
 		}
 	}
@@ -142,4 +155,8 @@ func (m *MarkdownMetadata) empty(allowedKeys map[string]bool) bool {
 
 func (m *MarkdownMetadata) SetBottomGroupLine(line string) {
 	m.bottomGroupLine = line
+}
+
+func AllowedKeyAsRegex(allowedKey string) *regexp.Regexp {
+	return regexp.MustCompile(fmt.Sprintf("(?i)^%s$", strings.ToLower(strings.TrimSpace(allowedKey))))
 }

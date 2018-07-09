@@ -1,0 +1,8 @@
+{
+  "SmtpServer": "",
+  "SmtpUser": "",
+  "SmtpPassword": "",
+  "EmailFrom": "",
+  "RemoteGitUrlFormat": "%s/blob/master/%s",
+  "RemoteWebUrlFormat": ""
+}

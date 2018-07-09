@@ -51,7 +51,7 @@ var WorkCommand = cli.Command{
 			return err
 		}
 
-		overviewPath, ok := findOverviewFileInRootDirectory(backlogDir)
+		overviewPath, ok := backlog.FindOverviewFileInRootDirectory(backlogDir)
 		if !ok {
 			return fmt.Errorf("the overview file isn't found for %s", backlogDir)
 		}
