@@ -17,7 +17,7 @@ entries:
     output: web
     folderitems:
     - title: Downloading bits
-      url: /managing.html
+      url: /getting-started.html
       output: web
     - title: Creating a backlog
       url: /create.html

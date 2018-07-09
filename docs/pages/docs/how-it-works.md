@@ -4,30 +4,11 @@ keywords: overview, how it works
 permalink: how-it-works.html
 ---
 
-## What is Agile Markdown?
-
-1. A command line interface (CLI) for managing backlogs and stories in markdown using git
-2. A framework for managing backlogs and stories, locally, using any text editor
-3. A simple way to collaborate using a Google oAuth protected website
-4. A way to gather ideas (also in markdown) from different people and connect them to stories
-5. A simple set of generated charts showing a backlog's velocity
-6. A timeline of forecasted delivery - a.k.a. gantt charts
-
-## Who can use it?
-
-Anyone in your organization can use Agile Markdown.
-
-- **Engineers and technical product managers** can use Agile Markdown's command line interface (CLI) to manage backlogs, sync backlogs with other git users, and collaborate with one another. They can also set up an Agile Markdown website so that other users can participate.
-
-- **Non-technical product managers** can use an Agile Markdown website to manage backlogs and collaborate with other users.
-
-- **Subject matter experts and other stakeholders** can use an Agile Markdown website to suggest ideas, check on progress, and respond to comments made by other users.
-
-## What's the workflow?
+## How it works
 
 You can use Agile Markdown for any agile, scrum, or extreme programming (xp) project. Like most tools, Agile Markdown is opinionated about how you manage things.
 
-### Writing stories
+## Writing stories
 
 Let's pretend you're a product manager for Mail Your Stuff Inc., an app for attaching physical objects to email. Your CEO is all upset. "Only six people have signed up this week!" she says. "We need more users!" You talk to your product team and ask for some engineers to focus on the problem.
 
@@ -47,7 +28,7 @@ Using Agile Markdown, you add a new backlog to product team's set. You call the 
 
 - **Attachments** that reference the data you used to come to your conclusions.
 
-### Planning with your team
+## Planning with your team
 
 You schedule a planning meeting with your team. Before the meeting - you need to prioritize your stories in terms of importance. The compression problem is the most important one to fix since your users don't have enough storage. After that, you want to update the malware scan so it can read your new compressed format and pick up any threats. Using Agile Markdown, you edit the **Compress things** project page and put these stories in a stack ranked order.
 
@@ -73,7 +54,7 @@ After you are done planning - you talk with your engineering lead to get some id
 
 You use Agile Markdown to sync your stories with the github repository that contains all of these Markdown files. Your engineers love working this way, because they edit files all day, and build tools to update the stories automatically without much effort. You also use Agile Markdown to set up a secure website with an exact copy of the Github repo, which syncs on its own, so your CEO, and other stakeholders, can look at the stories, your progress, and the charts you generated.
 
-### The sprint
+## The sprint
 
 Your engineering team starts working on the first story, "Compress objects under 1GB." One of your engineers uses Agile Markdown to change the story's status from **planned** to **doing**. But there's a problem. The Chromatic library (™) uses a commercial license and it costs $10 million. She makes a comment in the story, and uses Agile Markdown to send you a message with the comment, and a link to the story on both Github, and the secure website, to tell you the problem.  While she waits for your response, she changes the status back to **planned** and starts working on the malware story instead.
 
@@ -81,7 +62,7 @@ Using Agile Markdown, you respond that there is an alternative to the Chromatic 
 
 By the end of the sprint your team has delivered a few stories. You have a retrospective meeting and review the **finished** section of the **Compress things** project page. You talk about what happened during the sprint, and how you can do better next time.
 
-### Using velocity
+## Using velocity
 
 As you work from sprint to sprint, you look at how many points your team accomplished, using Agile Markdown's velocity chart. You wonder if your  [velocity](https://www.pivotaltracker.com/blog/velocity-is-a-measure-of-pace-not-productivity) is predictable. Typically, a team has higher velocity as they get closer to releasing a new feature, because surprises slow you down at the beginning. Looking at Agile Markdown's velocity charts helps you in a few ways:
 
@@ -89,7 +70,7 @@ As you work from sprint to sprint, you look at how many points your team accompl
 2. You recognize the kinds of stories that your team underestimated, and improve their estimation next time
 3. You see the impact of bugs / defects and decide to spend more time on cleaning the existing features - rather than building new ones
 
-### Gathering ideas
+## Gathering ideas
 
 It seems like everyone has an idea on how to improve Mail Your Stuff's application. A marketing manager wants to coordinate a campaign for emailing domesticated animals. Someone on the sales team needs a way to provide real-time price quotes. A customer service rep wants to attach 100 MB of raspberry chocolate cake to each support ticket, as a little gesture to ease your frustrated clients.
 
