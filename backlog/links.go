@@ -49,12 +49,17 @@ func MakeVelocityLink(rootDir, baseDir string) string {
 	return utils.MakeMarkdownLink("velocity", filepath.Join(rootDir, VelocityFileName), baseDir)
 }
 
+func MakeTimelineLink(rootDir, baseDir string) string {
+	return utils.MakeMarkdownLink("timeline", filepath.Join(rootDir, TimelineFileName), baseDir)
+}
+
 func MakeStandardLinks(rootDir, baseDir string) []string {
 	return []string{
 		MakeIndexLink(rootDir, baseDir),
 		MakeIdeasLink(rootDir, baseDir),
 		MakeTagsLink(rootDir, baseDir),
 		MakeVelocityLink(rootDir, baseDir),
+		MakeTimelineLink(rootDir, baseDir),
 	}
 }
 

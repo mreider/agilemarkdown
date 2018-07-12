@@ -17,7 +17,9 @@ var (
 	TagsDirectoryName     = "tags"
 	TagsFileName          = "tags.md"
 	UsersDirectoryName    = "users"
-	ForbiddenBacklogNames = []string{VelocityDirectoryName, IdeasDirectoryName, ArchiveDirectoryName, TagsDirectoryName, UsersDirectoryName}
+	TimelineFileName      = "timeline.md"
+	TimelineDirectoryName = "timeline"
+	ForbiddenBacklogNames = []string{VelocityDirectoryName, IdeasDirectoryName, ArchiveDirectoryName, TagsDirectoryName, UsersDirectoryName, TimelineDirectoryName}
 	ForbiddenItemNames    = []string{ArchiveDirectoryName}
 )
 
