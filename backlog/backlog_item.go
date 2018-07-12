@@ -142,6 +142,13 @@ func (item *BacklogItem) TimelineStr(tag string) (startDate, endDate string) {
 	}
 }
 
+func (item *BacklogItem) Timeline(tag string) (startDate, endDate time.Time) {
+	startDateStr, endDateStr := item.TimelineStr(tag)
+	startDate, _ = time.Parse("2006-01-02", startDateStr)
+	endDate, _ = time.Parse("2006-01-02", endDateStr)
+	return startDate, endDate
+}
+
 func (item *BacklogItem) SetTimeline(tag string, startDate, endDate time.Time) {
 	item.markdown.SetMetadataValue(fmt.Sprintf("Timeline %s", tag), fmt.Sprintf("%s %s", startDate.Format("2006-01-02"), endDate.Format("2006-01-02")))
 }

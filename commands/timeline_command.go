@@ -60,6 +60,7 @@ func (a *TimelineAction) Execute() error {
 
 	reader := bufio.NewReader(os.Stdin)
 	needOutput := true
+	hasChanges := false
 	for {
 		if needOutput {
 			lines := backlog.BacklogView{}.WriteAsciiItemsWithProjectAndStatus(items, overviews, "", true, a.tag)
@@ -88,7 +89,7 @@ func (a *TimelineAction) Execute() error {
 			if match[2] == "clear" {
 				item.ClearTimeline(a.tag)
 				item.Save()
-				needOutput = true
+				needOutput, hasChanges = true, true
 			} else {
 				parts := strings.Fields(match[2])
 				if len(parts) != 2 {
@@ -96,13 +97,13 @@ func (a *TimelineAction) Execute() error {
 					continue
 				}
 				startDateStr, endDateStr := parts[0], parts[1]
-				startDate, err := time.Parse("06-1-2", startDateStr)
-				if err != nil {
+				startDate, ok := a.parseDate(startDateStr)
+				if !ok {
 					fmt.Println("illegal start date")
 					continue
 				}
-				endDate, err := time.Parse("06-1-2", endDateStr)
-				if err != nil {
+				endDate, ok := a.parseDate(endDateStr)
+				if !ok {
 					fmt.Println("illegal end date")
 					continue
 				}
@@ -113,11 +114,17 @@ func (a *TimelineAction) Execute() error {
 
 				item.SetTimeline(a.tag, startDate, endDate)
 				item.Save()
-				needOutput = true
+				needOutput, hasChanges = true, true
 			}
 		}
 	}
-	return nil
+
+	if !hasChanges {
+		return nil
+	}
+
+	timelineGenerator := backlog.NewTimelineGenerator(rootDir)
+	return timelineGenerator.ExecuteForTag(a.tag)
 }
 
 func (a *TimelineAction) sortItems(items []*backlog.BacklogItem) {
@@ -147,4 +154,16 @@ func (a *TimelineAction) sortItems(items []*backlog.BacklogItem) {
 		}
 		return items[i].Name() < items[j].Name()
 	})
+}
+
+func (a *TimelineAction) parseDate(dateStr string) (time.Time, bool) {
+	date, err := time.Parse("06-1-2", dateStr)
+	if err == nil {
+		return date, true
+	}
+	date, err = time.Parse("2006-1-2", dateStr)
+	if err == nil {
+		return date, true
+	}
+	return time.Time{}, false
 }

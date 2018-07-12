@@ -92,6 +92,11 @@ func (a *SyncAction) Execute() error {
 			return err
 		}
 
+		err = a.updateTimeline(rootDir)
+		if err != nil {
+			return err
+		}
+
 		if a.testMode {
 			return nil
 		}
@@ -655,4 +660,30 @@ func (a *SyncAction) updateItemsFileNames(rootDir string) error {
 		}
 	}
 	return nil
+}
+
+func (a *SyncAction) updateTimeline(rootDir string) error {
+	timelineDir := filepath.Join(rootDir, backlog.TimelineDirectoryName)
+	items, err := ioutil.ReadDir(timelineDir)
+	if err != nil {
+		return err
+	}
+
+	lines := []string{"# Timelines", ""}
+	lines = append(lines,
+		fmt.Sprintf(utils.JoinMarkdownLinks(backlog.MakeStandardLinks(rootDir, rootDir)...)))
+	lines = append(lines, "")
+
+	for _, item := range items {
+		if strings.HasSuffix(item.Name(), ".png") {
+			timelineImagePath := filepath.Join(timelineDir, item.Name())
+			timelineTag := strings.TrimSuffix(item.Name(), ".png")
+			lines = append(lines, fmt.Sprintf("## Tag: %s", utils.MakeMarkdownLink(timelineTag, filepath.Join(rootDir, backlog.TagsDirectoryName, timelineTag), rootDir)))
+			lines = append(lines, "")
+			lines = append(lines, fmt.Sprintf("%s", utils.MakeMarkdownImageLink(timelineTag, timelineImagePath, rootDir)))
+			lines = append(lines, "")
+		}
+	}
+
+	return ioutil.WriteFile(filepath.Join(rootDir, backlog.TimelineFileName), []byte(strings.Join(lines, "\n")), 0644)
 }
