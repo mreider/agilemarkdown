@@ -1,0 +1,139 @@
+{
+	"ImportPath": "github.com/mreider/agilemarkdown",
+	"GoVersion": "go1.10",
+	"GodepVersion": "v80",
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/buger/goterm",
+			"Rev": "6d19e6a8df12fdfc44a90a24b677a6d04a80b91f"
+		},
+		{
+			"ImportPath": "github.com/davecgh/go-spew/spew",
+			"Comment": "v1.1.0-6-gadab964",
+			"Rev": "adab96458c51a58dc1783b3335dcce5461522e75"
+		},
+		{
+			"ImportPath": "github.com/fogleman/gg",
+			"Comment": "v1.0.0-20-ga9ff18e",
+			"Rev": "a9ff18eccd6d57b3c8576a71a91a04868f62078c"
+		},
+		{
+			"ImportPath": "github.com/gerald1248/timeline",
+			"Comment": "v0.3.3-5-g7803278",
+			"Rev": "7803278c5d630925535e6b6b36f20bf30e202437"
+		},
+		{
+			"ImportPath": "github.com/ghodss/yaml",
+			"Comment": "v1.0.0-2-ge9ed3c6",
+			"Rev": "e9ed3c6dfb39bb1a32197cb10d527906fe4da4b6"
+		},
+		{
+			"ImportPath": "github.com/golang/freetype/raster",
+			"Comment": "release-137-ge2365df",
+			"Rev": "e2365dfdc4a05e4b8299a783240d4a7d5a65d4e4"
+		},
+		{
+			"ImportPath": "github.com/golang/freetype/truetype",
+			"Comment": "release-137-ge2365df",
+			"Rev": "e2365dfdc4a05e4b8299a783240d4a7d5a65d4e4"
+		},
+		{
+			"ImportPath": "github.com/pkg/errors",
+			"Comment": "v0.8.0-12-g816c908",
+			"Rev": "816c9085562cd7ee03e7f8188a1cfd942858cded"
+		},
+		{
+			"ImportPath": "github.com/pmezard/go-difflib/difflib",
+			"Comment": "v1.0.0",
+			"Rev": "792786c7400a136282c1664665ae0a8db921c6c2"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/assert",
+			"Comment": "v1.1.4-72-g2aa2c17",
+			"Rev": "2aa2c176b9dab406a6970f6a55f513e8a8c8b18f"
+		},
+		{
+			"ImportPath": "github.com/wcharczuk/go-chart",
+			"Comment": "v2.0.1-5-g9e3a080",
+			"Rev": "9e3a080aa3e7573281cf8d65a55305e1148d857d"
+		},
+		{
+			"ImportPath": "github.com/wcharczuk/go-chart/drawing",
+			"Comment": "v2.0.1-5-g9e3a080",
+			"Rev": "9e3a080aa3e7573281cf8d65a55305e1148d857d"
+		},
+		{
+			"ImportPath": "github.com/wcharczuk/go-chart/matrix",
+			"Comment": "v2.0.1-5-g9e3a080",
+			"Rev": "9e3a080aa3e7573281cf8d65a55305e1148d857d"
+		},
+		{
+			"ImportPath": "github.com/wcharczuk/go-chart/roboto",
+			"Comment": "v2.0.1-5-g9e3a080",
+			"Rev": "9e3a080aa3e7573281cf8d65a55305e1148d857d"
+		},
+		{
+			"ImportPath": "github.com/wcharczuk/go-chart/seq",
+			"Comment": "v2.0.1-5-g9e3a080",
+			"Rev": "9e3a080aa3e7573281cf8d65a55305e1148d857d"
+		},
+		{
+			"ImportPath": "github.com/wcharczuk/go-chart/util",
+			"Comment": "v2.0.1-5-g9e3a080",
+			"Rev": "9e3a080aa3e7573281cf8d65a55305e1148d857d"
+		},
+		{
+			"ImportPath": "github.com/xeipuuv/gojsonpointer",
+			"Rev": "4e3ac2762d5f479393488629ee9370b50873b3a6"
+		},
+		{
+			"ImportPath": "github.com/xeipuuv/gojsonreference",
+			"Rev": "bd5ef7bd5415a7ac448318e64f11a24cd21e594b"
+		},
+		{
+			"ImportPath": "github.com/xeipuuv/gojsonschema",
+			"Rev": "1d523034197ff1f222f6429836dd36a2457a1874"
+		},
+		{
+			"ImportPath": "golang.org/x/image/draw",
+			"Rev": "c73c2afc3b812cdd6385de5a50616511c4a3d458"
+		},
+		{
+			"ImportPath": "golang.org/x/image/font",
+			"Rev": "c73c2afc3b812cdd6385de5a50616511c4a3d458"
+		},
+		{
+			"ImportPath": "golang.org/x/image/font/basicfont",
+			"Rev": "c73c2afc3b812cdd6385de5a50616511c4a3d458"
+		},
+		{
+			"ImportPath": "golang.org/x/image/font/gofont/goregular",
+			"Rev": "c73c2afc3b812cdd6385de5a50616511c4a3d458"
+		},
+		{
+			"ImportPath": "golang.org/x/image/math/f64",
+			"Rev": "c73c2afc3b812cdd6385de5a50616511c4a3d458"
+		},
+		{
+			"ImportPath": "golang.org/x/image/math/fixed",
+			"Rev": "c73c2afc3b812cdd6385de5a50616511c4a3d458"
+		},
+		{
+			"ImportPath": "golang.org/x/sys/unix",
+			"Rev": "7dca6fe1f43775aa6d1334576870ff63f978f539"
+		},
+		{
+			"ImportPath": "gopkg.in/urfave/cli.v1",
+			"Comment": "v1.20.0",
+			"Rev": "cfb38830724cc34fedffe9a2a29fb54fa9169cd1"
+		},
+		{
+			"ImportPath": "gopkg.in/yaml.v2",
+			"Comment": "v2.2.1",
+			"Rev": "5420a8b6744d3b0345ab293f6fcba19c978f1183"
+		}
+	]
+}

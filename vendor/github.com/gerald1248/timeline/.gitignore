@@ -1,0 +1,13 @@
+*.swp
+*~
+.*~
+.DS_Store
+.coverage
+bower_components
+docker
+exclude
+node_modules
+package/
+dist/
+target
+timeline
