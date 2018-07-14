@@ -154,3 +154,18 @@ func GetValidFileName(name string) string {
 func CollapseWhiteSpaces(value string) string {
 	return strings.TrimSpace(spacesRe.ReplaceAllString(value, " "))
 }
+
+func RemoveItemIgnoreCase(items []string, item string) []string {
+	if len(items) == 0 {
+		return items
+	}
+
+	item = strings.ToLower(item)
+	result := make([]string, 0, len(items))
+	for _, it := range items {
+		if strings.ToLower(it) != item {
+			result = append(result, it)
+		}
+	}
+	return result
+}

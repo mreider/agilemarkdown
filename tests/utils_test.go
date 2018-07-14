@@ -81,6 +81,14 @@ func TestCollapseWhiteSpaces(t *testing.T) {
 	assert.Equal(t, "it is a test", utils.CollapseWhiteSpaces(" it \n  is a    \t  test  "))
 }
 
+func TestRemoveItemIgnoreCase(t *testing.T) {
+	assert.Equal(t, []string(nil), utils.RemoveItemIgnoreCase(nil, ""))
+	assert.Equal(t, []string{}, utils.RemoveItemIgnoreCase([]string{}, ""))
+	assert.Equal(t, []string{"A", "c"}, utils.RemoveItemIgnoreCase([]string{"A", "b", "c"}, "B"))
+	assert.Equal(t, []string{"A", "b"}, utils.RemoveItemIgnoreCase([]string{"A", "b", "c"}, "c"))
+	assert.Equal(t, []string{"b", "c"}, utils.RemoveItemIgnoreCase([]string{"A", "b", "c"}, "a"))
+}
+
 func createDate(year int, month time.Month, day int) time.Time {
 	return time.Date(year, month, day, 0, 0, 0, 0, time.Local)
 }
