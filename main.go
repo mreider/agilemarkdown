@@ -62,6 +62,7 @@ func main() {
 		commands.CreateUserCommand,
 		commands.TimelineCommand,
 		commands.DeleteTagCommand,
+		commands.ChangeTagCommand,
 	}
 
 	err = app.Run(os.Args)

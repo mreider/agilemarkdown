@@ -99,3 +99,16 @@ func (tg *TimelineGenerator) sortTimelineItems(items []*timelineItem) {
 		return items[i].item.Name() < items[j].item.Name()
 	})
 }
+
+func (tg *TimelineGenerator) RenameTimeline(oldTag, newTag string) error {
+	timelineDirectory := filepath.Join(tg.rootDir, TimelineDirectoryName)
+	oldPngPath := filepath.Join(timelineDirectory, fmt.Sprintf("%s.png", oldTag))
+	newPngPath := filepath.Join(timelineDirectory, fmt.Sprintf("%s.png", newTag))
+	return os.Rename(oldPngPath, newPngPath)
+}
+
+func (tg *TimelineGenerator) RemoveTimeline(tag string) error {
+	timelineDirectory := filepath.Join(tg.rootDir, TimelineDirectoryName)
+	pngPath := filepath.Join(timelineDirectory, fmt.Sprintf("%s.png", tag))
+	return os.Remove(pngPath)
+}

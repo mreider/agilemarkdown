@@ -169,3 +169,33 @@ func RemoveItemIgnoreCase(items []string, item string) []string {
 	}
 	return result
 }
+
+func RenameItemIgnoreCase(items []string, oldItem, newItem string) []string {
+	if len(items) == 0 {
+		return items
+	}
+
+	if strings.ToLower(oldItem) == strings.ToLower(newItem) {
+		return items
+	}
+
+	newItemExists := false
+	for _, it := range items {
+		if strings.ToLower(it) == strings.ToLower(newItem) {
+			newItemExists = true
+			break
+		}
+	}
+
+	oldItem = strings.ToLower(oldItem)
+	result := make([]string, 0, len(items))
+	for _, it := range items {
+		if strings.ToLower(it) != oldItem {
+			result = append(result, it)
+		} else if !newItemExists {
+			result = append(result, newItem)
+			newItemExists = true
+		}
+	}
+	return result
+}

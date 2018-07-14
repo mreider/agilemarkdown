@@ -90,6 +90,16 @@ func (m *MarkdownMetadata) SetValue(key, value string) bool {
 	return true
 }
 
+func (m *MarkdownMetadata) ReplaceKey(oldKey, newKey string) bool {
+	for _, item := range m.items {
+		if strings.ToLower(item.key) == strings.ToLower(oldKey) {
+			item.key = newKey
+			return true
+		}
+	}
+	return false
+}
+
 func (m *MarkdownMetadata) Remove(key string) bool {
 	for i, item := range m.items {
 		if strings.ToLower(item.key) == strings.ToLower(key) {

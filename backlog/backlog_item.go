@@ -157,6 +157,18 @@ func (item *BacklogItem) ClearTimeline(tag string) {
 	item.markdown.RemoveMetadata(fmt.Sprintf("Timeline %s", tag))
 }
 
+func (item *BacklogItem) ChangeTimelineTag(oldTag, newTag string) {
+	oldKey := fmt.Sprintf("Timeline %s", oldTag)
+	newKey := fmt.Sprintf("Timeline %s", newTag)
+
+	if item.markdown.MetadataValue(newKey) != "" {
+		item.ClearTimeline(oldTag)
+	} else {
+		item.markdown.RemoveMetadata(newKey)
+		item.markdown.ReplaceMetadataKey(oldKey, newKey)
+	}
+}
+
 func (item *BacklogItem) SetDescription(description string) {
 	if description != "" {
 		description = "\n" + description
