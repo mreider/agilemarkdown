@@ -669,6 +669,11 @@ func (a *SyncAction) updateTimeline(rootDir string) error {
 		return err
 	}
 
+	allTags, _, _, _, err := backlog.ItemsAndIdeasTags(rootDir)
+	if err != nil {
+		return err
+	}
+
 	lines := []string{"# Timelines", ""}
 	lines = append(lines,
 		fmt.Sprintf(utils.JoinMarkdownLinks(backlog.MakeStandardLinks(rootDir, rootDir)...)))
@@ -678,10 +683,14 @@ func (a *SyncAction) updateTimeline(rootDir string) error {
 		if strings.HasSuffix(item.Name(), ".png") {
 			timelineImagePath := filepath.Join(timelineDir, item.Name())
 			timelineTag := strings.TrimSuffix(item.Name(), ".png")
-			lines = append(lines, fmt.Sprintf("## Tag: %s", utils.MakeMarkdownLink(timelineTag, filepath.Join(rootDir, backlog.TagsDirectoryName, timelineTag), rootDir)))
-			lines = append(lines, "")
-			lines = append(lines, fmt.Sprintf("%s", utils.MakeMarkdownImageLink(timelineTag, timelineImagePath, rootDir)))
-			lines = append(lines, "")
+			if _, ok := allTags[timelineTag]; ok {
+				lines = append(lines, fmt.Sprintf("## Tag: %s", utils.MakeMarkdownLink(timelineTag, filepath.Join(rootDir, backlog.TagsDirectoryName, timelineTag), rootDir)))
+				lines = append(lines, "")
+				lines = append(lines, fmt.Sprintf("%s", utils.MakeMarkdownImageLink(timelineTag, timelineImagePath, rootDir)))
+				lines = append(lines, "")
+			} else {
+				os.Remove(timelineImagePath)
+			}
 		}
 	}
 
