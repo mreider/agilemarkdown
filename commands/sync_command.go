@@ -663,14 +663,31 @@ func (a *SyncAction) updateItemsFileNames(rootDir string) error {
 }
 
 func (a *SyncAction) updateTimeline(rootDir string) error {
-	timelineDir := filepath.Join(rootDir, backlog.TimelineDirectoryName)
-	items, err := ioutil.ReadDir(timelineDir)
+	allTags, itemsTags, _, _, err := backlog.ItemsAndIdeasTags(rootDir)
 	if err != nil {
 		return err
 	}
 
-	allTags, _, _, _, err := backlog.ItemsAndIdeasTags(rootDir)
-	if err != nil {
+	timelineGenerator := backlog.NewTimelineGenerator(rootDir)
+	for tag, tagItems := range itemsTags {
+		hasTimeline := false
+		for _, item := range tagItems {
+			startDate, endDate := item.Timeline(tag)
+			if !startDate.IsZero() && !endDate.IsZero() {
+				hasTimeline = true
+				break
+			}
+		}
+		if hasTimeline {
+			timelineGenerator.ExecuteForTag(tag)
+		} else {
+			timelineGenerator.RemoveTimeline(tag)
+		}
+	}
+
+	timelineDir := filepath.Join(rootDir, backlog.TimelineDirectoryName)
+	items, err := ioutil.ReadDir(timelineDir)
+	if err != nil && !os.IsNotExist(err) {
 		return err
 	}
 

@@ -243,6 +243,12 @@ func (content *MarkdownContent) SetMetadataValue(key, value string) {
 	}
 }
 
+func (content *MarkdownContent) ReplaceMetadataKey(oldKey, newKey string) {
+	if content.metadata.ReplaceKey(oldKey, newKey) {
+		content.markDirty()
+	}
+}
+
 func (content *MarkdownContent) RemoveMetadata(key string) {
 	if content.metadata.Remove(key) {
 		content.markDirty()
