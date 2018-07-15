@@ -82,7 +82,7 @@ func (a *SyncAction) Execute() error {
 			return err
 		}
 
-		err = a.updateIdeas(rootDir)
+		err = a.updateIdeas(rootDir, cfg)
 		if err != nil {
 			return err
 		}
@@ -167,7 +167,7 @@ func (a *SyncAction) updateOverviewsAndIndex(rootDir string, cfg *config.Config)
 		activeItems := bck.ActiveItems()
 		overview.UpdateLinks("archive", archivePath, rootDir, rootDir)
 		overview.Update(activeItems, sorter)
-		a.sendNewComments(cfg, rootDir, overview, activeItems)
+		a.sendNewCommentsForItems(cfg, rootDir, overview, activeItems)
 		overview.Save()
 
 		archivedItems := bck.ArchivedItems()
@@ -276,7 +276,7 @@ func (a *SyncAction) syncToGit() (bool, error) {
 	return true, nil
 }
 
-func (a *SyncAction) updateIdeas(rootDir string) error {
+func (a *SyncAction) updateIdeas(rootDir string, cfg *config.Config) error {
 	_, itemsTags, ideasTags, overviews, err := backlog.ItemsAndIdeasTags(rootDir)
 	if err != nil {
 		return err
@@ -287,6 +287,8 @@ func (a *SyncAction) updateIdeas(rootDir string) error {
 	if err != nil {
 		return err
 	}
+
+	a.sendNewCommentsForIdeas(cfg, rootDir, ideas)
 
 	ideasByRank := make(map[string][]*backlog.BacklogIdea)
 	var ranks []string
@@ -513,74 +515,35 @@ func (a *SyncAction) updateTagsPage(rootDir, tagsDir string, itemsTags map[strin
 	return ioutil.WriteFile(filepath.Join(rootDir, backlog.TagsFileName), []byte(strings.Join(lines, "  \n")), 0644)
 }
 
-func (a *SyncAction) sendNewComments(cfg *config.Config, rootDir string, overview *backlog.BacklogOverview, activeItems []*backlog.BacklogItem) {
+func (a *SyncAction) sendNewCommentsForItems(cfg *config.Config, rootDir string, overview *backlog.BacklogOverview, items []*backlog.BacklogItem) {
 	userList := users.NewUserList(filepath.Join(rootDir, backlog.UsersDirectoryName))
 	var mailSender *utils.MailSender
 	if cfg.SmtpServer != "" {
 		mailSender = utils.NewMailSender(cfg.SmtpServer, cfg.SmtpUser, cfg.SmtpPassword, cfg.EmailFrom)
 	}
-	remoteOriginUrl, _ := git.RemoteOriginUrl()
-	remoteOriginUrl = strings.TrimSuffix(remoteOriginUrl, ".git")
 
-	from := a.author
-	sepIndex := strings.LastIndexByte(from, ' ')
-	if sepIndex >= 0 {
-		from = from[sepIndex+1:]
-		from = strings.Trim(from, "<>")
+	commented := make([]backlog.Commented, len(items))
+	for i := range items {
+		commented[i] = items[i]
 	}
-	if from == "" {
-		from, _, _ = git.CurrentUser()
+	a.sendNewComments(commented, func(item backlog.Commented, to []string, comment []string) (me string, err error) {
+		return a.sendComment(userList, comment, overview.Title(), to, mailSender, cfg, rootDir, item.Path())
+	})
+}
+
+func (a *SyncAction) sendNewCommentsForIdeas(cfg *config.Config, rootDir string, ideas []*backlog.BacklogIdea) {
+	userList := users.NewUserList(filepath.Join(rootDir, backlog.UsersDirectoryName))
+	var mailSender *utils.MailSender
+	if cfg.SmtpServer != "" {
+		mailSender = utils.NewMailSender(cfg.SmtpServer, cfg.SmtpUser, cfg.SmtpPassword, cfg.EmailFrom)
 	}
-	overview.SendNewComments(activeItems, func(item *backlog.BacklogItem, to []string, comment []string) (me string, err error) {
-		meUser := userList.User(from)
-		if meUser == nil {
-			return "", fmt.Errorf("unknown user %s", from)
-		}
-		toUsers := make([]*users.User, 0, len(to))
-		for _, user := range to {
-			toUser := userList.User(user)
-			if toUser == nil {
-				return meUser.Nick(), fmt.Errorf("unknown user %s", to)
-			}
-			toUsers = append(toUsers, toUser)
-		}
-		if mailSender == nil {
-			return meUser.Nick(), errors.New("SMTP server isn't configured")
-		}
 
-		msgText := strings.Join(comment, "\n")
-		if remoteOriginUrl != "" {
-			var itemGitUrl string
-			itemPath := strings.TrimPrefix(item.Path(), rootDir)
-			itemPath = strings.TrimPrefix(itemPath, string(os.PathSeparator))
-			itemPath = strings.Replace(itemPath, string(os.PathSeparator), "/", -1)
-			if cfg.RemoteGitUrlFormat != "" {
-				itemGitUrl = fmt.Sprintf(cfg.RemoteGitUrlFormat, remoteOriginUrl, itemPath)
-			} else {
-				itemGitUrl = fmt.Sprintf("%s/%s", remoteOriginUrl, itemPath)
-			}
-			msgText += fmt.Sprintf("\n\nView on Git: %s\n", itemGitUrl)
-			if cfg.RemoteWebUrlFormat != "" {
-				itemWebUrl := fmt.Sprintf(cfg.RemoteWebUrlFormat, itemPath)
-				msgText += fmt.Sprintf("View on the web: %s\n", itemWebUrl)
-			}
-		}
-
-		fromSubject := meUser.Nick()
-		if meUser.Name() != meUser.Nick() {
-			fromSubject += fmt.Sprintf(" (%s)", meUser.Name())
-		}
-
-		toEmails := make([]string, 0, len(toUsers))
-		for _, user := range toUsers {
-			toEmails = append(toEmails, user.Email())
-		}
-
-		err = mailSender.SendEmail(
-			toEmails,
-			fmt.Sprintf("%s. New comment from %s", overview.Title(), fromSubject),
-			msgText)
-		return meUser.Nick(), err
+	commented := make([]backlog.Commented, len(ideas))
+	for i := range ideas {
+		commented[i] = ideas[i]
+	}
+	a.sendNewComments(commented, func(idea backlog.Commented, to []string, comment []string) (me string, err error) {
+		return a.sendComment(userList, comment, idea.Title(), to, mailSender, cfg, rootDir, idea.Path())
 	})
 }
 
@@ -712,4 +675,109 @@ func (a *SyncAction) updateTimeline(rootDir string) error {
 	}
 
 	return ioutil.WriteFile(filepath.Join(rootDir, backlog.TimelineFileName), []byte(strings.Join(lines, "\n")), 0644)
+}
+
+func (a *SyncAction) RemoteOriginUrl() string {
+	remoteOriginUrl, _ := git.RemoteOriginUrl()
+	return strings.TrimSuffix(remoteOriginUrl, ".git")
+}
+
+func (a *SyncAction) FromUser() string {
+	from := a.author
+	sepIndex := strings.LastIndexByte(from, ' ')
+	if sepIndex >= 0 {
+		from = from[sepIndex+1:]
+		from = strings.Trim(from, "<>")
+	}
+	if from == "" {
+		from, _, _ = git.CurrentUser()
+	}
+	return from
+}
+
+func (a *SyncAction) sendComment(userList *users.UserList, comment []string, title string, to []string, mailSender *utils.MailSender, cfg *config.Config, rootDir, contentPath string) (me string, err error) {
+	from := a.author
+	sepIndex := strings.LastIndexByte(from, ' ')
+	if sepIndex >= 0 {
+		from = from[sepIndex+1:]
+		from = strings.Trim(from, "<>")
+	}
+	if from == "" {
+		from, _, _ = git.CurrentUser()
+	}
+
+	meUser := userList.User(from)
+	if meUser == nil {
+		return "", fmt.Errorf("unknown user %s", from)
+	}
+	toUsers := make([]*users.User, 0, len(to))
+	for _, user := range to {
+		toUser := userList.User(user)
+		if toUser == nil {
+			return meUser.Nick(), fmt.Errorf("unknown user %s", to)
+		}
+		toUsers = append(toUsers, toUser)
+	}
+	if mailSender == nil {
+		return meUser.Nick(), errors.New("SMTP server isn't configured")
+	}
+
+	msgText := strings.Join(comment, "\n")
+	remoteOriginUrl, _ := git.RemoteOriginUrl()
+	remoteOriginUrl = strings.TrimSuffix(remoteOriginUrl, ".git")
+	if remoteOriginUrl != "" {
+		var itemGitUrl string
+		itemPath := strings.TrimPrefix(contentPath, rootDir)
+		itemPath = strings.TrimPrefix(itemPath, string(os.PathSeparator))
+		itemPath = strings.Replace(itemPath, string(os.PathSeparator), "/", -1)
+		if cfg.RemoteGitUrlFormat != "" {
+			itemGitUrl = fmt.Sprintf(cfg.RemoteGitUrlFormat, remoteOriginUrl, itemPath)
+		} else {
+			itemGitUrl = fmt.Sprintf("%s/%s", remoteOriginUrl, itemPath)
+		}
+		msgText += fmt.Sprintf("\n\nView on Git: %s\n", itemGitUrl)
+		if cfg.RemoteWebUrlFormat != "" {
+			itemWebUrl := fmt.Sprintf(cfg.RemoteWebUrlFormat, itemPath)
+			msgText += fmt.Sprintf("View on the web: %s\n", itemWebUrl)
+		}
+	}
+
+	fromSubject := meUser.Nick()
+	if meUser.Name() != meUser.Nick() {
+		fromSubject += fmt.Sprintf(" (%s)", meUser.Name())
+	}
+
+	toEmails := make([]string, 0, len(toUsers))
+	for _, user := range toUsers {
+		toEmails = append(toEmails, user.Email())
+	}
+
+	err = mailSender.SendEmail(
+		toEmails,
+		fmt.Sprintf("%s. New comment from %s", title, fromSubject),
+		msgText)
+	return meUser.Nick(), err
+}
+
+func (a *SyncAction) sendNewComments(items []backlog.Commented, onSend func(item backlog.Commented, to []string, comment []string) (me string, err error)) {
+	for _, item := range items {
+		comments := item.Comments()
+		hasChanges := false
+		for _, comment := range comments {
+			if comment.Closed || comment.Unsent {
+				continue
+			}
+			me, err := onSend(item, comment.Users, comment.Text)
+			now := utils.GetCurrentTimestamp()
+			hasChanges = true
+			if err != nil {
+				comment.AddLine(fmt.Sprintf("can't send by @%s at %s: %v", me, now, err))
+			} else {
+				comment.AddLine(fmt.Sprintf("sent by @%s at %s", me, now))
+			}
+		}
+		if hasChanges {
+			item.UpdateComments(comments)
+		}
+	}
 }

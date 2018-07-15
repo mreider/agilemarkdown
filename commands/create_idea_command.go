@@ -10,6 +10,12 @@ import (
 	"strings"
 )
 
+const newIdeaTemplate = `
+
+## Comments
+
+`
+
 var CreateIdeaCommand = cli.Command{
 	Name:      "create-idea",
 	Usage:     "Create a new idea",
@@ -75,6 +81,7 @@ var CreateIdeaCommand = cli.Command{
 		idea.SetAuthor(currentUser)
 		idea.SetTags(nil)
 		idea.SetRank("")
+		idea.SetDescription(newIdeaTemplate)
 
 		if !simulate {
 			return idea.Save()

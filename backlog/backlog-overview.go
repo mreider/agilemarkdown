@@ -132,29 +132,6 @@ func (overview *BacklogOverview) sortGroupsByStatus() {
 	})
 }
 
-func (overview *BacklogOverview) SendNewComments(items []*BacklogItem, onSend func(item *BacklogItem, to []string, comment []string) (me string, err error)) {
-	for _, item := range items {
-		comments := item.Comments()
-		hasChanges := false
-		for _, comment := range comments {
-			if comment.Closed || comment.Unsent {
-				continue
-			}
-			me, err := onSend(item, comment.Users, comment.Text)
-			now := utils.GetCurrentTimestamp()
-			hasChanges = true
-			if err != nil {
-				comment.AddLine(fmt.Sprintf("can't send by @%s at %s: %v", me, now, err))
-			} else {
-				comment.AddLine(fmt.Sprintf("sent by @%s at %s", me, now))
-			}
-		}
-		if hasChanges {
-			item.UpdateComments(comments)
-		}
-	}
-}
-
 func (overview *BacklogOverview) RemoveVelocity(bck *Backlog) {
 	overview.markdown.SetFreeText([]string{""})
 	overview.Save()

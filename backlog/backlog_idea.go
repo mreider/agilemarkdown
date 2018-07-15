@@ -164,3 +164,20 @@ func (idea *BacklogIdea) Rank() string {
 func (idea *BacklogIdea) Content() []byte {
 	return idea.markdown.Content()
 }
+
+func (idea *BacklogIdea) SetDescription(description string) {
+	if description != "" {
+		description = "\n" + description
+	}
+
+	idea.markdown.SetFreeText(strings.Split(description, "\n"))
+}
+
+func (idea *BacklogIdea) Comments() []*Comment {
+	return NewMarkdownComments(idea.markdown).Comments()
+}
+
+func (idea *BacklogIdea) UpdateComments(comments []*Comment) {
+	NewMarkdownComments(idea.markdown).UpdateComments(comments)
+	idea.Save()
+}
