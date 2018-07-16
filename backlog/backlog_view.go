@@ -172,8 +172,11 @@ func (bv BacklogView) VelocityText(bck *Backlog, weekCount, width int) (string, 
 	currentDate := time.Now().UTC()
 	pointsByWeekDelta := make(map[int]float64)
 	for _, item := range items {
-		modified := item.Modified()
-		weekDelta := utils.WeekDelta(currentDate, modified)
+		finished := item.Finished()
+		if finished.IsZero() {
+			finished = item.Modified()
+		}
+		weekDelta := utils.WeekDelta(currentDate, finished)
 		if -weekCount < weekDelta && weekDelta <= 0 {
 			itemPoints, _ := strconv.ParseFloat(item.Estimate(), 64)
 			pointsByWeekDelta[weekDelta] += itemPoints
@@ -199,8 +202,11 @@ func (bv BacklogView) VelocityImage(bck *Backlog, weekCount int) ([]byte, error)
 	pointsByWeekDelta := make(map[int]float64)
 	maxPoints := 0.0
 	for _, item := range items {
-		modified := item.Modified()
-		weekDelta := utils.WeekDelta(currentDate, modified)
+		finished := item.Finished()
+		if finished.IsZero() {
+			finished = item.Modified()
+		}
+		weekDelta := utils.WeekDelta(currentDate, finished)
 		if -weekCount < weekDelta && weekDelta <= 0 {
 			itemPoints, _ := strconv.ParseFloat(item.Estimate(), 64)
 			pointsByWeekDelta[weekDelta] += itemPoints
