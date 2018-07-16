@@ -52,8 +52,19 @@ var ChangeStatusCommand = cli.Command{
 				}
 				item := items[itemIndex]
 				if statusCode != "a" {
-					item.SetStatus(backlog.StatusByCode(statusCode))
-					item.SetModified(utils.GetCurrentTimestamp())
+					oldStatus := backlog.StatusByName(item.Status())
+					newStatus := backlog.StatusByCode(statusCode)
+					currentTimestamp := utils.GetCurrentTimestamp()
+
+					item.SetStatus(newStatus)
+					item.SetModified(currentTimestamp)
+					if oldStatus != newStatus {
+						if newStatus == backlog.FinishedStatus {
+							item.SetFinished(currentTimestamp)
+						} else if oldStatus == backlog.FinishedStatus {
+							item.SetFinished("")
+						}
+					}
 				} else {
 					item.SetArchived(true)
 				}

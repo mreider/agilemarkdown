@@ -576,9 +576,37 @@ func (a *SyncAction) updateItemsModifiedDate(rootDir string) error {
 					return err
 				}
 				repoItem := backlog.NewBacklogItem(filepath.Base(itemPath), repoItemContent)
+				currentTimestamp := utils.GetCurrentTimestamp()
 				if item.Assigned() != repoItem.Assigned() || item.Status() != repoItem.Status() || item.Estimate() != repoItem.Estimate() {
 					if item.Modified() == repoItem.Modified() {
-						item.SetModified(utils.GetCurrentTimestamp())
+						item.SetModified(currentTimestamp)
+						item.Save()
+					}
+				}
+
+				oldStatus := backlog.StatusByName(repoItem.Status())
+				newStatus := backlog.StatusByName(item.Status())
+				if oldStatus != newStatus {
+					if newStatus == backlog.FinishedStatus {
+						item.SetFinished(currentTimestamp)
+						item.Save()
+					} else if oldStatus == backlog.FinishedStatus {
+						item.SetFinished("")
+						item.Save()
+					} else {
+						if !item.Finished().IsZero() {
+							item.SetFinished("")
+							item.Save()
+						}
+					}
+				} else if oldStatus == backlog.FinishedStatus && newStatus == backlog.FinishedStatus {
+					if item.Finished().IsZero() {
+						item.SetFinished(utils.GetTimestamp(repoItem.Finished()))
+						item.Save()
+					}
+				} else if oldStatus == newStatus {
+					if !item.Finished().IsZero() {
+						item.SetFinished("")
 						item.Save()
 					}
 				}
