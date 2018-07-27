@@ -24,7 +24,7 @@ var (
 	commentsTitleRe                = regexp.MustCompile(`^#{1,3}\s+Comments\s*$`)
 	commentRe                      = regexp.MustCompile(`^(\s*)((@[\w.-_]+[\s,;]+)+)(.*)$`)
 	commentUserSeparatorRe         = regexp.MustCompile(`[\s,;]+`)
-	BacklogItemTimelineMetadataKey = regexp.MustCompile(`(?i)^Timeline\s+(\w+)$`)
+	BacklogItemTimelineMetadataKey = regexp.MustCompile(`(?i)^Timeline\s+([-\w]+)$`)
 	topBacklogItemMetadataKeys     = []*regexp.Regexp{
 		AllowedKeyAsRegex(BacklogItemFinishedMetadataKey), AllowedKeyAsRegex(BacklogItemTagsMetadataKey),
 		AllowedKeyAsRegex(BacklogItemStatusMetadataKey), AllowedKeyAsRegex(BacklogItemAssignedMetadataKey),
