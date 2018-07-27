@@ -759,7 +759,14 @@ func (a *SyncAction) sendComment(userList *users.UserList, comment []string, tit
 		itemPath = strings.TrimPrefix(itemPath, string(os.PathSeparator))
 		itemPath = strings.Replace(itemPath, string(os.PathSeparator), "/", -1)
 		if cfg.RemoteGitUrlFormat != "" {
-			itemGitUrl = fmt.Sprintf(cfg.RemoteGitUrlFormat, remoteOriginUrl, itemPath)
+			parts := strings.Split(cfg.RemoteGitUrlFormat, "%s")
+			if len(parts) >= 3 {
+				itemGitUrl = fmt.Sprintf(cfg.RemoteGitUrlFormat, remoteOriginUrl, itemPath)
+			} else if len(parts) == 2 {
+				itemGitUrl = fmt.Sprintf(cfg.RemoteGitUrlFormat, itemPath)
+			} else {
+				itemGitUrl = cfg.RemoteGitUrlFormat
+			}
 		} else {
 			itemGitUrl = fmt.Sprintf("%s/%s", remoteOriginUrl, itemPath)
 		}
