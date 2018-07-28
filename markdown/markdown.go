@@ -1,4 +1,4 @@
-package backlog
+package markdown
 
 import (
 	"bytes"
@@ -8,11 +8,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
-)
-
-const (
-	CreatedMetadataKey  = "Created"
-	ModifiedMetadataKey = "Modified"
+	"sort"
 )
 
 var (
@@ -20,7 +16,7 @@ var (
 	metadataGroupRe = regexp.MustCompile(`^#+\s*metadata\s*$`)
 )
 
-type MarkdownContent struct {
+type Content struct {
 	contentPath      string
 	groupTitlePrefix string
 
@@ -28,15 +24,15 @@ type MarkdownContent struct {
 	title    string
 	header   string
 	links    string
-	metadata *MarkdownMetadata
-	groups   []*MarkdownGroup
+	metadata *Metadata
+	groups   []*Group
 	freeText []string
 	footer   []string
 
 	HideEmptyGroups bool
 }
 
-func LoadMarkdown(markdownPath string, topMetadataKeys, bottomMetadataKeys []*regexp.Regexp, groupTitlePrefix string, footerRe *regexp.Regexp) (*MarkdownContent, error) {
+func LoadMarkdown(markdownPath string, topMetadataKeys, bottomMetadataKeys []*regexp.Regexp, groupTitlePrefix string, footerRe *regexp.Regexp) (*Content, error) {
 	var err error
 	if _, err = os.Stat(markdownPath); err != nil && !os.IsNotExist(err) {
 		return nil, err
@@ -57,8 +53,8 @@ func LoadMarkdown(markdownPath string, topMetadataKeys, bottomMetadataKeys []*re
 	return NewMarkdown(string(data), markdownPath, topMetadataKeys, bottomMetadataKeys, groupTitlePrefix, footerRe), nil
 }
 
-func NewMarkdown(data, markdownPath string, topMetadataKeys, bottomMetadataKeys []*regexp.Regexp, groupTitlePrefix string, footerRe *regexp.Regexp) *MarkdownContent {
-	content := &MarkdownContent{contentPath: markdownPath, groupTitlePrefix: groupTitlePrefix, metadata: NewMarkdownMetadata(topMetadataKeys, bottomMetadataKeys)}
+func NewMarkdown(data, markdownPath string, topMetadataKeys, bottomMetadataKeys []*regexp.Regexp, groupTitlePrefix string, footerRe *regexp.Regexp) *Content {
+	content := &Content{contentPath: markdownPath, groupTitlePrefix: groupTitlePrefix, metadata: NewMetadata(topMetadataKeys, bottomMetadataKeys)}
 	if len(data) > 0 {
 		lines := strings.Split(data, "\n")
 
@@ -108,16 +104,16 @@ func NewMarkdown(data, markdownPath string, topMetadataKeys, bottomMetadataKeys 
 		parsed := content.metadata.ParseLines(lines[metadataIndex:]) + metadataIndex
 
 		if groupTitlePrefix != "" {
-			var currentGroup *MarkdownGroup
+			var currentGroup *Group
 			for _, line := range lines[parsed:] {
 				if strings.HasPrefix(line, groupTitlePrefix) {
 					if currentGroup != nil {
-						content.addGroup(currentGroup)
+						content.AddGroup(currentGroup)
 					}
-					currentGroup = &MarkdownGroup{content: content, title: strings.TrimSpace(strings.TrimPrefix(line, groupTitlePrefix))}
+					currentGroup = &Group{content: content, title: strings.TrimSpace(strings.TrimPrefix(line, groupTitlePrefix))}
 				} else if currentGroup != nil {
 					if footerRe != nil && footerRe.MatchString(line) {
-						content.addGroup(currentGroup)
+						content.AddGroup(currentGroup)
 						currentGroup = nil
 						content.footer = append(content.footer, line)
 					} else {
@@ -136,7 +132,7 @@ func NewMarkdown(data, markdownPath string, topMetadataKeys, bottomMetadataKeys 
 				}
 			}
 			if currentGroup != nil {
-				content.addGroup(currentGroup)
+				content.AddGroup(currentGroup)
 			}
 		} else {
 			for _, line := range lines[parsed:] {
@@ -155,7 +151,7 @@ func NewMarkdown(data, markdownPath string, topMetadataKeys, bottomMetadataKeys 
 	return content
 }
 
-func (content *MarkdownContent) Save() error {
+func (content *Content) Save() error {
 	if content.contentPath == "" {
 		return nil
 	}
@@ -171,7 +167,7 @@ func (content *MarkdownContent) Save() error {
 	return nil
 }
 
-func (content *MarkdownContent) Content() []byte {
+func (content *Content) Content() []byte {
 	result := bytes.NewBuffer(nil)
 	if content.title != "" {
 		result.WriteString(fmt.Sprintf("# %s", content.title))
@@ -233,33 +229,33 @@ func (content *MarkdownContent) Content() []byte {
 	return result.Bytes()
 }
 
-func (content *MarkdownContent) MetadataValue(key string) string {
+func (content *Content) MetadataValue(key string) string {
 	return content.metadata.Value(key)
 }
 
-func (content *MarkdownContent) SetMetadataValue(key, value string) {
+func (content *Content) SetMetadataValue(key, value string) {
 	if content.metadata.SetValue(key, value) {
 		content.markDirty()
 	}
 }
 
-func (content *MarkdownContent) ReplaceMetadataKey(oldKey, newKey string) {
+func (content *Content) ReplaceMetadataKey(oldKey, newKey string) {
 	if content.metadata.ReplaceKey(oldKey, newKey) {
 		content.markDirty()
 	}
 }
 
-func (content *MarkdownContent) RemoveMetadata(key string) {
+func (content *Content) RemoveMetadata(key string) {
 	if content.metadata.Remove(key) {
 		content.markDirty()
 	}
 }
 
-func (content *MarkdownContent) GroupCount() int {
+func (content *Content) GroupCount() int {
 	return len(content.groups)
 }
 
-func (content *MarkdownContent) Group(title string) *MarkdownGroup {
+func (content *Content) Group(title string) *Group {
 	title = strings.ToLower(title)
 	for _, group := range content.groups {
 		if strings.ToLower(group.title) == title {
@@ -269,12 +265,12 @@ func (content *MarkdownContent) Group(title string) *MarkdownGroup {
 	return nil
 }
 
-func (content *MarkdownContent) addGroup(group *MarkdownGroup) {
+func (content *Content) AddGroup(group *Group) {
 	content.groups = append(content.groups, group)
 	content.markDirty()
 }
 
-func (content *MarkdownContent) removeGroup(title string) {
+func (content *Content) RemoveGroup(title string) {
 	title = strings.ToLower(title)
 	for i, group := range content.groups {
 		if strings.ToLower(group.title) == title {
@@ -285,7 +281,7 @@ func (content *MarkdownContent) removeGroup(title string) {
 	}
 }
 
-func (content *MarkdownContent) SetFreeText(freeText []string) {
+func (content *Content) SetFreeText(freeText []string) {
 	if utils.AreEqualStrings(content.freeText, freeText) {
 		return
 	}
@@ -294,11 +290,11 @@ func (content *MarkdownContent) SetFreeText(freeText []string) {
 	content.markDirty()
 }
 
-func (content *MarkdownContent) Footer() []string {
+func (content *Content) Footer() []string {
 	return content.footer
 }
 
-func (content *MarkdownContent) SetFooter(footer []string) {
+func (content *Content) SetFooter(footer []string) {
 	if utils.AreEqualStrings(content.footer, footer) {
 		return
 	}
@@ -307,44 +303,44 @@ func (content *MarkdownContent) SetFooter(footer []string) {
 	content.markDirty()
 }
 
-func (content *MarkdownContent) markDirty() {
+func (content *Content) markDirty() {
 	content.isDirty = true
 }
 
-func (content *MarkdownContent) Title() string {
+func (content *Content) Title() string {
 	return content.title
 }
 
-func (content *MarkdownContent) SetTitle(title string) {
+func (content *Content) SetTitle(title string) {
 	if content.title != title {
 		content.title = title
 		content.markDirty()
 	}
 }
 
-func (content *MarkdownContent) Links() string {
+func (content *Content) Links() string {
 	return content.links
 }
 
-func (content *MarkdownContent) SetLinks(links string) {
+func (content *Content) SetLinks(links string) {
 	if content.links != links {
 		content.links = links
 		content.markDirty()
 	}
 }
 
-func (content *MarkdownContent) Header() string {
+func (content *Content) Header() string {
 	return content.header
 }
 
-func (content *MarkdownContent) SetHeader(header string) {
+func (content *Content) SetHeader(header string) {
 	if content.header != header {
 		content.header = header
 		content.markDirty()
 	}
 }
 
-func (content *MarkdownContent) findBottomMetadataGroup(lines []string) int {
+func (content *Content) findBottomMetadataGroup(lines []string) int {
 	metadataGroupIndex := -1
 	for i := len(lines) - 1; i >= 0; i-- {
 		if metadataGroupRe.MatchString(strings.ToLower(lines[i])) {
@@ -353,4 +349,30 @@ func (content *MarkdownContent) findBottomMetadataGroup(lines []string) int {
 		}
 	}
 	return metadataGroupIndex
+}
+
+func (content *Content) IsDirty() bool {
+	return content.isDirty
+}
+
+func (content *Content) ContentPath() string {
+	return content.contentPath
+}
+
+func (content *Content) SetContentPath(contentPath string) {
+	content.contentPath = contentPath
+}
+
+func (content *Content) Metadata() *Metadata {
+	return content.metadata
+}
+
+func (content *Content) FreeText() []string {
+	return content.freeText
+}
+
+func (content *Content) SortGroups(less func(group1, group2 *Group, i, j int) bool) {
+	sort.Slice(content.groups, func(i, j int) bool {
+		return less(content.groups[i], content.groups[j], i, j)
+	})
 }

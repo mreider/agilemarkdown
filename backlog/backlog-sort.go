@@ -56,7 +56,7 @@ func (s *BacklogItemsSorter) updateSortedItems(overview *BacklogOverview, sorted
 			}
 			continue
 		}
-		for _, line := range group.lines {
+		for _, line := range group.Lines() {
 			matches := overviewItemRe.FindStringSubmatch(line)
 			if len(matches) > 0 {
 				itemPath := matches[1]

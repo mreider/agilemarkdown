@@ -5,22 +5,23 @@ import (
 	"github.com/mreider/agilemarkdown/utils"
 	"path/filepath"
 	"regexp"
+	"github.com/mreider/agilemarkdown/markdown"
 )
 
 type GlobalIndex struct {
-	markdown *MarkdownContent
+	markdown *markdown.Content
 }
 
 func LoadGlobalIndex(indexPath string) (*GlobalIndex, error) {
-	markdown, err := LoadMarkdown(indexPath, nil, nil, "## ", regexp.MustCompile(`^\|.*`))
+	content, err := markdown.LoadMarkdown(indexPath, nil, nil, "## ", regexp.MustCompile(`^\|.*`))
 	if err != nil {
 		return nil, err
 	}
-	return NewGlobalIndex(markdown), nil
+	return NewGlobalIndex(content), nil
 }
 
-func NewGlobalIndex(markdown *MarkdownContent) *GlobalIndex {
-	return &GlobalIndex{markdown}
+func NewGlobalIndex(content *markdown.Content) *GlobalIndex {
+	return &GlobalIndex{content}
 }
 
 func (index *GlobalIndex) Save() error {
@@ -28,7 +29,7 @@ func (index *GlobalIndex) Save() error {
 }
 
 func (index *GlobalIndex) FreeText() []string {
-	return index.markdown.freeText
+	return index.markdown.FreeText()
 }
 
 func (index *GlobalIndex) SetFreeText(freeText []string) {
@@ -50,13 +51,13 @@ func (index *GlobalIndex) UpdateBacklogs(overviews []*BacklogOverview, archives 
 		lines = append(lines, line)
 	}
 
-	index.markdown.removeGroup("Backlogs")
+	index.markdown.RemoveGroup("Backlogs")
 	index.SetFooter(lines)
 	index.Save()
 }
 
 func (index *GlobalIndex) UpdateLinks(rootDir string) {
-	links := MakeStandardLinks(rootDir, filepath.Dir(index.markdown.contentPath))
+	links := MakeStandardLinks(rootDir, filepath.Dir(index.markdown.ContentPath()))
 	index.markdown.SetLinks(utils.JoinMarkdownLinks(links...))
 	index.Save()
 }

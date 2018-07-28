@@ -8,8 +8,8 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"sort"
 	"strings"
+	"github.com/mreider/agilemarkdown/markdown"
 )
 
 var (
@@ -18,23 +18,23 @@ var (
 )
 
 type BacklogOverview struct {
-	markdown *MarkdownContent
+	markdown *markdown.Content
 }
 
 func LoadBacklogOverview(overviewPath string) (*BacklogOverview, error) {
-	markdown, err := LoadMarkdown(overviewPath, nil, nil, "### ", OverviewFooterRe)
+	content, err := markdown.LoadMarkdown(overviewPath, nil, nil, "### ", OverviewFooterRe)
 	if err != nil {
 		return nil, err
 	}
-	return NewBacklogOverview(markdown), nil
+	return NewBacklogOverview(content), nil
 }
 
-func NewBacklogOverview(markdown *MarkdownContent) *BacklogOverview {
-	return &BacklogOverview{markdown}
+func NewBacklogOverview(content *markdown.Content) *BacklogOverview {
+	return &BacklogOverview{content}
 }
 
 func (overview *BacklogOverview) Save() error {
-	if overview.markdown.isDirty {
+	if overview.markdown.IsDirty() {
 		overview.sortGroupsByStatus()
 	}
 	return overview.markdown.Save()
@@ -69,7 +69,7 @@ func (overview *BacklogOverview) Update(items []*BacklogItem, sorter *BacklogIte
 		group := overview.markdown.Group(title)
 		isNewGroup := false
 		if group == nil {
-			group = &MarkdownGroup{content: overview.markdown, title: title}
+			group = markdown.NewGroup(overview.markdown, title, nil)
 			isNewGroup = true
 		}
 		items := make([]*BacklogItem, 0, len(statusItems))
@@ -81,9 +81,9 @@ func (overview *BacklogOverview) Update(items []*BacklogItem, sorter *BacklogIte
 		}
 		if len(items) > 0 || !overview.markdown.HideEmptyGroups || !isNewGroup {
 			if isNewGroup {
-				overview.markdown.addGroup(group)
+				overview.markdown.AddGroup(group)
 			}
-			rootDir := filepath.Dir(overview.markdown.contentPath)
+			rootDir := filepath.Dir(overview.markdown.ContentPath())
 			newLines := BacklogView{}.WriteMarkdownItems(items, status, rootDir, filepath.Join(rootDir, TagsDirectoryName))
 			group.ReplaceLines(newLines)
 		}
@@ -114,8 +114,8 @@ NextStatus:
 }
 
 func (overview *BacklogOverview) sortGroupsByStatus() {
-	sort.Slice(overview.markdown.groups, func(i, j int) bool {
-		iStatus, jStatus := StatusByName(overview.markdown.groups[i].title), StatusByName(overview.markdown.groups[j].title)
+	overview.markdown.SortGroups(func(group1, group2 *markdown.Group, i, j int) bool {
+		iStatus, jStatus := StatusByName(group1.Title()), StatusByName(group2.Title())
 		iIndex, jIndex := int(math.MaxInt32), int(math.MaxInt32)
 		if iStatus != nil {
 			iIndex = StatusIndex(iStatus)
@@ -151,16 +151,16 @@ func (overview *BacklogOverview) UpdateLinks(lastLinkTitle, lastLinkPath, rootDi
 }
 
 func (overview *BacklogOverview) UpdateItemLinkInOverviewFile(prevItemPath, newItemPath string) error {
-	data, err := ioutil.ReadFile(overview.markdown.contentPath)
+	data, err := ioutil.ReadFile(overview.markdown.ContentPath())
 	if err != nil {
 		return err
 	}
-	info, err := os.Stat(overview.markdown.contentPath)
+	info, err := os.Stat(overview.markdown.ContentPath())
 	if err != nil {
 		return err
 	}
-	baseDir := filepath.Dir(overview.markdown.contentPath)
+	baseDir := filepath.Dir(overview.markdown.ContentPath())
 	newData := strings.Replace(string(data), fmt.Sprintf("(%s)", utils.GetMarkdownLinkPath(prevItemPath, baseDir)), fmt.Sprintf("(%s)", utils.GetMarkdownLinkPath(newItemPath, baseDir)), -1)
-	err = ioutil.WriteFile(overview.markdown.contentPath, []byte(newData), info.Mode())
+	err = ioutil.WriteFile(overview.markdown.ContentPath(), []byte(newData), info.Mode())
 	return err
 }

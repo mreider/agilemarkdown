@@ -3,6 +3,7 @@ package backlog
 import (
 	"strings"
 	"unicode"
+	"github.com/mreider/agilemarkdown/markdown"
 )
 
 type Commented interface {
@@ -32,17 +33,17 @@ func (c *Comment) AddLine(line string) {
 }
 
 type MarkdownComments struct {
-	markdown *MarkdownContent
+	markdown *markdown.Content
 }
 
-func NewMarkdownComments(markdown *MarkdownContent) *MarkdownComments {
-	return &MarkdownComments{markdown: markdown}
+func NewMarkdownComments(content *markdown.Content) *MarkdownComments {
+	return &MarkdownComments{markdown: content}
 }
 
 func (c *MarkdownComments) Comments() []*Comment {
 	commentsStartIndex := -1
-	for i := len(c.markdown.freeText) - 1; i >= 0; i-- {
-		if commentsTitleRe.MatchString(c.markdown.freeText[i]) {
+	for i := len(c.markdown.FreeText()) - 1; i >= 0; i-- {
+		if commentsTitleRe.MatchString(c.markdown.FreeText()[i]) {
 			commentsStartIndex = i + 1
 			break
 		}
@@ -53,11 +54,11 @@ func (c *MarkdownComments) Comments() []*Comment {
 
 	comments := make([]*Comment, 0)
 	var comment *Comment
-	for i := commentsStartIndex; i < len(c.markdown.freeText); i++ {
-		line := strings.TrimRightFunc(c.markdown.freeText[i], unicode.IsSpace)
+	for i := commentsStartIndex; i < len(c.markdown.FreeText()); i++ {
+		line := strings.TrimRightFunc(c.markdown.FreeText()[i], unicode.IsSpace)
 		if line == "" {
 			if comment != nil {
-				comment.rawText = append(comment.rawText, c.markdown.freeText[i])
+				comment.rawText = append(comment.rawText, c.markdown.FreeText()[i])
 			}
 			continue
 		}
@@ -91,7 +92,7 @@ func (c *MarkdownComments) Comments() []*Comment {
 			if text != "" {
 				comment.Text = append(comment.Text, text)
 			}
-			comment.rawText = append(comment.rawText, c.markdown.freeText[i])
+			comment.rawText = append(comment.rawText, c.markdown.FreeText()[i])
 		} else {
 			if comment != nil {
 				line := strings.TrimSpace(line)
@@ -101,7 +102,7 @@ func (c *MarkdownComments) Comments() []*Comment {
 					comment.Unsent = true
 				}
 				comment.Text = append(comment.Text, line)
-				comment.rawText = append(comment.rawText, c.markdown.freeText[i])
+				comment.rawText = append(comment.rawText, c.markdown.FreeText()[i])
 			}
 		}
 	}
@@ -113,8 +114,8 @@ func (c *MarkdownComments) Comments() []*Comment {
 
 func (c *MarkdownComments) UpdateComments(comments []*Comment) {
 	commentsStartIndex := -1
-	for i := len(c.markdown.freeText) - 1; i >= 0; i-- {
-		if commentsTitleRe.MatchString(c.markdown.freeText[i]) {
+	for i := len(c.markdown.FreeText()) - 1; i >= 0; i-- {
+		if commentsTitleRe.MatchString(c.markdown.FreeText()[i]) {
 			commentsStartIndex = i + 1
 			break
 		}
@@ -123,24 +124,24 @@ func (c *MarkdownComments) UpdateComments(comments []*Comment) {
 		return
 	}
 
-	for commentsStartIndex < len(c.markdown.freeText) && strings.TrimSpace(c.markdown.freeText[commentsStartIndex]) == "" {
+	for commentsStartIndex < len(c.markdown.FreeText()) && strings.TrimSpace(c.markdown.FreeText()[commentsStartIndex]) == "" {
 		commentsStartIndex++
 	}
 
 	commentsFinishIndex := commentsStartIndex
-	for i := commentsStartIndex; i < len(c.markdown.freeText); i++ {
-		line := strings.TrimRightFunc(c.markdown.freeText[i], unicode.IsSpace)
+	for i := commentsStartIndex; i < len(c.markdown.FreeText()); i++ {
+		line := strings.TrimRightFunc(c.markdown.FreeText()[i], unicode.IsSpace)
 		commentsFinishIndex = i
 		if strings.HasPrefix(line, "#") {
 			break
 		}
 	}
 
-	newFreeText := make([]string, 0, len(c.markdown.freeText))
-	newFreeText = append(newFreeText, c.markdown.freeText[:commentsStartIndex]...)
+	newFreeText := make([]string, 0, len(c.markdown.FreeText()))
+	newFreeText = append(newFreeText, c.markdown.FreeText()[:commentsStartIndex]...)
 	for _, comment := range comments {
 		newFreeText = append(newFreeText, comment.rawText...)
 	}
-	newFreeText = append(newFreeText, c.markdown.freeText[commentsFinishIndex:]...)
+	newFreeText = append(newFreeText, c.markdown.FreeText()[commentsFinishIndex:]...)
 	c.markdown.SetFreeText(newFreeText)
 }
