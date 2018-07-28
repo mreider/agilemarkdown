@@ -57,11 +57,13 @@ func TestOverviewUpdate(t *testing.T) {
 |---|---|:---:|---|
 | mike | [First story](Story1) | 10 |  |
 |  | [Story 5](Story5) | 20 |  |
+| Total Points | | 30 | |
 
 ### Planned
 | User | Title | Points | Tags |
 |---|---|:---:|---|
 |  | [Story 7](Story7) |  |  |
+| Total Points | | 0 | |
 
 ### Unplanned
 | User | Title | Points | Tags |

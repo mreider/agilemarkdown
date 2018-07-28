@@ -14,8 +14,10 @@ import (
 type BacklogView struct {
 }
 
-func (bv BacklogView) WriteAsciiItems(items []*BacklogItem, title string, withOrderNumber bool) []string {
+func (bv BacklogView) WriteAsciiItems(items []*BacklogItem, status *BacklogItemStatus, withOrderNumber bool, withTotalPoints bool) []string {
+	title := fmt.Sprintf("Status: %s", status.Name)
 	userHeader, titleHeader, pointsHeader, tagsHeader := "User", "Title", "Points", "Tags"
+	totalPointsCell := "Total Points"
 	maxAssignedLen, maxTitleLen, maxTagsLen := len(userHeader), len(titleHeader), len(tagsHeader)
 	for _, item := range items {
 		if len(item.Assigned()) > maxAssignedLen {
@@ -28,6 +30,9 @@ func (bv BacklogView) WriteAsciiItems(items []*BacklogItem, title string, withOr
 		if len(tags) > maxTagsLen {
 			maxTagsLen = len(tags)
 		}
+	}
+	if maxAssignedLen < len(totalPointsCell) {
+		maxAssignedLen = len(totalPointsCell)
 	}
 
 	result := make([]string, 0, 50)
@@ -44,8 +49,11 @@ func (bv BacklogView) WriteAsciiItems(items []*BacklogItem, title string, withOr
 		headers[2] = "------" + headers[2]
 	}
 	result = append(result, headers...)
+	totalPoints := 0.0
 	for i, item := range items {
 		estimate, _ := strconv.ParseFloat(item.Estimate(), 64)
+		totalPoints += estimate
+
 		estimateStr := utils.PadIntLeft(int(estimate), len(pointsHeader))
 		if estimate == 0 {
 			estimateStr = strings.Repeat(" ", len(pointsHeader))
@@ -58,6 +66,24 @@ func (bv BacklogView) WriteAsciiItems(items []*BacklogItem, title string, withOr
 		result = append(result, line)
 	}
 	if len(items) > 0 {
+		if bv.needTotalPoints(status) {
+			splitter := fmt.Sprintf("-%s---%s---%s---%s-", strings.Repeat("-", maxAssignedLen), strings.Repeat("-", maxTitleLen), strings.Repeat("-", len(pointsHeader)), strings.Repeat("-", maxTagsLen))
+			if withOrderNumber {
+				splitter = "------" + splitter
+			}
+			result = append(result, splitter)
+
+			totalPointsStr := utils.PadIntLeft(int(totalPoints), len(pointsHeader))
+			if totalPoints == 0 {
+				totalPointsStr = strings.Repeat(" ", len(pointsHeader))
+			}
+			line := fmt.Sprintf(" %s | %s | %s | %s ", utils.PadStringRight(totalPointsCell, maxAssignedLen), utils.PadStringRight("", maxTitleLen), totalPointsStr, utils.PadStringRight("", maxTagsLen))
+			if withOrderNumber {
+				line = " |" + line
+			}
+			result = append(result, line)
+		}
+
 		footer := fmt.Sprintf("-%s---%s---%s---%s-", strings.Repeat("-", maxAssignedLen), strings.Repeat("-", maxTitleLen), strings.Repeat("-", len(pointsHeader)), strings.Repeat("-", maxTagsLen))
 		if withOrderNumber {
 			footer = "------" + footer
@@ -128,27 +154,41 @@ func (bv BacklogView) WriteAsciiItemsWithProjectAndStatus(items []*BacklogItem, 
 	return result
 }
 
-func (bv BacklogView) WriteMarkdownItems(items []*BacklogItem, baseDir, tagsDir string) []string {
+func (bv BacklogView) WriteMarkdownItems(items []*BacklogItem, status *BacklogItemStatus, baseDir, tagsDir string) []string {
 	result := make([]string, 0, 50)
 	headers := make([]string, 0, 2)
 	headers = append(headers, fmt.Sprintf("| User | Title | Points | Tags |"))
 	headers = append(headers, "|---|---|:---:|---|")
 	result = append(result, headers...)
+	totalPoints := 0.0
 	for _, item := range items {
+		points, _ := strconv.ParseFloat(item.Estimate(), 64)
+		totalPoints += points
 		line := fmt.Sprintf("| %s | %s | %s | %s |", item.Assigned(), MakeItemLink(item, baseDir), item.Estimate(), MakeTagLinks(item.Tags(), tagsDir, baseDir))
+		result = append(result, line)
+	}
+	if bv.needTotalPoints(status) && len(items) > 0 {
+		line := fmt.Sprintf("| Total Points | | %d | |", int(totalPoints))
 		result = append(result, line)
 	}
 	return result
 }
 
-func (bv BacklogView) WriteMarkdownItemsWithProject(overviews map[*BacklogItem]*BacklogOverview, items []*BacklogItem, baseDir, tagsDir string) []string {
+func (bv BacklogView) WriteMarkdownItemsWithProject(overviews map[*BacklogItem]*BacklogOverview, items []*BacklogItem, status *BacklogItemStatus, baseDir, tagsDir string) []string {
 	result := make([]string, 0, 50)
 	headers := make([]string, 0, 2)
 	headers = append(headers, fmt.Sprintf("| User | Project | Title | Points | Tags |"))
 	headers = append(headers, "|---|---|---|:---:|---|")
 	result = append(result, headers...)
+	totalPoints := 0.0
 	for _, item := range items {
+		points, _ := strconv.ParseFloat(item.Estimate(), 64)
+		totalPoints += points
 		line := fmt.Sprintf("| %s | %s | %s | %s | %s |", item.Assigned(), MakeOverviewLink(overviews[item], baseDir), MakeItemLink(item, baseDir), item.Estimate(), MakeTagLinks(item.Tags(), tagsDir, baseDir))
+		result = append(result, line)
+	}
+	if bv.needTotalPoints(status) && len(items) > 0 {
+		line := fmt.Sprintf("| Total Points | | | %d | |", int(totalPoints))
 		result = append(result, line)
 	}
 	return result
@@ -160,8 +200,18 @@ func (bv BacklogView) WriteMarkdownItemsWithProjectAndStatus(overviews map[*Back
 	headers = append(headers, fmt.Sprintf("| User | Project | Title | Status | Points | Tags |"))
 	headers = append(headers, "|---|---|---|---|:---:|---|")
 	result = append(result, headers...)
+	totalPoints := 0.0
 	for _, item := range items {
+		itemStatus := StatusByName(item.Status())
+		if bv.needTotalPoints(itemStatus) {
+			points, _ := strconv.ParseFloat(item.Estimate(), 64)
+			totalPoints += points
+		}
 		line := fmt.Sprintf("| %s | %s | %s | %s | %s | %s |", item.Assigned(), MakeOverviewLink(overviews[item], baseDir), MakeItemLink(item, baseDir), item.Status(), item.Estimate(), MakeTagLinks(item.Tags(), tagsDir, baseDir))
+		result = append(result, line)
+	}
+	if len(items) > 0 {
+		line := fmt.Sprintf("| Total Points (doing/planned) | | | | %d | |", int(totalPoints))
 		result = append(result, line)
 	}
 	return result
@@ -275,4 +325,8 @@ func (bv BacklogView) WriteMarkdownIdeas(ideas []*BacklogIdea, baseDir, tagsDir 
 		result = append(result, line)
 	}
 	return result
+}
+
+func (bv BacklogView) needTotalPoints(status *BacklogItemStatus) bool {
+	return status == DoingStatus || status == PlannedStatus
 }
