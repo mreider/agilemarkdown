@@ -473,7 +473,7 @@ func (a *SyncAction) updateTagPage(rootDir, tagsDir, tag string, items []*backlo
 			continue
 		}
 		lines = append(lines, fmt.Sprintf("## %s", status.CapitalizedName()))
-		itemsLines := backlog.BacklogView{}.WriteMarkdownItemsWithProject(overviews, statusItems, tagsDir, tagsDir)
+		itemsLines := backlog.BacklogView{}.WriteMarkdownItemsWithProject(overviews, statusItems, status, tagsDir, tagsDir)
 		lines = append(lines, itemsLines...)
 		lines = append(lines, "")
 	}

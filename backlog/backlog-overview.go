@@ -84,7 +84,7 @@ func (overview *BacklogOverview) Update(items []*BacklogItem, sorter *BacklogIte
 				overview.markdown.addGroup(group)
 			}
 			rootDir := filepath.Dir(overview.markdown.contentPath)
-			newLines := BacklogView{}.WriteMarkdownItems(items, rootDir, filepath.Join(rootDir, TagsDirectoryName))
+			newLines := BacklogView{}.WriteMarkdownItems(items, status, rootDir, filepath.Join(rootDir, TagsDirectoryName))
 			group.ReplaceLines(newLines)
 		}
 	}

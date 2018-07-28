@@ -111,7 +111,7 @@ func showBacklogItems(c *cli.Context) ([]*backlog.BacklogItem, error) {
 
 	sorter := backlog.NewBacklogItemsSorter(overview, archive)
 	sorter.SortItemsByStatus(status, items)
-	lines := backlog.BacklogView{}.WriteAsciiItems(items, fmt.Sprintf("Status: %s", status.Name), true)
+	lines := backlog.BacklogView{}.WriteAsciiItems(items, status, true, false)
 	for _, line := range lines {
 		fmt.Println(line)
 	}
