@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	"github.com/mreider/agilemarkdown/markdown"
 )
 
 const (
@@ -26,33 +27,33 @@ var (
 	commentUserSeparatorRe         = regexp.MustCompile(`[\s,;]+`)
 	BacklogItemTimelineMetadataKey = regexp.MustCompile(`(?i)^Timeline\s+([-\w]+)$`)
 	topBacklogItemMetadataKeys     = []*regexp.Regexp{
-		AllowedKeyAsRegex(BacklogItemFinishedMetadataKey), AllowedKeyAsRegex(BacklogItemTagsMetadataKey),
-		AllowedKeyAsRegex(BacklogItemStatusMetadataKey), AllowedKeyAsRegex(BacklogItemAssignedMetadataKey),
-		AllowedKeyAsRegex(BacklogItemEstimateMetadataKey), AllowedKeyAsRegex(BacklogItemArchiveMetadataKey),
+		markdown.AllowedKeyAsRegex(BacklogItemFinishedMetadataKey), markdown.AllowedKeyAsRegex(BacklogItemTagsMetadataKey),
+		markdown.AllowedKeyAsRegex(BacklogItemStatusMetadataKey), markdown.AllowedKeyAsRegex(BacklogItemAssignedMetadataKey),
+		markdown.AllowedKeyAsRegex(BacklogItemEstimateMetadataKey), markdown.AllowedKeyAsRegex(BacklogItemArchiveMetadataKey),
 		BacklogItemTimelineMetadataKey}
 	bottomBacklogItemMetadataKeys = []*regexp.Regexp{
-		AllowedKeyAsRegex(CreatedMetadataKey), AllowedKeyAsRegex(ModifiedMetadataKey),
-		AllowedKeyAsRegex(BacklogItemAuthorMetadataKey)}
+		markdown.AllowedKeyAsRegex(CreatedMetadataKey), markdown.AllowedKeyAsRegex(ModifiedMetadataKey),
+		markdown.AllowedKeyAsRegex(BacklogItemAuthorMetadataKey)}
 )
 
 type BacklogItem struct {
 	name     string
-	markdown *MarkdownContent
+	markdown *markdown.Content
 }
 
 func LoadBacklogItem(itemPath string) (*BacklogItem, error) {
-	markdown, err := LoadMarkdown(itemPath, topBacklogItemMetadataKeys, bottomBacklogItemMetadataKeys, "", nil)
+	content, err := markdown.LoadMarkdown(itemPath, topBacklogItemMetadataKeys, bottomBacklogItemMetadataKeys, "", nil)
 	if err != nil {
 		return nil, err
 	}
 	name := filepath.Base(itemPath)
 	name = strings.TrimSuffix(name, filepath.Ext(name))
-	return &BacklogItem{name, markdown}, nil
+	return &BacklogItem{name, content}, nil
 }
 
 func NewBacklogItem(name string, markdownData string) *BacklogItem {
-	markdown := NewMarkdown(markdownData, "", topBacklogItemMetadataKeys, bottomBacklogItemMetadataKeys, "", nil)
-	return &BacklogItem{name, markdown}
+	content := markdown.NewMarkdown(markdownData, "", topBacklogItemMetadataKeys, bottomBacklogItemMetadataKeys, "", nil)
+	return &BacklogItem{name, content}
 }
 
 func (item *BacklogItem) Save() error {
@@ -204,37 +205,37 @@ func (item *BacklogItem) SetArchived(archived bool) {
 }
 
 func (item *BacklogItem) MoveToBacklogDirectory() error {
-	markdownDir := filepath.Dir(item.markdown.contentPath)
+	markdownDir := filepath.Dir(item.markdown.ContentPath())
 	if filepath.Base(markdownDir) == ArchiveDirectoryName {
-		newContentPath := filepath.Join(filepath.Dir(markdownDir), filepath.Base(item.markdown.contentPath))
-		err := os.Rename(item.markdown.contentPath, newContentPath)
+		newContentPath := filepath.Join(filepath.Dir(markdownDir), filepath.Base(item.markdown.ContentPath()))
+		err := os.Rename(item.markdown.ContentPath(), newContentPath)
 		if err != nil {
 			return err
 		}
-		item.markdown.contentPath = newContentPath
+		item.markdown.SetContentPath(newContentPath)
 	}
 	return nil
 }
 
 func (item *BacklogItem) MoveToBacklogArchiveDirectory() error {
-	markdownDir := filepath.Dir(item.markdown.contentPath)
+	markdownDir := filepath.Dir(item.markdown.ContentPath())
 	if filepath.Base(markdownDir) != ArchiveDirectoryName {
-		newContentPath := filepath.Join(markdownDir, ArchiveDirectoryName, filepath.Base(item.markdown.contentPath))
+		newContentPath := filepath.Join(markdownDir, ArchiveDirectoryName, filepath.Base(item.markdown.ContentPath()))
 		os.MkdirAll(filepath.Dir(newContentPath), 0777)
-		err := os.Rename(item.markdown.contentPath, newContentPath)
+		err := os.Rename(item.markdown.ContentPath(), newContentPath)
 		if err != nil {
 			return err
 		}
-		item.markdown.contentPath = newContentPath
+		item.markdown.SetContentPath(newContentPath)
 	}
 	return nil
 }
 
 func (item *BacklogItem) UpdateLinks(rootDir string, overviewPath, archivePath string) {
-	links := MakeStandardLinks(rootDir, filepath.Dir(item.markdown.contentPath))
-	links = append(links, utils.MakeMarkdownLink("project page", overviewPath, filepath.Dir(item.markdown.contentPath)))
+	links := MakeStandardLinks(rootDir, filepath.Dir(item.markdown.ContentPath()))
+	links = append(links, utils.MakeMarkdownLink("project page", overviewPath, filepath.Dir(item.markdown.ContentPath())))
 	if _, err := os.Stat(archivePath); err == nil {
-		links = append(links, utils.MakeMarkdownLink("archive", archivePath, filepath.Dir(item.markdown.contentPath)))
+		links = append(links, utils.MakeMarkdownLink("archive", archivePath, filepath.Dir(item.markdown.ContentPath())))
 	}
 
 	item.markdown.SetLinks(utils.JoinMarkdownLinks(links...))
@@ -246,11 +247,11 @@ func (item *BacklogItem) Content() []byte {
 }
 
 func (item *BacklogItem) Links() string {
-	return item.markdown.links
+	return item.markdown.Links()
 }
 
 func (item *BacklogItem) Header() string {
-	return item.markdown.header
+	return item.markdown.Header()
 }
 
 func (item *BacklogItem) SetHeader(header string) {
@@ -259,5 +260,5 @@ func (item *BacklogItem) SetHeader(header string) {
 }
 
 func (item *BacklogItem) Path() string {
-	return item.markdown.contentPath
+	return item.markdown.ContentPath()
 }

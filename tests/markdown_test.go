@@ -5,6 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"regexp"
 	"testing"
+	"github.com/mreider/agilemarkdown/markdown"
 )
 
 const (
@@ -41,7 +42,7 @@ Data2: test2
 )
 
 func TestMarkdownLoad(t *testing.T) {
-	content := backlog.NewMarkdown(markdownData, "", []*regexp.Regexp{backlog.AllowedKeyAsRegex("Data")}, []*regexp.Regexp{backlog.AllowedKeyAsRegex("Data2")}, "### ", backlog.OverviewFooterRe)
+	content := markdown.NewMarkdown(markdownData, "", []*regexp.Regexp{markdown.AllowedKeyAsRegex("Data")}, []*regexp.Regexp{markdown.AllowedKeyAsRegex("Data2")}, "### ", backlog.OverviewFooterRe)
 	assert.Equal(t, "Test backlog", content.Title())
 	assert.Equal(t, "Root: qwerty", content.Header())
 	assert.Equal(t, "[title1](link1) [title2](link2)", content.Links())
@@ -99,7 +100,7 @@ footer2
 Data2: test2  
 `
 
-	content := backlog.NewMarkdown(markdownData, "", []*regexp.Regexp{backlog.AllowedKeyAsRegex("Data")}, []*regexp.Regexp{backlog.AllowedKeyAsRegex("Data2")}, "### ", backlog.OverviewFooterRe)
+	content := markdown.NewMarkdown(markdownData, "", []*regexp.Regexp{markdown.AllowedKeyAsRegex("Data")}, []*regexp.Regexp{markdown.AllowedKeyAsRegex("Data2")}, "### ", backlog.OverviewFooterRe)
 	content.SetTitle("New backlog")
 	content.SetHeader("Test: header")
 	content.SetLinks("[title1](link1) [title22](link22) [title3](link3)")

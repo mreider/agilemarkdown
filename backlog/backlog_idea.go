@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strings"
 	"time"
+	"github.com/mreider/agilemarkdown/markdown"
 )
 
 const (
@@ -23,14 +24,15 @@ var (
 
 type BacklogIdea struct {
 	name     string
-	markdown *MarkdownContent
+	markdown *markdown.Content
 }
 
 func LoadBacklogIdea(ideaPath string) (*BacklogIdea, error) {
-	markdown, err := LoadMarkdown(ideaPath,
+	content, err := markdown.LoadMarkdown(ideaPath,
 		[]*regexp.Regexp{
-			AllowedKeyAsRegex(CreatedMetadataKey), AllowedKeyAsRegex(ModifiedMetadataKey), AllowedKeyAsRegex(BacklogIdeaAuthorMetadataKey),
-			AllowedKeyAsRegex(BacklogIdeaTagsMetadataKey), AllowedKeyAsRegex(BacklogIdeaRankMetadataKey)},
+			markdown.AllowedKeyAsRegex(CreatedMetadataKey), markdown.AllowedKeyAsRegex(ModifiedMetadataKey),
+			markdown.AllowedKeyAsRegex(BacklogIdeaAuthorMetadataKey), markdown.AllowedKeyAsRegex(BacklogIdeaTagsMetadataKey),
+			markdown.AllowedKeyAsRegex(BacklogIdeaRankMetadataKey)},
 		nil,
 		"", RelatedItemsRegex)
 	if err != nil {
@@ -38,7 +40,7 @@ func LoadBacklogIdea(ideaPath string) (*BacklogIdea, error) {
 	}
 	name := filepath.Base(ideaPath)
 	name = strings.TrimSuffix(name, filepath.Ext(name))
-	return &BacklogIdea{name, markdown}, nil
+	return &BacklogIdea{name, content}, nil
 }
 
 func (idea *BacklogIdea) Save() error {
@@ -50,7 +52,7 @@ func (idea *BacklogIdea) Name() string {
 }
 
 func (idea *BacklogIdea) HasMetadata() bool {
-	return !idea.markdown.metadata.BottomEmpty() || !idea.markdown.metadata.TopEmpty()
+	return !idea.markdown.Metadata().BottomEmpty() || !idea.markdown.Metadata().TopEmpty()
 }
 
 func (idea *BacklogIdea) Title() string {
@@ -113,7 +115,7 @@ func (idea *BacklogIdea) SetText(text string) {
 }
 
 func (idea *BacklogIdea) Text() string {
-	return strings.Join(idea.markdown.freeText, "\n")
+	return strings.Join(idea.markdown.FreeText(), "\n")
 }
 
 func LoadIdeas(ideasDir string) ([]*BacklogIdea, error) {
@@ -148,11 +150,11 @@ func LoadIdeas(ideasDir string) ([]*BacklogIdea, error) {
 }
 
 func (idea *BacklogIdea) Path() string {
-	return idea.markdown.contentPath
+	return idea.markdown.ContentPath()
 }
 
 func (idea *BacklogIdea) UpdateLinks(rootDir string) {
-	links := MakeStandardLinks(rootDir, filepath.Dir(idea.markdown.contentPath))
+	links := MakeStandardLinks(rootDir, filepath.Dir(idea.markdown.ContentPath()))
 	idea.markdown.SetLinks(utils.JoinMarkdownLinks(links...))
 	idea.Save()
 }

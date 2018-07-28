@@ -6,22 +6,23 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"github.com/mreider/agilemarkdown/markdown"
 )
 
 type Velocity struct {
-	markdown *MarkdownContent
+	markdown *markdown.Content
 }
 
 func LoadGlobalVelocity(velocityPath string) (*Velocity, error) {
-	markdown, err := LoadMarkdown(velocityPath, nil, nil, "", nil)
+	content, err := markdown.LoadMarkdown(velocityPath, nil, nil, "", nil)
 	if err != nil {
 		return nil, err
 	}
-	return NewGlobalVelocity(markdown), nil
+	return NewGlobalVelocity(content), nil
 }
 
-func NewGlobalVelocity(markdown *MarkdownContent) *Velocity {
-	return &Velocity{markdown}
+func NewGlobalVelocity(content *markdown.Content) *Velocity {
+	return &Velocity{content}
 }
 
 func (velocity *Velocity) Save() error {
@@ -73,7 +74,7 @@ func (velocity *Velocity) generateVelocityImage(backlogDir string, bck *Backlog,
 }
 
 func (velocity *Velocity) UpdateLinks(rootDir string) {
-	links := MakeStandardLinks(rootDir, filepath.Dir(velocity.markdown.contentPath))
+	links := MakeStandardLinks(rootDir, filepath.Dir(velocity.markdown.ContentPath()))
 	velocity.markdown.SetLinks(utils.JoinMarkdownLinks(links...))
 	velocity.Save()
 }

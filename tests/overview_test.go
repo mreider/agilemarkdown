@@ -5,6 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"regexp"
 	"testing"
+	"github.com/mreider/agilemarkdown/markdown"
 )
 
 const (
@@ -35,11 +36,11 @@ Data2: test2
 )
 
 func TestOverviewCreate(t *testing.T) {
-	markdown := backlog.NewMarkdown(markdownOverviewData, "",
-		[]*regexp.Regexp{backlog.AllowedKeyAsRegex("Title"), backlog.AllowedKeyAsRegex("Data")},
-		[]*regexp.Regexp{backlog.AllowedKeyAsRegex("Data2")},
+	content := markdown.NewMarkdown(markdownOverviewData, "",
+		[]*regexp.Regexp{markdown.AllowedKeyAsRegex("Title"), markdown.AllowedKeyAsRegex("Data")},
+		[]*regexp.Regexp{markdown.AllowedKeyAsRegex("Data2")},
 		"### ", backlog.OverviewFooterRe)
-	overview := backlog.NewBacklogOverview(markdown)
+	overview := backlog.NewBacklogOverview(content)
 	sorter := backlog.NewBacklogItemsSorter(overview)
 	itemsByStatus := sorter.SortedItemsByStatus()
 	assert.Equal(t, 4, len(itemsByStatus))
@@ -84,11 +85,11 @@ func TestOverviewUpdate(t *testing.T) {
 Data2: test2  
 `
 
-	markdown := backlog.NewMarkdown(markdownOverviewData, "",
-		[]*regexp.Regexp{backlog.AllowedKeyAsRegex("Title"), backlog.AllowedKeyAsRegex("Data")},
-		[]*regexp.Regexp{backlog.AllowedKeyAsRegex("Data2")},
+	content := markdown.NewMarkdown(markdownOverviewData, "",
+		[]*regexp.Regexp{markdown.AllowedKeyAsRegex("Title"), markdown.AllowedKeyAsRegex("Data")},
+		[]*regexp.Regexp{markdown.AllowedKeyAsRegex("Data2")},
 		"### ", backlog.OverviewFooterRe)
-	overview := backlog.NewBacklogOverview(markdown)
+	overview := backlog.NewBacklogOverview(content)
 	sorter := backlog.NewBacklogItemsSorter(overview)
 	overview.SetTitle("New backlog")
 

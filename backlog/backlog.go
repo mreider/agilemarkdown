@@ -7,6 +7,11 @@ import (
 	"strings"
 )
 
+const (
+	CreatedMetadataKey  = "Created"
+	ModifiedMetadataKey = "Modified"
+)
+
 var (
 	IndexFileName         = "index.md"
 	VelocityFileName      = "velocity.md"
