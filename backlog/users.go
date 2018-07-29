@@ -1,4 +1,4 @@
-package users
+package backlog
 
 import (
 	"fmt"
@@ -15,45 +15,27 @@ type UserList struct {
 	users    []*User
 }
 
-type User struct {
-	userFile string
-	name     string
-	email    string
-}
-
-func (u *User) Name() string {
-	return u.name
-}
-
-func (u *User) Email() string {
-	return u.email
-}
-
-func (u *User) Nick() string {
-	if u.email == "" {
-		return strings.Replace(u.name, " ", ".", -1)
-	}
-
-	parts := strings.SplitN(u.email, "@", 2)
-	return parts[0]
-}
-
 func NewUserList(usersDir string) *UserList {
 	userList := &UserList{usersDir: usersDir}
-	userList.init()
-	userList.load()
+	if usersDir != "" {
+		userList.fixObsoleteUserFiles()
+		userList.init()
+		userList.load()
+		userList.initGitUsers()
+		userList.load()
+	}
 	return userList
 }
 
 func (ul *UserList) User(nameOrNickOrEmail string) *User {
 	nameOrNickOrEmail = strings.ToLower(utils.CollapseWhiteSpaces(nameOrNickOrEmail))
 	for _, user := range ul.users {
-		if strings.ToLower(user.email) == nameOrNickOrEmail {
+		if strings.ToLower(user.PrimaryEmail()) == nameOrNickOrEmail {
 			return user
 		}
 	}
 	for _, user := range ul.users {
-		if strings.ToLower(user.Name()) == nameOrNickOrEmail || strings.ToLower(user.Nick()) == nameOrNickOrEmail {
+		if strings.ToLower(user.Name()) == nameOrNickOrEmail || strings.ToLower(user.Nickname()) == nameOrNickOrEmail {
 			return user
 		}
 	}
@@ -64,27 +46,34 @@ func (ul *UserList) AddUser(name, email string) bool {
 	name = utils.CollapseWhiteSpaces(name)
 	email = utils.CollapseWhiteSpaces(email)
 
-	currentUser := ul.User(name)
+	currentUser := ul.User(email)
 	if currentUser != nil {
-		if currentUser.Email() == email {
-			return false
-		}
-		currentUser.email = email
 		return true
 	}
 
-	user := &User{name: name, email: email}
+	currentUser = ul.User(name)
+	if currentUser != nil {
+		return currentUser.AddEmailIfNotExist(email)
+	}
+
+	userFile := filepath.Join(ul.usersDir, name)
+	if _, err := os.Stat(userFile); os.IsNotExist(err) {
+		userFile += ".md"
+	}
+
+	user, err := LoadUser(userFile)
+	if err != nil {
+		return false
+	}
+	user.SetName(name)
+	user.AddEmailIfNotExist(email)
 	ul.users = append(ul.users, user)
 	return true
 }
 
 func (ul *UserList) Save() error {
 	for _, user := range ul.users {
-		userFile := user.userFile
-		if userFile == "" {
-			userFile = filepath.Join(ul.usersDir, user.name)
-		}
-		err := ioutil.WriteFile(userFile, []byte(user.Email()), 0644)
+		err := user.Save()
 		if err != nil {
 			return err
 		}
@@ -103,7 +92,10 @@ func (ul *UserList) init() error {
 			return err
 		}
 	}
+	return nil
+}
 
+func (ul *UserList) initGitUsers() error {
 	names, emails, err := git.KnownUsers()
 	if err == nil {
 		for i := range names {
@@ -122,16 +114,12 @@ func (ul *UserList) load() error {
 	users := make([]*User, 0, len(items))
 	if err == nil {
 		for _, item := range items {
-			if !item.IsDir() {
+			if !item.IsDir() && strings.HasSuffix(item.Name(), ".md") {
 				userFile := filepath.Join(ul.usersDir, item.Name())
-				userName := utils.CollapseWhiteSpaces(item.Name())
-				userEmail := ""
-				content, err := ioutil.ReadFile(userFile)
+				user, err := LoadUser(userFile)
 				if err != nil {
 					return err
 				}
-				userEmail = utils.CollapseWhiteSpaces(string(content))
-				user := &User{userFile: userFile, name: userName, email: userEmail}
 				users = append(users, user)
 			}
 		}
@@ -144,11 +132,52 @@ func (ul *UserList) AllUsers() []string {
 	users := make([]string, 0, len(ul.users))
 	for _, user := range ul.users {
 		userInfo := user.Name()
-		if user.Name() != user.Nick() {
-			userInfo = fmt.Sprintf("%s (%s)", user.Name(), user.Nick())
+		if user.Name() != user.Nickname() {
+			userInfo = fmt.Sprintf("%s (%s)", user.Name(), user.Nickname())
 		}
 
 		users = append(users, userInfo)
 	}
 	return users
+}
+
+func (ul *UserList) Users() []*User {
+	return ul.users
+}
+
+func (ul *UserList) fixObsoleteUserFiles() error {
+	items, err := ioutil.ReadDir(ul.usersDir)
+	if err != nil {
+		return err
+	}
+	for _, item := range items {
+		if strings.HasSuffix(item.Name(), ".md") {
+			continue
+		}
+
+		itemPath := filepath.Join(ul.usersDir, item.Name())
+		userPath := itemPath + ".md"
+		if _, err := os.Stat(userPath); err == nil {
+			continue
+		} else if !os.IsNotExist(err) {
+			return err
+		}
+
+		user, _ := LoadUser(itemPath + ".md")
+		user.SetName(item.Name())
+		content, err := ioutil.ReadFile(itemPath)
+		lines := strings.Split(string(content), "\n")
+		for _, line := range lines {
+			line = strings.TrimSpace(line)
+			if line != "" && strings.Contains(line, "@") {
+				user.AddEmailIfNotExist(line)
+			}
+		}
+		err = user.Save()
+		if err != nil {
+			return err
+		}
+		os.Remove(itemPath)
+	}
+	return nil
 }

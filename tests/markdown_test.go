@@ -2,10 +2,10 @@ package tests
 
 import (
 	"github.com/mreider/agilemarkdown/backlog"
+	"github.com/mreider/agilemarkdown/markdown"
 	"github.com/stretchr/testify/assert"
 	"regexp"
 	"testing"
-	"github.com/mreider/agilemarkdown/markdown"
 )
 
 const (

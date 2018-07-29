@@ -1,6 +1,7 @@
 package backlog
 
 import (
+	"github.com/mreider/agilemarkdown/markdown"
 	"github.com/mreider/agilemarkdown/utils"
 	"io/ioutil"
 	"os"
@@ -9,7 +10,6 @@ import (
 	"sort"
 	"strings"
 	"time"
-	"github.com/mreider/agilemarkdown/markdown"
 )
 
 const (
@@ -95,7 +95,7 @@ func (idea *BacklogIdea) SetAuthor(author string) {
 
 func (idea *BacklogIdea) Tags() []string {
 	rawTags := strings.TrimSpace(idea.markdown.MetadataValue(BacklogIdeaTagsMetadataKey))
-	return strings.Fields(rawTags)
+	return utils.SplitByRegexp(rawTags, tagSeparators)
 }
 
 func (idea *BacklogIdea) SetTags(tags []string) {

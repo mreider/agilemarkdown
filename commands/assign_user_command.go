@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/mreider/agilemarkdown/backlog"
-	"github.com/mreider/agilemarkdown/users"
 	"github.com/mreider/agilemarkdown/utils"
 	"gopkg.in/urfave/cli.v1"
 	"os"
@@ -81,7 +80,7 @@ var AssignUserCommand = cli.Command{
 		}
 		fmt.Println("")
 
-		userList := users.NewUserList(filepath.Join(backlogDir, "..", backlog.UsersDirectoryName))
+		userList := backlog.NewUserList(filepath.Join(backlogDir, "..", backlog.UsersDirectoryName))
 		allUsers := userList.AllUsers()
 		sort.Strings(allUsers)
 

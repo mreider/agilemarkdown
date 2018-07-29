@@ -2,11 +2,11 @@ package backlog
 
 import (
 	"fmt"
+	"github.com/mreider/agilemarkdown/markdown"
 	"github.com/mreider/agilemarkdown/utils"
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"github.com/mreider/agilemarkdown/markdown"
 )
 
 type Velocity struct {

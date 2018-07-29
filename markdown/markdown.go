@@ -7,8 +7,8 @@ import (
 	"io/ioutil"
 	"os"
 	"regexp"
-	"strings"
 	"sort"
+	"strings"
 )
 
 var (
