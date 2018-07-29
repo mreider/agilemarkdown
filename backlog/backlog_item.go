@@ -2,13 +2,13 @@ package backlog
 
 import (
 	"fmt"
+	"github.com/mreider/agilemarkdown/markdown"
 	"github.com/mreider/agilemarkdown/utils"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
-	"github.com/mreider/agilemarkdown/markdown"
 )
 
 const (
@@ -188,7 +188,7 @@ func (item *BacklogItem) UpdateComments(comments []*Comment) {
 
 func (item *BacklogItem) Tags() []string {
 	rawTags := strings.TrimSpace(item.markdown.MetadataValue(BacklogItemTagsMetadataKey))
-	return strings.Fields(rawTags)
+	return utils.SplitByRegexp(rawTags, tagSeparators)
 }
 
 func (item *BacklogItem) SetTags(tags []string) {

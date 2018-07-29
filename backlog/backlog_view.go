@@ -154,7 +154,7 @@ func (bv BacklogView) WriteAsciiItemsWithProjectAndStatus(items []*BacklogItem, 
 	return result
 }
 
-func (bv BacklogView) WriteMarkdownItems(items []*BacklogItem, status *BacklogItemStatus, baseDir, tagsDir string) []string {
+func (bv BacklogView) WriteMarkdownItems(items []*BacklogItem, status *BacklogItemStatus, baseDir, tagsDir string, userList *UserList) []string {
 	result := make([]string, 0, 50)
 	headers := make([]string, 0, 2)
 	headers = append(headers, fmt.Sprintf("| User | Title | Points | Tags |"))
@@ -164,7 +164,13 @@ func (bv BacklogView) WriteMarkdownItems(items []*BacklogItem, status *BacklogIt
 	for _, item := range items {
 		points, _ := strconv.ParseFloat(item.Estimate(), 64)
 		totalPoints += points
-		line := fmt.Sprintf("| %s | %s | %s | %s |", item.Assigned(), MakeItemLink(item, baseDir), item.Estimate(), MakeTagLinks(item.Tags(), tagsDir, baseDir))
+		assigned := item.Assigned()
+		assignedUser := userList.User(assigned)
+		assignedLink := assigned
+		if assignedUser != nil {
+			assignedLink = MakeUserLink(assignedUser, assigned, baseDir)
+		}
+		line := fmt.Sprintf("| %s | %s | %s | %s |", assignedLink, MakeItemLink(item, baseDir), item.Estimate(), MakeTagLinks(item.Tags(), tagsDir, baseDir))
 		result = append(result, line)
 	}
 	if bv.needTotalPoints(status) && len(items) > 0 {
@@ -174,7 +180,27 @@ func (bv BacklogView) WriteMarkdownItems(items []*BacklogItem, status *BacklogIt
 	return result
 }
 
-func (bv BacklogView) WriteMarkdownItemsWithProject(overviews map[*BacklogItem]*BacklogOverview, items []*BacklogItem, status *BacklogItemStatus, baseDir, tagsDir string) []string {
+func (bv BacklogView) WriteMarkdownItemsWithoutAssigned(items []*BacklogItem, status *BacklogItemStatus, baseDir, tagsDir string) []string {
+	result := make([]string, 0, 50)
+	headers := make([]string, 0, 2)
+	headers = append(headers, fmt.Sprintf("| Title | Points | Tags |"))
+	headers = append(headers, "|---|:---:|---|")
+	result = append(result, headers...)
+	totalPoints := 0.0
+	for _, item := range items {
+		points, _ := strconv.ParseFloat(item.Estimate(), 64)
+		totalPoints += points
+		line := fmt.Sprintf("| %s | %s | %s |", MakeItemLink(item, baseDir), item.Estimate(), MakeTagLinks(item.Tags(), tagsDir, baseDir))
+		result = append(result, line)
+	}
+	if bv.needTotalPoints(status) && len(items) > 0 {
+		line := fmt.Sprintf("| Total Points | %d | |", int(totalPoints))
+		result = append(result, line)
+	}
+	return result
+}
+
+func (bv BacklogView) WriteMarkdownItemsWithProject(overviews map[*BacklogItem]*BacklogOverview, items []*BacklogItem, status *BacklogItemStatus, baseDir, tagsDir string, userList *UserList) []string {
 	result := make([]string, 0, 50)
 	headers := make([]string, 0, 2)
 	headers = append(headers, fmt.Sprintf("| User | Project | Title | Points | Tags |"))
@@ -184,7 +210,13 @@ func (bv BacklogView) WriteMarkdownItemsWithProject(overviews map[*BacklogItem]*
 	for _, item := range items {
 		points, _ := strconv.ParseFloat(item.Estimate(), 64)
 		totalPoints += points
-		line := fmt.Sprintf("| %s | %s | %s | %s | %s |", item.Assigned(), MakeOverviewLink(overviews[item], baseDir), MakeItemLink(item, baseDir), item.Estimate(), MakeTagLinks(item.Tags(), tagsDir, baseDir))
+		assigned := item.Assigned()
+		assignedUser := userList.User(assigned)
+		assignedLink := assigned
+		if assignedUser != nil {
+			assignedLink = MakeUserLink(assignedUser, assigned, baseDir)
+		}
+		line := fmt.Sprintf("| %s | %s | %s | %s | %s |", assignedLink, MakeOverviewLink(overviews[item], baseDir), MakeItemLink(item, baseDir), item.Estimate(), MakeTagLinks(item.Tags(), tagsDir, baseDir))
 		result = append(result, line)
 	}
 	if bv.needTotalPoints(status) && len(items) > 0 {
@@ -194,7 +226,7 @@ func (bv BacklogView) WriteMarkdownItemsWithProject(overviews map[*BacklogItem]*
 	return result
 }
 
-func (bv BacklogView) WriteMarkdownItemsWithProjectAndStatus(overviews map[*BacklogItem]*BacklogOverview, items []*BacklogItem, baseDir, tagsDir string) []string {
+func (bv BacklogView) WriteMarkdownItemsWithProjectAndStatus(overviews map[*BacklogItem]*BacklogOverview, items []*BacklogItem, baseDir, tagsDir string, userList *UserList) []string {
 	result := make([]string, 0, 50)
 	headers := make([]string, 0, 2)
 	headers = append(headers, fmt.Sprintf("| User | Project | Title | Status | Points | Tags |"))
@@ -207,7 +239,13 @@ func (bv BacklogView) WriteMarkdownItemsWithProjectAndStatus(overviews map[*Back
 			points, _ := strconv.ParseFloat(item.Estimate(), 64)
 			totalPoints += points
 		}
-		line := fmt.Sprintf("| %s | %s | %s | %s | %s | %s |", item.Assigned(), MakeOverviewLink(overviews[item], baseDir), MakeItemLink(item, baseDir), item.Status(), item.Estimate(), MakeTagLinks(item.Tags(), tagsDir, baseDir))
+		assigned := item.Assigned()
+		assignedUser := userList.User(assigned)
+		assignedLink := assigned
+		if assignedUser != nil {
+			assignedLink = MakeUserLink(assignedUser, assigned, baseDir)
+		}
+		line := fmt.Sprintf("| %s | %s | %s | %s | %s | %s |", assignedLink, MakeOverviewLink(overviews[item], baseDir), MakeItemLink(item, baseDir), item.Status(), item.Estimate(), MakeTagLinks(item.Tags(), tagsDir, baseDir))
 		result = append(result, line)
 	}
 	if len(items) > 0 {

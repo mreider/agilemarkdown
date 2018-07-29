@@ -78,6 +78,39 @@ func ItemsAndIdeasTags(rootDir string) (allTags map[string]struct{}, itemsTags m
 	return allTags, itemsTags, ideasTags, itemsOverviews, nil
 }
 
+func ActiveItems(rootDir string) (items []*BacklogItem, itemsOverviews map[*BacklogItem]*BacklogOverview, err error) {
+	backlogDirs, err := BacklogDirs(rootDir)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	itemsOverviews = make(map[*BacklogItem]*BacklogOverview)
+
+	for _, backlogDir := range backlogDirs {
+		overviewPath, ok := FindOverviewFileInRootDirectory(backlogDir)
+		if !ok {
+			return nil, nil, fmt.Errorf("the overview file isn't found for %s", backlogDir)
+		}
+		overview, err := LoadBacklogOverview(overviewPath)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		bck, err := LoadBacklog(backlogDir)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		bckItems := bck.ActiveItems()
+		for _, item := range bckItems {
+			items = append(items, item)
+			itemsOverviews[item] = overview
+		}
+	}
+
+	return items, itemsOverviews, nil
+}
+
 func FindOverviewFileInRootDirectory(backlogDir string) (string, bool) {
 	backlogDir, _ = filepath.Abs(backlogDir)
 	rootDir := filepath.Dir(backlogDir)

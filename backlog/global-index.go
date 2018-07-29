@@ -2,10 +2,10 @@ package backlog
 
 import (
 	"fmt"
+	"github.com/mreider/agilemarkdown/markdown"
 	"github.com/mreider/agilemarkdown/utils"
 	"path/filepath"
 	"regexp"
-	"github.com/mreider/agilemarkdown/markdown"
 )
 
 type GlobalIndex struct {

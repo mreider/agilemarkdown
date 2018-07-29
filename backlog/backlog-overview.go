@@ -2,6 +2,7 @@ package backlog
 
 import (
 	"fmt"
+	"github.com/mreider/agilemarkdown/markdown"
 	"github.com/mreider/agilemarkdown/utils"
 	"io/ioutil"
 	"math"
@@ -9,7 +10,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
-	"github.com/mreider/agilemarkdown/markdown"
 )
 
 var (
@@ -56,7 +56,7 @@ func (overview *BacklogOverview) SetCreated(timestamp string) {
 	overview.markdown.SetMetadataValue(CreatedMetadataKey, timestamp)
 }
 
-func (overview *BacklogOverview) Update(items []*BacklogItem, sorter *BacklogItemsSorter) {
+func (overview *BacklogOverview) Update(items []*BacklogItem, sorter *BacklogItemsSorter, userList *UserList) {
 	itemsByStatus := sorter.SortedItemsByStatus()
 	itemsByName := make(map[string]*BacklogItem)
 	for _, item := range items {
@@ -84,7 +84,7 @@ func (overview *BacklogOverview) Update(items []*BacklogItem, sorter *BacklogIte
 				overview.markdown.AddGroup(group)
 			}
 			rootDir := filepath.Dir(overview.markdown.ContentPath())
-			newLines := BacklogView{}.WriteMarkdownItems(items, status, rootDir, filepath.Join(rootDir, TagsDirectoryName))
+			newLines := BacklogView{}.WriteMarkdownItems(items, status, rootDir, filepath.Join(rootDir, TagsDirectoryName), userList)
 			group.ReplaceLines(newLines)
 		}
 	}
@@ -163,4 +163,8 @@ func (overview *BacklogOverview) UpdateItemLinkInOverviewFile(prevItemPath, newI
 	newData := strings.Replace(string(data), fmt.Sprintf("(%s)", utils.GetMarkdownLinkPath(prevItemPath, baseDir)), fmt.Sprintf("(%s)", utils.GetMarkdownLinkPath(newItemPath, baseDir)), -1)
 	err = ioutil.WriteFile(overview.markdown.ContentPath(), []byte(newData), info.Mode())
 	return err
+}
+
+func (overview *BacklogOverview) Path() string {
+	return overview.markdown.ContentPath()
 }

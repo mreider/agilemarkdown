@@ -45,6 +45,14 @@ func MakeTagsLink(rootDir, baseDir string) string {
 	return utils.MakeMarkdownLink("tag list", filepath.Join(rootDir, TagsFileName), baseDir)
 }
 
+func MakeUsersLink(rootDir, baseDir string) string {
+	return utils.MakeMarkdownLink("users", filepath.Join(rootDir, UsersFileName), baseDir)
+}
+
+func MakeUserLink(user *User, title string, baseDir string) string {
+	return utils.MakeMarkdownLink(title, user.Path(), baseDir)
+}
+
 func MakeVelocityLink(rootDir, baseDir string) string {
 	return utils.MakeMarkdownLink("velocity", filepath.Join(rootDir, VelocityFileName), baseDir)
 }
@@ -60,6 +68,7 @@ func MakeStandardLinks(rootDir, baseDir string) []string {
 		MakeTagsLink(rootDir, baseDir),
 		MakeVelocityLink(rootDir, baseDir),
 		MakeTimelineLink(rootDir, baseDir),
+		MakeUsersLink(rootDir, baseDir),
 	}
 }
 

@@ -2,10 +2,10 @@ package tests
 
 import (
 	"github.com/mreider/agilemarkdown/backlog"
+	"github.com/mreider/agilemarkdown/markdown"
 	"github.com/stretchr/testify/assert"
 	"regexp"
 	"testing"
-	"github.com/mreider/agilemarkdown/markdown"
 )
 
 const (
@@ -91,6 +91,7 @@ Data2: test2
 		"### ", backlog.OverviewFooterRe)
 	overview := backlog.NewBacklogOverview(content)
 	sorter := backlog.NewBacklogItemsSorter(overview)
+	userList := backlog.NewUserList("")
 	overview.SetTitle("New backlog")
 
 	story1 := createBacklogItem("Story1", "First story", "doing", "10", "mike")
@@ -102,7 +103,7 @@ Data2: test2
 	story8 := createBacklogItem("Story8", "Story 8", "finished", "", "")
 	overview.Update([]*backlog.BacklogItem{
 		story1, story2, story5, story6, story7, story4, story8,
-	}, sorter)
+	}, sorter, userList)
 
 	updatedData := string(overview.Content())
 	assert.Equal(t, updatedOverviewData, updatedData)

@@ -112,7 +112,7 @@ func ParseTimestamp(timestamp string) (time.Time, error) {
 }
 
 func MakeMarkdownLink(linkTitle, linkPath, baseDir string) string {
-	return fmt.Sprintf("[%s](%s)", linkTitle, GetMarkdownLinkPath(linkPath, baseDir))
+	return fmt.Sprintf("[%s](%s)", linkTitle, strings.Replace(GetMarkdownLinkPath(linkPath, baseDir), " ", "%20", -1))
 }
 
 func GetMarkdownLinkPath(linkPath, baseDir string) string {
@@ -195,6 +195,18 @@ func RenameItemIgnoreCase(items []string, oldItem, newItem string) []string {
 		} else if !newItemExists {
 			result = append(result, newItem)
 			newItemExists = true
+		}
+	}
+	return result
+}
+
+func SplitByRegexp(value string, re *regexp.Regexp) []string {
+	parts := re.Split(value, -1)
+	result := make([]string, 0, len(parts))
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		if part != "" {
+			result = append(result, part)
 		}
 	}
 	return result

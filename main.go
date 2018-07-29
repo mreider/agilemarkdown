@@ -6,7 +6,6 @@ import (
 	"github.com/mreider/agilemarkdown/backlog"
 	"github.com/mreider/agilemarkdown/commands"
 	"github.com/mreider/agilemarkdown/git"
-	"github.com/mreider/agilemarkdown/users"
 	"gopkg.in/urfave/cli.v1"
 	"log"
 	"math/rand"
@@ -26,7 +25,7 @@ func main() {
 	if gitRootDir != "" {
 		rootDir = gitRootDir
 		commands.AddConfigAndGitIgnore(rootDir)
-		users.NewUserList(filepath.Join(rootDir, backlog.UsersDirectoryName))
+		backlog.NewUserList(filepath.Join(rootDir, backlog.UsersDirectoryName))
 	}
 	err := setBashAutoComplete()
 	if err != nil {

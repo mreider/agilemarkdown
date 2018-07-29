@@ -5,7 +5,6 @@ import (
 	"github.com/mreider/agilemarkdown/backlog"
 	"github.com/mreider/agilemarkdown/config"
 	"github.com/mreider/agilemarkdown/git"
-	"github.com/mreider/agilemarkdown/users"
 	"github.com/mreider/agilemarkdown/utils"
 	"github.com/pkg/errors"
 	"gopkg.in/urfave/cli.v1"
@@ -58,6 +57,8 @@ func (a *SyncAction) Execute() error {
 		return fmt.Errorf("Can't load the config file %s: %v\n", cfgPath, err)
 	}
 
+	userList := backlog.NewUserList(filepath.Join(rootDir, backlog.UsersDirectoryName))
+
 	attempts := 10
 	for attempts > 0 {
 		attempts--
@@ -72,7 +73,7 @@ func (a *SyncAction) Execute() error {
 			return err
 		}
 
-		err = a.updateOverviewsAndIndex(rootDir, cfg)
+		err = a.updateOverviewsAndIndex(rootDir, cfg, userList)
 		if err != nil {
 			return err
 		}
@@ -82,12 +83,17 @@ func (a *SyncAction) Execute() error {
 			return err
 		}
 
-		err = a.updateIdeas(rootDir, cfg)
+		err = a.updateIdeas(rootDir, cfg, userList)
 		if err != nil {
 			return err
 		}
 
-		err = a.updateTags(rootDir)
+		err = a.updateTags(rootDir, userList)
+		if err != nil {
+			return err
+		}
+
+		err = a.updateUsers(rootDir)
 		if err != nil {
 			return err
 		}
@@ -112,7 +118,7 @@ func (a *SyncAction) Execute() error {
 	return errors.New("can't sync: too many failed attempts")
 }
 
-func (a *SyncAction) updateOverviewsAndIndex(rootDir string, cfg *config.Config) error {
+func (a *SyncAction) updateOverviewsAndIndex(rootDir string, cfg *config.Config, userList *backlog.UserList) error {
 	backlogDirs, err := backlog.BacklogDirs(rootDir)
 	if err != nil {
 		return err
@@ -166,14 +172,14 @@ func (a *SyncAction) updateOverviewsAndIndex(rootDir string, cfg *config.Config)
 
 		activeItems := bck.ActiveItems()
 		overview.UpdateLinks("archive", archivePath, rootDir, rootDir)
-		overview.Update(activeItems, sorter)
+		overview.Update(activeItems, sorter, userList)
 		a.sendNewCommentsForItems(cfg, rootDir, overview, activeItems)
 		overview.Save()
 
 		archivedItems := bck.ArchivedItems()
 		archive.SetTitle(fmt.Sprintf("Archive: %s", overview.Title()))
 		archive.UpdateLinks("project page", overviewPath, rootDir, backlogDir)
-		archive.Update(archivedItems, sorter)
+		archive.Update(archivedItems, sorter, userList)
 		archive.Save()
 
 		overview.RemoveVelocity(bck)
@@ -276,7 +282,7 @@ func (a *SyncAction) syncToGit() (bool, error) {
 	return true, nil
 }
 
-func (a *SyncAction) updateIdeas(rootDir string, cfg *config.Config) error {
+func (a *SyncAction) updateIdeas(rootDir string, cfg *config.Config, userList *backlog.UserList) error {
 	_, itemsTags, ideasTags, overviews, err := backlog.ItemsAndIdeasTags(rootDir)
 	if err != nil {
 		return err
@@ -294,7 +300,7 @@ func (a *SyncAction) updateIdeas(rootDir string, cfg *config.Config) error {
 	var ranks []string
 	tagsDir := filepath.Join(rootDir, backlog.TagsDirectoryName)
 	for _, idea := range ideas {
-		err := a.updateIdea(rootDir, tagsDir, idea, ideasTags, itemsTags, overviews)
+		err := a.updateIdea(rootDir, tagsDir, idea, ideasTags, itemsTags, overviews, userList)
 		if err != nil {
 			fmt.Printf("can't update idea '%s'\n", err)
 		}
@@ -328,7 +334,7 @@ func (a *SyncAction) updateIdeas(rootDir string, cfg *config.Config) error {
 	return ioutil.WriteFile(filepath.Join(rootDir, backlog.IdeasFileName), []byte(strings.Join(lines, "\n")), 0644)
 }
 
-func (a *SyncAction) updateIdea(rootDir, tagsDir string, idea *backlog.BacklogIdea, ideasTags map[string][]*backlog.BacklogIdea, itemsTags map[string][]*backlog.BacklogItem, overviews map[*backlog.BacklogItem]*backlog.BacklogOverview) error {
+func (a *SyncAction) updateIdea(rootDir, tagsDir string, idea *backlog.BacklogIdea, ideasTags map[string][]*backlog.BacklogIdea, itemsTags map[string][]*backlog.BacklogItem, overviews map[*backlog.BacklogItem]*backlog.BacklogOverview, userList *backlog.UserList) error {
 	if !idea.HasMetadata() {
 		author, created, err := git.InitCommitInfo(idea.Path())
 		if err != nil {
@@ -384,7 +390,7 @@ NextTag:
 
 	itemsLines := []string{"## Stories", ""}
 	if len(items) > 0 {
-		itemsLines = append(itemsLines, backlog.BacklogView{}.WriteMarkdownItemsWithProjectAndStatus(overviews, items, filepath.Dir(idea.Path()), tagsDir)...)
+		itemsLines = append(itemsLines, backlog.BacklogView{}.WriteMarkdownItemsWithProjectAndStatus(overviews, items, filepath.Dir(idea.Path()), tagsDir, userList)...)
 	}
 	idea.SetFooter(itemsLines)
 	idea.Save()
@@ -415,7 +421,7 @@ func (a *SyncAction) moveItemsToActiveAndArchiveDirectory(backlogDir string) err
 	return nil
 }
 
-func (a *SyncAction) updateTags(rootDir string) error {
+func (a *SyncAction) updateTags(rootDir string, userList *backlog.UserList) error {
 	tagsDir := filepath.Join(rootDir, backlog.TagsDirectoryName)
 	os.MkdirAll(tagsDir, 0777)
 
@@ -428,7 +434,7 @@ func (a *SyncAction) updateTags(rootDir string) error {
 	for tag := range allTags {
 		tagItems := itemsTags[tag]
 		tagIdeas := ideasTags[tag]
-		tagFileName, err := a.updateTagPage(rootDir, tagsDir, tag, tagItems, overviews, tagIdeas)
+		tagFileName, err := a.updateTagPage(rootDir, tagsDir, tag, tagItems, overviews, tagIdeas, userList)
 		if err != nil {
 			return err
 		}
@@ -450,7 +456,7 @@ func (a *SyncAction) updateTags(rootDir string) error {
 	return nil
 }
 
-func (a *SyncAction) updateTagPage(rootDir, tagsDir, tag string, items []*backlog.BacklogItem, overviews map[*backlog.BacklogItem]*backlog.BacklogOverview, ideas []*backlog.BacklogIdea) (string, error) {
+func (a *SyncAction) updateTagPage(rootDir, tagsDir, tag string, items []*backlog.BacklogItem, overviews map[*backlog.BacklogItem]*backlog.BacklogOverview, ideas []*backlog.BacklogIdea, userList *backlog.UserList) (string, error) {
 	itemsByStatus := make(map[string][]*backlog.BacklogItem)
 	for _, item := range items {
 		itemStatus := strings.ToLower(item.Status())
@@ -473,7 +479,7 @@ func (a *SyncAction) updateTagPage(rootDir, tagsDir, tag string, items []*backlo
 			continue
 		}
 		lines = append(lines, fmt.Sprintf("## %s", status.CapitalizedName()))
-		itemsLines := backlog.BacklogView{}.WriteMarkdownItemsWithProject(overviews, statusItems, status, tagsDir, tagsDir)
+		itemsLines := backlog.BacklogView{}.WriteMarkdownItemsWithProject(overviews, statusItems, status, tagsDir, tagsDir, userList)
 		lines = append(lines, itemsLines...)
 		lines = append(lines, "")
 	}
@@ -516,7 +522,7 @@ func (a *SyncAction) updateTagsPage(rootDir, tagsDir string, itemsTags map[strin
 }
 
 func (a *SyncAction) sendNewCommentsForItems(cfg *config.Config, rootDir string, overview *backlog.BacklogOverview, items []*backlog.BacklogItem) {
-	userList := users.NewUserList(filepath.Join(rootDir, backlog.UsersDirectoryName))
+	userList := backlog.NewUserList(filepath.Join(rootDir, backlog.UsersDirectoryName))
 	var mailSender *utils.MailSender
 	if cfg.SmtpServer != "" {
 		mailSender = utils.NewMailSender(cfg.SmtpServer, cfg.SmtpUser, cfg.SmtpPassword, cfg.EmailFrom)
@@ -532,7 +538,7 @@ func (a *SyncAction) sendNewCommentsForItems(cfg *config.Config, rootDir string,
 }
 
 func (a *SyncAction) sendNewCommentsForIdeas(cfg *config.Config, rootDir string, ideas []*backlog.BacklogIdea) {
-	userList := users.NewUserList(filepath.Join(rootDir, backlog.UsersDirectoryName))
+	userList := backlog.NewUserList(filepath.Join(rootDir, backlog.UsersDirectoryName))
 	var mailSender *utils.MailSender
 	if cfg.SmtpServer != "" {
 		mailSender = utils.NewMailSender(cfg.SmtpServer, cfg.SmtpUser, cfg.SmtpPassword, cfg.EmailFrom)
@@ -600,7 +606,7 @@ func (a *SyncAction) updateItemsModifiedDate(rootDir string) error {
 						}
 					}
 				} else if oldStatus == backlog.FinishedStatus && newStatus == backlog.FinishedStatus {
-					if item.Finished().IsZero() {
+					if item.Finished().IsZero() && !repoItem.Finished().IsZero() {
 						item.SetFinished(utils.GetTimestamp(repoItem.Finished()))
 						item.Save()
 					}
@@ -723,7 +729,7 @@ func (a *SyncAction) FromUser() string {
 	return from
 }
 
-func (a *SyncAction) sendComment(userList *users.UserList, comment []string, title string, to []string, mailSender *utils.MailSender, cfg *config.Config, rootDir, contentPath string) (me string, err error) {
+func (a *SyncAction) sendComment(userList *backlog.UserList, comment []string, title string, to []string, mailSender *utils.MailSender, cfg *config.Config, rootDir, contentPath string) (me string, err error) {
 	from := a.author
 	sepIndex := strings.LastIndexByte(from, ' ')
 	if sepIndex >= 0 {
@@ -738,16 +744,16 @@ func (a *SyncAction) sendComment(userList *users.UserList, comment []string, tit
 	if meUser == nil {
 		return "", fmt.Errorf("unknown user %s", from)
 	}
-	toUsers := make([]*users.User, 0, len(to))
+	toUsers := make([]*backlog.User, 0, len(to))
 	for _, user := range to {
 		toUser := userList.User(user)
 		if toUser == nil {
-			return meUser.Nick(), fmt.Errorf("unknown user %s", to)
+			return meUser.Nickname(), fmt.Errorf("unknown user %s", to)
 		}
 		toUsers = append(toUsers, toUser)
 	}
 	if mailSender == nil {
-		return meUser.Nick(), errors.New("SMTP server isn't configured")
+		return meUser.Nickname(), errors.New("SMTP server isn't configured")
 	}
 
 	msgText := strings.Join(comment, "\n")
@@ -777,21 +783,21 @@ func (a *SyncAction) sendComment(userList *users.UserList, comment []string, tit
 		}
 	}
 
-	fromSubject := meUser.Nick()
-	if meUser.Name() != meUser.Nick() {
+	fromSubject := meUser.Nickname()
+	if meUser.Name() != meUser.Nickname() {
 		fromSubject += fmt.Sprintf(" (%s)", meUser.Name())
 	}
 
 	toEmails := make([]string, 0, len(toUsers))
 	for _, user := range toUsers {
-		toEmails = append(toEmails, user.Email())
+		toEmails = append(toEmails, user.PrimaryEmail())
 	}
 
 	err = mailSender.SendEmail(
 		toEmails,
 		fmt.Sprintf("%s. New comment from %s", title, fromSubject),
 		msgText)
-	return meUser.Nick(), err
+	return meUser.Nickname(), err
 }
 
 func (a *SyncAction) sendNewComments(items []backlog.Commented, onSend func(item backlog.Commented, to []string, comment []string) (me string, err error)) {
@@ -815,4 +821,43 @@ func (a *SyncAction) sendNewComments(items []backlog.Commented, onSend func(item
 			item.UpdateComments(comments)
 		}
 	}
+}
+
+func (a *SyncAction) updateUsers(rootDir string) error {
+	userList := backlog.NewUserList(filepath.Join(rootDir, backlog.UsersDirectoryName))
+	tagsDir := filepath.Join(rootDir, backlog.TagsDirectoryName)
+
+	items, overviews, err := backlog.ActiveItems(rootDir)
+	if err != nil {
+		return err
+	}
+
+	for _, user := range userList.Users() {
+		userName, userNick := strings.ToLower(user.Name()), strings.ToLower(user.Nickname())
+		var userItems []*backlog.BacklogItem
+		for _, item := range items {
+			assigned := strings.ToLower(utils.CollapseWhiteSpaces(item.Assigned()))
+			if assigned == userNick || assigned == userName {
+				userItems = append(userItems, item)
+			}
+		}
+
+		_, err := user.UpdateItems(rootDir, tagsDir, userItems, overviews)
+		if err != nil {
+			return err
+		}
+	}
+	return a.updateUsersPage(userList, rootDir)
+}
+
+func (a *SyncAction) updateUsersPage(userList *backlog.UserList, rootDir string) error {
+	lines := []string{"# Users", ""}
+	lines = append(lines, fmt.Sprintf(utils.JoinMarkdownLinks(backlog.MakeStandardLinks(rootDir, rootDir)...)))
+	lines = append(lines, "", "---", "")
+	lines = append(lines, fmt.Sprintf("| Name | Nickname | Email |"))
+	lines = append(lines, "|---|---|---|")
+	for _, user := range userList.Users() {
+		lines = append(lines, fmt.Sprintf("| %s | %s | %s |", backlog.MakeUserLink(user, user.Name(), rootDir), user.Nickname(), strings.Join(user.Emails(), ", ")))
+	}
+	return ioutil.WriteFile(filepath.Join(rootDir, backlog.UsersFileName), []byte(strings.Join(lines, "  \n")), 0644)
 }

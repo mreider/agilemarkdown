@@ -2,7 +2,6 @@ package commands
 
 import (
 	"github.com/mreider/agilemarkdown/backlog"
-	"github.com/mreider/agilemarkdown/users"
 	"gopkg.in/urfave/cli.v1"
 	"os"
 	"path/filepath"
@@ -35,7 +34,7 @@ var CreateUserCommand = cli.Command{
 			}
 			rootDir = filepath.Dir(rootDir)
 		}
-		userList := users.NewUserList(filepath.Join(rootDir, backlog.UsersDirectoryName))
+		userList := backlog.NewUserList(filepath.Join(rootDir, backlog.UsersDirectoryName))
 		if userList.AddUser(name, email) {
 			return userList.Save()
 		}

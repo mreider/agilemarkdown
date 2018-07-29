@@ -1,9 +1,9 @@
 package backlog
 
 import (
+	"github.com/mreider/agilemarkdown/markdown"
 	"strings"
 	"unicode"
-	"github.com/mreider/agilemarkdown/markdown"
 )
 
 type Commented interface {

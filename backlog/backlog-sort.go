@@ -57,12 +57,16 @@ func (s *BacklogItemsSorter) updateSortedItems(overview *BacklogOverview, sorted
 			continue
 		}
 		for _, line := range group.Lines() {
-			matches := overviewItemRe.FindStringSubmatch(line)
-			if len(matches) > 0 {
-				itemPath := matches[1]
+			matches := overviewItemRe.FindAllStringSubmatch(line, -1)
+			for _, match := range matches {
+				itemPath := match[1]
+				if strings.HasPrefix(itemPath, UsersDirectoryName+"/") {
+					continue
+				}
 				itemName := filepath.Base(itemPath)
 				itemName = strings.TrimSuffix(itemName, filepath.Ext(itemName))
 				sortedItemsByStatus[status.Name] = append(sortedItemsByStatus[status.Name], itemName)
+				break
 			}
 		}
 	}
