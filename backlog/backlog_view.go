@@ -368,3 +368,46 @@ func (bv BacklogView) WriteMarkdownIdeas(ideas []*BacklogIdea, baseDir, tagsDir 
 func (bv BacklogView) needTotalPoints(status *BacklogItemStatus) bool {
 	return status == DoingStatus || status == PlannedStatus
 }
+
+func (bv BacklogView) ShowBacklogItems(backlogDir, statusCode string) ([]*BacklogItem, error) {
+	if !IsValidStatusCode(statusCode) {
+		fmt.Printf("illegal status: %s\n", statusCode)
+		return nil, nil
+	}
+	bck, err := LoadBacklog(backlogDir)
+	if err != nil {
+		return nil, err
+	}
+
+	overviewPath, ok := FindOverviewFileInRootDirectory(backlogDir)
+	if !ok {
+		return nil, fmt.Errorf("the overview file isn't found for %s", backlogDir)
+	}
+	overview, err := LoadBacklogOverview(overviewPath)
+	if err != nil {
+		return nil, err
+	}
+
+	archivePath, _ := FindArchiveFileInDirectory(backlogDir)
+	archive, err := LoadBacklogOverview(archivePath)
+	if err != nil {
+		return nil, err
+	}
+
+	filter := NewBacklogItemsStatusCodeFilter(statusCode)
+	items := bck.FilteredActiveItems(filter)
+	status := StatusByCode(statusCode)
+	if len(items) == 0 {
+		fmt.Printf("No items with status '%s'\n", status.Name)
+		return nil, nil
+	}
+
+	sorter := NewBacklogItemsSorter(overview, archive)
+	sorter.SortItemsByStatus(status, items)
+	lines := bv.WriteAsciiItems(items, status, true, false)
+	for _, line := range lines {
+		fmt.Println(line)
+	}
+	fmt.Println("")
+	return items, nil
+}

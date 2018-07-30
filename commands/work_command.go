@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"github.com/mreider/agilemarkdown/actions"
 	"github.com/mreider/agilemarkdown/backlog"
 	"gopkg.in/urfave/cli.v1"
 	"path/filepath"
@@ -27,6 +28,12 @@ var WorkCommand = cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
+		if err := checkIsBacklogDirectory(); err != nil {
+			fmt.Println(err)
+			return nil
+		}
+		backlogDir, _ := filepath.Abs(".")
+
 		user := c.String("u")
 		statusCode := c.String("s")
 		tags := c.String("t")
@@ -36,57 +43,7 @@ var WorkCommand = cli.Command{
 			return nil
 		}
 
-		if statusCode != "" && !backlog.IsValidStatusCode(statusCode) {
-			fmt.Printf("illegal status: %s\n", statusCode)
-			return nil
-		}
-
-		if err := checkIsBacklogDirectory(); err != nil {
-			fmt.Println(err)
-			return nil
-		}
-		backlogDir, _ := filepath.Abs(".")
-		bck, err := backlog.LoadBacklog(backlogDir)
-		if err != nil {
-			return err
-		}
-
-		overviewPath, ok := backlog.FindOverviewFileInRootDirectory(backlogDir)
-		if !ok {
-			return fmt.Errorf("the overview file isn't found for %s", backlogDir)
-		}
-		overview, err := backlog.LoadBacklogOverview(overviewPath)
-		if err != nil {
-			return err
-		}
-
-		archivePath, _ := findArchiveFileInDirectory(backlogDir)
-		archive, err := backlog.LoadBacklogOverview(archivePath)
-		if err != nil {
-			return err
-		}
-
-		var statuses []*backlog.BacklogItemStatus
-		if statusCode == "" {
-			statuses = []*backlog.BacklogItemStatus{backlog.DoingStatus, backlog.PlannedStatus, backlog.UnplannedStatus}
-		} else {
-			statuses = []*backlog.BacklogItemStatus{backlog.StatusByCode(statusCode)}
-		}
-
-		sorter := backlog.NewBacklogItemsSorter(overview, archive)
-		for _, status := range statuses {
-			filter := &backlog.BacklogItemsAndFilter{}
-			filter.And(backlog.NewBacklogItemsStatusCodeFilter(status.Code))
-			filter.And(backlog.NewBacklogItemsAssignedFilter(user))
-			filter.And(backlog.NewBacklogItemsTagsFilter(tags))
-			items := bck.FilteredActiveItems(filter)
-
-			sorter.SortItemsByStatus(status, items)
-			lines := backlog.BacklogView{}.WriteAsciiItems(items, status, false, true)
-			fmt.Println(strings.Join(lines, "\n"))
-			fmt.Println("")
-		}
-
-		return nil
+		action := actions.NewWorkAction(backlogDir, statusCode, user, tags)
+		return action.Execute()
 	},
 }

@@ -1,20 +1,16 @@
 package commands
 
 import (
-	"bufio"
 	"errors"
 	"fmt"
 	"github.com/mreider/agilemarkdown/backlog"
 	"github.com/mreider/agilemarkdown/git"
-	"gopkg.in/urfave/cli.v1"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 	"unicode"
 )
-
-const ArchiveFileName = "archive.md"
 
 const (
 	configName    = ".config.json"
@@ -35,20 +31,6 @@ func checkIsBacklogDirectory() error {
 		return errors.New("Error, please change directory to a backlog folder")
 	}
 	return nil
-}
-
-func findArchiveFileInDirectory(dir string) (string, bool) {
-	dir, _ = filepath.Abs(dir)
-	infos, err := ioutil.ReadDir(dir)
-	if err != nil {
-		return "", false
-	}
-	for _, info := range infos {
-		if info.Name() == ArchiveFileName {
-			return filepath.Join(dir, info.Name()), true
-		}
-	}
-	return filepath.Join(dir, ArchiveFileName), false
 }
 
 func checkIsRootDirectory(dir string) error {
@@ -76,68 +58,6 @@ func findRootDirectory() (string, error) {
 	return dir, nil
 }
 
-func existsFile(path string) bool {
-	info, err := os.Stat(path)
-	if err != nil {
-		return false
-	}
-	return !info.IsDir()
-}
-
-func showBacklogItems(c *cli.Context) ([]*backlog.BacklogItem, error) {
-	statusCode := c.String("s")
-
-	if statusCode == "" {
-		fmt.Println("-s option is required")
-		return nil, nil
-	}
-	if !backlog.IsValidStatusCode(statusCode) {
-		fmt.Printf("illegal status: %s\n", statusCode)
-		return nil, nil
-	}
-	if err := checkIsBacklogDirectory(); err != nil {
-		fmt.Println(err)
-		return nil, nil
-	}
-	backlogDir, _ := filepath.Abs(".")
-	bck, err := backlog.LoadBacklog(backlogDir)
-	if err != nil {
-		return nil, err
-	}
-
-	overviewPath, ok := backlog.FindOverviewFileInRootDirectory(backlogDir)
-	if !ok {
-		return nil, fmt.Errorf("the overview file isn't found for %s", backlogDir)
-	}
-	overview, err := backlog.LoadBacklogOverview(overviewPath)
-	if err != nil {
-		return nil, err
-	}
-
-	archivePath, _ := findArchiveFileInDirectory(backlogDir)
-	archive, err := backlog.LoadBacklogOverview(archivePath)
-	if err != nil {
-		return nil, err
-	}
-
-	filter := backlog.NewBacklogItemsStatusCodeFilter(statusCode)
-	items := bck.FilteredActiveItems(filter)
-	status := backlog.StatusByCode(statusCode)
-	if len(items) == 0 {
-		fmt.Printf("No items with status '%s'\n", status.Name)
-		return nil, nil
-	}
-
-	sorter := backlog.NewBacklogItemsSorter(overview, archive)
-	sorter.SortItemsByStatus(status, items)
-	lines := backlog.BacklogView{}.WriteAsciiItems(items, status, true, false)
-	for _, line := range lines {
-		fmt.Println(line)
-	}
-	fmt.Println("")
-	return items, nil
-}
-
 func AddConfigAndGitIgnore(rootDir string) {
 	hasChanges := false
 
@@ -157,13 +77,4 @@ func AddConfigAndGitIgnore(rootDir string) {
 	if hasChanges {
 		git.Commit("configuration", "")
 	}
-}
-
-func confirmAction(question string) bool {
-	fmt.Println(question)
-
-	reader := bufio.NewReader(os.Stdin)
-	text, _ := reader.ReadString('\n')
-	text = strings.ToLower(strings.TrimSpace(text))
-	return text == "y"
 }

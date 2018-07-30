@@ -2,9 +2,8 @@ package commands
 
 import (
 	"fmt"
-	"github.com/mreider/agilemarkdown/backlog"
+	"github.com/mreider/agilemarkdown/actions"
 	"gopkg.in/urfave/cli.v1"
-	"path/filepath"
 	"strings"
 )
 
@@ -22,37 +21,8 @@ var DeleteUserCommand = cli.Command{
 		if err != nil {
 			return err
 		}
-		userList := backlog.NewUserList(filepath.Join(rootDir, backlog.UsersDirectoryName))
 
-		user := userList.User(nameOrEmail)
-		if user == nil {
-			fmt.Printf("User '%s' not found\n", nameOrEmail)
-			return nil
-		}
-
-		if !confirmAction("Are you sure? (y or n)") {
-			return nil
-		}
-
-		items, _, err := backlog.AllBacklogItems(rootDir)
-		if err != nil {
-			return err
-		}
-		for _, item := range items {
-			assigned := userList.User(item.Assigned())
-			if user == assigned {
-				item.SetAssigned("")
-				err := item.Save()
-				if err != nil {
-					return err
-				}
-			}
-		}
-
-		if !userList.DeleteUser(nameOrEmail) {
-			fmt.Printf("Can't delete the user '%s'\n", nameOrEmail)
-			return nil
-		}
-		return nil
+		action := actions.NewDeleteUserAction(rootDir, nameOrEmail)
+		return action.Execute()
 	},
 }

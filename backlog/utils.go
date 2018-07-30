@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+const ArchiveFileName = "archive.md"
+
 func BacklogDirs(rootDir string) ([]string, error) {
 	infos, err := ioutil.ReadDir(rootDir)
 	if err != nil {
@@ -142,4 +144,18 @@ func FindOverviewFileInRootDirectory(backlogDir string) (string, bool) {
 		}
 	}
 	return "", false
+}
+
+func FindArchiveFileInDirectory(dir string) (string, bool) {
+	dir, _ = filepath.Abs(dir)
+	infos, err := ioutil.ReadDir(dir)
+	if err != nil {
+		return "", false
+	}
+	for _, info := range infos {
+		if info.Name() == ArchiveFileName {
+			return filepath.Join(dir, info.Name()), true
+		}
+	}
+	return filepath.Join(dir, ArchiveFileName), false
 }

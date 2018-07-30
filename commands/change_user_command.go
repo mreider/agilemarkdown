@@ -2,9 +2,8 @@ package commands
 
 import (
 	"fmt"
-	"github.com/mreider/agilemarkdown/backlog"
+	"github.com/mreider/agilemarkdown/actions"
 	"gopkg.in/urfave/cli.v1"
-	"path/filepath"
 )
 
 var ChangeUserCommand = cli.Command{
@@ -25,43 +24,8 @@ var ChangeUserCommand = cli.Command{
 		if err != nil {
 			return err
 		}
-		userList := backlog.NewUserList(filepath.Join(rootDir, backlog.UsersDirectoryName))
 
-		fromUser := userList.User(fromNameOrEmail)
-		if fromUser == nil {
-			fmt.Printf("User '%s' not found\n", fromNameOrEmail)
-			return nil
-		}
-
-		toUser := userList.User(toNameOrEmail)
-		if toUser == nil {
-			fmt.Printf("User '%s' not found\n", toNameOrEmail)
-			return nil
-		}
-
-		if fromUser == toUser {
-			fmt.Printf("Users '%s' and '%s' are the same\n", fromNameOrEmail, toNameOrEmail)
-			return nil
-		}
-
-		if !confirmAction("Are you sure? (y or n)") {
-			return nil
-		}
-
-		items, _, err := backlog.AllBacklogItems(rootDir)
-		if err != nil {
-			return err
-		}
-		for _, item := range items {
-			assigned := userList.User(item.Assigned())
-			if fromUser == assigned {
-				item.SetAssigned(toUser.Nickname())
-				err := item.Save()
-				if err != nil {
-					return err
-				}
-			}
-		}
-		return nil
+		action := actions.NewChangeUserAction(rootDir, fromNameOrEmail, toNameOrEmail)
+		return action.Execute()
 	},
 }

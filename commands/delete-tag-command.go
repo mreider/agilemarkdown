@@ -2,10 +2,8 @@ package commands
 
 import (
 	"fmt"
-	"github.com/mreider/agilemarkdown/backlog"
-	"github.com/mreider/agilemarkdown/utils"
+	"github.com/mreider/agilemarkdown/actions"
 	"gopkg.in/urfave/cli.v1"
-	"path/filepath"
 	"strings"
 )
 
@@ -19,47 +17,13 @@ var DeleteTagCommand = cli.Command{
 			return nil
 		}
 
-		rootDir, _ := filepath.Abs(".")
-		if err := checkIsBacklogDirectory(); err == nil {
-			rootDir = filepath.Dir(rootDir)
-		} else if err := checkIsRootDirectory("."); err != nil {
-			return err
-		}
-
-		tag := strings.ToLower(c.Args()[0])
-		if !confirmAction("This will delete links to ideas and timelines ok? (y or n)") {
-			return nil
-		}
-
-		allTags, itemsTags, ideasTags, _, err := backlog.ItemsAndIdeasTags(rootDir)
+		rootDir, err := findRootDirectory()
 		if err != nil {
 			return err
 		}
 
-		if _, ok := allTags[tag]; !ok {
-			fmt.Printf("Tag '%s' not found.\n", tag)
-			return nil
-		}
-
-		tagItems := itemsTags[tag]
-		for _, item := range tagItems {
-			itemTags := item.Tags()
-			itemTags = utils.RemoveItemIgnoreCase(itemTags, tag)
-			item.SetTags(itemTags)
-			item.ClearTimeline(tag)
-			item.Save()
-		}
-
-		tagIdeas := ideasTags[tag]
-		for _, idea := range tagIdeas {
-			ideaTags := idea.Tags()
-			ideaTags = utils.RemoveItemIgnoreCase(ideaTags, tag)
-			idea.SetTags(ideaTags)
-			idea.Save()
-		}
-
-		fmt.Printf("Tag '%s' deleted. Sync to regenerate files.\n", tag)
-
-		return nil
+		tag := strings.ToLower(c.Args()[0])
+		action := actions.NewDeleteTagAction(rootDir, tag)
+		return action.Execute()
 	},
 }

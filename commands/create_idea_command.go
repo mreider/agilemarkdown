@@ -2,19 +2,10 @@ package commands
 
 import (
 	"fmt"
-	"github.com/mreider/agilemarkdown/backlog"
-	"github.com/mreider/agilemarkdown/git"
-	"github.com/mreider/agilemarkdown/utils"
+	"github.com/mreider/agilemarkdown/actions"
 	"gopkg.in/urfave/cli.v1"
-	"path/filepath"
 	"strings"
 )
-
-const newIdeaTemplate = `
-
-## Comments
-
-`
 
 var CreateIdeaCommand = cli.Command{
 	Name:      "create-idea",
@@ -34,12 +25,8 @@ var CreateIdeaCommand = cli.Command{
 		simulate := c.Bool("simulate")
 		user := c.String("user")
 
-		rootDir, _ := filepath.Abs(".")
-		if err := checkIsBacklogDirectory(); err == nil {
-			rootDir = filepath.Dir(rootDir)
-		} else if filepath.Base(rootDir) == backlog.IdeasDirectoryName {
-			rootDir = filepath.Dir(rootDir)
-		} else if err := checkIsRootDirectory("."); err != nil {
+		rootDir, err := findRootDirectory()
+		if err != nil {
 			return err
 		}
 
@@ -49,47 +36,9 @@ var CreateIdeaCommand = cli.Command{
 			}
 			return nil
 		}
+
 		ideaTitle := strings.Join(c.Args(), " ")
-		ideaName := utils.GetValidFileName(ideaTitle)
-		ideaPath := filepath.Join(rootDir, backlog.IdeasDirectoryName, fmt.Sprintf("%s.md", ideaName))
-		if existsFile(ideaPath) {
-			if !simulate {
-				fmt.Println("file exists")
-			} else {
-				fmt.Println(ideaPath)
-			}
-			return nil
-		}
-
-		currentUser := user
-		if currentUser == "" {
-			var err error
-			currentUser, _, err = git.CurrentUser()
-			if err != nil {
-				currentUser = "unknown"
-			}
-		}
-
-		idea, err := backlog.LoadBacklogIdea(ideaPath)
-		if err != nil {
-			return err
-		}
-		currentTimestamp := utils.GetCurrentTimestamp()
-		idea.SetTitle(utils.TitleFirstLetter(ideaTitle))
-		idea.SetCreated(currentTimestamp)
-		idea.SetModified(currentTimestamp)
-		idea.SetAuthor(currentUser)
-		idea.SetTags(nil)
-		idea.SetRank("")
-		idea.SetDescription(newIdeaTemplate)
-
-		if !simulate {
-			return idea.Save()
-		} else {
-			rootDir := filepath.Dir(filepath.Dir(ideaPath))
-			fmt.Println(strings.TrimPrefix(ideaPath, rootDir))
-			fmt.Print(string(idea.Content()))
-			return nil
-		}
+		action := actions.NewCreateIdeaAction(rootDir, ideaTitle, user, simulate)
+		return action.Execute()
 	},
 }

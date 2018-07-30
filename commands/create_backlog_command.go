@@ -2,12 +2,9 @@ package commands
 
 import (
 	"fmt"
-	"github.com/mreider/agilemarkdown/backlog"
+	"github.com/mreider/agilemarkdown/actions"
 	"github.com/mreider/agilemarkdown/git"
-	"github.com/mreider/agilemarkdown/utils"
 	"gopkg.in/urfave/cli.v1"
-	"os"
-	"path/filepath"
 	"strings"
 )
 
@@ -35,45 +32,8 @@ var CreateBacklogCommand = cli.Command{
 		}
 
 		backlogName := strings.Join(c.Args(), " ")
-		if backlog.IsForbiddenBacklogName(backlogName) {
-			fmt.Printf("'%s' can't be used as a backlog name\n", backlogName)
-			return nil
-		}
 
-		backlogFileName := utils.GetValidFileName(backlogName)
-		backlogDir := filepath.Join(".", backlogFileName)
-		if info, err := os.Stat(backlogDir); err != nil && !os.IsNotExist(err) {
-			return err
-		} else if err == nil {
-			if info.IsDir() {
-				fmt.Println("the backlog directory already exists")
-			} else {
-				fmt.Println("a file with the same name already exists")
-			}
-			return nil
-		}
-
-		git.SetUpstream()
-
-		err := os.MkdirAll(backlogDir, 0777)
-		if err != nil {
-			return err
-		}
-
-		err = os.MkdirAll(filepath.Join(filepath.Join(".", backlog.IdeasDirectoryName)), 0777)
-		if err != nil {
-			return err
-		}
-
-		overviewFileName := fmt.Sprintf("%s.md", backlogFileName)
-		overviewPath := filepath.Join(".", overviewFileName)
-		overview, err := backlog.LoadBacklogOverview(overviewPath)
-		if err != nil {
-			return err
-		}
-		overview.SetTitle(backlogName)
-		overview.UpdateLinks("archive", filepath.Join(backlogDir, ArchiveFileName), ".", ".")
-		overview.SetCreated(utils.GetCurrentTimestamp())
-		return overview.Save()
+		action := actions.NewCreateBacklogAction(".", backlogName)
+		return action.Execute()
 	},
 }

@@ -2,7 +2,7 @@ package commands
 
 import (
 	"fmt"
-	"github.com/mreider/agilemarkdown/backlog"
+	"github.com/mreider/agilemarkdown/actions"
 	"gopkg.in/urfave/cli.v1"
 	"strconv"
 )
@@ -12,6 +12,11 @@ var VelocityCommand = cli.Command{
 	Usage:     "Show the velocity of a backlog over time",
 	ArgsUsage: "NUMBER_OF_WEEKS",
 	Action: func(c *cli.Context) error {
+		if err := checkIsBacklogDirectory(); err != nil {
+			fmt.Println(err)
+			return nil
+		}
+
 		var weekCount int
 		if c.NArg() > 0 {
 			weekCount, _ = strconv.Atoi(c.Args()[0])
@@ -20,21 +25,7 @@ var VelocityCommand = cli.Command{
 			weekCount = 12
 		}
 
-		if err := checkIsBacklogDirectory(); err != nil {
-			fmt.Println(err)
-			return nil
-		}
-
-		bck, err := backlog.LoadBacklog(".")
-		if err != nil {
-			return err
-		}
-		chart, err := backlog.BacklogView{}.VelocityText(bck, weekCount, 84)
-		if err != nil {
-			return err
-		}
-		fmt.Println(chart)
-
-		return nil
+		action := actions.NewVelocityAction(".", weekCount)
+		return action.Execute()
 	},
 }

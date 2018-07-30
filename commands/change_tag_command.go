@@ -2,8 +2,7 @@ package commands
 
 import (
 	"fmt"
-	"github.com/mreider/agilemarkdown/backlog"
-	"github.com/mreider/agilemarkdown/utils"
+	"github.com/mreider/agilemarkdown/actions"
 	"gopkg.in/urfave/cli.v1"
 	"path/filepath"
 	"strings"
@@ -29,42 +28,7 @@ var ChangeTagCommand = cli.Command{
 		oldTag := strings.ToLower(c.Args()[0])
 		newTag := strings.ToLower(c.Args()[1])
 
-		if oldTag == newTag {
-			fmt.Println("Old and new tags are equal")
-			return nil
-		}
-
-		allTags, itemsTags, ideasTags, _, err := backlog.ItemsAndIdeasTags(rootDir)
-		if err != nil {
-			return err
-		}
-
-		if _, ok := allTags[oldTag]; !ok {
-			fmt.Printf("Tag '%s' not found.\n", oldTag)
-			return nil
-		}
-
-		tagItems := itemsTags[oldTag]
-		for _, item := range tagItems {
-			itemTags := item.Tags()
-			itemTags = utils.RenameItemIgnoreCase(itemTags, oldTag, newTag)
-			item.SetTags(itemTags)
-			item.ChangeTimelineTag(oldTag, newTag)
-			item.Save()
-		}
-
-		tagIdeas := ideasTags[oldTag]
-		for _, idea := range tagIdeas {
-			ideaTags := idea.Tags()
-			ideaTags = utils.RenameItemIgnoreCase(ideaTags, oldTag, newTag)
-			idea.SetTags(ideaTags)
-			idea.Save()
-		}
-
-		backlog.NewTimelineGenerator(rootDir).RenameTimeline(oldTag, newTag)
-
-		fmt.Printf("Tag '%s' changed to '%s'. Sync to regenerate files.\n", oldTag, newTag)
-
-		return nil
+		action := actions.NewChangeTagAction(rootDir, oldTag, newTag)
+		return action.Execute()
 	},
 }
