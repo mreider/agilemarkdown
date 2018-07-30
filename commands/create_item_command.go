@@ -2,22 +2,10 @@ package commands
 
 import (
 	"fmt"
-	"github.com/mreider/agilemarkdown/backlog"
-	"github.com/mreider/agilemarkdown/git"
-	"github.com/mreider/agilemarkdown/utils"
+	"github.com/mreider/agilemarkdown/actions"
 	"gopkg.in/urfave/cli.v1"
-	"path/filepath"
 	"strings"
 )
-
-const newItemTemplate = `## Problem statement
-
-## Possible solution
-
-## Comments
-
-## Attachments
-`
 
 var CreateItemCommand = cli.Command{
 	Name:      "create-item",
@@ -48,56 +36,7 @@ var CreateItemCommand = cli.Command{
 			return nil
 		}
 		itemTitle := strings.Join(c.Args(), " ")
-		itemName := utils.GetValidFileName(itemTitle)
-		itemPath := filepath.Join(".", fmt.Sprintf("%s.md", itemName))
-		if existsFile(itemPath) {
-			if !simulate {
-				fmt.Println("file exists")
-			} else {
-				fmt.Println(itemPath)
-			}
-			return nil
-		}
-
-		if backlog.IsForbiddenItemName(itemName) {
-			if !simulate {
-				fmt.Printf("'%s' can't be used as an item name\n", itemName)
-			}
-			return nil
-		}
-
-		currentUser := user
-		if currentUser == "" {
-			var err error
-			currentUser, _, err = git.CurrentUser()
-			if err != nil {
-				currentUser = "unknown"
-			}
-		}
-
-		item, err := backlog.LoadBacklogItem(itemPath)
-		if err != nil {
-			return err
-		}
-		currentTimestamp := utils.GetCurrentTimestamp()
-		item.SetTitle(utils.TitleFirstLetter(itemTitle))
-		item.SetCreated(currentTimestamp)
-		item.SetModified(currentTimestamp)
-		item.SetTags(nil)
-		item.SetAuthor(currentUser)
-		item.SetStatus(backlog.UnplannedStatus)
-		item.SetAssigned("")
-		item.SetEstimate("")
-		item.SetDescription(newItemTemplate)
-
-		if !simulate {
-			return item.Save()
-		} else {
-			itemPath, _ := filepath.Abs(itemPath)
-			rootDir := filepath.Dir(filepath.Dir(itemPath))
-			fmt.Println(strings.TrimPrefix(itemPath, rootDir))
-			fmt.Print(string(item.Content()))
-			return nil
-		}
+		action := actions.NewCreateItemAction(".", itemTitle, user, simulate)
+		return action.Execute()
 	},
 }
