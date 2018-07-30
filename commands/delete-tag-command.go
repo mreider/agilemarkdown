@@ -1,12 +1,10 @@
 package commands
 
 import (
-	"bufio"
 	"fmt"
 	"github.com/mreider/agilemarkdown/backlog"
 	"github.com/mreider/agilemarkdown/utils"
 	"gopkg.in/urfave/cli.v1"
-	"os"
 	"path/filepath"
 	"strings"
 )
@@ -29,12 +27,7 @@ var DeleteTagCommand = cli.Command{
 		}
 
 		tag := strings.ToLower(c.Args()[0])
-		fmt.Println("This will delete links to ideas and timelines ok? (y or n)")
-
-		reader := bufio.NewReader(os.Stdin)
-		text, _ := reader.ReadString('\n')
-		text = strings.ToLower(strings.TrimSpace(text))
-		if text != "y" {
+		if !confirmAction("This will delete links to ideas and timelines ok? (y or n)") {
 			return nil
 		}
 

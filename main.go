@@ -62,6 +62,8 @@ func main() {
 		commands.DeleteTagCommand,
 		commands.ChangeTagCommand,
 		commands.CreateUserCommand,
+		commands.DeleteUserCommand,
+		commands.ChangeUserCommand,
 	}
 
 	err = app.Run(os.Args)

@@ -78,7 +78,19 @@ func ItemsAndIdeasTags(rootDir string) (allTags map[string]struct{}, itemsTags m
 	return allTags, itemsTags, ideasTags, itemsOverviews, nil
 }
 
-func ActiveItems(rootDir string) (items []*BacklogItem, itemsOverviews map[*BacklogItem]*BacklogOverview, err error) {
+func ActiveBacklogItems(rootDir string) (items []*BacklogItem, itemsOverviews map[*BacklogItem]*BacklogOverview, err error) {
+	return getBacklogItems(rootDir, func(backlog *Backlog) []*BacklogItem {
+		return backlog.ActiveItems()
+	})
+}
+
+func AllBacklogItems(rootDir string) (items []*BacklogItem, itemsOverviews map[*BacklogItem]*BacklogOverview, err error) {
+	return getBacklogItems(rootDir, func(backlog *Backlog) []*BacklogItem {
+		return backlog.AllItems()
+	})
+}
+
+func getBacklogItems(rootDir string, getItems func(backlog *Backlog) []*BacklogItem) (items []*BacklogItem, itemsOverviews map[*BacklogItem]*BacklogOverview, err error) {
 	backlogDirs, err := BacklogDirs(rootDir)
 	if err != nil {
 		return nil, nil, err
@@ -101,7 +113,7 @@ func ActiveItems(rootDir string) (items []*BacklogItem, itemsOverviews map[*Back
 			return nil, nil, err
 		}
 
-		bckItems := bck.ActiveItems()
+		bckItems := getItems(bck)
 		for _, item := range bckItems {
 			items = append(items, item)
 			itemsOverviews[item] = overview

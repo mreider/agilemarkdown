@@ -2,7 +2,6 @@ package backlog
 
 import (
 	"fmt"
-	"github.com/mreider/agilemarkdown/git"
 	"github.com/mreider/agilemarkdown/utils"
 	"io/ioutil"
 	"os"
@@ -18,10 +17,8 @@ type UserList struct {
 func NewUserList(usersDir string) *UserList {
 	userList := &UserList{usersDir: usersDir}
 	if usersDir != "" {
-		userList.fixObsoleteUserFiles()
 		userList.init()
-		userList.load()
-		userList.initGitUsers()
+		userList.fixObsoleteUserFiles()
 		userList.load()
 	}
 	return userList
@@ -71,6 +68,26 @@ func (ul *UserList) AddUser(name, email string) bool {
 	return true
 }
 
+func (ul *UserList) DeleteUser(nameOrEmailOrNick string) bool {
+	user := ul.User(nameOrEmailOrNick)
+	if user == nil {
+		return true
+	}
+	err := os.Remove(user.Path())
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+	users := make([]*User, 0, len(ul.users))
+	for _, u := range ul.users {
+		if u != user {
+			users = append(users, u)
+		}
+	}
+	ul.users = users
+	return true
+}
+
 func (ul *UserList) Save() error {
 	for _, user := range ul.users {
 		err := user.Save()
@@ -93,20 +110,6 @@ func (ul *UserList) init() error {
 		}
 	}
 	return nil
-}
-
-func (ul *UserList) initGitUsers() error {
-	names, emails, err := git.KnownUsers()
-	if err == nil {
-		for i := range names {
-			ul.AddUser(names[i], emails[i])
-		}
-	}
-	name, email, err := git.CurrentUser()
-	if err == nil {
-		ul.AddUser(name, email)
-	}
-	return ul.Save()
 }
 
 func (ul *UserList) load() error {

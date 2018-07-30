@@ -827,7 +827,7 @@ func (a *SyncAction) updateUsers(rootDir string) error {
 	userList := backlog.NewUserList(filepath.Join(rootDir, backlog.UsersDirectoryName))
 	tagsDir := filepath.Join(rootDir, backlog.TagsDirectoryName)
 
-	items, overviews, err := backlog.ActiveItems(rootDir)
+	items, overviews, err := backlog.ActiveBacklogItems(rootDir)
 	if err != nil {
 		return err
 	}
