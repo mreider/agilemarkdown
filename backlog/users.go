@@ -158,6 +158,7 @@ func (ul *UserList) fixObsoleteUserFiles() error {
 		itemPath := filepath.Join(ul.usersDir, item.Name())
 		userPath := itemPath + ".md"
 		if _, err := os.Stat(userPath); err == nil {
+			os.Remove(itemPath)
 			continue
 		} else if !os.IsNotExist(err) {
 			return err

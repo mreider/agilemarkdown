@@ -58,10 +58,10 @@ func main() {
 		commands.AliasCommand,
 		commands.ImportCommand,
 		commands.ArchiveCommand,
-		commands.CreateUserCommand,
 		commands.TimelineCommand,
 		commands.DeleteTagCommand,
 		commands.ChangeTagCommand,
+		commands.CreateUserCommand,
 	}
 
 	err = app.Run(os.Args)
