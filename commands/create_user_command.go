@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/mreider/agilemarkdown/backlog"
 	"gopkg.in/urfave/cli.v1"
-	"os"
 	"path/filepath"
 	"strings"
 )
@@ -43,13 +42,9 @@ var CreateUserCommand = cli.Command{
 			return nil
 		}
 
-		rootDir, _ := filepath.Abs(".")
-		for rootDir != "" {
-			_, err := os.Stat(filepath.Join(rootDir, ".git"))
-			if err == nil {
-				break
-			}
-			rootDir = filepath.Dir(rootDir)
+		rootDir, err := findRootDirectory()
+		if err != nil {
+			return err
 		}
 		userList := backlog.NewUserList(filepath.Join(rootDir, backlog.UsersDirectoryName))
 

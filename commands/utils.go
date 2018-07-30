@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"github.com/mreider/agilemarkdown/backlog"
@@ -55,6 +56,24 @@ func checkIsRootDirectory(dir string) error {
 		return errors.New("Error, please change directory to a root git folder")
 	}
 	return nil
+}
+
+func findRootDirectory() (string, error) {
+	dir, _ := filepath.Abs(".")
+	for dir != "" {
+		_, err := os.Stat(filepath.Join(dir, ".git"))
+		if err == nil {
+			break
+		}
+		newDir := filepath.Dir(dir)
+		if newDir == dir {
+			dir = ""
+		}
+	}
+	if dir == "" {
+		return "", fmt.Errorf("can't find root directory from '%s'", dir)
+	}
+	return dir, nil
 }
 
 func existsFile(path string) bool {
@@ -138,4 +157,13 @@ func AddConfigAndGitIgnore(rootDir string) {
 	if hasChanges {
 		git.Commit("configuration", "")
 	}
+}
+
+func confirmAction(question string) bool {
+	fmt.Println(question)
+
+	reader := bufio.NewReader(os.Stdin)
+	text, _ := reader.ReadString('\n')
+	text = strings.ToLower(strings.TrimSpace(text))
+	return text == "y"
 }
