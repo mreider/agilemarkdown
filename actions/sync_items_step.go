@@ -11,11 +11,11 @@ import (
 )
 
 type SyncItemsStep struct {
-	rootDir string
+	root *backlog.BacklogsStructure
 }
 
-func NewSyncItemsStep(rootDir string) *SyncItemsStep {
-	return &SyncItemsStep{rootDir: rootDir}
+func NewSyncItemsStep(root *backlog.BacklogsStructure) *SyncItemsStep {
+	return &SyncItemsStep{root: root}
 }
 
 func (s *SyncItemsStep) Execute() error {
@@ -28,7 +28,7 @@ func (s *SyncItemsStep) Execute() error {
 }
 
 func (s *SyncItemsStep) updateItemsModifiedDate() error {
-	backlogDirs, err := backlog.BacklogDirs(s.rootDir)
+	backlogDirs, err := s.root.BacklogDirs()
 	if err != nil {
 		return err
 	}
@@ -49,9 +49,9 @@ func (s *SyncItemsStep) updateItemsModifiedDate() error {
 		}
 		for _, item := range bck.AllItems() {
 			if modifiedFilesSet[filepath.Base(item.Path())] {
-				itemPath, _ := filepath.Rel(s.rootDir, item.Path())
+				itemPath, _ := filepath.Rel(s.root.Root(), item.Path())
 				itemPath = fmt.Sprintf("./%s", itemPath)
-				repoItemContent, err := git.RepoVersion(s.rootDir, itemPath)
+				repoItemContent, err := git.RepoVersion(s.root.Root(), itemPath)
 				if err != nil {
 					return err
 				}
@@ -97,7 +97,7 @@ func (s *SyncItemsStep) updateItemsModifiedDate() error {
 }
 
 func (s *SyncItemsStep) updateItemsFileNames() error {
-	backlogDirs, err := backlog.BacklogDirs(s.rootDir)
+	backlogDirs, err := s.root.BacklogDirs()
 	if err != nil {
 		return err
 	}

@@ -7,12 +7,12 @@ import (
 )
 
 type DeleteTagAction struct {
-	rootDir string
-	tag     string
+	root *backlog.BacklogsStructure
+	tag  string
 }
 
 func NewDeleteTagAction(rootDir, tag string) *DeleteTagAction {
-	return &DeleteTagAction{rootDir: rootDir, tag: tag}
+	return &DeleteTagAction{root: backlog.NewBacklogsStructure(rootDir), tag: tag}
 }
 
 func (a *DeleteTagAction) Execute() error {
@@ -20,7 +20,7 @@ func (a *DeleteTagAction) Execute() error {
 		return nil
 	}
 
-	allTags, itemsTags, ideasTags, _, err := backlog.ItemsAndIdeasTags(a.rootDir)
+	allTags, itemsTags, ideasTags, _, err := backlog.ItemsAndIdeasTags(a.root)
 	if err != nil {
 		return err
 	}

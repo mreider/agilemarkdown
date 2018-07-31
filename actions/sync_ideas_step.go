@@ -14,23 +14,23 @@ import (
 )
 
 type SyncIdeasStep struct {
-	rootDir  string
+	root     *backlog.BacklogsStructure
 	cfg      *config.Config
 	userList *backlog.UserList
 	author   string
 }
 
-func NewSyncIdeasStep(rootDir string, cfg *config.Config, userList *backlog.UserList, author string) *SyncIdeasStep {
-	return &SyncIdeasStep{rootDir: rootDir, cfg: cfg, userList: userList, author: author}
+func NewSyncIdeasStep(root *backlog.BacklogsStructure, cfg *config.Config, userList *backlog.UserList, author string) *SyncIdeasStep {
+	return &SyncIdeasStep{root: root, cfg: cfg, userList: userList, author: author}
 }
 
 func (s *SyncIdeasStep) Execute() error {
-	_, itemsTags, ideasTags, overviews, err := backlog.ItemsAndIdeasTags(s.rootDir)
+	_, itemsTags, ideasTags, overviews, err := backlog.ItemsAndIdeasTags(s.root)
 	if err != nil {
 		return err
 	}
 
-	ideasDir := filepath.Join(s.rootDir, backlog.IdeasDirectoryName)
+	ideasDir := s.root.IdeasDirectory()
 	ideas, err := backlog.LoadIdeas(ideasDir)
 	if err != nil {
 		return err
@@ -40,7 +40,7 @@ func (s *SyncIdeasStep) Execute() error {
 
 	ideasByRank := make(map[string][]*backlog.BacklogIdea)
 	var ranks []string
-	tagsDir := filepath.Join(s.rootDir, backlog.TagsDirectoryName)
+	tagsDir := s.root.TagsDirectory()
 	for _, idea := range ideas {
 		err := s.updateIdea(tagsDir, idea, ideasTags, itemsTags, overviews)
 		if err != nil {
@@ -61,7 +61,7 @@ func (s *SyncIdeasStep) Execute() error {
 
 	lines := []string{"# Ideas", ""}
 	lines = append(lines,
-		fmt.Sprintf(utils.JoinMarkdownLinks(backlog.MakeStandardLinks(s.rootDir, s.rootDir)...)))
+		fmt.Sprintf(utils.JoinMarkdownLinks(backlog.MakeStandardLinks(s.root.Root(), s.root.Root())...)))
 	lines = append(lines, "")
 	for _, rank := range ranks {
 		if rank != "" {
@@ -70,10 +70,10 @@ func (s *SyncIdeasStep) Execute() error {
 			lines = append(lines, "## Rank: unassigned")
 		}
 		lines = append(lines, "")
-		lines = append(lines, backlog.BacklogView{}.WriteMarkdownIdeas(ideasByRank[strings.TrimSpace(rank)], s.rootDir, filepath.Join(s.rootDir, backlog.TagsDirectoryName))...)
+		lines = append(lines, backlog.BacklogView{}.WriteMarkdownIdeas(ideasByRank[strings.TrimSpace(rank)], s.root.Root(), s.root.TagsDirectory())...)
 		lines = append(lines, "")
 	}
-	return ioutil.WriteFile(filepath.Join(s.rootDir, backlog.IdeasFileName), []byte(strings.Join(lines, "\n")), 0644)
+	return ioutil.WriteFile(s.root.IdeasFile(), []byte(strings.Join(lines, "\n")), 0644)
 }
 
 func (s *SyncIdeasStep) updateIdea(tagsDir string, idea *backlog.BacklogIdea, ideasTags map[string][]*backlog.BacklogIdea, itemsTags map[string][]*backlog.BacklogItem, overviews map[*backlog.BacklogItem]*backlog.BacklogOverview) error {
@@ -100,7 +100,7 @@ func (s *SyncIdeasStep) updateIdea(tagsDir string, idea *backlog.BacklogIdea, id
 		idea.SetText(idea.Text())
 		idea.Save()
 	}
-	idea.UpdateLinks(s.rootDir)
+	idea.UpdateLinks(s.root.Root())
 
 	ideaTags := make(map[string]struct{})
 NextTag:
@@ -141,7 +141,7 @@ NextTag:
 }
 
 func (s *SyncIdeasStep) sendNewCommentsForIdeas(ideas []*backlog.BacklogIdea) {
-	userList := backlog.NewUserList(filepath.Join(s.rootDir, backlog.UsersDirectoryName))
+	userList := backlog.NewUserList(s.root.UsersDirectory())
 	var mailSender *utils.MailSender
 	if s.cfg.SmtpServer != "" {
 		mailSender = utils.NewMailSender(s.cfg.SmtpServer, s.cfg.SmtpUser, s.cfg.SmtpPassword, s.cfg.EmailFrom)
@@ -152,6 +152,6 @@ func (s *SyncIdeasStep) sendNewCommentsForIdeas(ideas []*backlog.BacklogIdea) {
 		commented[i] = ideas[i]
 	}
 	sendNewComments(commented, func(idea backlog.Commented, to []string, comment []string) (me string, err error) {
-		return sendComment(userList, comment, idea.Title(), s.author, to, mailSender, s.cfg, s.rootDir, idea.Path())
+		return sendComment(userList, comment, idea.Title(), s.author, to, mailSender, s.cfg, s.root.Root(), idea.Path())
 	})
 }

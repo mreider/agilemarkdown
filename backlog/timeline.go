@@ -11,7 +11,7 @@ import (
 )
 
 type TimelineGenerator struct {
-	rootDir string
+	root *BacklogsStructure
 }
 
 type timelineItem struct {
@@ -20,8 +20,8 @@ type timelineItem struct {
 	endDate   time.Time
 }
 
-func NewTimelineGenerator(rootDir string) *TimelineGenerator {
-	return &TimelineGenerator{rootDir: rootDir}
+func NewTimelineGenerator(root *BacklogsStructure) *TimelineGenerator {
+	return &TimelineGenerator{root: root}
 }
 
 func (tg *TimelineGenerator) Execute() error {
@@ -29,7 +29,7 @@ func (tg *TimelineGenerator) Execute() error {
 }
 
 func (tg *TimelineGenerator) ExecuteForTag(tag string) error {
-	_, itemsTags, _, _, err := ItemsAndIdeasTags(tg.rootDir)
+	_, itemsTags, _, _, err := ItemsAndIdeasTags(tg.root)
 	if err != nil {
 		return err
 	}
@@ -48,7 +48,7 @@ func (tg *TimelineGenerator) ExecuteForTag(tag string) error {
 
 		tg.sortTimelineItems(timelineItems)
 
-		timelineDirectory := filepath.Join(tg.rootDir, TimelineDirectoryName)
+		timelineDirectory := tg.root.TimelineDirectory()
 		os.MkdirAll(timelineDirectory, 0777)
 		pngPath := filepath.Join(timelineDirectory, fmt.Sprintf("%s.png", tag))
 
@@ -101,14 +101,14 @@ func (tg *TimelineGenerator) sortTimelineItems(items []*timelineItem) {
 }
 
 func (tg *TimelineGenerator) RenameTimeline(oldTag, newTag string) error {
-	timelineDirectory := filepath.Join(tg.rootDir, TimelineDirectoryName)
+	timelineDirectory := tg.root.TimelineDirectory()
 	oldPngPath := filepath.Join(timelineDirectory, fmt.Sprintf("%s.png", oldTag))
 	newPngPath := filepath.Join(timelineDirectory, fmt.Sprintf("%s.png", newTag))
 	return os.Rename(oldPngPath, newPngPath)
 }
 
 func (tg *TimelineGenerator) RemoveTimeline(tag string) error {
-	timelineDirectory := filepath.Join(tg.rootDir, TimelineDirectoryName)
+	timelineDirectory := tg.root.TimelineDirectory()
 	pngPath := filepath.Join(timelineDirectory, fmt.Sprintf("%s.png", tag))
 	return os.Remove(pngPath)
 }

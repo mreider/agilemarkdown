@@ -17,16 +17,16 @@ var (
 )
 
 type TimelineAction struct {
-	rootDir string
-	tag     string
+	root *backlog.BacklogsStructure
+	tag  string
 }
 
 func NewTimelineAction(rootDir, tag string) *TimelineAction {
-	return &TimelineAction{rootDir: rootDir, tag: tag}
+	return &TimelineAction{root: backlog.NewBacklogsStructure(rootDir), tag: tag}
 }
 
 func (a *TimelineAction) Execute() error {
-	_, itemsTags, _, overviews, err := backlog.ItemsAndIdeasTags(a.rootDir)
+	_, itemsTags, _, overviews, err := backlog.ItemsAndIdeasTags(a.root)
 	if err != nil {
 		return err
 	}
@@ -104,7 +104,7 @@ func (a *TimelineAction) Execute() error {
 		return nil
 	}
 
-	timelineGenerator := backlog.NewTimelineGenerator(a.rootDir)
+	timelineGenerator := backlog.NewTimelineGenerator(a.root)
 	return timelineGenerator.ExecuteForTag(a.tag)
 }
 

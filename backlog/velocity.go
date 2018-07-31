@@ -66,7 +66,7 @@ func (velocity *Velocity) generateVelocityImage(backlogDir string, bck *Backlog,
 		return "", nil
 	}
 
-	velocityDir := filepath.Join(filepath.Dir(backlogDir), "velocity")
+	velocityDir := filepath.Join(filepath.Dir(backlogDir), velocityDirectoryName)
 	os.MkdirAll(velocityDir, 0777)
 	velocityPngPath := filepath.Join(velocityDir, fmt.Sprintf("%s.png", filepath.Base(backlogDir)))
 	err = ioutil.WriteFile(velocityPngPath, chart, 0644)

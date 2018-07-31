@@ -12,19 +12,19 @@ import (
 )
 
 type SyncTagsStep struct {
-	rootDir  string
+	root     *backlog.BacklogsStructure
 	userList *backlog.UserList
 }
 
-func NewSyncTagsStep(rootDir string, userList *backlog.UserList) *SyncTagsStep {
-	return &SyncTagsStep{rootDir: rootDir, userList: userList}
+func NewSyncTagsStep(root *backlog.BacklogsStructure, userList *backlog.UserList) *SyncTagsStep {
+	return &SyncTagsStep{root: root, userList: userList}
 }
 
 func (s *SyncTagsStep) Execute() error {
-	tagsDir := filepath.Join(s.rootDir, backlog.TagsDirectoryName)
+	tagsDir := s.root.TagsDirectory()
 	os.MkdirAll(tagsDir, 0777)
 
-	allTags, itemsTags, ideasTags, overviews, err := backlog.ItemsAndIdeasTags(s.rootDir)
+	allTags, itemsTags, ideasTags, overviews, err := backlog.ItemsAndIdeasTags(s.root)
 	if err != nil {
 		return err
 	}
@@ -69,7 +69,7 @@ func (s *SyncTagsStep) updateTagPage(tagsDir, tag string, items []*backlog.Backl
 	lines := []string{
 		fmt.Sprintf("# Tag: %s", tag),
 		"",
-		fmt.Sprintf(utils.JoinMarkdownLinks(backlog.MakeStandardLinks(s.rootDir, tagsDir)...)),
+		fmt.Sprintf(utils.JoinMarkdownLinks(backlog.MakeStandardLinks(s.root.Root(), tagsDir)...)),
 		"",
 	}
 	for _, status := range backlog.AllStatuses {
@@ -112,10 +112,10 @@ func (s *SyncTagsStep) updateTagsPage(tagsDir string, itemsTags map[string][]*ba
 	sort.Strings(allTags)
 
 	lines := []string{"# Tags", ""}
-	lines = append(lines, fmt.Sprintf(utils.JoinMarkdownLinks(backlog.MakeStandardLinks(s.rootDir, s.rootDir)...)))
+	lines = append(lines, fmt.Sprintf(utils.JoinMarkdownLinks(backlog.MakeStandardLinks(s.root.Root(), s.root.Root())...)))
 	lines = append(lines, "", "---", "")
 	for _, tag := range allTags {
-		lines = append(lines, fmt.Sprintf("%s", backlog.MakeTagLink(tag, tagsDir, s.rootDir)))
+		lines = append(lines, fmt.Sprintf("%s", backlog.MakeTagLink(tag, tagsDir, s.root.Root())))
 	}
-	return ioutil.WriteFile(filepath.Join(s.rootDir, backlog.TagsFileName), []byte(strings.Join(lines, "  \n")), 0644)
+	return ioutil.WriteFile(s.root.TagsFile(), []byte(strings.Join(lines, "  \n")), 0644)
 }

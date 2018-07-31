@@ -60,7 +60,7 @@ func (s *BacklogItemsSorter) updateSortedItems(overview *BacklogOverview, sorted
 			matches := overviewItemRe.FindAllStringSubmatch(line, -1)
 			for _, match := range matches {
 				itemPath := match[1]
-				if strings.HasPrefix(itemPath, UsersDirectoryName+"/") {
+				if strings.HasPrefix(itemPath, usersDirectoryName+"/") {
 					continue
 				}
 				itemName := filepath.Base(itemPath)

@@ -3,19 +3,18 @@ package actions
 import (
 	"fmt"
 	"github.com/mreider/agilemarkdown/backlog"
-	"path/filepath"
 	"strings"
 )
 
 type CreateUserAction struct {
-	rootDir string
-	name    string
-	email   string
-	parts   []string
+	root  *backlog.BacklogsStructure
+	name  string
+	email string
+	parts []string
 }
 
 func NewCreateUserAction(rootDir, name, email string, parts []string) *CreateUserAction {
-	return &CreateUserAction{rootDir: rootDir, name: name, email: email, parts: parts}
+	return &CreateUserAction{root: backlog.NewBacklogsStructure(rootDir), name: name, email: email, parts: parts}
 }
 
 func (a *CreateUserAction) Execute() error {
@@ -39,7 +38,7 @@ func (a *CreateUserAction) Execute() error {
 		return nil
 	}
 
-	userList := backlog.NewUserList(filepath.Join(a.rootDir, backlog.UsersDirectoryName))
+	userList := backlog.NewUserList(a.root.UsersDirectory())
 
 	existingUser := userList.User(email)
 	if existingUser != nil {

@@ -18,12 +18,13 @@ var (
 )
 
 type AssignUserAction struct {
+	root       *backlog.BacklogsStructure
 	backlogDir string
 	statusCode string
 }
 
 func NewAssignUserAction(backlogDir, statusCode string) *AssignUserAction {
-	return &AssignUserAction{backlogDir: backlogDir, statusCode: statusCode}
+	return &AssignUserAction{root: backlog.NewBacklogsStructure(filepath.Join(backlogDir, "..")), backlogDir: backlogDir, statusCode: statusCode}
 }
 
 func (a *AssignUserAction) Execute() error {
@@ -63,7 +64,7 @@ func (a *AssignUserAction) Execute() error {
 	}
 	fmt.Println("")
 
-	userList := backlog.NewUserList(filepath.Join(a.backlogDir, "..", backlog.UsersDirectoryName))
+	userList := backlog.NewUserList(a.root.UsersDirectory())
 	allUsers := userList.AllUsers()
 	sort.Strings(allUsers)
 

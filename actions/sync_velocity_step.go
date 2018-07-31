@@ -3,23 +3,22 @@ package actions
 import (
 	"fmt"
 	"github.com/mreider/agilemarkdown/backlog"
-	"path/filepath"
 )
 
 type SyncVelocityStep struct {
-	rootDir string
+	root *backlog.BacklogsStructure
 }
 
-func NewSyncVelocityStep(rootDir string) *SyncVelocityStep {
-	return &SyncVelocityStep{rootDir: rootDir}
+func NewSyncVelocityStep(root *backlog.BacklogsStructure) *SyncVelocityStep {
+	return &SyncVelocityStep{root: root}
 }
 
 func (s *SyncVelocityStep) Execute() error {
-	backlogDirs, err := backlog.BacklogDirs(s.rootDir)
+	backlogDirs, err := s.root.BacklogDirs()
 	if err != nil {
 		return err
 	}
-	velocityPath := filepath.Join(s.rootDir, backlog.VelocityFileName)
+	velocityPath := s.root.VelocityFile()
 	velocity, err := backlog.LoadGlobalVelocity(velocityPath)
 	if err != nil {
 		return err
@@ -47,8 +46,8 @@ func (s *SyncVelocityStep) Execute() error {
 		overviews = append(overviews, overview)
 		backlogs = append(backlogs, bck)
 	}
-	velocity.Update(backlogs, overviews, backlogDirs, s.rootDir)
-	velocity.UpdateLinks(s.rootDir)
+	velocity.Update(backlogs, overviews, backlogDirs, s.root.Root())
+	velocity.UpdateLinks(s.root.Root())
 
 	return nil
 

@@ -3,6 +3,7 @@ package commands
 import (
 	"fmt"
 	"github.com/mreider/agilemarkdown/actions"
+	"github.com/mreider/agilemarkdown/backlog"
 	"github.com/mreider/agilemarkdown/git"
 	"gopkg.in/urfave/cli.v1"
 	"strings"
@@ -20,7 +21,7 @@ var CreateBacklogCommand = cli.Command{
 				if err != nil {
 					return err
 				}
-				AddConfigAndGitIgnore(".")
+				AddConfigAndGitIgnore(backlog.NewBacklogsStructure("."))
 			} else {
 				return err
 			}

@@ -3,21 +3,20 @@ package actions
 import (
 	"fmt"
 	"github.com/mreider/agilemarkdown/backlog"
-	"path/filepath"
 )
 
 type ChangeUserAction struct {
-	rootDir         string
+	root            *backlog.BacklogsStructure
 	fromNameOrEmail string
 	toNameOrEmail   string
 }
 
 func NewChangeUserAction(rootDir, fromNameOrEmail, toNameOrEmail string) *ChangeUserAction {
-	return &ChangeUserAction{rootDir: rootDir, fromNameOrEmail: fromNameOrEmail, toNameOrEmail: toNameOrEmail}
+	return &ChangeUserAction{root: backlog.NewBacklogsStructure(rootDir), fromNameOrEmail: fromNameOrEmail, toNameOrEmail: toNameOrEmail}
 }
 
 func (a *ChangeUserAction) Execute() error {
-	userList := backlog.NewUserList(filepath.Join(a.rootDir, backlog.UsersDirectoryName))
+	userList := backlog.NewUserList(a.root.UsersDirectory())
 
 	fromUser := userList.User(a.fromNameOrEmail)
 	if fromUser == nil {
@@ -40,7 +39,7 @@ func (a *ChangeUserAction) Execute() error {
 		return nil
 	}
 
-	items, _, err := backlog.AllBacklogItems(a.rootDir)
+	items, _, err := backlog.AllBacklogItems(a.root)
 	if err != nil {
 		return err
 	}

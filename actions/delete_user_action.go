@@ -3,20 +3,19 @@ package actions
 import (
 	"fmt"
 	"github.com/mreider/agilemarkdown/backlog"
-	"path/filepath"
 )
 
 type DeleteUserAction struct {
-	rootDir     string
+	root        *backlog.BacklogsStructure
 	nameOrEmail string
 }
 
 func NewDeleteUserAction(rootDir, nameOrEmail string) *DeleteUserAction {
-	return &DeleteUserAction{rootDir: rootDir, nameOrEmail: nameOrEmail}
+	return &DeleteUserAction{root: backlog.NewBacklogsStructure(rootDir), nameOrEmail: nameOrEmail}
 }
 
 func (a *DeleteUserAction) Execute() error {
-	userList := backlog.NewUserList(filepath.Join(a.rootDir, backlog.UsersDirectoryName))
+	userList := backlog.NewUserList(a.root.UsersDirectory())
 
 	user := userList.User(a.nameOrEmail)
 	if user == nil {
@@ -28,7 +27,7 @@ func (a *DeleteUserAction) Execute() error {
 		return nil
 	}
 
-	items, _, err := backlog.AllBacklogItems(a.rootDir)
+	items, _, err := backlog.AllBacklogItems(a.root)
 	if err != nil {
 		return err
 	}
