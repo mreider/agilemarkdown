@@ -28,7 +28,7 @@ func CurrentUser() (name, email string, err error) {
 }
 
 func KnownUsers() (names, emails []string, err error) {
-	args := []string{"shortlog", "--summary", "-e", "HEAD"}
+	args := []string{"shortlog", "--summary", "-e", "-n", "HEAD"}
 	output, err := runGitCommand(args)
 	if err != nil {
 		return nil, nil, err
