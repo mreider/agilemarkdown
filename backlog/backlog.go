@@ -14,23 +14,6 @@ const (
 )
 
 var (
-	IndexFileName         = "index.md"
-	VelocityFileName      = "velocity.md"
-	VelocityDirectoryName = "velocity"
-	IdeasDirectoryName    = "ideas"
-	IdeasFileName         = "ideas.md"
-	ArchiveDirectoryName  = "archive"
-	TagsDirectoryName     = "tags"
-	TagsFileName          = "tags.md"
-	UsersDirectoryName    = "users"
-	UsersFileName         = "users.md"
-	TimelineFileName      = "timeline.md"
-	TimelineDirectoryName = "timeline"
-	ForbiddenBacklogNames = []string{VelocityDirectoryName, IdeasDirectoryName, ArchiveDirectoryName, TagsDirectoryName, UsersDirectoryName, TimelineDirectoryName}
-	ForbiddenItemNames    = []string{ArchiveDirectoryName}
-)
-
-var (
 	tagSeparators = regexp.MustCompile(`[,; ]+`)
 )
 
@@ -46,7 +29,7 @@ func LoadBacklog(backlogDir string) (*Backlog, error) {
 	}
 	items = append(items, activeItems...)
 
-	archivedItems, err := loadItems(filepath.Join(backlogDir, ArchiveDirectoryName))
+	archivedItems, err := loadItems(filepath.Join(backlogDir, archiveDirectoryName))
 	if err != nil {
 		return nil, err
 	}

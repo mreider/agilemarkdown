@@ -16,19 +16,19 @@ const newIdeaTemplate = `
 `
 
 type CreateIdeaAction struct {
-	rootDir   string
+	root      *backlog.BacklogsStructure
 	ideaTitle string
 	user      string
 	simulate  bool
 }
 
 func NewCreateIdeaAction(rootDir, ideaTitle, user string, simulate bool) *CreateIdeaAction {
-	return &CreateIdeaAction{rootDir: rootDir, ideaTitle: ideaTitle, user: user, simulate: simulate}
+	return &CreateIdeaAction{root: backlog.NewBacklogsStructure(rootDir), ideaTitle: ideaTitle, user: user, simulate: simulate}
 }
 
 func (a *CreateIdeaAction) Execute() error {
 	ideaName := utils.GetValidFileName(a.ideaTitle)
-	ideaPath := filepath.Join(a.rootDir, backlog.IdeasDirectoryName, fmt.Sprintf("%s.md", ideaName))
+	ideaPath := filepath.Join(a.root.IdeasDirectory(), fmt.Sprintf("%s.md", ideaName))
 	if existsFile(ideaPath) {
 		if !a.simulate {
 			fmt.Println("file exists")

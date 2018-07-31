@@ -5,23 +5,22 @@ import (
 	"github.com/mreider/agilemarkdown/backlog"
 	"github.com/mreider/agilemarkdown/utils"
 	"io/ioutil"
-	"path/filepath"
 	"strings"
 )
 
 type SyncUsersStep struct {
-	rootDir string
+	root *backlog.BacklogsStructure
 }
 
-func NewSyncUsersStep(rootDir string) *SyncUsersStep {
-	return &SyncUsersStep{rootDir: rootDir}
+func NewSyncUsersStep(root *backlog.BacklogsStructure) *SyncUsersStep {
+	return &SyncUsersStep{root: root}
 }
 
 func (s *SyncUsersStep) Execute() error {
-	userList := backlog.NewUserList(filepath.Join(s.rootDir, backlog.UsersDirectoryName))
-	tagsDir := filepath.Join(s.rootDir, backlog.TagsDirectoryName)
+	userList := backlog.NewUserList(s.root.UsersDirectory())
+	tagsDir := s.root.TagsDirectory()
 
-	items, overviews, err := backlog.ActiveBacklogItems(s.rootDir)
+	items, overviews, err := backlog.ActiveBacklogItems(s.root)
 	if err != nil {
 		return err
 	}
@@ -36,7 +35,7 @@ func (s *SyncUsersStep) Execute() error {
 			}
 		}
 
-		_, err := user.UpdateItems(s.rootDir, tagsDir, userItems, overviews)
+		_, err := user.UpdateItems(s.root.Root(), tagsDir, userItems, overviews)
 		if err != nil {
 			return err
 		}
@@ -46,12 +45,12 @@ func (s *SyncUsersStep) Execute() error {
 
 func (s *SyncUsersStep) updateUsersPage(userList *backlog.UserList) error {
 	lines := []string{"# Users", ""}
-	lines = append(lines, fmt.Sprintf(utils.JoinMarkdownLinks(backlog.MakeStandardLinks(s.rootDir, s.rootDir)...)))
+	lines = append(lines, fmt.Sprintf(utils.JoinMarkdownLinks(backlog.MakeStandardLinks(s.root.Root(), s.root.Root())...)))
 	lines = append(lines, "", "---", "")
 	lines = append(lines, fmt.Sprintf("| Name | Nickname | Email |"))
 	lines = append(lines, "|---|---|---|")
 	for _, user := range userList.Users() {
-		lines = append(lines, fmt.Sprintf("| %s | %s | %s |", backlog.MakeUserLink(user, user.Name(), s.rootDir), user.Nickname(), strings.Join(user.Emails(), ", ")))
+		lines = append(lines, fmt.Sprintf("| %s | %s | %s |", backlog.MakeUserLink(user, user.Name(), s.root.Root()), user.Nickname(), strings.Join(user.Emails(), ", ")))
 	}
-	return ioutil.WriteFile(filepath.Join(s.rootDir, backlog.UsersFileName), []byte(strings.Join(lines, "  \n")), 0644)
+	return ioutil.WriteFile(s.root.UsersFile(), []byte(strings.Join(lines, "  \n")), 0644)
 }

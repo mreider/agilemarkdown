@@ -206,7 +206,7 @@ func (item *BacklogItem) SetArchived(archived bool) {
 
 func (item *BacklogItem) MoveToBacklogDirectory() error {
 	markdownDir := filepath.Dir(item.markdown.ContentPath())
-	if filepath.Base(markdownDir) == ArchiveDirectoryName {
+	if filepath.Base(markdownDir) == archiveDirectoryName {
 		newContentPath := filepath.Join(filepath.Dir(markdownDir), filepath.Base(item.markdown.ContentPath()))
 		err := os.Rename(item.markdown.ContentPath(), newContentPath)
 		if err != nil {
@@ -219,8 +219,8 @@ func (item *BacklogItem) MoveToBacklogDirectory() error {
 
 func (item *BacklogItem) MoveToBacklogArchiveDirectory() error {
 	markdownDir := filepath.Dir(item.markdown.ContentPath())
-	if filepath.Base(markdownDir) != ArchiveDirectoryName {
-		newContentPath := filepath.Join(markdownDir, ArchiveDirectoryName, filepath.Base(item.markdown.ContentPath()))
+	if filepath.Base(markdownDir) != archiveDirectoryName {
+		newContentPath := filepath.Join(markdownDir, archiveDirectoryName, filepath.Base(item.markdown.ContentPath()))
 		os.MkdirAll(filepath.Dir(newContentPath), 0777)
 		err := os.Rename(item.markdown.ContentPath(), newContentPath)
 		if err != nil {

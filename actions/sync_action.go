@@ -7,65 +7,62 @@ import (
 	"github.com/mreider/agilemarkdown/config"
 	"github.com/mreider/agilemarkdown/git"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
 type SyncAction struct {
-	rootDir    string
-	configName string
-	author     string
-	testMode   bool
+	root     *backlog.BacklogsStructure
+	author   string
+	testMode bool
 }
 
-func NewSyncAction(rootDir, configName, author string, testMode bool) *SyncAction {
-	return &SyncAction{rootDir: rootDir, configName: configName, author: author, testMode: testMode}
+func NewSyncAction(rootDir, author string, testMode bool) *SyncAction {
+	return &SyncAction{root: backlog.NewBacklogsStructure(rootDir), author: author, testMode: testMode}
 }
 
 func (a *SyncAction) Execute() error {
-	cfgPath := filepath.Join(a.rootDir, a.configName)
-	cfg, err := config.LoadConfig(cfgPath)
+	cfg, err := config.LoadConfig(a.root.ConfigFile())
 	if err != nil {
-		return fmt.Errorf("Can't load the config file %s: %v\n", cfgPath, err)
+		return fmt.Errorf("Can't load the config file %s: %v\n", a.root.ConfigFile(), err)
 	}
 
-	userList := backlog.NewUserList(filepath.Join(a.rootDir, backlog.UsersDirectoryName))
+	userList := backlog.NewUserList(a.root.UsersDirectory())
 
 	attempts := 10
 	for attempts > 0 {
 		attempts--
 
-		err := NewSyncItemsStep(a.rootDir).Execute()
+		err := NewSyncItemsStep(a.root).Execute()
 		if err != nil {
 			return err
 		}
 
-		err = NewSyncOverviewsAndIndexStep(a.rootDir, cfg, userList, a.author).Execute()
+		err = NewSyncOverviewsAndIndexStep(a.root, cfg, userList, a.author).Execute()
 		if err != nil {
 			return err
 		}
 
-		err = NewSyncVelocityStep(a.rootDir).Execute()
+		err = NewSyncVelocityStep(a.root).Execute()
 		if err != nil {
 			return err
 		}
 
-		err = NewSyncIdeasStep(a.rootDir, cfg, userList, a.author).Execute()
+		err = NewSyncIdeasStep(a.root, cfg, userList, a.author).Execute()
 		if err != nil {
 			return err
 		}
 
-		err = NewSyncTagsStep(a.rootDir, userList).Execute()
+		err = NewSyncTagsStep(a.root, userList).Execute()
 		if err != nil {
 			return err
 		}
 
-		err = NewSyncUsersStep(a.rootDir).Execute()
+		err = NewSyncUsersStep(a.root).Execute()
 		if err != nil {
 			return err
 		}
 
-		err = NewSyncTimelineStep(a.rootDir).Execute()
+		err = NewSyncTimelineStep(a.root).Execute()
 		if err != nil {
 			return err
 		}

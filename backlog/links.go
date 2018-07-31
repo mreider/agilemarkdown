@@ -34,11 +34,11 @@ func MakeArchiveLink(archive *BacklogOverview, title string, baseDir string) str
 }
 
 func MakeIndexLink(rootDir, baseDir string) string {
-	return utils.MakeMarkdownLink("home", filepath.Join(rootDir, IndexFileName), baseDir)
+	return utils.MakeMarkdownLink("home", filepath.Join(rootDir, indexFileName), baseDir)
 }
 
 func MakeIdeasLink(rootDir, baseDir string) string {
-	return utils.MakeMarkdownLink("idea list", filepath.Join(rootDir, IdeasFileName), baseDir)
+	return utils.MakeMarkdownLink("idea list", filepath.Join(rootDir, ideasFileName), baseDir)
 }
 
 func MakeTagsLink(rootDir, baseDir string) string {
@@ -46,7 +46,7 @@ func MakeTagsLink(rootDir, baseDir string) string {
 }
 
 func MakeUsersLink(rootDir, baseDir string) string {
-	return utils.MakeMarkdownLink("users", filepath.Join(rootDir, UsersFileName), baseDir)
+	return utils.MakeMarkdownLink("users", filepath.Join(rootDir, usersFileName), baseDir)
 }
 
 func MakeUserLink(user *User, title string, baseDir string) string {
@@ -54,11 +54,11 @@ func MakeUserLink(user *User, title string, baseDir string) string {
 }
 
 func MakeVelocityLink(rootDir, baseDir string) string {
-	return utils.MakeMarkdownLink("velocity", filepath.Join(rootDir, VelocityFileName), baseDir)
+	return utils.MakeMarkdownLink("velocity", filepath.Join(rootDir, velocityFileName), baseDir)
 }
 
 func MakeTimelineLink(rootDir, baseDir string) string {
-	return utils.MakeMarkdownLink("timeline", filepath.Join(rootDir, TimelineFileName), baseDir)
+	return utils.MakeMarkdownLink("timeline", filepath.Join(rootDir, timelineFileName), baseDir)
 }
 
 func MakeStandardLinks(rootDir, baseDir string) []string {

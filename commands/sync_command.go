@@ -26,7 +26,7 @@ func NewSyncCommand() cli.Command {
 				return err
 			}
 
-			action := actions.NewSyncAction(rootDir, configName, c.String("author"), c.Bool("test"))
+			action := actions.NewSyncAction(rootDir, c.String("author"), c.Bool("test"))
 			return action.Execute()
 		},
 	}

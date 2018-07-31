@@ -13,7 +13,6 @@ import (
 )
 
 const (
-	configName    = ".config.json"
 	defaultConfig = `
 {
   "SmtpServer": "",
@@ -58,18 +57,18 @@ func findRootDirectory() (string, error) {
 	return dir, nil
 }
 
-func AddConfigAndGitIgnore(rootDir string) {
+func AddConfigAndGitIgnore(root *backlog.BacklogsStructure) {
 	hasChanges := false
 
-	configPath := filepath.Join(rootDir, configName)
+	configPath := root.ConfigFile()
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		ioutil.WriteFile(configPath, []byte(strings.TrimLeftFunc(defaultConfig, unicode.IsSpace)), 0644)
 		git.Add(configPath)
 		hasChanges = true
 	}
-	gitIgnorePath := filepath.Join(rootDir, ".gitignore")
+	gitIgnorePath := filepath.Join(root.Root(), ".gitignore")
 	if _, err := os.Stat(gitIgnorePath); os.IsNotExist(err) {
-		ioutil.WriteFile(gitIgnorePath, []byte(configName), 0644)
+		ioutil.WriteFile(gitIgnorePath, []byte(filepath.Base(configPath)), 0644)
 		git.Add(gitIgnorePath)
 		hasChanges = true
 	}

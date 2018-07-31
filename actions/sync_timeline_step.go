@@ -11,20 +11,20 @@ import (
 )
 
 type SyncTimelineStep struct {
-	rootDir string
+	root *backlog.BacklogsStructure
 }
 
-func NewSyncTimelineStep(rootDir string) *SyncTimelineStep {
-	return &SyncTimelineStep{rootDir: rootDir}
+func NewSyncTimelineStep(root *backlog.BacklogsStructure) *SyncTimelineStep {
+	return &SyncTimelineStep{root: root}
 }
 
 func (s *SyncTimelineStep) Execute() error {
-	allTags, itemsTags, _, _, err := backlog.ItemsAndIdeasTags(s.rootDir)
+	allTags, itemsTags, _, _, err := backlog.ItemsAndIdeasTags(s.root)
 	if err != nil {
 		return err
 	}
 
-	timelineGenerator := backlog.NewTimelineGenerator(s.rootDir)
+	timelineGenerator := backlog.NewTimelineGenerator(s.root)
 	for tag, tagItems := range itemsTags {
 		hasTimeline := false
 		for _, item := range tagItems {
@@ -41,7 +41,7 @@ func (s *SyncTimelineStep) Execute() error {
 		}
 	}
 
-	timelineDir := filepath.Join(s.rootDir, backlog.TimelineDirectoryName)
+	timelineDir := s.root.TimelineDirectory()
 	items, err := ioutil.ReadDir(timelineDir)
 	if err != nil && !os.IsNotExist(err) {
 		return err
@@ -49,7 +49,7 @@ func (s *SyncTimelineStep) Execute() error {
 
 	lines := []string{"# Timelines", ""}
 	lines = append(lines,
-		fmt.Sprintf(utils.JoinMarkdownLinks(backlog.MakeStandardLinks(s.rootDir, s.rootDir)...)))
+		fmt.Sprintf(utils.JoinMarkdownLinks(backlog.MakeStandardLinks(s.root.Root(), s.root.Root())...)))
 	lines = append(lines, "")
 
 	for _, item := range items {
@@ -57,9 +57,9 @@ func (s *SyncTimelineStep) Execute() error {
 			timelineImagePath := filepath.Join(timelineDir, item.Name())
 			timelineTag := strings.TrimSuffix(item.Name(), ".png")
 			if _, ok := allTags[timelineTag]; ok {
-				lines = append(lines, fmt.Sprintf("## Tag: %s", utils.MakeMarkdownLink(timelineTag, filepath.Join(s.rootDir, backlog.TagsDirectoryName, timelineTag), s.rootDir)))
+				lines = append(lines, fmt.Sprintf("## Tag: %s", utils.MakeMarkdownLink(timelineTag, filepath.Join(s.root.TimelineDirectory(), timelineTag), s.root.Root())))
 				lines = append(lines, "")
-				lines = append(lines, fmt.Sprintf("%s", utils.MakeMarkdownImageLink(timelineTag, timelineImagePath, s.rootDir)))
+				lines = append(lines, fmt.Sprintf("%s", utils.MakeMarkdownImageLink(timelineTag, timelineImagePath, s.root.Root())))
 				lines = append(lines, "")
 			} else {
 				os.Remove(timelineImagePath)
@@ -67,5 +67,5 @@ func (s *SyncTimelineStep) Execute() error {
 		}
 	}
 
-	return ioutil.WriteFile(filepath.Join(s.rootDir, backlog.TimelineFileName), []byte(strings.Join(lines, "\n")), 0644)
+	return ioutil.WriteFile(s.root.TimelineFile(), []byte(strings.Join(lines, "\n")), 0644)
 }

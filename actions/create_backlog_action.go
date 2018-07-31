@@ -10,12 +10,12 @@ import (
 )
 
 type CreateBacklogAction struct {
-	rootDir     string
+	root        *backlog.BacklogsStructure
 	backlogName string
 }
 
 func NewCreateBacklogAction(rootDir, backlogName string) *CreateBacklogAction {
-	return &CreateBacklogAction{rootDir: rootDir, backlogName: backlogName}
+	return &CreateBacklogAction{root: backlog.NewBacklogsStructure(rootDir), backlogName: backlogName}
 }
 
 func (a *CreateBacklogAction) Execute() error {
@@ -25,7 +25,7 @@ func (a *CreateBacklogAction) Execute() error {
 	}
 
 	backlogFileName := utils.GetValidFileName(a.backlogName)
-	backlogDir := filepath.Join(a.rootDir, backlogFileName)
+	backlogDir := filepath.Join(a.root.Root(), backlogFileName)
 	if info, err := os.Stat(backlogDir); err != nil && !os.IsNotExist(err) {
 		return err
 	} else if err == nil {
@@ -44,19 +44,19 @@ func (a *CreateBacklogAction) Execute() error {
 		return err
 	}
 
-	err = os.MkdirAll(filepath.Join(filepath.Join(a.rootDir, backlog.IdeasDirectoryName)), 0777)
+	err = os.MkdirAll(a.root.IdeasDirectory(), 0777)
 	if err != nil {
 		return err
 	}
 
 	overviewFileName := fmt.Sprintf("%s.md", backlogFileName)
-	overviewPath := filepath.Join(a.rootDir, overviewFileName)
+	overviewPath := filepath.Join(a.root.Root(), overviewFileName)
 	overview, err := backlog.LoadBacklogOverview(overviewPath)
 	if err != nil {
 		return err
 	}
 	overview.SetTitle(a.backlogName)
-	overview.UpdateLinks("archive", filepath.Join(backlogDir, backlog.ArchiveFileName), a.rootDir, a.rootDir)
+	overview.UpdateLinks("archive", filepath.Join(backlogDir, backlog.ArchiveFileName), a.root.Root(), a.root.Root())
 	overview.SetCreated(utils.GetCurrentTimestamp())
 	return overview.Save()
 }

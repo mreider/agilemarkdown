@@ -5,26 +5,25 @@ import (
 	"github.com/mreider/agilemarkdown/backlog"
 	"github.com/mreider/agilemarkdown/config"
 	"github.com/mreider/agilemarkdown/utils"
-	"path/filepath"
 )
 
 type SyncOverviewsAndIndexStep struct {
-	rootDir  string
+	root     *backlog.BacklogsStructure
 	cfg      *config.Config
 	userList *backlog.UserList
 	author   string
 }
 
-func NewSyncOverviewsAndIndexStep(rootDir string, cfg *config.Config, userList *backlog.UserList, author string) *SyncOverviewsAndIndexStep {
-	return &SyncOverviewsAndIndexStep{rootDir: rootDir, cfg: cfg, userList: userList, author: author}
+func NewSyncOverviewsAndIndexStep(root *backlog.BacklogsStructure, cfg *config.Config, userList *backlog.UserList, author string) *SyncOverviewsAndIndexStep {
+	return &SyncOverviewsAndIndexStep{root: root, cfg: cfg, userList: userList, author: author}
 }
 
 func (s *SyncOverviewsAndIndexStep) Execute() error {
-	backlogDirs, err := backlog.BacklogDirs(s.rootDir)
+	backlogDirs, err := s.root.BacklogDirs()
 	if err != nil {
 		return err
 	}
-	indexPath := filepath.Join(s.rootDir, backlog.IndexFileName)
+	indexPath := s.root.IndexFile()
 	index, err := backlog.LoadGlobalIndex(indexPath)
 	if err != nil {
 		return err
@@ -72,14 +71,14 @@ func (s *SyncOverviewsAndIndexStep) Execute() error {
 		sorter := backlog.NewBacklogItemsSorter(overview, archive)
 
 		activeItems := bck.ActiveItems()
-		overview.UpdateLinks("archive", archivePath, s.rootDir, s.rootDir)
+		overview.UpdateLinks("archive", archivePath, s.root.Root(), s.root.Root())
 		overview.Update(activeItems, sorter, s.userList)
 		s.sendNewCommentsForItems(overview, activeItems)
 		overview.Save()
 
 		archivedItems := bck.ArchivedItems()
 		archive.SetTitle(fmt.Sprintf("Archive: %s", overview.Title()))
-		archive.UpdateLinks("project page", overviewPath, s.rootDir, backlogDir)
+		archive.UpdateLinks("project page", overviewPath, s.root.Root(), backlogDir)
 		archive.Update(archivedItems, sorter, s.userList)
 		archive.Save()
 
@@ -87,11 +86,11 @@ func (s *SyncOverviewsAndIndexStep) Execute() error {
 
 		for _, item := range bck.AllItems() {
 			item.SetHeader(fmt.Sprintf("Project: %s", overview.Title()))
-			item.UpdateLinks(s.rootDir, overviewPath, archivePath)
+			item.UpdateLinks(s.root.Root(), overviewPath, archivePath)
 		}
 	}
-	index.UpdateBacklogs(overviews, archives, s.rootDir)
-	index.UpdateLinks(s.rootDir)
+	index.UpdateBacklogs(overviews, archives, s.root.Root())
+	index.UpdateLinks(s.root.Root())
 
 	return nil
 }
@@ -120,7 +119,7 @@ func (s *SyncOverviewsAndIndexStep) moveItemsToActiveAndArchiveDirectory(backlog
 }
 
 func (s *SyncOverviewsAndIndexStep) sendNewCommentsForItems(overview *backlog.BacklogOverview, items []*backlog.BacklogItem) {
-	userList := backlog.NewUserList(filepath.Join(s.rootDir, backlog.UsersDirectoryName))
+	userList := backlog.NewUserList(s.root.UsersDirectory())
 	var mailSender *utils.MailSender
 	if s.cfg.SmtpServer != "" {
 		mailSender = utils.NewMailSender(s.cfg.SmtpServer, s.cfg.SmtpUser, s.cfg.SmtpPassword, s.cfg.EmailFrom)
@@ -131,6 +130,6 @@ func (s *SyncOverviewsAndIndexStep) sendNewCommentsForItems(overview *backlog.Ba
 		commented[i] = items[i]
 	}
 	sendNewComments(commented, func(item backlog.Commented, to []string, comment []string) (me string, err error) {
-		return sendComment(userList, comment, overview.Title(), s.author, to, mailSender, s.cfg, s.rootDir, item.Path())
+		return sendComment(userList, comment, overview.Title(), s.author, to, mailSender, s.cfg, s.root.Root(), item.Path())
 	})
 }

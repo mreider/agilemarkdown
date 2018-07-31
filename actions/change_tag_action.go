@@ -7,13 +7,13 @@ import (
 )
 
 type ChangeTagAction struct {
-	rootDir string
-	oldTag  string
-	newTag  string
+	root   *backlog.BacklogsStructure
+	oldTag string
+	newTag string
 }
 
 func NewChangeTagAction(rootDir, oldTag, newTag string) *ChangeTagAction {
-	return &ChangeTagAction{rootDir: rootDir, oldTag: oldTag, newTag: newTag}
+	return &ChangeTagAction{root: backlog.NewBacklogsStructure(rootDir), oldTag: oldTag, newTag: newTag}
 }
 
 func (a *ChangeTagAction) Execute() error {
@@ -22,7 +22,7 @@ func (a *ChangeTagAction) Execute() error {
 		return nil
 	}
 
-	allTags, itemsTags, ideasTags, _, err := backlog.ItemsAndIdeasTags(a.rootDir)
+	allTags, itemsTags, ideasTags, _, err := backlog.ItemsAndIdeasTags(a.root)
 	if err != nil {
 		return err
 	}
@@ -49,7 +49,7 @@ func (a *ChangeTagAction) Execute() error {
 		idea.Save()
 	}
 
-	backlog.NewTimelineGenerator(a.rootDir).RenameTimeline(a.oldTag, a.newTag)
+	backlog.NewTimelineGenerator(a.root).RenameTimeline(a.oldTag, a.newTag)
 
 	fmt.Printf("Tag '%s' changed to '%s'. Sync to regenerate files.\n", a.oldTag, a.newTag)
 
