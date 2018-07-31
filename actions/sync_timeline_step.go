@@ -57,7 +57,7 @@ func (s *SyncTimelineStep) Execute() error {
 			timelineImagePath := filepath.Join(timelineDir, item.Name())
 			timelineTag := strings.TrimSuffix(item.Name(), ".png")
 			if _, ok := allTags[timelineTag]; ok {
-				lines = append(lines, fmt.Sprintf("## Tag: %s", utils.MakeMarkdownLink(timelineTag, filepath.Join(s.root.TimelineDirectory(), timelineTag), s.root.Root())))
+				lines = append(lines, fmt.Sprintf("## Tag: %s", utils.MakeMarkdownLink(timelineTag, filepath.Join(s.root.TagsDirectory(), timelineTag), s.root.Root())))
 				lines = append(lines, "")
 				lines = append(lines, fmt.Sprintf("%s", utils.MakeMarkdownImageLink(timelineTag, timelineImagePath, s.root.Root())))
 				lines = append(lines, "")
