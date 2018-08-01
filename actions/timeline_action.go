@@ -44,7 +44,7 @@ func (a *TimelineAction) Execute() error {
 	hasChanges := false
 	for {
 		if needOutput {
-			lines := backlog.BacklogView{}.WriteAsciiItemsWithProjectAndStatus(items, overviews, "", true, a.tag)
+			lines := backlog.BacklogView{}.WriteAsciiItemsWithProjectAndStatus(items, overviews, "", true)
 			fmt.Println(strings.Join(lines, "\n"))
 			needOutput = false
 		}
@@ -68,7 +68,7 @@ func (a *TimelineAction) Execute() error {
 
 			item := items[itemIndex]
 			if match[2] == "clear" {
-				item.ClearTimeline(a.tag)
+				item.ClearTimeline()
 				item.Save()
 				needOutput, hasChanges = true, true
 			} else {
@@ -93,7 +93,7 @@ func (a *TimelineAction) Execute() error {
 					continue
 				}
 
-				item.SetTimeline(a.tag, startDate, endDate)
+				item.SetTimeline(startDate, endDate)
 				item.Save()
 				needOutput, hasChanges = true, true
 			}

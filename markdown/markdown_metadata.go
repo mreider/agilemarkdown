@@ -2,13 +2,12 @@ package markdown
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 )
 
 type Metadata struct {
-	allowedTopKeys    []*regexp.Regexp
-	allowedBottomKeys []*regexp.Regexp
+	allowedTopKeys    []string
+	allowedBottomKeys []string
 	items             []*metadataItem
 	bottomGroupLine   string
 }
@@ -18,7 +17,7 @@ type metadataItem struct {
 	value string
 }
 
-func NewMetadata(allowedTopKeys, allowedBottomKeys []*regexp.Regexp) *Metadata {
+func NewMetadata(allowedTopKeys, allowedBottomKeys []string) *Metadata {
 	metadata := &Metadata{
 		allowedTopKeys:    allowedTopKeys,
 		allowedBottomKeys: allowedBottomKeys,
@@ -43,7 +42,7 @@ func (m *Metadata) BottomRawLines() []string {
 	return result
 }
 
-func (m *Metadata) fillRawLines(lines *[]string, allowedKeys []*regexp.Regexp) {
+func (m *Metadata) fillRawLines(lines *[]string, allowedKeys []string) {
 	for _, item := range m.items {
 		if m.isAllowedKey(item.key, allowedKeys) {
 			*lines = append(*lines, fmt.Sprintf("%s: %s  ", item.key, item.value))
@@ -55,9 +54,10 @@ func (m *Metadata) IsAllowedKey(key string) bool {
 	return m.isAllowedKey(key, m.allowedTopKeys) || m.isAllowedKey(key, m.allowedBottomKeys)
 }
 
-func (m *Metadata) isAllowedKey(key string, allowedKeys []*regexp.Regexp) bool {
+func (m *Metadata) isAllowedKey(key string, allowedKeys []string) bool {
+	key = strings.ToLower(key)
 	for _, allowedKey := range allowedKeys {
-		if allowedKey.MatchString(key) {
+		if strings.ToLower(allowedKey) == key {
 			return true
 		}
 	}
@@ -154,7 +154,7 @@ func (m *Metadata) BottomEmpty() bool {
 	return m.bottomGroupLine == "" && m.empty(m.allowedBottomKeys)
 }
 
-func (m *Metadata) empty(allowedKeys []*regexp.Regexp) bool {
+func (m *Metadata) empty(allowedKeys []string) bool {
 	for _, item := range m.items {
 		if m.isAllowedKey(item.key, allowedKeys) {
 			return false
@@ -165,8 +165,4 @@ func (m *Metadata) empty(allowedKeys []*regexp.Regexp) bool {
 
 func (m *Metadata) SetBottomGroupLine(line string) {
 	m.bottomGroupLine = line
-}
-
-func AllowedKeyAsRegex(allowedKey string) *regexp.Regexp {
-	return regexp.MustCompile(fmt.Sprintf("(?i)^%s$", strings.ToLower(strings.TrimSpace(allowedKey))))
 }

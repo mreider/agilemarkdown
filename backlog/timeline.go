@@ -40,7 +40,7 @@ func (tg *TimelineGenerator) ExecuteForTag(tag string) error {
 
 		timelineItems := make([]*timelineItem, 0, len(items))
 		for _, item := range items {
-			startDate, endDate := item.Timeline(tag)
+			startDate, endDate := item.Timeline()
 			if !startDate.IsZero() && !endDate.IsZero() {
 				timelineItems = append(timelineItems, &timelineItem{item: item, startDate: startDate, endDate: endDate})
 			}

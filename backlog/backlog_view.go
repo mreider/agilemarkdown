@@ -93,7 +93,7 @@ func (bv BacklogView) WriteAsciiItems(items []*BacklogItem, status *BacklogItemS
 	return result
 }
 
-func (bv BacklogView) WriteAsciiItemsWithProjectAndStatus(items []*BacklogItem, overviews map[*BacklogItem]*BacklogOverview, title string, withOrderNumber bool, tag string) []string {
+func (bv BacklogView) WriteAsciiItemsWithProjectAndStatus(items []*BacklogItem, overviews map[*BacklogItem]*BacklogOverview, title string, withOrderNumber bool) []string {
 	titleHeader, projectHeader, statusHeader, pointsHeader, startDateHeader, endDateHeader := "Title", "Project", "Status", "Points", "Start Date", "End Date"
 	maxTitleLen, maxProjectLen, maxStatusLen, maxStartDateLen, maxEndDateLen := len(titleHeader), len(projectHeader), len(statusHeader), len(startDateHeader), len(endDateHeader)
 	for _, item := range items {
@@ -107,7 +107,7 @@ func (bv BacklogView) WriteAsciiItemsWithProjectAndStatus(items []*BacklogItem, 
 		if len(item.Status()) > maxStatusLen {
 			maxStatusLen = len(item.Status())
 		}
-		startDate, endDate := item.TimelineStr(tag)
+		startDate, endDate := item.TimelineStr()
 		if len(startDate) > maxStartDateLen {
 			maxStartDateLen = len(startDate)
 		}
@@ -137,7 +137,7 @@ func (bv BacklogView) WriteAsciiItemsWithProjectAndStatus(items []*BacklogItem, 
 		if estimate == 0 {
 			estimateStr = strings.Repeat(" ", len(pointsHeader))
 		}
-		startDate, endDate := item.TimelineStr(tag)
+		startDate, endDate := item.TimelineStr()
 		line := fmt.Sprintf(" %s | %s | %s | %s | %s | %s ", utils.PadStringRight(item.Title(), maxTitleLen), utils.PadStringRight(overview.Title(), maxProjectLen), utils.PadStringRight(item.Status(), maxStatusLen), estimateStr, utils.PadStringRight(startDate, maxStartDateLen), utils.PadStringRight(endDate, maxEndDateLen))
 		if withOrderNumber {
 			line = fmt.Sprintf(" %s |", utils.PadIntLeft(i+1, 3)) + line

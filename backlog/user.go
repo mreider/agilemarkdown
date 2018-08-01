@@ -23,7 +23,7 @@ type User struct {
 
 func LoadUser(userPath string) (*User, error) {
 	content, err := markdown.LoadMarkdown(userPath,
-		[]*regexp.Regexp{markdown.AllowedKeyAsRegex(UserEmailMetadataKey)},
+		[]string{UserEmailMetadataKey},
 		nil, "", nil)
 	if err != nil {
 		return nil, err
@@ -33,7 +33,7 @@ func LoadUser(userPath string) (*User, error) {
 
 func NewUser(markdownData, contentPath string) (*User, error) {
 	content := markdown.NewMarkdown(markdownData, contentPath,
-		[]*regexp.Regexp{markdown.AllowedKeyAsRegex(UserEmailMetadataKey)},
+		[]string{UserEmailMetadataKey},
 		nil, "", nil)
 	return &User{content}, nil
 }
