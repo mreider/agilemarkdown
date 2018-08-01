@@ -23,7 +23,7 @@ const (
 )
 
 var (
-	commentsTitleRe            = regexp.MustCompile(`^#{1,3}\s+Comments\s*$`)
+	commentsTitleRe            = regexp.MustCompile(`(?i)^#{1,3}\s+Comments\s*$`)
 	commentRe                  = regexp.MustCompile(`^(\s*)((@[\w.-_]+[\s,;]+)+)(.*)$`)
 	commentUserSeparatorRe     = regexp.MustCompile(`[\s,;]+`)
 	topBacklogItemMetadataKeys = []string{
