@@ -28,14 +28,9 @@ func (a *SyncAction) Execute() error {
 
 	userList := backlog.NewUserList(a.root.UsersDirectory())
 
-	ok, err := NewSyncUsersCheck(a.root, userList).Check()
+	_, err = NewSyncUsersCheck(a.root, userList).Check()
 	if err != nil {
 		return err
-	}
-
-	if !ok {
-		fmt.Println("Sync cancelled")
-		return nil
 	}
 
 	attempts := 10
