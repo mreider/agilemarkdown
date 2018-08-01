@@ -108,7 +108,7 @@ NextUser:
 		normalizedUser := utils.CollapseWhiteSpaces(strings.ToLower(user))
 		for i, email := range normalizedEmails {
 			if email == normalizedUser {
-				fmt.Printf("User '%s' is associated to a git user '%s <%s>'\n", user, names[i], emails[i])
+				fmt.Printf("User '%s' is associated with a git user '%s <%s>'\n", user, names[i], emails[i])
 				if ch.userList.AddUser(names[i], emails[i]) {
 					ch.userList.Save()
 				}
@@ -119,7 +119,7 @@ NextUser:
 		for i, email := range normalizedEmails {
 			nickname := strings.SplitN(email, "@", 2)[0]
 			if nickname == normalizedUser {
-				fmt.Printf("User '%s' is associated to a git user '%s <%s>'\n", user, names[i], emails[i])
+				fmt.Printf("User '%s' is associated with a git user '%s <%s>'\n", user, names[i], emails[i])
 				if ch.userList.AddUser(names[i], emails[i]) {
 					ch.userList.Save()
 				}
@@ -129,7 +129,7 @@ NextUser:
 
 		for i, name := range normalizedNames {
 			if name == normalizedUser {
-				fmt.Printf("User '%s' is associated to a git user '%s <%s>'\n", user, names[i], emails[i])
+				fmt.Printf("User '%s' is associated with a git user '%s <%s>'\n", user, names[i], emails[i])
 				if ch.userList.AddUser(names[i], emails[i]) {
 					ch.userList.Save()
 				}
