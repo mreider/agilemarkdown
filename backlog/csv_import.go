@@ -132,6 +132,15 @@ func (imp *CsvImporter) createItemIfNotExists(line []string) error {
 	assigned := imp.cellValue(line, "owned by")
 	description := imp.cellValue(line, "description")
 
+	description += `
+
+## Possible solution
+
+## Comments
+
+## Attachments
+`
+
 	if createdDate, err := time.Parse("Jan 2, 2006", created); err == nil {
 		createdDate = createdDate.Add(time.Hour * 12)
 		created = utils.GetTimestamp(createdDate)
