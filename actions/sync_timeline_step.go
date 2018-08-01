@@ -34,7 +34,6 @@ func (s *SyncTimelineStep) Execute() error {
 				break
 			}
 		}
-		fmt.Println(tag, hasTimeline)
 		if hasTimeline {
 			timelineGenerator.ExecuteForTag(tag)
 		} else {
