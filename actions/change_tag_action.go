@@ -37,7 +37,6 @@ func (a *ChangeTagAction) Execute() error {
 		itemTags := item.Tags()
 		itemTags = utils.RenameItemIgnoreCase(itemTags, a.oldTag, a.newTag)
 		item.SetTags(itemTags)
-		item.ChangeTimelineTag(a.oldTag, a.newTag)
 		item.Save()
 	}
 

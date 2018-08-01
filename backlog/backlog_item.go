@@ -19,21 +19,17 @@ const (
 	BacklogItemTagsMetadataKey     = "Tags"
 	BacklogItemArchiveMetadataKey  = "Archive"
 	BacklogItemFinishedMetadataKey = "Finished"
+	BacklogItemTimelineMetadataKey = "Timeline"
 )
 
 var (
-	commentsTitleRe                = regexp.MustCompile(`^#{1,3}\s+Comments\s*$`)
-	commentRe                      = regexp.MustCompile(`^(\s*)((@[\w.-_]+[\s,;]+)+)(.*)$`)
-	commentUserSeparatorRe         = regexp.MustCompile(`[\s,;]+`)
-	BacklogItemTimelineMetadataKey = regexp.MustCompile(`(?i)^Timeline\s+([-\w]+)$`)
-	topBacklogItemMetadataKeys     = []*regexp.Regexp{
-		markdown.AllowedKeyAsRegex(BacklogItemFinishedMetadataKey), markdown.AllowedKeyAsRegex(BacklogItemTagsMetadataKey),
-		markdown.AllowedKeyAsRegex(BacklogItemStatusMetadataKey), markdown.AllowedKeyAsRegex(BacklogItemAssignedMetadataKey),
-		markdown.AllowedKeyAsRegex(BacklogItemEstimateMetadataKey), markdown.AllowedKeyAsRegex(BacklogItemArchiveMetadataKey),
-		BacklogItemTimelineMetadataKey}
-	bottomBacklogItemMetadataKeys = []*regexp.Regexp{
-		markdown.AllowedKeyAsRegex(CreatedMetadataKey), markdown.AllowedKeyAsRegex(ModifiedMetadataKey),
-		markdown.AllowedKeyAsRegex(BacklogItemAuthorMetadataKey)}
+	commentsTitleRe            = regexp.MustCompile(`^#{1,3}\s+Comments\s*$`)
+	commentRe                  = regexp.MustCompile(`^(\s*)((@[\w.-_]+[\s,;]+)+)(.*)$`)
+	commentUserSeparatorRe     = regexp.MustCompile(`[\s,;]+`)
+	topBacklogItemMetadataKeys = []string{
+		BacklogItemFinishedMetadataKey, BacklogItemTagsMetadataKey, BacklogItemStatusMetadataKey, BacklogItemAssignedMetadataKey,
+		BacklogItemEstimateMetadataKey, BacklogItemArchiveMetadataKey, BacklogItemTimelineMetadataKey}
+	bottomBacklogItemMetadataKeys = []string{CreatedMetadataKey, ModifiedMetadataKey, BacklogItemAuthorMetadataKey}
 )
 
 type BacklogItem struct {
@@ -131,8 +127,8 @@ func (item *BacklogItem) SetEstimate(estimate string) {
 	item.markdown.SetMetadataValue(BacklogItemEstimateMetadataKey, estimate)
 }
 
-func (item *BacklogItem) TimelineStr(tag string) (startDate, endDate string) {
-	value := item.markdown.MetadataValue(fmt.Sprintf("Timeline %s", tag))
+func (item *BacklogItem) TimelineStr() (startDate, endDate string) {
+	value := item.markdown.MetadataValue(BacklogItemTimelineMetadataKey)
 	parts := spacesRe.Split(value, 2)
 	switch len(parts) {
 	case 1:
@@ -142,31 +138,19 @@ func (item *BacklogItem) TimelineStr(tag string) (startDate, endDate string) {
 	}
 }
 
-func (item *BacklogItem) Timeline(tag string) (startDate, endDate time.Time) {
-	startDateStr, endDateStr := item.TimelineStr(tag)
+func (item *BacklogItem) Timeline() (startDate, endDate time.Time) {
+	startDateStr, endDateStr := item.TimelineStr()
 	startDate, _ = time.Parse("2006-01-02", startDateStr)
 	endDate, _ = time.Parse("2006-01-02", endDateStr)
 	return startDate, endDate
 }
 
-func (item *BacklogItem) SetTimeline(tag string, startDate, endDate time.Time) {
-	item.markdown.SetMetadataValue(fmt.Sprintf("Timeline %s", tag), fmt.Sprintf("%s %s", startDate.Format("2006-01-02"), endDate.Format("2006-01-02")))
+func (item *BacklogItem) SetTimeline(startDate, endDate time.Time) {
+	item.markdown.SetMetadataValue(BacklogItemTimelineMetadataKey, fmt.Sprintf("%s %s", startDate.Format("2006-01-02"), endDate.Format("2006-01-02")))
 }
 
-func (item *BacklogItem) ClearTimeline(tag string) {
-	item.markdown.RemoveMetadata(fmt.Sprintf("Timeline %s", tag))
-}
-
-func (item *BacklogItem) ChangeTimelineTag(oldTag, newTag string) {
-	oldKey := fmt.Sprintf("Timeline %s", oldTag)
-	newKey := fmt.Sprintf("Timeline %s", newTag)
-
-	if item.markdown.MetadataValue(newKey) != "" {
-		item.ClearTimeline(oldTag)
-	} else {
-		item.markdown.RemoveMetadata(newKey)
-		item.markdown.ReplaceMetadataKey(oldKey, newKey)
-	}
+func (item *BacklogItem) ClearTimeline() {
+	item.markdown.RemoveMetadata(BacklogItemTimelineMetadataKey)
 }
 
 func (item *BacklogItem) SetDescription(description string) {

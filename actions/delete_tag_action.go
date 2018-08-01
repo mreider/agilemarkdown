@@ -35,7 +35,7 @@ func (a *DeleteTagAction) Execute() error {
 		itemTags := item.Tags()
 		itemTags = utils.RemoveItemIgnoreCase(itemTags, a.tag)
 		item.SetTags(itemTags)
-		item.ClearTimeline(a.tag)
+		item.ClearTimeline()
 		item.Save()
 	}
 

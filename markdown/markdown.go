@@ -32,7 +32,7 @@ type Content struct {
 	HideEmptyGroups bool
 }
 
-func LoadMarkdown(markdownPath string, topMetadataKeys, bottomMetadataKeys []*regexp.Regexp, groupTitlePrefix string, footerRe *regexp.Regexp) (*Content, error) {
+func LoadMarkdown(markdownPath string, topMetadataKeys, bottomMetadataKeys []string, groupTitlePrefix string, footerRe *regexp.Regexp) (*Content, error) {
 	var err error
 	if _, err = os.Stat(markdownPath); err != nil && !os.IsNotExist(err) {
 		return nil, err
@@ -53,7 +53,7 @@ func LoadMarkdown(markdownPath string, topMetadataKeys, bottomMetadataKeys []*re
 	return NewMarkdown(string(data), markdownPath, topMetadataKeys, bottomMetadataKeys, groupTitlePrefix, footerRe), nil
 }
 
-func NewMarkdown(data, markdownPath string, topMetadataKeys, bottomMetadataKeys []*regexp.Regexp, groupTitlePrefix string, footerRe *regexp.Regexp) *Content {
+func NewMarkdown(data, markdownPath string, topMetadataKeys, bottomMetadataKeys []string, groupTitlePrefix string, footerRe *regexp.Regexp) *Content {
 	content := &Content{contentPath: markdownPath, groupTitlePrefix: groupTitlePrefix, metadata: NewMetadata(topMetadataKeys, bottomMetadataKeys)}
 	if len(data) > 0 {
 		lines := strings.Split(data, "\n")

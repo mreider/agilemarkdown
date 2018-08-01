@@ -4,7 +4,6 @@ import (
 	"github.com/mreider/agilemarkdown/backlog"
 	"github.com/mreider/agilemarkdown/markdown"
 	"github.com/stretchr/testify/assert"
-	"regexp"
 	"testing"
 )
 
@@ -37,8 +36,8 @@ Data2: test2
 
 func TestOverviewCreate(t *testing.T) {
 	content := markdown.NewMarkdown(markdownOverviewData, "",
-		[]*regexp.Regexp{markdown.AllowedKeyAsRegex("Title"), markdown.AllowedKeyAsRegex("Data")},
-		[]*regexp.Regexp{markdown.AllowedKeyAsRegex("Data2")},
+		[]string{"Title", "Data"},
+		[]string{"Data2"},
 		"### ", backlog.OverviewFooterRe)
 	overview := backlog.NewBacklogOverview(content)
 	sorter := backlog.NewBacklogItemsSorter(overview)
@@ -86,8 +85,8 @@ Data2: test2
 `
 
 	content := markdown.NewMarkdown(markdownOverviewData, "",
-		[]*regexp.Regexp{markdown.AllowedKeyAsRegex("Title"), markdown.AllowedKeyAsRegex("Data")},
-		[]*regexp.Regexp{markdown.AllowedKeyAsRegex("Data2")},
+		[]string{"Title", "Data"},
+		[]string{"Data2"},
 		"### ", backlog.OverviewFooterRe)
 	overview := backlog.NewBacklogOverview(content)
 	sorter := backlog.NewBacklogItemsSorter(overview)
