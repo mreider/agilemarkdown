@@ -6,15 +6,16 @@ import (
 )
 
 var CreateUserCommand = cli.Command{
-	Name:  "create-user",
-	Usage: "Create a new user",
+	Name:      "create-user",
+	Usage:     "Create a new user",
+	ArgsUsage: "NAME EMAIL",
 	Flags: []cli.Flag{
 		cli.StringFlag{
-			Name: "name",
+			Name:   "name",
 			Hidden: true,
 		},
 		cli.StringFlag{
-			Name: "email",
+			Name:   "email",
 			Hidden: true,
 		},
 	},

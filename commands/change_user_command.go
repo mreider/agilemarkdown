@@ -7,8 +7,9 @@ import (
 )
 
 var ChangeUserCommand = cli.Command{
-	Name:  "change-user",
-	Usage: "Change the user",
+	Name:      "change-user",
+	Usage:     "Change the user",
+	ArgsUsage: "OLD-USER NEW-USER",
 	Action: func(c *cli.Context) error {
 		if len(c.Args()) < 2 {
 			fmt.Println("Name, email or prefix of both users should be specified")

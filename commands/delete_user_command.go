@@ -8,8 +8,9 @@ import (
 )
 
 var DeleteUserCommand = cli.Command{
-	Name:  "delete-user",
-	Usage: "Delete the user",
+	Name:      "delete-user",
+	Usage:     "Delete the user",
+	ArgsUsage: "USER",
 	Action: func(c *cli.Context) error {
 		if len(c.Args()) == 0 {
 			fmt.Println("User name, email or prefix should be specified")
