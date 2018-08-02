@@ -11,9 +11,11 @@ var CreateUserCommand = cli.Command{
 	Flags: []cli.Flag{
 		cli.StringFlag{
 			Name: "name",
+			Hidden: true,
 		},
 		cli.StringFlag{
 			Name: "email",
+			Hidden: true,
 		},
 	},
 	Action: func(c *cli.Context) error {
