@@ -20,7 +20,13 @@ func NewCreateUserAction(rootDir, name, email string, parts []string) *CreateUse
 func (a *CreateUserAction) Execute() error {
 	name, email, parts := a.name, a.email, a.parts
 
+	if len(parts) == 0 && name == "" && email == "" {
+		fmt.Println("User name and email should be specified")
+		return nil
+	}
+
 	if len(parts) == 0 && name == "" {
+		fmt.Println("User name should be specified")
 		return nil
 	}
 
