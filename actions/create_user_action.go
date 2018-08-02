@@ -18,7 +18,7 @@ func NewCreateUserAction(rootDir, name, email string, parts []string) *CreateUse
 }
 
 func (a *CreateUserAction) Execute() error {
-	name, email, parts := a.email, a.name, a.parts
+	name, email, parts := a.name, a.email, a.parts
 
 	if len(parts) == 0 && name == "" {
 		return nil
