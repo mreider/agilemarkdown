@@ -49,6 +49,8 @@ func findRootDirectory() (string, error) {
 		newDir := filepath.Dir(dir)
 		if newDir == dir {
 			dir = ""
+		} else {
+			dir = newDir
 		}
 	}
 	if dir == "" {

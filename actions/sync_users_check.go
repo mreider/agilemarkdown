@@ -3,8 +3,6 @@ package actions
 import (
 	"fmt"
 	"github.com/mreider/agilemarkdown/backlog"
-	"github.com/mreider/agilemarkdown/git"
-	"github.com/mreider/agilemarkdown/utils"
 	"sort"
 	"strings"
 )
@@ -31,7 +29,7 @@ func (ch *SyncUsersCheck) Check() (bool, error) {
 	}
 
 	unknownUsers := ch.getUnknownUsers(items, ideas)
-	unknownUsers = ch.resolveGitUsers(unknownUsers)
+	unknownUsers = ch.userList.ResolveGitUsers(unknownUsers)
 
 	if len(unknownUsers) != 0 {
 		fmt.Printf("You should resolve unknown users: %s\n", strings.Join(unknownUsers, ", "))
@@ -81,64 +79,4 @@ func (ch *SyncUsersCheck) getUnknownUsers(items []*backlog.BacklogItem, ideas []
 	sort.Strings(unknownUsers)
 
 	return unknownUsers
-}
-
-func (ch *SyncUsersCheck) resolveGitUsers(unknownUsers []string) (unresolvedUsers []string) {
-	names, emails, _ := git.KnownUsers()
-	currentUserName, currentUserEmail, _ := git.CurrentUser()
-	names = append(names, currentUserName)
-	emails = append(emails, currentUserEmail)
-
-	normalizedNames := make([]string, len(names))
-	for i, name := range names {
-		normalizedNames[i] = utils.CollapseWhiteSpaces(strings.ToLower(name))
-	}
-
-	normalizedEmails := make([]string, len(emails))
-	for i, email := range emails {
-		normalizedEmails[i] = utils.CollapseWhiteSpaces(strings.ToLower(email))
-	}
-
-NextUser:
-	for _, user := range unknownUsers {
-		if ch.userList.User(user) != nil {
-			continue
-		}
-
-		normalizedUser := utils.CollapseWhiteSpaces(strings.ToLower(user))
-		for i, email := range normalizedEmails {
-			if email == normalizedUser {
-				fmt.Printf("User '%s' is associated with a git user '%s <%s>'\n", user, names[i], emails[i])
-				if ch.userList.AddUser(names[i], emails[i]) {
-					ch.userList.Save()
-				}
-				continue NextUser
-			}
-		}
-
-		for i, email := range normalizedEmails {
-			nickname := strings.SplitN(email, "@", 2)[0]
-			if nickname == normalizedUser {
-				fmt.Printf("User '%s' is associated with a git user '%s <%s>'\n", user, names[i], emails[i])
-				if ch.userList.AddUser(names[i], emails[i]) {
-					ch.userList.Save()
-				}
-				continue NextUser
-			}
-		}
-
-		for i, name := range normalizedNames {
-			if name == normalizedUser {
-				fmt.Printf("User '%s' is associated with a git user '%s <%s>'\n", user, names[i], emails[i])
-				if ch.userList.AddUser(names[i], emails[i]) {
-					ch.userList.Save()
-				}
-				continue NextUser
-			}
-		}
-
-		unresolvedUsers = append(unresolvedUsers, user)
-	}
-
-	return unresolvedUsers
 }

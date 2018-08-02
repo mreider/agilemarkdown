@@ -78,6 +78,10 @@ func (u *User) Nickname() string {
 }
 
 func (u *User) HasEmail(email string) bool {
+	if email == "" {
+		return false
+	}
+
 	emails := u.Emails()
 	for _, m := range emails {
 		if m == email {
@@ -100,7 +104,9 @@ func (u *User) AddEmailIfNotExist(email string) bool {
 		return false
 	}
 	emails := u.Emails()
-	emails = append(emails, email)
+	if email != "" {
+		emails = append(emails, email)
+	}
 	u.content.SetMetadataValue(UserEmailMetadataKey, strings.Join(emails, ", "))
 	u.content.SetHeader("")
 	return true

@@ -31,6 +31,9 @@ func NewCsvImporter(csvPath string, backlogDir string) *CsvImporter {
 }
 
 func (imp *CsvImporter) Import() error {
+	root := NewBacklogsStructure(filepath.Join(imp.backlogDir, ".."))
+	userList := NewUserList(root.UsersDirectory())
+
 	csvFile, err := os.Open(imp.csvPath)
 	if err != nil {
 		return err
@@ -48,7 +51,7 @@ func (imp *CsvImporter) Import() error {
 		if imp.headers == nil {
 			imp.parseHeaders(line)
 		} else {
-			err := imp.createItemIfNotExists(line)
+			err := imp.createItemIfNotExists(line, userList)
 			if err != nil {
 				return err
 			}
@@ -96,7 +99,7 @@ func (imp *CsvImporter) getItemName(title string) string {
 	return itemName
 }
 
-func (imp *CsvImporter) createItemIfNotExists(line []string) error {
+func (imp *CsvImporter) createItemIfNotExists(line []string, userList *UserList) error {
 	title := imp.cellValue(line, "title")
 	labels := delimiterRe.Split(imp.cellValue(line, "labels"), -1)
 	itemName := imp.getItemName(title)
@@ -144,6 +147,17 @@ func (imp *CsvImporter) createItemIfNotExists(line []string) error {
 	if createdDate, err := time.Parse("Jan 2, 2006", created); err == nil {
 		createdDate = createdDate.Add(time.Hour * 12)
 		created = utils.GetTimestamp(createdDate)
+	}
+
+	user := userList.User(assigned)
+	if user == nil {
+		unresolvedUsers := userList.ResolveGitUsers([]string{assigned})
+		if len(unresolvedUsers) > 0 {
+			if userList.AddUser(assigned, "") {
+				fmt.Printf("You should specify email for auto-created user '%s'\n", assigned)
+				userList.Save()
+			}
+		}
 	}
 
 	item.SetTitle(title)
