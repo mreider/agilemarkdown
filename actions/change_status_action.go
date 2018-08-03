@@ -66,7 +66,10 @@ func (a *ChangeStatusAction) Execute() error {
 			} else {
 				item.SetArchived(true)
 			}
-			item.Save()
+			err := item.Save()
+			if err != nil {
+				return err
+			}
 		}
 	}
 

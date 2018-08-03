@@ -74,11 +74,11 @@ func (a *CreateItemAction) Execute() error {
 
 	if !a.simulate {
 		return item.Save()
-	} else {
-		itemPath, _ := filepath.Abs(itemPath)
-		rootDir := filepath.Dir(filepath.Dir(itemPath))
-		fmt.Println(strings.TrimPrefix(itemPath, rootDir))
-		fmt.Print(string(item.Content()))
-		return nil
 	}
+
+	itemPath, _ = filepath.Abs(itemPath)
+	rootDir := filepath.Dir(filepath.Dir(itemPath))
+	fmt.Println(strings.TrimPrefix(itemPath, rootDir))
+	fmt.Print(string(item.Content()))
+	return nil
 }

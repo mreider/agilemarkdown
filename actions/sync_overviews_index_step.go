@@ -35,6 +35,10 @@ func (s *SyncOverviewsAndIndexStep) Execute() error {
 			"Welcome aboard",
 			"",
 		})
+		err := index.Save()
+		if err != nil {
+			return err
+		}
 	}
 	overviews := make([]*backlog.BacklogOverview, 0, len(backlogDirs))
 	archives := make([]*backlog.BacklogOverview, 0, len(backlogDirs))
@@ -71,28 +75,61 @@ func (s *SyncOverviewsAndIndexStep) Execute() error {
 		sorter := backlog.NewBacklogItemsSorter(overview, archive)
 
 		activeItems := bck.ActiveItems()
-		overview.UpdateLinks("archive", archivePath, s.root.Root(), s.root.Root())
-		overview.Update(activeItems, sorter, s.userList)
-		s.sendNewCommentsForItems(overview, activeItems)
-		overview.Save()
+		err = overview.UpdateLinks("archive", archivePath, s.root.Root(), s.root.Root())
+		if err != nil {
+			return err
+		}
+		fmt.Printf("Generating project page '%s'\n", overview.Title())
+		err = overview.Update(activeItems, sorter, s.userList)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("Send new comments for '%s' stories\n", overview.Title())
+		err = s.sendNewCommentsForItems(overview, activeItems)
+		if err != nil {
+			return err
+		}
+		err = overview.Save()
+		if err != nil {
+			return err
+		}
 
 		archivedItems := bck.ArchivedItems()
 		archive.SetTitle(fmt.Sprintf("Archive: %s", overview.Title()))
-		archive.UpdateLinks("project page", overviewPath, s.root.Root(), backlogDir)
-		archive.Update(archivedItems, sorter, s.userList)
-		archive.Save()
+		err = archive.UpdateLinks("project page", overviewPath, s.root.Root(), backlogDir)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("Generating archive page '%s'\n", overview.Title())
+		err = archive.Update(archivedItems, sorter, s.userList)
+		if err != nil {
+			return err
+		}
+		err = archive.Save()
+		if err != nil {
+			return err
+		}
 
-		overview.RemoveVelocity(bck)
+		err = overview.RemoveVelocity(bck)
+		if err != nil {
+			return err
+		}
 
 		for _, item := range bck.AllItems() {
 			item.SetHeader(fmt.Sprintf("Project: %s", overview.Title()))
-			item.UpdateLinks(s.root.Root(), overviewPath, archivePath)
+			err = item.UpdateLinks(s.root.Root(), overviewPath, archivePath)
+			if err != nil {
+				return err
+			}
 		}
 	}
-	index.UpdateBacklogs(overviews, archives, s.root.Root())
-	index.UpdateLinks(s.root.Root())
 
-	return nil
+	fmt.Println("Generating index page")
+	err = index.UpdateBacklogs(overviews, archives, s.root.Root())
+	if err != nil {
+		return err
+	}
+	return index.UpdateLinks(s.root.Root())
 }
 
 func (s *SyncOverviewsAndIndexStep) moveItemsToActiveAndArchiveDirectory(backlogDir string) error {
@@ -118,7 +155,7 @@ func (s *SyncOverviewsAndIndexStep) moveItemsToActiveAndArchiveDirectory(backlog
 	return nil
 }
 
-func (s *SyncOverviewsAndIndexStep) sendNewCommentsForItems(overview *backlog.BacklogOverview, items []*backlog.BacklogItem) {
+func (s *SyncOverviewsAndIndexStep) sendNewCommentsForItems(overview *backlog.BacklogOverview, items []*backlog.BacklogItem) error {
 	userList := backlog.NewUserList(s.root.UsersDirectory())
 	var mailSender *utils.MailSender
 	if s.cfg.SmtpServer != "" {
@@ -129,7 +166,7 @@ func (s *SyncOverviewsAndIndexStep) sendNewCommentsForItems(overview *backlog.Ba
 	for i := range items {
 		commented[i] = items[i]
 	}
-	sendNewComments(commented, func(item backlog.Commented, to []string, comment []string) (me string, err error) {
+	return sendNewComments(commented, func(item backlog.Commented, to []string, comment []string) (me string, err error) {
 		return sendComment(userList, comment, overview.Title(), s.author, to, mailSender, s.cfg, s.root.Root(), item.Path())
 	})
 }

@@ -49,11 +49,14 @@ func (tg *TimelineGenerator) ExecuteForTag(tag string) error {
 		tg.sortTimelineItems(timelineItems)
 
 		timelineDirectory := tg.root.TimelineDirectory()
-		os.MkdirAll(timelineDirectory, 0777)
+		err := os.MkdirAll(timelineDirectory, 0777)
+		if err != nil {
+			return err
+		}
 		pngPath := filepath.Join(timelineDirectory, fmt.Sprintf("%s.png", tag))
 
 		if len(timelineItems) == 0 {
-			os.Remove(pngPath)
+			_ = os.Remove(pngPath)
 			return nil
 		}
 
@@ -78,7 +81,7 @@ func (tg *TimelineGenerator) ExecuteForTag(tag string) error {
 			},
 		})
 		result := timeline.ProcessBytes(data)
-		result.Context.SavePNG(pngPath)
+		return result.Context.SavePNG(pngPath)
 	}
 	return nil
 }
@@ -107,8 +110,8 @@ func (tg *TimelineGenerator) RenameTimeline(oldTag, newTag string) error {
 	return os.Rename(oldPngPath, newPngPath)
 }
 
-func (tg *TimelineGenerator) RemoveTimeline(tag string) error {
+func (tg *TimelineGenerator) RemoveTimeline(tag string) {
 	timelineDirectory := tg.root.TimelineDirectory()
 	pngPath := filepath.Join(timelineDirectory, fmt.Sprintf("%s.png", tag))
-	return os.Remove(pngPath)
+	_ = os.Remove(pngPath)
 }

@@ -21,8 +21,13 @@ func NewSyncTagsStep(root *backlog.BacklogsStructure, userList *backlog.UserList
 }
 
 func (s *SyncTagsStep) Execute() error {
+	fmt.Println("Generating tag pages")
+
 	tagsDir := s.root.TagsDirectory()
-	os.MkdirAll(tagsDir, 0777)
+	err := os.MkdirAll(tagsDir, 0777)
+	if err != nil {
+		return err
+	}
 
 	allTags, itemsTags, ideasTags, overviews, err := backlog.ItemsAndIdeasTags(s.root)
 	if err != nil {
@@ -43,16 +48,11 @@ func (s *SyncTagsStep) Execute() error {
 	infos, _ := ioutil.ReadDir(tagsDir)
 	for _, info := range infos {
 		if _, ok := tagsFileNames[info.Name()]; !ok {
-			os.Remove(filepath.Join(tagsDir, info.Name()))
+			_ = os.Remove(filepath.Join(tagsDir, info.Name()))
 		}
 	}
 
-	err = s.updateTagsPage(tagsDir, itemsTags, ideasTags)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return s.updateTagsPage(tagsDir, itemsTags, ideasTags)
 }
 
 func (s *SyncTagsStep) updateTagPage(tagsDir, tag string, items []*backlog.BacklogItem, overviews map[*backlog.BacklogItem]*backlog.BacklogOverview, ideas []*backlog.BacklogIdea, userList *backlog.UserList) (string, error) {
@@ -69,7 +69,7 @@ func (s *SyncTagsStep) updateTagPage(tagsDir, tag string, items []*backlog.Backl
 	lines := []string{
 		fmt.Sprintf("# Tag: %s", tag),
 		"",
-		fmt.Sprintf(utils.JoinMarkdownLinks(backlog.MakeStandardLinks(s.root.Root(), tagsDir)...)),
+		utils.JoinMarkdownLinks(backlog.MakeStandardLinks(s.root.Root(), tagsDir)...),
 		"",
 	}
 	for _, status := range backlog.AllStatuses {
@@ -112,10 +112,10 @@ func (s *SyncTagsStep) updateTagsPage(tagsDir string, itemsTags map[string][]*ba
 	sort.Strings(allTags)
 
 	lines := []string{"# Tags", ""}
-	lines = append(lines, fmt.Sprintf(utils.JoinMarkdownLinks(backlog.MakeStandardLinks(s.root.Root(), s.root.Root())...)))
+	lines = append(lines, utils.JoinMarkdownLinks(backlog.MakeStandardLinks(s.root.Root(), s.root.Root())...))
 	lines = append(lines, "", "---", "")
 	for _, tag := range allTags {
-		lines = append(lines, fmt.Sprintf("%s", backlog.MakeTagLink(tag, tagsDir, s.root.Root())))
+		lines = append(lines, backlog.MakeTagLink(tag, tagsDir, s.root.Root()))
 	}
 	return ioutil.WriteFile(s.root.TagsFile(), []byte(strings.Join(lines, "  \n")), 0644)
 }

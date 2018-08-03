@@ -8,7 +8,7 @@ import (
 
 type Commented interface {
 	Comments() []*Comment
-	UpdateComments(comments []*Comment)
+	UpdateComments(comments []*Comment) error
 	Path() string
 	Title() string
 }

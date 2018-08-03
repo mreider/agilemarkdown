@@ -18,9 +18,9 @@ type UserList struct {
 func NewUserList(usersDir string) *UserList {
 	userList := &UserList{usersDir: usersDir}
 	if usersDir != "" {
-		userList.init()
-		userList.fixObsoleteUserFiles()
-		userList.load()
+		_ = userList.init()
+		_ = userList.fixObsoleteUserFiles()
+		_ = userList.load()
 	}
 	return userList
 }
@@ -165,7 +165,10 @@ func (ul *UserList) fixObsoleteUserFiles() error {
 		itemPath := filepath.Join(ul.usersDir, item.Name())
 		userPath := itemPath + ".md"
 		if _, err := os.Stat(userPath); err == nil {
-			os.Remove(itemPath)
+			err = os.Remove(itemPath)
+			if err != nil {
+				return err
+			}
 			continue
 		} else if !os.IsNotExist(err) {
 			return err
@@ -174,6 +177,9 @@ func (ul *UserList) fixObsoleteUserFiles() error {
 		user, _ := LoadUser(itemPath + ".md")
 		user.SetName(item.Name())
 		content, err := ioutil.ReadFile(itemPath)
+		if err != nil {
+			return err
+		}
 		lines := strings.Split(string(content), "\n")
 		for _, line := range lines {
 			line = strings.TrimSpace(line)
@@ -185,12 +191,15 @@ func (ul *UserList) fixObsoleteUserFiles() error {
 		if err != nil {
 			return err
 		}
-		os.Remove(itemPath)
+		err = os.Remove(itemPath)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
-func (ul *UserList) ResolveGitUsers(unknownUsers []string) (unresolvedUsers []string) {
+func (ul *UserList) ResolveGitUsers(unknownUsers []string) (unresolvedUsers []string, err error) {
 	names, emails, _ := git.KnownUsers()
 	currentUserName, currentUserEmail, _ := git.CurrentUser()
 	names = append(names, currentUserName)
@@ -217,7 +226,10 @@ NextUser:
 			if email == normalizedUser {
 				fmt.Printf("User '%s' is associated with a git user '%s <%s>'\n", user, names[i], emails[i])
 				if ul.AddUser(names[i], emails[i]) {
-					ul.Save()
+					err := ul.Save()
+					if err != nil {
+						return nil, err
+					}
 				}
 				continue NextUser
 			}
@@ -228,7 +240,10 @@ NextUser:
 			if nickname == normalizedUser {
 				fmt.Printf("User '%s' is associated with a git user '%s <%s>'\n", user, names[i], emails[i])
 				if ul.AddUser(names[i], emails[i]) {
-					ul.Save()
+					err := ul.Save()
+					if err != nil {
+						return nil, err
+					}
 				}
 				continue NextUser
 			}
@@ -238,7 +253,10 @@ NextUser:
 			if name == normalizedUser {
 				fmt.Printf("User '%s' is associated with a git user '%s <%s>'\n", user, names[i], emails[i])
 				if ul.AddUser(names[i], emails[i]) {
-					ul.Save()
+					err = ul.Save()
+					if err != nil {
+						return nil, err
+					}
 				}
 				continue NextUser
 			}
@@ -247,5 +265,5 @@ NextUser:
 		unresolvedUsers = append(unresolvedUsers, user)
 	}
 
-	return unresolvedUsers
+	return unresolvedUsers, nil
 }

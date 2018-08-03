@@ -36,7 +36,10 @@ func (a *DeleteTagAction) Execute() error {
 		itemTags = utils.RemoveItemIgnoreCase(itemTags, a.tag)
 		item.SetTags(itemTags)
 		item.ClearTimeline()
-		item.Save()
+		err := item.Save()
+		if err != nil {
+			return err
+		}
 	}
 
 	tagIdeas := ideasTags[a.tag]
@@ -44,7 +47,10 @@ func (a *DeleteTagAction) Execute() error {
 		ideaTags := idea.Tags()
 		ideaTags = utils.RemoveItemIgnoreCase(ideaTags, a.tag)
 		idea.SetTags(ideaTags)
-		idea.Save()
+		err := idea.Save()
+		if err != nil {
+			return err
+		}
 	}
 
 	fmt.Printf("Tag '%s' deleted. Sync to regenerate files.\n", a.tag)

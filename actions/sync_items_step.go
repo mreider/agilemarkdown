@@ -19,11 +19,13 @@ func NewSyncItemsStep(root *backlog.BacklogsStructure) *SyncItemsStep {
 }
 
 func (s *SyncItemsStep) Execute() error {
+	fmt.Println("Updating Modified date for changed stories")
 	err := s.updateItemsModifiedDate()
 	if err != nil {
 		return err
 	}
 
+	fmt.Println("Renaming file names for stories with modified title")
 	return s.updateItemsFileNames()
 }
 
@@ -34,6 +36,9 @@ func (s *SyncItemsStep) updateItemsModifiedDate() error {
 	}
 	for _, backlogDir := range backlogDirs {
 		modifiedFiles, err := git.ModifiedFiles(backlogDir)
+		if err != nil {
+			return err
+		}
 		if len(modifiedFiles) == 0 {
 			continue
 		}
@@ -60,7 +65,10 @@ func (s *SyncItemsStep) updateItemsModifiedDate() error {
 				if item.Assigned() != repoItem.Assigned() || item.Status() != repoItem.Status() || item.Estimate() != repoItem.Estimate() {
 					if item.Modified() == repoItem.Modified() {
 						item.SetModified(currentTimestamp)
-						item.Save()
+						err := item.Save()
+						if err != nil {
+							return err
+						}
 					}
 				}
 
@@ -69,25 +77,40 @@ func (s *SyncItemsStep) updateItemsModifiedDate() error {
 				if oldStatus != newStatus {
 					if newStatus == backlog.FinishedStatus {
 						item.SetFinished(currentTimestamp)
-						item.Save()
+						err := item.Save()
+						if err != nil {
+							return err
+						}
 					} else if oldStatus == backlog.FinishedStatus {
 						item.SetFinished("")
-						item.Save()
+						err := item.Save()
+						if err != nil {
+							return err
+						}
 					} else {
 						if !item.Finished().IsZero() {
 							item.SetFinished("")
-							item.Save()
+							err := item.Save()
+							if err != nil {
+								return err
+							}
 						}
 					}
 				} else if oldStatus == backlog.FinishedStatus && newStatus == backlog.FinishedStatus {
 					if item.Finished().IsZero() && !repoItem.Finished().IsZero() {
 						item.SetFinished(utils.GetTimestamp(repoItem.Finished()))
-						item.Save()
+						err := item.Save()
+						if err != nil {
+							return err
+						}
 					}
 				} else if oldStatus == newStatus {
 					if !item.Finished().IsZero() {
 						item.SetFinished("")
-						item.Save()
+						err := item.Save()
+						if err != nil {
+							return err
+						}
 					}
 				}
 			}
@@ -123,8 +146,14 @@ func (s *SyncItemsStep) updateItemsFileNames() error {
 				if _, err := os.Stat(newItemPath); os.IsNotExist(err) {
 					err := os.Rename(item.Path(), newItemPath)
 					if err == nil {
-						git.Add(newItemPath)
-						overview.UpdateItemLinkInOverviewFile(item.Path(), newItemPath)
+						err := git.Add(newItemPath)
+						if err != nil {
+							return err
+						}
+						err = overview.UpdateItemLinkInOverviewFile(item.Path(), newItemPath)
+						if err != nil {
+							return err
+						}
 					}
 				}
 			}

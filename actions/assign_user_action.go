@@ -90,7 +90,10 @@ func (a *AssignUserAction) Execute() error {
 			item := items[itemIndex]
 			item.SetAssigned(user)
 			item.SetModified(utils.GetCurrentTimestamp())
-			item.Save()
+			err := item.Save()
+			if err != nil {
+				return err
+			}
 		}
 	}
 

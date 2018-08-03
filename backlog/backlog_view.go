@@ -37,7 +37,7 @@ func (bv BacklogView) WriteAsciiItems(items []*BacklogItem, status *BacklogItemS
 
 	result := make([]string, 0, 50)
 	if title != "" {
-		result = append(result, fmt.Sprintf("%s", title))
+		result = append(result, title)
 	}
 	headers := make([]string, 0, 3)
 	headers = append(headers, fmt.Sprintf("-%s---%s---%s---%s-", strings.Repeat("-", maxAssignedLen), strings.Repeat("-", maxTitleLen), strings.Repeat("-", len(pointsHeader)), strings.Repeat("-", maxTagsLen)))
@@ -118,7 +118,7 @@ func (bv BacklogView) WriteAsciiItemsWithProjectAndStatus(items []*BacklogItem, 
 
 	result := make([]string, 0, 50)
 	if title != "" {
-		result = append(result, fmt.Sprintf("%s", title))
+		result = append(result, title)
 	}
 	headers := make([]string, 0, 3)
 	headers = append(headers, fmt.Sprintf("-%s---%s---%s---%s---%s---%s-", strings.Repeat("-", maxTitleLen), strings.Repeat("-", maxProjectLen), strings.Repeat("-", maxStatusLen), strings.Repeat("-", len(pointsHeader)), strings.Repeat("-", maxStartDateLen), strings.Repeat("-", maxEndDateLen)))

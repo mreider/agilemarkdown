@@ -142,7 +142,7 @@ func InitCommitInfo(fileName string) (user string, created time.Time, err error)
 	return user, created, nil
 }
 
-func RemoteOriginUrl() (url string, err error) {
+func RemoteOriginURL() (url string, err error) {
 	url, err = runGitCommand([]string{"config", "--get", "remote.origin.url"})
 	if err != nil {
 		return "", nil

@@ -59,23 +59,39 @@ func findRootDirectory() (string, error) {
 	return dir, nil
 }
 
-func AddConfigAndGitIgnore(root *backlog.BacklogsStructure) {
+func AddConfigAndGitIgnore(root *backlog.BacklogsStructure) error {
 	hasChanges := false
 
 	configPath := root.ConfigFile()
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		ioutil.WriteFile(configPath, []byte(strings.TrimLeftFunc(defaultConfig, unicode.IsSpace)), 0644)
-		git.Add(configPath)
+		err := ioutil.WriteFile(configPath, []byte(strings.TrimLeftFunc(defaultConfig, unicode.IsSpace)), 0644)
+		if err != nil {
+			return err
+		}
+		err = git.Add(configPath)
+		if err != nil {
+			return err
+		}
 		hasChanges = true
 	}
 	gitIgnorePath := filepath.Join(root.Root(), ".gitignore")
 	if _, err := os.Stat(gitIgnorePath); os.IsNotExist(err) {
-		ioutil.WriteFile(gitIgnorePath, []byte(filepath.Base(configPath)), 0644)
-		git.Add(gitIgnorePath)
+		err := ioutil.WriteFile(gitIgnorePath, []byte(filepath.Base(configPath)), 0644)
+		if err != nil {
+			return err
+		}
+		err = git.Add(gitIgnorePath)
+		if err != nil {
+			return err
+		}
 		hasChanges = true
 	}
 
 	if hasChanges {
-		git.Commit("configuration", "")
+		err := git.Commit("configuration", "")
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }

@@ -37,7 +37,7 @@ func (a *CreateBacklogAction) Execute() error {
 		return nil
 	}
 
-	git.SetUpstream()
+	_ = git.SetUpstream()
 
 	err := os.MkdirAll(backlogDir, 0777)
 	if err != nil {
@@ -56,7 +56,10 @@ func (a *CreateBacklogAction) Execute() error {
 		return err
 	}
 	overview.SetTitle(a.backlogName)
-	overview.UpdateLinks("archive", filepath.Join(backlogDir, backlog.ArchiveFileName), a.root.Root(), a.root.Root())
+	err = overview.UpdateLinks("archive", filepath.Join(backlogDir, backlog.ArchiveFileName), a.root.Root(), a.root.Root())
+	if err != nil {
+		return err
+	}
 	overview.SetCreated(utils.GetCurrentTimestamp())
 	return overview.Save()
 }

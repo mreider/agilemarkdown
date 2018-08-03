@@ -64,10 +64,8 @@ func (a *CreateUserAction) Execute() error {
 
 	if userList.AddUser(name, email) {
 		return userList.Save()
-	} else {
-		fmt.Printf("Can't add the user '%s'\n", name)
-		return nil
 	}
-	return nil
 
+	fmt.Printf("Can't add the user '%s'\n", name)
+	return nil
 }

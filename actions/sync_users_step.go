@@ -17,6 +17,8 @@ func NewSyncUsersStep(root *backlog.BacklogsStructure) *SyncUsersStep {
 }
 
 func (s *SyncUsersStep) Execute() error {
+	fmt.Println("Generating user pages")
+
 	userList := backlog.NewUserList(s.root.UsersDirectory())
 	tagsDir := s.root.TagsDirectory()
 
@@ -45,7 +47,7 @@ func (s *SyncUsersStep) Execute() error {
 
 func (s *SyncUsersStep) updateUsersPage(userList *backlog.UserList) error {
 	lines := []string{"# Users", ""}
-	lines = append(lines, fmt.Sprintf(utils.JoinMarkdownLinks(backlog.MakeStandardLinks(s.root.Root(), s.root.Root())...)))
+	lines = append(lines, utils.JoinMarkdownLinks(backlog.MakeStandardLinks(s.root.Root(), s.root.Root())...))
 	lines = append(lines, "", "---", "")
 	lines = append(lines, fmt.Sprintf("| Name | Nickname | Email |"))
 	lines = append(lines, "|---|---|---|")

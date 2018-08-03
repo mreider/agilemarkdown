@@ -25,7 +25,10 @@ func main() {
 	if gitRootDir != "" {
 		rootDir = gitRootDir
 		root := backlog.NewBacklogsStructure(rootDir)
-		commands.AddConfigAndGitIgnore(root)
+		err := commands.AddConfigAndGitIgnore(root)
+		if err != nil {
+			fmt.Println(err)
+		}
 		backlog.NewUserList(root.UsersDirectory())
 	}
 	err := setBashAutoComplete()

@@ -56,7 +56,7 @@ func (overview *BacklogOverview) SetCreated(timestamp string) {
 	overview.markdown.SetMetadataValue(CreatedMetadataKey, timestamp)
 }
 
-func (overview *BacklogOverview) Update(items []*BacklogItem, sorter *BacklogItemsSorter, userList *UserList) {
+func (overview *BacklogOverview) Update(items []*BacklogItem, sorter *BacklogItemsSorter, userList *UserList) error {
 	itemsByStatus := sorter.SortedItemsByStatus()
 	itemsByName := make(map[string]*BacklogItem)
 	for _, item := range items {
@@ -88,7 +88,7 @@ func (overview *BacklogOverview) Update(items []*BacklogItem, sorter *BacklogIte
 			group.ReplaceLines(newLines)
 		}
 	}
-	overview.Save()
+	return overview.Save()
 }
 
 func (overview *BacklogOverview) updateItem(item *BacklogItem, itemsByStatus map[string][]string) {
@@ -132,22 +132,22 @@ func (overview *BacklogOverview) sortGroupsByStatus() {
 	})
 }
 
-func (overview *BacklogOverview) RemoveVelocity(bck *Backlog) {
+func (overview *BacklogOverview) RemoveVelocity(bck *Backlog) error {
 	overview.markdown.SetFreeText([]string{""})
-	overview.Save()
+	return overview.Save()
 }
 
 func (overview *BacklogOverview) SetHideEmptyGroups(value bool) {
 	overview.markdown.HideEmptyGroups = value
 }
 
-func (overview *BacklogOverview) UpdateLinks(lastLinkTitle, lastLinkPath, rootDir, baseDir string) {
+func (overview *BacklogOverview) UpdateLinks(lastLinkTitle, lastLinkPath, rootDir, baseDir string) error {
 	links := MakeStandardLinks(rootDir, baseDir)
 	if _, err := os.Stat(lastLinkPath); err == nil {
 		links = append(links, utils.MakeMarkdownLink(lastLinkTitle, lastLinkPath, baseDir))
 	}
 	overview.markdown.SetLinks(utils.JoinMarkdownLinks(links...))
-	overview.Save()
+	return overview.Save()
 }
 
 func (overview *BacklogOverview) UpdateItemLinkInOverviewFile(prevItemPath, newItemPath string) error {
