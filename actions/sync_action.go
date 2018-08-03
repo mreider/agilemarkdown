@@ -10,6 +10,8 @@ import (
 	"strings"
 )
 
+const AttemptCount = 10
+
 type SyncAction struct {
 	root     *backlog.BacklogsStructure
 	author   string
@@ -33,8 +35,12 @@ func (a *SyncAction) Execute() error {
 		return err
 	}
 
-	attempts := 10
+	attempts := AttemptCount
 	for attempts > 0 {
+		if attempts < AttemptCount {
+			fmt.Printf("Attempt %d\n", AttemptCount-attempts+1)
+		}
+
 		attempts--
 
 		err := NewSyncItemsStep(a.root).Execute()
@@ -73,6 +79,7 @@ func (a *SyncAction) Execute() error {
 		}
 
 		if a.testMode {
+			fmt.Println("OK")
 			return nil
 		}
 
@@ -81,6 +88,7 @@ func (a *SyncAction) Execute() error {
 			return err
 		}
 		if ok {
+			fmt.Println("OK")
 			return nil
 		}
 	}
@@ -92,15 +100,21 @@ func (a *SyncAction) syncToGit() (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	git.Commit("sync", a.author) // TODO commit message
+	fmt.Println("git commit")
+	err = git.Commit("sync", a.author) // TODO commit message
+	if err != nil {
+		return false, fmt.Errorf("can't commit: %v", err)
+	}
 	err = git.Fetch()
 	if err != nil {
 		return false, fmt.Errorf("can't fetch: %v", err)
 	}
+	fmt.Println("git merge")
 	mergeOutput, mergeErr := git.Merge()
 	if mergeErr != nil {
 		status, _ := git.Status()
 		if !strings.Contains(status, "Your branch is based on 'origin/master', but the upstream is gone.") {
+			fmt.Println("Auto-resolving merge conflicts")
 			conflictFiles, conflictErr := git.ConflictFiles()
 			hasConflictItems := false
 			for _, fileName := range conflictFiles {
@@ -116,18 +130,26 @@ func (a *SyncAction) syncToGit() (bool, error) {
 			}
 			if conflictErr != nil || hasConflictItems {
 				fmt.Println(mergeOutput)
-				git.AbortMerge()
+				_ = git.AbortMerge()
 				return false, fmt.Errorf("can't merge: %v", mergeErr)
 			}
 			for _, conflictFile := range conflictFiles {
-				git.CheckoutOurVersion(conflictFile)
-				git.Add(conflictFile)
+				err = git.CheckoutOurVersion(conflictFile)
+				if err != nil {
+					return false, err
+				}
+
+				err := git.Add(conflictFile)
+				if err != nil {
+					return false, err
+				}
 				fmt.Printf("Remote changes to %s are ignored\n", conflictFile)
 			}
-			git.CommitNoEdit(a.author)
-			return false, nil
+			err = git.CommitNoEdit(a.author)
+			return false, err
 		}
 	}
+	fmt.Println("git push")
 	err = git.Push()
 	if err != nil {
 		return false, fmt.Errorf("can't push: %v", err)

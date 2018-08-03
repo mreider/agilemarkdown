@@ -21,7 +21,10 @@ var CreateBacklogCommand = cli.Command{
 				if err != nil {
 					return err
 				}
-				AddConfigAndGitIgnore(backlog.NewBacklogsStructure("."))
+				err = AddConfigAndGitIgnore(backlog.NewBacklogsStructure("."))
+				if err != nil {
+					return err
+				}
 			} else {
 				return err
 			}

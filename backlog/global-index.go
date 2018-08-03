@@ -34,15 +34,13 @@ func (index *GlobalIndex) FreeText() []string {
 
 func (index *GlobalIndex) SetFreeText(freeText []string) {
 	index.markdown.SetFreeText(freeText)
-	index.Save()
 }
 
 func (index *GlobalIndex) SetFooter(footer []string) {
 	index.markdown.SetFooter(footer)
-	index.Save()
 }
 
-func (index *GlobalIndex) UpdateBacklogs(overviews []*BacklogOverview, archives []*BacklogOverview, baseDir string) {
+func (index *GlobalIndex) UpdateBacklogs(overviews []*BacklogOverview, archives []*BacklogOverview, baseDir string) error {
 	lines := make([]string, 0, len(overviews)*5)
 	lines = append(lines, "| Backlogs |  |")
 	lines = append(lines, "|---|---|")
@@ -53,11 +51,11 @@ func (index *GlobalIndex) UpdateBacklogs(overviews []*BacklogOverview, archives 
 
 	index.markdown.RemoveGroup("Backlogs")
 	index.SetFooter(lines)
-	index.Save()
+	return index.Save()
 }
 
-func (index *GlobalIndex) UpdateLinks(rootDir string) {
+func (index *GlobalIndex) UpdateLinks(rootDir string) error {
 	links := MakeStandardLinks(rootDir, filepath.Dir(index.markdown.ContentPath()))
 	index.markdown.SetLinks(utils.JoinMarkdownLinks(links...))
-	index.Save()
+	return index.Save()
 }

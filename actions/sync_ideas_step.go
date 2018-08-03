@@ -25,6 +25,8 @@ func NewSyncIdeasStep(root *backlog.BacklogsStructure, cfg *config.Config, userL
 }
 
 func (s *SyncIdeasStep) Execute() error {
+	fmt.Println("Generating idea pages")
+
 	_, itemsTags, ideasTags, overviews, err := backlog.ItemsAndIdeasTags(s.root)
 	if err != nil {
 		return err
@@ -36,7 +38,11 @@ func (s *SyncIdeasStep) Execute() error {
 		return err
 	}
 
-	s.sendNewCommentsForIdeas(ideas)
+	fmt.Println("Send new comments for ideas")
+	err = s.sendNewCommentsForIdeas(ideas)
+	if err != nil {
+		return err
+	}
 
 	ideasByRank := make(map[string][]*backlog.BacklogIdea)
 	var ranks []string
@@ -61,7 +67,7 @@ func (s *SyncIdeasStep) Execute() error {
 
 	lines := []string{"# Ideas", ""}
 	lines = append(lines,
-		fmt.Sprintf(utils.JoinMarkdownLinks(backlog.MakeStandardLinks(s.root.Root(), s.root.Root())...)))
+		utils.JoinMarkdownLinks(backlog.MakeStandardLinks(s.root.Root(), s.root.Root())...))
 	lines = append(lines, "")
 	for _, rank := range ranks {
 		if rank != "" {
@@ -98,9 +104,15 @@ func (s *SyncIdeasStep) updateIdea(tagsDir string, idea *backlog.BacklogIdea, id
 		idea.SetAuthor(author)
 		idea.SetTags(nil)
 		idea.SetText(idea.Text())
-		idea.Save()
+		err = idea.Save()
+		if err != nil {
+			return err
+		}
 	}
-	idea.UpdateLinks(s.root.Root())
+	err := idea.UpdateLinks(s.root.Root())
+	if err != nil {
+		return err
+	}
 
 	ideaTags := make(map[string]struct{})
 NextTag:
@@ -135,12 +147,10 @@ NextTag:
 		itemsLines = append(itemsLines, backlog.BacklogView{}.WriteMarkdownItemsWithProjectAndStatus(overviews, items, filepath.Dir(idea.Path()), tagsDir, s.userList)...)
 	}
 	idea.SetFooter(itemsLines)
-	idea.Save()
-
-	return nil
+	return idea.Save()
 }
 
-func (s *SyncIdeasStep) sendNewCommentsForIdeas(ideas []*backlog.BacklogIdea) {
+func (s *SyncIdeasStep) sendNewCommentsForIdeas(ideas []*backlog.BacklogIdea) error {
 	userList := backlog.NewUserList(s.root.UsersDirectory())
 	var mailSender *utils.MailSender
 	if s.cfg.SmtpServer != "" {
@@ -151,7 +161,7 @@ func (s *SyncIdeasStep) sendNewCommentsForIdeas(ideas []*backlog.BacklogIdea) {
 	for i := range ideas {
 		commented[i] = ideas[i]
 	}
-	sendNewComments(commented, func(idea backlog.Commented, to []string, comment []string) (me string, err error) {
+	return sendNewComments(commented, func(idea backlog.Commented, to []string, comment []string) (me string, err error) {
 		return sendComment(userList, comment, idea.Title(), s.author, to, mailSender, s.cfg, s.root.Root(), idea.Path())
 	})
 }

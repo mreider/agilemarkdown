@@ -25,6 +25,10 @@ func (s *SyncVelocityStep) Execute() error {
 	}
 	if velocity.Title() == "" {
 		velocity.SetTitle("Velocity")
+		err := velocity.Save()
+		if err != nil {
+			return err
+		}
 	}
 	overviews := make([]*backlog.BacklogOverview, 0, len(backlogDirs))
 	backlogs := make([]*backlog.Backlog, 0, len(backlogDirs))
@@ -46,9 +50,10 @@ func (s *SyncVelocityStep) Execute() error {
 		overviews = append(overviews, overview)
 		backlogs = append(backlogs, bck)
 	}
-	velocity.Update(backlogs, overviews, backlogDirs, s.root.Root())
-	velocity.UpdateLinks(s.root.Root())
-
-	return nil
-
+	fmt.Println("Generating velocity graphs and pages")
+	err = velocity.Update(backlogs, overviews, backlogDirs, s.root.Root())
+	if err != nil {
+		return err
+	}
+	return velocity.UpdateLinks(s.root.Root())
 }

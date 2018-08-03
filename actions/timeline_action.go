@@ -69,7 +69,10 @@ func (a *TimelineAction) Execute() error {
 			item := items[itemIndex]
 			if match[2] == "clear" {
 				item.ClearTimeline()
-				item.Save()
+				err := item.Save()
+				if err != nil {
+					return err
+				}
 				needOutput, hasChanges = true, true
 			} else {
 				parts := strings.Fields(match[2])
@@ -94,7 +97,10 @@ func (a *TimelineAction) Execute() error {
 				}
 
 				item.SetTimeline(startDate, endDate)
-				item.Save()
+				err := item.Save()
+				if err != nil {
+					return err
+				}
 				needOutput, hasChanges = true, true
 			}
 		}

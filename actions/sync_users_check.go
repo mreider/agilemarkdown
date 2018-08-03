@@ -17,6 +17,8 @@ func NewSyncUsersCheck(root *backlog.BacklogsStructure, userList *backlog.UserLi
 }
 
 func (ch *SyncUsersCheck) Check() (bool, error) {
+	fmt.Println("Resolving unknown users")
+
 	items, _, err := backlog.AllBacklogItems(ch.root)
 	if err != nil {
 		return false, err
@@ -29,7 +31,10 @@ func (ch *SyncUsersCheck) Check() (bool, error) {
 	}
 
 	unknownUsers := ch.getUnknownUsers(items, ideas)
-	unknownUsers = ch.userList.ResolveGitUsers(unknownUsers)
+	unknownUsers, err = ch.userList.ResolveGitUsers(unknownUsers)
+	if err != nil {
+		return false, err
+	}
 
 	if len(unknownUsers) != 0 {
 		fmt.Printf("You should resolve unknown users: %s\n", strings.Join(unknownUsers, ", "))

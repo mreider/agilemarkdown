@@ -35,10 +35,9 @@ func (velocity *Velocity) Title() string {
 
 func (velocity *Velocity) SetTitle(title string) {
 	velocity.markdown.SetTitle(title)
-	velocity.Save()
 }
 
-func (velocity *Velocity) Update(backlogs []*Backlog, overviews []*BacklogOverview, backlogDirs []string, baseDir string) {
+func (velocity *Velocity) Update(backlogs []*Backlog, overviews []*BacklogOverview, backlogDirs []string, baseDir string) error {
 	var lines []string
 	for i, bck := range backlogs {
 		overview := overviews[i]
@@ -57,7 +56,7 @@ func (velocity *Velocity) Update(backlogs []*Backlog, overviews []*BacklogOvervi
 	lines = append(lines, "")
 
 	velocity.markdown.SetFreeText(lines)
-	velocity.Save()
+	return velocity.Save()
 }
 
 func (velocity *Velocity) generateVelocityImage(backlogDir string, bck *Backlog, overview *BacklogOverview) (string, error) {
@@ -67,14 +66,17 @@ func (velocity *Velocity) generateVelocityImage(backlogDir string, bck *Backlog,
 	}
 
 	velocityDir := filepath.Join(filepath.Dir(backlogDir), velocityDirectoryName)
-	os.MkdirAll(velocityDir, 0777)
+	err = os.MkdirAll(velocityDir, 0777)
+	if err != nil {
+		return "", err
+	}
 	velocityPngPath := filepath.Join(velocityDir, fmt.Sprintf("%s.png", filepath.Base(backlogDir)))
 	err = ioutil.WriteFile(velocityPngPath, chart, 0644)
 	return velocityPngPath, err
 }
 
-func (velocity *Velocity) UpdateLinks(rootDir string) {
+func (velocity *Velocity) UpdateLinks(rootDir string) error {
 	links := MakeStandardLinks(rootDir, filepath.Dir(velocity.markdown.ContentPath()))
 	velocity.markdown.SetLinks(utils.JoinMarkdownLinks(links...))
-	velocity.Save()
+	return velocity.Save()
 }

@@ -19,6 +19,8 @@ func NewSyncTimelineStep(root *backlog.BacklogsStructure) *SyncTimelineStep {
 }
 
 func (s *SyncTimelineStep) Execute() error {
+	fmt.Println("Generating timeline page")
+
 	allTags, itemsTags, _, _, err := backlog.ItemsAndIdeasTags(s.root)
 	if err != nil {
 		return err
@@ -35,7 +37,10 @@ func (s *SyncTimelineStep) Execute() error {
 			}
 		}
 		if hasTimeline {
-			timelineGenerator.ExecuteForTag(tag)
+			err := timelineGenerator.ExecuteForTag(tag)
+			if err != nil {
+				return err
+			}
 		} else {
 			timelineGenerator.RemoveTimeline(tag)
 		}
@@ -48,8 +53,7 @@ func (s *SyncTimelineStep) Execute() error {
 	}
 
 	lines := []string{"# Timelines", ""}
-	lines = append(lines,
-		fmt.Sprintf(utils.JoinMarkdownLinks(backlog.MakeStandardLinks(s.root.Root(), s.root.Root())...)))
+	lines = append(lines, utils.JoinMarkdownLinks(backlog.MakeStandardLinks(s.root.Root(), s.root.Root())...))
 	lines = append(lines, "")
 
 	for _, item := range items {
@@ -59,10 +63,10 @@ func (s *SyncTimelineStep) Execute() error {
 			if _, ok := allTags[timelineTag]; ok {
 				lines = append(lines, fmt.Sprintf("## Tag: %s", utils.MakeMarkdownLink(timelineTag, filepath.Join(s.root.TagsDirectory(), timelineTag), s.root.Root())))
 				lines = append(lines, "")
-				lines = append(lines, fmt.Sprintf("%s", utils.MakeMarkdownImageLink(timelineTag, timelineImagePath, s.root.Root())))
+				lines = append(lines, utils.MakeMarkdownImageLink(timelineTag, timelineImagePath, s.root.Root()))
 				lines = append(lines, "")
 			} else {
-				os.Remove(timelineImagePath)
+				_ = os.Remove(timelineImagePath)
 			}
 		}
 	}

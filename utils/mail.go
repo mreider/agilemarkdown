@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"net/smtp"
 	"strings"
 )
@@ -34,10 +35,11 @@ func (m *MailSender) SendEmail(recipients []string, subject, message string) err
 		from = m.smtpUser
 	}
 
-	msg := "From: " + m.from + "\n" +
+	msg := "From: " + from + "\n" +
 		"To: " + strings.Join(recipients, ",") + "\n" +
 		"Subject: " + subject + "\n\n" +
 		message
 
+	fmt.Printf("Sending email to %s\n", strings.Join(recipients, ", "))
 	return smtp.SendMail(m.smtpServer+m.smtpPort, smtp.PlainAuth("", m.smtpUser, m.smtpPassword, m.smtpServer), m.smtpUser, recipients, []byte(msg))
 }

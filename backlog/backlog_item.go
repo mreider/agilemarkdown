@@ -165,9 +165,9 @@ func (item *BacklogItem) Comments() []*Comment {
 	return NewMarkdownComments(item.markdown).Comments()
 }
 
-func (item *BacklogItem) UpdateComments(comments []*Comment) {
+func (item *BacklogItem) UpdateComments(comments []*Comment) error {
 	NewMarkdownComments(item.markdown).UpdateComments(comments)
-	item.Save()
+	return item.Save()
 }
 
 func (item *BacklogItem) Tags() []string {
@@ -205,8 +205,11 @@ func (item *BacklogItem) MoveToBacklogArchiveDirectory() error {
 	markdownDir := filepath.Dir(item.markdown.ContentPath())
 	if filepath.Base(markdownDir) != archiveDirectoryName {
 		newContentPath := filepath.Join(markdownDir, archiveDirectoryName, filepath.Base(item.markdown.ContentPath()))
-		os.MkdirAll(filepath.Dir(newContentPath), 0777)
-		err := os.Rename(item.markdown.ContentPath(), newContentPath)
+		err := os.MkdirAll(filepath.Dir(newContentPath), 0777)
+		if err != nil {
+			return err
+		}
+		err = os.Rename(item.markdown.ContentPath(), newContentPath)
 		if err != nil {
 			return err
 		}
@@ -215,7 +218,7 @@ func (item *BacklogItem) MoveToBacklogArchiveDirectory() error {
 	return nil
 }
 
-func (item *BacklogItem) UpdateLinks(rootDir string, overviewPath, archivePath string) {
+func (item *BacklogItem) UpdateLinks(rootDir string, overviewPath, archivePath string) error {
 	links := MakeStandardLinks(rootDir, filepath.Dir(item.markdown.ContentPath()))
 	links = append(links, utils.MakeMarkdownLink("project page", overviewPath, filepath.Dir(item.markdown.ContentPath())))
 	if _, err := os.Stat(archivePath); err == nil {
@@ -223,7 +226,7 @@ func (item *BacklogItem) UpdateLinks(rootDir string, overviewPath, archivePath s
 	}
 
 	item.markdown.SetLinks(utils.JoinMarkdownLinks(links...))
-	item.Save()
+	return item.Save()
 }
 
 func (item *BacklogItem) Content() []byte {
@@ -240,7 +243,6 @@ func (item *BacklogItem) Header() string {
 
 func (item *BacklogItem) SetHeader(header string) {
 	item.markdown.SetHeader(header)
-	item.Save()
 }
 
 func (item *BacklogItem) Path() string {

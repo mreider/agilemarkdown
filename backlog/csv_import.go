@@ -154,11 +154,17 @@ func (imp *CsvImporter) createItemIfNotExists(line []string, userList *UserList)
 
 	user := userList.User(assigned)
 	if user == nil {
-		unresolvedUsers := userList.ResolveGitUsers([]string{assigned})
+		unresolvedUsers, err := userList.ResolveGitUsers([]string{assigned})
+		if err != nil {
+			return err
+		}
 		if len(unresolvedUsers) > 0 {
 			if userList.AddUser(assigned, "") {
 				fmt.Printf("You should specify email for auto-created user '%s'\n", assigned)
-				userList.Save()
+				err := userList.Save()
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}

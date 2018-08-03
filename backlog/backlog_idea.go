@@ -153,10 +153,10 @@ func (idea *BacklogIdea) Path() string {
 	return idea.markdown.ContentPath()
 }
 
-func (idea *BacklogIdea) UpdateLinks(rootDir string) {
+func (idea *BacklogIdea) UpdateLinks(rootDir string) error {
 	links := MakeStandardLinks(rootDir, filepath.Dir(idea.markdown.ContentPath()))
 	idea.markdown.SetLinks(utils.JoinMarkdownLinks(links...))
-	idea.Save()
+	return idea.Save()
 }
 
 func (idea *BacklogIdea) Rank() string {
@@ -179,7 +179,7 @@ func (idea *BacklogIdea) Comments() []*Comment {
 	return NewMarkdownComments(idea.markdown).Comments()
 }
 
-func (idea *BacklogIdea) UpdateComments(comments []*Comment) {
+func (idea *BacklogIdea) UpdateComments(comments []*Comment) error {
 	NewMarkdownComments(idea.markdown).UpdateComments(comments)
-	idea.Save()
+	return idea.Save()
 }

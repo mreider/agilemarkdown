@@ -29,7 +29,7 @@ func existsFile(path string) bool {
 	return !info.IsDir()
 }
 
-func sendNewComments(items []backlog.Commented, onSend func(item backlog.Commented, to []string, comment []string) (me string, err error)) {
+func sendNewComments(items []backlog.Commented, onSend func(item backlog.Commented, to []string, comment []string) (me string, err error)) error {
 	for _, item := range items {
 		comments := item.Comments()
 		hasChanges := false
@@ -41,15 +41,20 @@ func sendNewComments(items []backlog.Commented, onSend func(item backlog.Comment
 			now := utils.GetCurrentTimestamp()
 			hasChanges = true
 			if err != nil {
+				fmt.Println(err)
 				comment.AddLine(fmt.Sprintf("can't send by @%s at %s: %v", me, now, err))
 			} else {
 				comment.AddLine(fmt.Sprintf("sent by @%s at %s", me, now))
 			}
 		}
 		if hasChanges {
-			item.UpdateComments(comments)
+			err := item.UpdateComments(comments)
+			if err != nil {
+				return err
+			}
 		}
 	}
+	return nil
 }
 
 func sendComment(userList *backlog.UserList, comment []string, title, from string, to []string, mailSender *utils.MailSender, cfg *config.Config, rootDir, contentPath string) (me string, err error) {
@@ -79,7 +84,7 @@ func sendComment(userList *backlog.UserList, comment []string, title, from strin
 	}
 
 	msgText := strings.Join(comment, "\n")
-	remoteOriginUrl, _ := git.RemoteOriginUrl()
+	remoteOriginUrl, _ := git.RemoteOriginURL()
 	remoteOriginUrl = strings.TrimSuffix(remoteOriginUrl, ".git")
 	if remoteOriginUrl != "" {
 		var itemGitUrl string

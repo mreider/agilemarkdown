@@ -92,10 +92,7 @@ func (u *User) HasEmail(email string) bool {
 }
 
 func (u *User) HasName(name string) bool {
-	if strings.ToLower(u.Name()) == utils.CollapseWhiteSpaces(strings.ToLower(name)) {
-		return true
-	}
-	return false
+	return strings.ToLower(u.Name()) == utils.CollapseWhiteSpaces(strings.ToLower(name))
 }
 
 func (u *User) AddEmailIfNotExist(email string) bool {

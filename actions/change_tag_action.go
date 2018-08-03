@@ -37,7 +37,10 @@ func (a *ChangeTagAction) Execute() error {
 		itemTags := item.Tags()
 		itemTags = utils.RenameItemIgnoreCase(itemTags, a.oldTag, a.newTag)
 		item.SetTags(itemTags)
-		item.Save()
+		err := item.Save()
+		if err != nil {
+			return err
+		}
 	}
 
 	tagIdeas := ideasTags[a.oldTag]
@@ -45,10 +48,16 @@ func (a *ChangeTagAction) Execute() error {
 		ideaTags := idea.Tags()
 		ideaTags = utils.RenameItemIgnoreCase(ideaTags, a.oldTag, a.newTag)
 		idea.SetTags(ideaTags)
-		idea.Save()
+		err := idea.Save()
+		if err != nil {
+			return err
+		}
 	}
 
-	backlog.NewTimelineGenerator(a.root).RenameTimeline(a.oldTag, a.newTag)
+	err = backlog.NewTimelineGenerator(a.root).RenameTimeline(a.oldTag, a.newTag)
+	if err != nil {
+		return err
+	}
 
 	fmt.Printf("Tag '%s' changed to '%s'. Sync to regenerate files.\n", a.oldTag, a.newTag)
 

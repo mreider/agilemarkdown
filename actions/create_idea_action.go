@@ -62,10 +62,10 @@ func (a *CreateIdeaAction) Execute() error {
 
 	if !a.simulate {
 		return idea.Save()
-	} else {
-		rootDir := filepath.Dir(filepath.Dir(ideaPath))
-		fmt.Println(strings.TrimPrefix(ideaPath, rootDir))
-		fmt.Print(string(idea.Content()))
-		return nil
 	}
+
+	rootDir := filepath.Dir(filepath.Dir(ideaPath))
+	fmt.Println(strings.TrimPrefix(ideaPath, rootDir))
+	fmt.Print(string(idea.Content()))
+	return nil
 }
