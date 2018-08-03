@@ -23,7 +23,7 @@ type CsvImporter struct {
 	csvPath    string
 	backlogDir string
 
-	headers map[string]int
+	headers map[string][]int
 }
 
 func NewCsvImporter(csvPath string, backlogDir string) *CsvImporter {
@@ -62,21 +62,37 @@ func (imp *CsvImporter) Import() error {
 }
 
 func (imp *CsvImporter) parseHeaders(line []string) {
-	imp.headers = make(map[string]int)
+	imp.headers = make(map[string][]int)
 	for i, header := range line {
 		header = strings.ToLower(header)
-		if _, ok := imp.headers[header]; !ok {
-			imp.headers[header] = i
+		imp.headers[header] = append(imp.headers[header], i)
+	}
+}
+
+func (imp *CsvImporter) cellValues(line []string, header string) []string {
+	if headerIndexes, ok := imp.headers[header]; !ok {
+		return nil
+	} else {
+		var values []string
+		for _, headerIndex := range headerIndexes {
+			if headerIndex < len(line) {
+				value := strings.TrimSpace(line[headerIndex])
+				if value != "" {
+					values = append(values, value)
+				}
+			}
 		}
+
+		return values
 	}
 }
 
 func (imp *CsvImporter) cellValue(line []string, header string) string {
-	if headerIndex, ok := imp.headers[header]; !ok || headerIndex >= len(line) {
-		return ""
-	} else {
-		return strings.TrimSpace(line[headerIndex])
+	values := imp.cellValues(line, header)
+	if len(values) > 0 {
+		return values[0]
 	}
+	return ""
 }
 
 func (imp *CsvImporter) stateToStatus(state string) *BacklogItemStatus {
@@ -152,21 +168,9 @@ func (imp *CsvImporter) createItemIfNotExists(line []string, userList *UserList)
 		created = utils.GetTimestamp(createdDate)
 	}
 
-	user := userList.User(assigned)
-	if user == nil {
-		unresolvedUsers, err := userList.ResolveGitUsers([]string{assigned})
-		if err != nil {
-			return err
-		}
-		if len(unresolvedUsers) > 0 {
-			if userList.AddUser(assigned, "") {
-				fmt.Printf("You should specify email for auto-created user '%s'\n", assigned)
-				err := userList.Save()
-				if err != nil {
-					return err
-				}
-			}
-		}
+	err = imp.resolveUnknownUsers(line, userList)
+	if err != nil {
+		return err
 	}
 
 	item.SetTitle(title)
@@ -179,4 +183,27 @@ func (imp *CsvImporter) createItemIfNotExists(line []string, userList *UserList)
 	item.SetTags(tags)
 	item.SetDescription(description)
 	return item.Save()
+}
+
+func (imp *CsvImporter) resolveUnknownUsers(line []string, userList *UserList) error {
+	allAssigned := imp.cellValues(line, "owned by")
+	for _, assigned := range allAssigned {
+		user := userList.User(assigned)
+		if user == nil {
+			unresolvedUsers, err := userList.ResolveGitUsers([]string{assigned})
+			if err != nil {
+				return err
+			}
+			if len(unresolvedUsers) > 0 {
+				if userList.AddUser(assigned, "") {
+					fmt.Printf("You should specify email for auto-created user '%s'\n", assigned)
+					err := userList.Save()
+					if err != nil {
+						return err
+					}
+				}
+			}
+		}
+	}
+	return nil
 }
