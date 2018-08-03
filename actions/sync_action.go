@@ -43,7 +43,12 @@ func (a *SyncAction) Execute() error {
 
 		attempts--
 
-		err := NewSyncItemsStep(a.root).Execute()
+		err := NewSyncDownCaseStep(a.root, userList).Execute()
+		if err != nil {
+			return err
+		}
+
+		err = NewSyncItemsStep(a.root).Execute()
 		if err != nil {
 			return err
 		}

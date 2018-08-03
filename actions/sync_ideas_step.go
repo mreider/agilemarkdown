@@ -38,7 +38,7 @@ func (s *SyncIdeasStep) Execute() error {
 		return err
 	}
 
-	fmt.Println("Send new comments for ideas")
+	fmt.Println("Sending new comments for ideas")
 	err = s.sendNewCommentsForIdeas(ideas)
 	if err != nil {
 		return err

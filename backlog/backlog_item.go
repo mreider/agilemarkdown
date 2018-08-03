@@ -176,7 +176,7 @@ func (item *BacklogItem) Tags() []string {
 }
 
 func (item *BacklogItem) SetTags(tags []string) {
-	item.markdown.SetMetadataValue(BacklogItemTagsMetadataKey, strings.Join(tags, " "))
+	item.markdown.SetMetadataValue(BacklogItemTagsMetadataKey, strings.Join(tags, ", "))
 }
 
 func (item *BacklogItem) Archived() bool {

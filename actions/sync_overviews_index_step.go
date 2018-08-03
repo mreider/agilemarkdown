@@ -84,7 +84,7 @@ func (s *SyncOverviewsAndIndexStep) Execute() error {
 		if err != nil {
 			return err
 		}
-		fmt.Printf("Send new comments for '%s' stories\n", overview.Title())
+		fmt.Printf("Sending new comments for '%s' stories\n", overview.Title())
 		err = s.sendNewCommentsForItems(overview, activeItems)
 		if err != nil {
 			return err

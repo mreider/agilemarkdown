@@ -99,7 +99,7 @@ func (idea *BacklogIdea) Tags() []string {
 }
 
 func (idea *BacklogIdea) SetTags(tags []string) {
-	idea.markdown.SetMetadataValue(BacklogIdeaTagsMetadataKey, strings.Join(tags, " "))
+	idea.markdown.SetMetadataValue(BacklogIdeaTagsMetadataKey, strings.Join(tags, ", "))
 }
 
 func (idea *BacklogIdea) SetRank(rank string) {
