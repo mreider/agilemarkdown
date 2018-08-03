@@ -64,7 +64,10 @@ func (imp *CsvImporter) Import() error {
 func (imp *CsvImporter) parseHeaders(line []string) {
 	imp.headers = make(map[string]int)
 	for i, header := range line {
-		imp.headers[strings.ToLower(header)] = i
+		header = strings.ToLower(header)
+		if _, ok := imp.headers[header]; !ok {
+			imp.headers[header] = i
+		}
 	}
 }
 
