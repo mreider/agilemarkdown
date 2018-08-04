@@ -64,7 +64,10 @@ func Commit(msg, author string) error {
 	if author != "" {
 		args = append(args, "--author", author)
 	}
-	_, err := runGitCommand(args)
+	out, err := runGitCommand(args)
+	if err != nil && strings.Contains(out, "nothing to commit, working tree clean") {
+		err = nil
+	}
 	return err
 }
 
@@ -73,7 +76,10 @@ func CommitNoEdit(author string) error {
 	if author != "" {
 		args = append(args, "--author", author)
 	}
-	_, err := runGitCommand(args)
+	out, err := runGitCommand(args)
+	if err != nil && strings.Contains(out, "nothing to commit, working tree clean") {
+		err = nil
+	}
 	return err
 }
 
