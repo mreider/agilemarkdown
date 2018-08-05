@@ -115,7 +115,7 @@ func (a *SyncAction) syncToGit() (bool, error) {
 		return false, fmt.Errorf("can't fetch: %v", err)
 	}
 	fmt.Println("git merge")
-	mergeOutput, mergeErr := git.Merge()
+	_, mergeErr := git.Merge()
 	if mergeErr != nil {
 		status, _ := git.Status()
 		if !strings.Contains(status, "Your branch is based on 'origin/master', but the upstream is gone.") {
@@ -134,7 +134,6 @@ func (a *SyncAction) syncToGit() (bool, error) {
 				}
 			}
 			if conflictErr != nil || hasConflictItems {
-				fmt.Println(mergeOutput)
 				_ = git.AbortMerge()
 				return false, fmt.Errorf("can't merge: %v", mergeErr)
 			}
