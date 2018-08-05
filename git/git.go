@@ -212,5 +212,18 @@ func runGitCommandInDirectory(dir string, args []string) (string, error) {
 	if stderr.Len() > 0 {
 		lines = append(lines, stderr.String())
 	}
-	return strings.TrimSpace(strings.Join(lines, "\n")), err
+	output := strings.TrimSpace(strings.Join(lines, "\n"))
+	return output, createVerboseError(err, output)
+}
+
+func createVerboseError(err error, out string) error {
+	if err == nil {
+		return nil
+	}
+
+	if out == "" {
+		return err
+	}
+
+	return fmt.Errorf("%s\n%s", err.Error(), out)
 }
