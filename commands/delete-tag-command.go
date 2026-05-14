@@ -1,17 +1,18 @@
 package commands
 
 import (
+	"context"
 	"fmt"
 	"github.com/mreider/agilemarkdown/actions"
-	"gopkg.in/urfave/cli.v1"
+	"github.com/urfave/cli/v3"
 	"strings"
 )
 
-var DeleteTagCommand = cli.Command{
+var DeleteTagCommand = &cli.Command{
 	Name:      "delete-tag",
 	Usage:     "Delete a tag",
 	ArgsUsage: "TAG",
-	Action: func(c *cli.Context) error {
+	Action: func(ctx context.Context, c *cli.Command) error {
 		if c.NArg() != 1 {
 			fmt.Println("a tag should be specified")
 			return nil
@@ -22,7 +23,7 @@ var DeleteTagCommand = cli.Command{
 			return err
 		}
 
-		tag := strings.ToLower(c.Args()[0])
+		tag := strings.ToLower(c.Args().Get(0))
 		action := actions.NewDeleteTagAction(rootDir, tag)
 		return action.Execute()
 	},

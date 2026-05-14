@@ -3,11 +3,12 @@ package actions
 import (
 	"errors"
 	"fmt"
+	"os"
+	"strings"
+
 	"github.com/mreider/agilemarkdown/backlog"
 	"github.com/mreider/agilemarkdown/config"
 	"github.com/mreider/agilemarkdown/git"
-	"os"
-	"strings"
 )
 
 const AttemptCount = 10
@@ -25,13 +26,15 @@ func NewSyncAction(rootDir, author string, testMode bool) *SyncAction {
 func (a *SyncAction) Execute() error {
 	cfg, err := config.LoadConfig(a.root.ConfigFile())
 	if err != nil {
-		return fmt.Errorf("Can't load the config file %s: %v\n", a.root.ConfigFile(), err)
+		return fmt.Errorf("config load: %w", err)
 	}
 
 	userList := backlog.NewUserList(a.root.UsersDirectory())
 
-	_, err = NewSyncUsersCheck(a.root, userList).Check()
-	if err != nil {
+	if err := NewSyncDiscoverUsersStep(a.root, userList).Execute(); err != nil {
+		return err
+	}
+	if _, err := NewSyncUsersCheck(a.root, userList).Check(); err != nil {
 		return err
 	}
 
@@ -43,7 +46,12 @@ func (a *SyncAction) Execute() error {
 
 		attempts--
 
-		err := NewSyncDownCaseStep(a.root, userList).Execute()
+		err := NewSyncValidateStep(a.root).Execute()
+		if err != nil {
+			return err
+		}
+
+		err = NewSyncDownCaseStep(a.root, userList).Execute()
 		if err != nil {
 			return err
 		}
@@ -53,17 +61,17 @@ func (a *SyncAction) Execute() error {
 			return err
 		}
 
-		err = NewSyncOverviewsAndIndexStep(a.root, cfg, userList, a.author).Execute()
+		err = NewSyncPriorityStep(a.root).Execute()
 		if err != nil {
 			return err
 		}
 
-		err = NewSyncVelocityStep(a.root).Execute()
+		err = NewSyncOverviewsAndIndexStep(a.root, userList, a.author).Execute()
 		if err != nil {
 			return err
 		}
 
-		err = NewSyncIdeasStep(a.root, cfg, userList, a.author).Execute()
+		err = NewSyncVelocityStep(a.root, cfg).Execute()
 		if err != nil {
 			return err
 		}
@@ -109,6 +117,10 @@ func (a *SyncAction) syncToGit() (bool, error) {
 	err = git.Commit("sync", a.author) // TODO commit message
 	if err != nil {
 		return false, fmt.Errorf("can't commit: %v", err)
+	}
+	hasRemote, _ := git.HasRemote()
+	if !hasRemote {
+		return true, nil
 	}
 	err = git.Fetch()
 	if err != nil {

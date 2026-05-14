@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>agilemarkdown</title>
+<meta name="description" content="A CLI and MCP server for managing backlogs as plain markdown files in git. The Pivotal Tracker workflow, in plaintext. AI as dev pair, human as PM." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,500;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  /* ─────────────────────────────────────────────────────────────
+     agilemarkdown · practitioner manual
+     palette: warm paper / warm ink / single rust accent
+     type:    Source Serif 4 (display + body) · JetBrains Mono
+     ───────────────────────────────────────────────────────────── */
+  :root {
+    --paper:   oklch(0.974 0.009 82);
+    --paper-2: oklch(0.945 0.012 82);
+    --paper-3: oklch(0.915 0.014 82);
+    --ink:     oklch(0.205 0.015 60);
+    --ink-2:   oklch(0.36  0.018 60);
+    --ink-3:   oklch(0.52  0.018 65);
+    --rule:    oklch(0.84  0.014 78);
+    --rule-2:  oklch(0.78  0.016 78);
+    --accent:  oklch(0.52  0.135 38);    /* terracotta / drawing-ink red */
+    --accent-soft: oklch(0.85 0.06 38);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+    font-size: 17px;
+    line-height: 1.62;
+    font-feature-settings: "ss01", "onum";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection { background: var(--accent-soft); color: var(--ink); }
+
+  a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--rule-2); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  a:hover { color: var(--accent); text-decoration-color: var(--accent); }
+
+  /* ─── frame ────────────────────────────────────────────────── */
+  .frame {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 56px 48px 96px;
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 64px;
+  }
+  @media (max-width: 980px) {
+    .frame { grid-template-columns: 1fr; padding: 32px 24px 64px; gap: 0; }
+  }
+
+  /* ─── left rail ────────────────────────────────────────────── */
+  .rail {
+    position: sticky;
+    top: 56px;
+    align-self: start;
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 11.5px;
+    line-height: 1.9;
+    letter-spacing: 0.01em;
+    color: var(--ink-3);
+  }
+  .rail .mark { font-family: "Source Serif 4", serif; font-style: italic; font-size: 13px; color: var(--ink-2); margin-bottom: 16px; letter-spacing: 0; }
+  .rail ol { list-style: none; padding: 0; margin: 0 0 22px; }
+  .rail ol li { display: flex; gap: 10px; }
+  .rail a { color: var(--ink-2); text-decoration: none; display: block; padding: 1px 0; }
+  .rail a:hover { color: var(--accent); }
+  .rail .sep { height: 1px; background: var(--rule); margin: 14px 0; }
+  @media (max-width: 980px) {
+    .rail { position: static; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--rule); }
+  }
+
+  /* ─── content column ──────────────────────────────────────── */
+  main { max-width: 720px; }
+
+  /* ─── masthead ────────────────────────────────────────────── */
+  .masthead { padding-bottom: 8px; margin-bottom: 24px; }
+  .masthead h1 {
+    font-family: "Source Serif 4", serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: clamp(48px, 7vw, 84px);
+    line-height: 0.95;
+    letter-spacing: -0.025em;
+    margin: 0 0 12px;
+    color: var(--ink);
+  }
+  .masthead h1 em { font-style: normal; font-weight: 600; color: var(--accent); }
+  .masthead .deck {
+    font-size: 21px;
+    line-height: 1.45;
+    color: var(--ink-2);
+    max-width: 580px;
+    margin: 18px 0 0;
+    font-weight: 300;
+  }
+  .masthead .deck-cta {
+    margin: 36px 0 16px;
+    font-size: 16.5px;
+  }
+  .masthead .deck-cta a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid var(--accent);
+    padding-bottom: 3px;
+    font-weight: 500;
+    letter-spacing: 0.005em;
+    transition: background 0.12s ease;
+  }
+  .masthead .deck-cta a:hover { background: var(--accent-soft); }
+
+  /* ─── section structure ───────────────────────────────────── */
+  section { margin: 56px 0 0; scroll-margin-top: 24px; }
+  .sec-head {
+    margin-bottom: 12px;
+    border-top: 1.5px solid var(--ink);
+    padding-top: 14px;
+  }
+  .sec-head h2 {
+    font-family: "Source Serif 4", serif;
+    font-weight: 400;
+    font-size: 32px;
+    line-height: 1.18;
+    letter-spacing: -0.015em;
+    margin: 0;
+  }
+  .sec-head h2 em { font-style: italic; font-weight: 400; color: var(--ink-2); }
+  .sec-body { padding-left: 0; }
+  @media (max-width: 700px) {
+    .sec-head h2 { font-size: 26px; }
+  }
+
+  h3 {
+    font-family: "Source Serif 4", serif;
+    font-weight: 600;
+    font-size: 17px;
+    line-height: 1.4;
+    color: var(--ink);
+    margin: 28px 0 8px;
+    letter-spacing: -0.005em;
+  }
+
+  p { margin: 0 0 14px; }
+  p + p { text-indent: 0; }
+  p.lead { font-size: 19px; line-height: 1.5; color: var(--ink); margin: 0 0 22px; max-width: 620px; font-weight: 300; }
+
+  ul, ol { margin: 4px 0 14px; padding-left: 22px; }
+  li { margin: 4px 0; }
+  li::marker { color: var(--ink-3); }
+
+  strong { font-weight: 600; color: var(--ink); }
+  em { font-style: italic; }
+
+  /* inline code */
+  code {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 0.86em;
+    background: var(--paper-2);
+    padding: 1px 5px;
+    border-radius: 3px;
+    border: 1px solid var(--rule);
+    color: var(--ink);
+  }
+
+  /* ─── team photo ────────────────────────────────────────── */
+  figure.team-photo { margin: 24px 0 32px; }
+  figure.team-photo img {
+    width: 100%;
+    max-width: 720px;
+    height: auto;
+    display: block;
+    border-radius: 6px;
+    box-shadow: 0 1px 0 var(--rule), 0 12px 32px -20px oklch(0.2 0.02 60 / 0.5);
+  }
+  figure.team-photo figcaption {
+    font-family: "Source Serif 4", serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--ink-3);
+    text-align: center;
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+
+  /* ─── pull-quote (Pivotal Tracker help center) ────────────── */
+  blockquote.pullquote {
+    margin: 22px 0;
+    padding: 2px 0 4px 20px;
+    border-left: 3px solid var(--accent);
+    font-style: italic;
+    color: var(--ink-2);
+  }
+  blockquote.pullquote p { margin: 0 0 8px; line-height: 1.55; font-size: 16.5px; }
+  blockquote.pullquote .source {
+    font-family: "JetBrains Mono", monospace;
+    font-style: normal;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0;
+  }
+  blockquote.pullquote .source a { color: inherit; text-decoration: underline; text-decoration-color: var(--rule-2); }
+  blockquote.pullquote .source a:hover { color: var(--accent); text-decoration-color: var(--accent); }
+
+  /* ─── screenshot placeholder ───────────────────────────────── */
+  /* Used as a slot until a real screenshot lands. To swap in an
+     image, replace the .frame contents with <img src="..." alt="...">. */
+  figure.shot { margin: 28px 0 32px; }
+  figure.shot .frame {
+    position: relative;
+    background: oklch(0.18 0.012 60);
+    border-radius: 8px;
+    aspect-ratio: 16 / 10;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 14px; padding: 28px 36px;
+    text-align: center;
+    box-shadow: 0 2px 0 var(--rule), 0 12px 32px -20px oklch(0.2 0.02 60 / 0.5);
+    overflow: hidden;
+  }
+  figure.shot .label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px; letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: oklch(0.78 0.13 38);
+  }
+  figure.shot .what {
+    font-family: "Source Serif 4", serif;
+    font-style: italic;
+    font-size: 16.5px; line-height: 1.5;
+    color: oklch(0.93 0.012 82);
+    max-width: 560px; margin: 0;
+  }
+  figure.shot figcaption {
+    font-family: "Source Serif 4", serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--ink-3);
+    text-align: center;
+    margin-top: 12px;
+    line-height: 1.5;
+  }
+
+  /* ─── colophon ────────────────────────────────────────────── */
+  .colophon {
+    margin-top: 96px;
+    padding-top: 32px;
+    border-top: 2px solid var(--ink);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11.5px;
+    color: var(--ink-3);
+    letter-spacing: 0.04em;
+    line-height: 1.8;
+  }
+  .colophon .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 18px;
+  }
+  .colophon h4 {
+    font-family: "Source Serif 4", serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: 22px;
+    margin: 0;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .colophon a { color: var(--ink-2); text-decoration: none; border-bottom: 1px dotted var(--rule-2); padding-bottom: 1px; }
+  .colophon a:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* hide all non-essentials cleanly on print */
+  @media print {
+    .rail { display: none; }
+    .frame { grid-template-columns: 1fr; max-width: none; padding: 0; }
+  }
+</style>
+<link rel="stylesheet" href="surface-widget.css" />
+</head>
+<body>
+
+<div class="frame">
+
+  <!-- ───────── persistent left rail ───────── -->
+  <aside class="rail" aria-label="Contents">
+    <div class="mark">Contents</div>
+    <ol>
+      <li><a href="#premise">What it is</a></li>
+      <li><a href="#pivotal-way">The Pivotal Way</a></li>
+      <li><a href="#why-now">Why now</a></li>
+      <li><a href="#next">Where to go from here</a></li>
+    </ol>
+    <div class="sep"></div>
+    <div class="surface-switcher" role="radiogroup" aria-label="Show screenshots for surface">
+      <div class="mark">Show me on</div>
+      <button type="button" role="radio" aria-checked="false" data-surface="cli">Shell</button>
+      <button type="button" role="radio" aria-checked="false" data-surface="extension">VS Code</button>
+      <button type="button" role="radio" aria-checked="false" data-surface="claude">Claude Code</button>
+    </div>
+    <div class="sep"></div>
+    <ol>
+      <li><a href="tutorial.html">Tutorial</a></li>
+      <li><a href="reference.html">Reference</a></li>
+      <li><a href="further-reading.html">Further reading</a></li>
+      <li><a href="https://github.com/mreider/agilemarkdown">GitHub ↗</a></li>
+      <li><a href="https://github.com/mreider/agilemarkdown/releases">Latest release ↗</a></li>
+    </ol>
+  </aside>
+
+  <!-- ───────── content column ───────── -->
+  <main>
+
+    <header class="masthead">
+      <h1>agile<em>markdown</em></h1>
+      <p class="deck">The Pivotal Tracker workflow as plain markdown in git. Drive it from a shell, VS Code, or your AI client.</p>
+      <p class="deck-cta"><a href="tutorial.html">Walk through the tutorial →</a></p>
+    </header>
+
+    <!-- ───────── what it is ───────── -->
+    <section id="premise">
+      <div class="sec-head"><h2>What it is</h2></div>
+      <div class="sec-body">
+        <p class="lead">Three pieces fit together: a markdown backlog in git, three ways to drive it, and a Pivotal-style coach for what Kent Beck now calls <a href="further-reading.html">augmented coding</a>.</p>
+
+        <p><strong>The backlog lives next to the code.</strong> Stories are markdown files: a small header for metadata, then the body. Priority is a ranked list; the icebox is a capture pile, not ranked. Because the story files sit alongside your code files, the same commit that ships a feature can update the story that asked for it.</p>
+
+        <p><strong>Three ways to drive the same files.</strong> The shell CLI is the foundation and a prerequisite for the other two. <code>am</code> creates stories, ranks them, estimates them, and moves them from started to delivered to accepted. A VS Code extension lays a board on top: current and icebox columns, drag-to-reorder, a detail panel. An MCP server, <code>am mcp</code>, exposes around fifty tools to Claude Desktop, Claude Code, Cursor, and any other AI client that speaks MCP.</p>
+
+        <figure class="surface-shot" data-active="claude">
+          <div class="surface-tabs" role="tablist" aria-label="Surface for pre-pull alignment">
+            <button role="tab" aria-selected="false" tabindex="-1" data-surface="cli">Shell</button>
+            <button role="tab" aria-selected="false" tabindex="-1" data-surface="extension">VS Code</button>
+            <button role="tab" aria-selected="true" tabindex="0" data-surface="claude">Claude Code</button>
+          </div>
+          <div class="surface-panels">
+            <div class="surface-panel placeholder" data-surface="cli" role="tabpanel">
+              <span class="label">Shell · am align Login-flow.md</span>
+              <p class="what">Terminal capture of <code>am align Login-flow.md</code>: title, type, estimate, acceptance bullets with their <code>[ ]</code> / <code>[~]</code> / <code>[x]</code> state markers, and a warnings list if anything is missing.</p>
+            </div>
+            <div class="surface-panel placeholder" data-surface="extension" role="tabpanel">
+              <span class="label">VS Code extension · story detail</span>
+              <p class="what">The extension's story detail panel for Login flow: the acceptance bullets, the points pip, and an alignment button that runs the same check before pulling.</p>
+            </div>
+            <div class="surface-panel placeholder" data-surface="claude" role="tabpanel">
+              <span class="label">Claude Code · /am-align</span>
+              <p class="what">A Claude Code session showing the agent restate the story in one paragraph, list the acceptance bullets verbatim, surface one ambiguity, and ask the PM to confirm before calling <code>coach_check(action="pull")</code> and <code>set_status(started)</code>.</p>
+            </div>
+          </div>
+          <figcaption>Here's how the pre-pull alignment looks on each surface. The agent restates intent before any code is written.</figcaption>
+        </figure>
+
+        <p><strong>A Pivotal-style coach for AI clients.</strong> Six Claude Code skills walk you through the project lifecycle, from inception to retro. A handful of hard rules block the mistakes an AI agent tends to make when it is writing code on the team's behalf. <a href="#pivotal-way">The Pivotal Way</a> below describes the practices behind them.</p>
+      </div>
+    </section>
+
+    <!-- ───────── the pivotal way ───────── -->
+    <section id="pivotal-way">
+      <div class="sec-head"><h2>The Pivotal Way</h2></div>
+      <div class="sec-body">
+        <p class="lead">How Pivotal Tracker teams worked, day to day. The workflow comes from Extreme Programming, and the parts this tool keeps are the parts most of the industry left behind when it chose Scrum.</p>
+
+        <p>I worked at Pivotal Software, not Pivotal Labs, and I count myself a latecomer to the Pivotal way. I had picked up most of these practices earlier at Engine Yard, the hosting provider for Pivotal's sites and for a lot of the SF Ruby community (GitHub, New Relic, Zendesk), where the same XP playbook was already in the air. If you were on the earlier Pivotal Labs team and I have something wrong here, please send me a note.</p>
+
+        <figure class="team-photo">
+          <img src="pivotal-cloud-team.jpg" alt="Three Pivotal engineers in matching green 'CLOUD' t-shirts at the Pivotal Software office: Amit Gupta, Matt Reider, and Matt Royal." width="960" height="720" />
+          <figcaption>On the Cloud Foundry Ops Manager team at Pivotal Software, San Francisco, around 2014. From left: Amit Gupta, me, Matt Royal.</figcaption>
+        </figure>
+
+        <p><strong>Everything goes in the backlog.</strong> Before anyone starts a piece of work, the team writes it down as a story. That means features, but it also means bugs, chores, the customer escalation that lands on a Tuesday morning, and the half-hour someone spends unblocking another team. When you work on things that are not in the backlog, you cannot tell how much the team got done in any given week. Keeping the work visible also gives the product manager something concrete to talk about. If you see a story on the priority list that you do not recognize, you can ask about it without making a scene, because the work is right there in front of both of you.</p>
+
+        <p><strong>There is only one backlog.</strong> Different tools use the word "backlog" to mean different things. At Pivotal it was one list of stories, ranked top to bottom. The top portion was the current sprint, highlighted in Tracker with a creamy yellow so you could see at a glance what the team was doing this week. Below that, the rest of the list ran in a neutral color, ranked but not yet promised to a sprint. Sprints were a week, not two. And a sprint was not a contract for a fixed set of stories; Scrum often treats it that way, and to me that has always been a polite lie, because unplanned work arrives every week and the team finishes what it finishes. The honest framing is that the top of the list is what we expect to get through, not what we have promised. As people free up during the week, they pull the next story off the top.</p>
+
+        <figure class="surface-shot" data-active="extension">
+          <div class="surface-tabs" role="tablist" aria-label="Surface for the one-list backlog">
+            <button role="tab" aria-selected="false" tabindex="-1" data-surface="cli">Shell</button>
+            <button role="tab" aria-selected="true" tabindex="0" data-surface="extension">VS Code</button>
+            <button role="tab" aria-selected="false" tabindex="-1" data-surface="claude">Claude Code</button>
+          </div>
+          <div class="surface-panels">
+            <div class="surface-panel placeholder" data-surface="cli" role="tabpanel">
+              <span class="label">Shell · am show priority</span>
+              <p class="what">Terminal capture of <code>am show priority</code>: stories ranked top to bottom, current iteration banded by velocity, below-line backlog beneath, icebox count at the bottom.</p>
+            </div>
+            <div class="surface-panel placeholder" data-surface="extension" role="tabpanel">
+              <span class="label">VS Code extension · board</span>
+              <p class="what">The board view showing the one-list shape. Top of the column is the current iteration, highlighted in creamy yellow with three story cards (two accepted at <code>[x]</code>, one in flight at <code>[~]</code>). Below an iteration-marker line: the rest of the priority list in a neutral color, ranked but not yet promised. Right-side icebox column. Sidebar with velocity sparkline.</p>
+            </div>
+            <div class="surface-panel placeholder" data-surface="claude" role="tabpanel">
+              <span class="label">Claude Code · priority_list</span>
+              <p class="what">A Claude Code conversation where the agent renders the priority list inline as part of answering "what is on this iteration?".</p>
+            </div>
+          </div>
+          <figcaption>One list, top to bottom, with the current sprint at the top of it.</figcaption>
+        </figure>
+
+        <p><strong>Velocity is a forecast, not a promise.</strong> Each story carries an estimate in points (a rough sizing the team agrees on). Tracker used those numbers to place markers throughout the backlog, showing when each story was likely to land: this week, the next week, or later. The math adjusted for team strength, accounting for who was sick or on vacation. Predictions only worked for stories the team had already estimated, which usually happened in a planning meeting on Monday morning. There is never quite enough time in that meeting to estimate everything, and new stories arrive mid-week, so the deeper into the backlog you looked, the looser the markers got. That blurriness further out is just what software actually feels like. It shaped how we answered sales when they asked "when will this land": with confidence when the date was close and the team's velocity had been steady, and with honest uncertainty when the date was further out.</p>
+
+        <blockquote class="pullquote">
+          <p>"Velocity is the average normalized points completed across the last N iterations, where N is the project's Velocity Strategy setting (default 3, range 1-4). Velocity is computed once per iteration boundary and shown as an integer (it is floored on display and never rounded up)."</p>
+          <p class="source">Pivotal Tracker help center · <a href="https://web.archive.org/web/20170503214450/https://www.pivotaltracker.com/help/articles/understanding_velocity/">understanding velocity</a></p>
+        </blockquote>
+
+        <h3>Inception</h3>
+        <p>A project starts with an inception, Pivotal's word for a kickoff. The team gets in a room with the stakeholders who understand the problem (design, sales, customer service, leadership, whoever is closest), and together they answer three questions: what problem are we solving, why are we solving it, and what are the possible shapes of a solution. Then they agree on a plan.</p>
+        <p>The output is concrete: a week or two of ranked stories, enough to start work. Engineers add the chores they know will be needed. After that, the team gets to work week by week. One inception per major initiative is enough.</p>
+
+        <h3>Three types of work</h3>
+
+        <p><strong>Stories are features.</strong> A story is a unit of customer value, typically a feature. The classic format is "as a [user] doing [thing], I should be able to [action] so I can [outcome]". In practice, when the team already knows who the user is and what the context is, "I should be able to [action]" is usually enough. Every story is a placeholder for a conversation, so if a story is not fully written down, that is fine as long as someone in the room can explain it. The product manager owns the priority of features, and also their acceptance: when a developer says a feature is done, the product manager is the one who checks it against the criteria and decides whether to ship. The dev pair never accepts its own work.</p>
+
+        <blockquote class="pullquote">
+          <p>"When they're ready, a developer or developer pair clicks Start on the next unstarted, estimated story in the current iteration. Unless preassigned, the person who clicked Start becomes a story owner."</p>
+          <p class="source">Pivotal Tracker help center · <a href="https://web.archive.org/web/20170503214450/https://www.pivotaltracker.com/help/articles/story_states/">story states</a></p>
+        </blockquote>
+
+        <p><strong>Bugs go to the top.</strong> When the team finds a bug, it goes to the top of the list and gets fixed right away. Bugs carry no estimate, which means a buggy stretch shows up automatically as a drop in velocity, and the release dates move further out. That is the feedback loop: cutting corners on quality is visible in the forecast a week or two later, so the product manager has a real reason not to push for speed over correctness.</p>
+
+        <p><strong>Chores are work the team owes itself</strong>: setting up CI, writing tests, fixing a doc page after a customer complains, doing research the team needs. Chores carry no estimate, because they do not ship to a customer. The backlog is heavy on chores at the start of a project; later, chores often appear just in time, like a doc fix triggered by a support call that goes straight to the top of the list. Engineering owns the priority of bugs and chores.</p>
+
+        <p>None of this is strict. Everyone assumes everyone else is reasonable and collaborative. The product manager can argue that a "critical" bug is actually a nice-to-fix and not urgent, and move it down the list. An engineer can argue that a feature depends on something else that is not built yet, and ask the product manager to put something else above it. The work is on the priority list, so everyone discusses it together while looking at the same list.</p>
+
+        <h3>The icebox</h3>
+
+        <p>There is a Woody Guthrie song with the chorus "this land is your land, this land is my land". The backlog is the PM's land, top to bottom, ranked by priority. The icebox is everyone else's. Engineers throw in features they think would be cool. Solutions engineers add things they heard in customer calls. The PM drops in ideas that are not ready to prioritize. The icebox is not ranked, and nothing in it is being worked on. It is a capture pile.</p>
+
+        <p>The icebox becomes useful at planning time. During Monday sprint planning, or in grooming on Friday, items get pulled out, talked through, estimated if they are nearly ready, and moved into the backlog at whatever rank the product manager decides. The chaos of the icebox is intentional: a calm, prioritized backlog and a permanent welcome mat for new ideas need to live in separate lists.</p>
+
+        <h3>The weekly cadence</h3>
+
+        <p><strong>Monday sprint planning.</strong> If the backlog is well-prepped and the week's stories are clear, you skip the meeting and get to work. When you do meet, you walk the top of the backlog so everyone knows what the week looks like and can ask the PM and the eng lead anything that is not clear. Stories the PM cannot answer clearly tend to slide down or out of the week; the goal is to leave the meeting ready to work, not stuck. Anything still unestimated gets estimated in the meeting, often by a game called pointing poker: count of one, two, three, fingers up. If most of the team puts ten fingers up, the story is too big and needs a spike (a short, time-boxed research chore) to figure out how to break it down for the following week. The icebox is fair game in this meeting; any item the PM decided over the weekend was urgent gets pulled up into the week.</p>
+
+        <figure class="surface-shot" data-active="cli">
+          <div class="surface-tabs" role="tablist" aria-label="Surface for the sprint plan">
+            <button role="tab" aria-selected="true" tabindex="0" data-surface="cli">Shell</button>
+            <button role="tab" aria-selected="false" tabindex="-1" data-surface="extension">VS Code</button>
+            <button role="tab" aria-selected="false" tabindex="-1" data-surface="claude">Claude Code</button>
+          </div>
+          <div class="surface-panels">
+            <div class="surface-panel placeholder" data-surface="cli" role="tabpanel">
+              <span class="label">Shell · am sprint plan</span>
+              <p class="what">Terminal capture of <code>am sprint plan</code> running against the fixture. Header with rolling velocity. Numbered committed stories with type, points, acceptance-bullet count, and status. Horizontal rule. Below-the-line backlog with the same shape. Warnings flagging anything missing acceptance, oversized, or unestimated.</p>
+            </div>
+            <div class="surface-panel placeholder" data-surface="extension" role="tabpanel">
+              <span class="label">VS Code extension · Plan tab</span>
+              <p class="what">The Plan tab showing the same forecast as a table: committed stories at the top, below-line backlog beneath, warnings panel to the right, committed-points total in the footer.</p>
+            </div>
+            <div class="surface-panel placeholder" data-surface="claude" role="tabpanel">
+              <span class="label">Claude Code · /am-plan</span>
+              <p class="what">A Claude Code session running <code>/am-plan</code>. The agent calls <code>sprint_plan</code>, renders the result, flags warnings, and asks whether to pull the top story.</p>
+            </div>
+          </div>
+          <figcaption>Monday planning, rendered: a forecast sized by rolling velocity, not a commitment.</figcaption>
+        </figure>
+
+        <p><strong>The standup is a quick go-round, not a performance.</strong> Instead of "here is what I am working on", each person offers either an <em>interesting</em> (something they learned yesterday, something another team is doing, a video they saw) or a <em>help</em> (I am stuck on X, who can pair). Helps often resolve right there in the standup; if not, the team creates a chore for the work. The product manager can pass. Sometimes the whole standup is five seconds, and nothing to report is a good thing. A pair board tracks who is working with whom; a fire helmet on a desk means that person is on incident duty and is not pairing today.</p>
+
+        <blockquote class="pullquote">
+          <p>"A story can have up to three owners at any given time. For example, a story might be owned by a developer pair plus a tester, or by a developer pair and a designer. The pull rule is the default. Pre-assignment is the exception."</p>
+          <p class="source">Pivotal Tracker help center · <a href="https://web.archive.org/web/20170503214450/https://www.pivotaltracker.com/help/articles/story_owners/">story owners</a></p>
+        </blockquote>
+
+        <p><strong>Grooming, or story time.</strong> The product manager and the engineering lead usually meet on Friday afternoon to prep for Monday, so the Monday morning planning meeting is not a mess of half-written stories. Sometimes the whole team joins. Often this is when icebox items get estimated, because you cannot rank items you have not sized; a few quick wins can be worth more than the one boulder above them.</p>
+
+        <p><strong>Friday retro.</strong> The team gathers, optionally with snacks or drinks, and takes a breath. The first five minutes go to electing a facilitator; the goal is to rotate the role weekly. Three columns go on the whiteboard: <em>good</em>, <em>meh</em>, <em>not so good</em>. The names are not important; every team renames them. People write topics; if there are too many, the team dot-votes on which to discuss. For each topic the facilitator asks the author for context, then the team talks it through. The ground rules are simple: stay civil, avoid blame, and never make it personal. Action items get assigned and photographed at the end, and the next retro starts by checking in on them.</p>
+
+        <figure class="surface-shot" data-active="cli">
+          <div class="surface-tabs" role="tablist" aria-label="Surface for the Friday retro">
+            <button role="tab" aria-selected="true" tabindex="0" data-surface="cli">Shell</button>
+            <button role="tab" aria-selected="false" tabindex="-1" data-surface="extension">VS Code</button>
+            <button role="tab" aria-selected="false" tabindex="-1" data-surface="claude">Claude Code</button>
+          </div>
+          <div class="surface-panels">
+            <div class="surface-panel placeholder" data-surface="cli" role="tabpanel">
+              <span class="label">Shell · am retro</span>
+              <p class="what">Terminal capture of <code>am retro</code> at the end of an iteration. Header block with the iteration's numbers: velocity, volatility, median cycle time, rejection rate, accepted total, rejected total. Below that, the three retro questions (what worked, what did not, what changes for next iteration) and the helper commands for capturing the answers (<code>am record-learning</code>, <code>am team-agreements --add</code>).</p>
+            </div>
+            <div class="surface-panel placeholder" data-surface="extension" role="tabpanel">
+              <span class="label">VS Code extension · retro panel</span>
+              <p class="what">An integrated terminal pane in the extension running <code>am retro</code>, with the numbers and the three questions visible. (No standalone retro tab today; the extension hands off to the terminal.)</p>
+            </div>
+            <div class="surface-panel placeholder" data-surface="claude" role="tabpanel">
+              <span class="label">Claude Code · /am-retro</span>
+              <p class="what">A Claude Code session running <code>/am-retro</code>: the agent pulls the dashboard numbers, asks the three questions one at a time, records the human's answers into <code>learnings.md</code> and <code>team-agreements.md</code>.</p>
+            </div>
+          </div>
+          <figcaption>The retro starts with the numbers; the conversation runs on them.</figcaption>
+        </figure>
+
+      </div>
+    </section>
+
+    <!-- ───────── why now ───────── -->
+    <section id="why-now">
+      <div class="sec-head"><h2>Why now</h2></div>
+      <div class="sec-body">
+        <p class="lead">agilemarkdown's first commit was in 2018, years before today's AI coding agents existed. The Pivotal way was already worth running then. AI coding agents made it cheap, and made it necessary.</p>
+
+        <p><strong>The economics flipped, and a twenty-year bet aged badly.</strong> The XP practices the Pivotal way runs on (pair programming, refactor-as-you-go, small batches, test-first work) were treated as too expensive when the industry chose its default in the early 2000s. Scrum won the decade because it had a better wrapper, not because it was better software, and Ron Jeffries (an XP author) calls the result <em>Dark Scrum</em>: the process without the engineering discipline that made it agile in the first place. AI agents inverted the math. Pair programming is what you get for free when an agent sits in your editor, and refactoring is nearly costless when the agent does the typing. Kent Beck, the author of XP, calls the new mode <em>augmented coding</em>; Martin Fowler argues refactoring matters more than ever now that producing code is cheap; Jason Gorman names the moment an XP renaissance. <a href="further-reading.html">Further reading</a> tracks the conversation.</p>
+
+        <p><strong>Acceptance is the seam that matters most.</strong> "The dev pair never accepts its own work" was a check on humans missing details. With an AI in the dev-pair seat, it is a check on the main mistake AI agents make: confidently building the wrong thing. Acceptance criteria written into the story before the agent pulls it give the agent a target. The product manager checks those criteria before flipping the story to <code>accepted</code>, which is what stops the team from shipping fast but wrong.</p>
+
+        <figure class="surface-shot" data-active="extension">
+          <div class="surface-tabs" role="tablist" aria-label="Surface for the acceptance ceremony">
+            <button role="tab" aria-selected="false" tabindex="-1" data-surface="cli">Shell</button>
+            <button role="tab" aria-selected="true" tabindex="0" data-surface="extension">VS Code</button>
+            <button role="tab" aria-selected="false" tabindex="-1" data-surface="claude">Claude Code</button>
+          </div>
+          <div class="surface-panels">
+            <div class="surface-panel placeholder" data-surface="cli" role="tabpanel">
+              <span class="label">Shell · am accept-prompt</span>
+              <p class="what">Terminal capture of <code>am accept-prompt Login-flow.md</code>. Story title, type, estimate. Acceptance bullets with their state markers. The final "As PM, do you accept?" line, with the shell waiting for input.</p>
+            </div>
+            <div class="surface-panel placeholder" data-surface="extension" role="tabpanel">
+              <span class="label">VS Code extension · inline ceremony</span>
+              <p class="what">The extension's inline PM acceptance ceremony. Story title, type, estimate. Acceptance bullets with state markers: two <code>[~]</code> claimed (each with a tiny claim note from the agent), one <code>[ ]</code> still open. Per-bullet yes/no toggles next to the claimed bullets. The Accept button is disabled until every bullet is verified. The reject form shows a "which bullet failed?" picker.</p>
+            </div>
+            <div class="surface-panel placeholder" data-surface="claude" role="tabpanel">
+              <span class="label">Claude Code · /am-accept</span>
+              <p class="what">A Claude Code session walking the acceptance ceremony. The agent calls <code>acceptance_prompt</code>, renders the bullets verbatim, asks the PM bullet-by-bullet, calls <code>set_acceptance_state</code> on each yes, and would call <code>reject_item</code> with a failing-bullet index on a no.</p>
+            </div>
+          </div>
+          <figcaption>The PM ceremony walks bullets one at a time; a rejection cites the bullet that failed.</figcaption>
+        </figure>
+
+        <p><strong>Small, scoped, estimated work is what agents handle best.</strong> Stories that fit in the 8-point cap and carry a written <code>## Acceptance</code> section also fit in what an AI agent can hold in mind at once. The Pivotal shape was always biased toward stories one pair could finish in a few days. That shape now happens to be the shape an agent can coherently deliver in a single run.</p>
+
+        <p><strong>Resilience is the part you have to defend.</strong> Weber's warning is the real one: shipping at AI speed without humans who understand the architecture creates teams that cannot respond when something breaks. The Pivotal practices that protect resilience (shared ownership through review, retros, time set aside for learning) are what keep the team's understanding ahead of the agent's output. Without them, the speed you gain now costs you the next time something goes wrong.</p>
+      </div>
+    </section>
+
+    <!-- ───────── where to next ───────── -->
+    <section id="next">
+      <div class="sec-head"><h2>Where to go from here</h2></div>
+      <div class="sec-body">
+        <h3>Try the tutorial</h3>
+        <p><a href="tutorial.html">The tutorial</a> runs a two-iteration scenario end to end: inception, planning, pulling stories, the 8-point cap kicking in, acceptance, retro. Each scene carries a triptych so you can switch any screenshot to shell, VS Code, or Claude Code; the choice carries through the page. About twenty minutes.</p>
+
+        <h3>Look up the details</h3>
+        <p><a href="reference.html">The reference</a> covers the repo layout, item schema, state machine, velocity formula, MCP tools, CLI verbs, coach-mode files, and configuration. Use it when you know what you want but forgot the exact field or flag.</p>
+
+        <h3>Read more</h3>
+        <p><a href="further-reading.html">Further reading</a> is the list of essays driving the XP renaissance conversation in the AI era: Kent Beck on augmented coding, Martin Fowler on refactoring, the XP 2025 conference, and the practitioners who are calling the trend by name.</p>
+
+        <h3>Source code</h3>
+        <p>Code, issues, and releases at <a href="https://github.com/mreider/agilemarkdown">github.com/mreider/agilemarkdown</a>.</p>
+      </div>
+    </section>
+
+    <footer class="colophon">
+      <div class="top">
+        <h4><em>agilemarkdown</em></h4>
+        <span>MIT · © 2026 Matt Reider</span>
+      </div>
+    </footer>
+
+  </main>
+</div>
+
+<script src="surface-widget.js"></script>
+
+</body>
+</html>

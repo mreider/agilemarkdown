@@ -45,7 +45,7 @@ func (a *WorkAction) Execute() error {
 
 	var statuses []*backlog.BacklogItemStatus
 	if a.statusCode == "" {
-		statuses = []*backlog.BacklogItemStatus{backlog.DoingStatus, backlog.PlannedStatus, backlog.UnplannedStatus}
+		statuses = []*backlog.BacklogItemStatus{backlog.StartedStatus, backlog.UnstartedStatus, backlog.UnstartedStatus}
 	} else {
 		statuses = []*backlog.BacklogItemStatus{backlog.StatusByCode(a.statusCode)}
 	}

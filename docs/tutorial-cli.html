@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tutorial · CLI · agilemarkdown</title>
+<meta name="description" content="A full iteration end to end using the am CLI. Inception, iteration planning, the iteration itself, retro. Same scenario as the extension and Claude Code tutorials." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,500;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper:   oklch(0.974 0.009 82);
+    --paper-2: oklch(0.945 0.012 82);
+    --paper-3: oklch(0.915 0.014 82);
+    --ink:     oklch(0.205 0.015 60);
+    --ink-2:   oklch(0.36  0.018 60);
+    --ink-3:   oklch(0.52  0.018 65);
+    --rule:    oklch(0.84  0.014 78);
+    --rule-2:  oklch(0.78  0.016 78);
+    --accent:  oklch(0.52  0.135 38);
+    --accent-soft: oklch(0.85 0.06 38);
+    --term-bg: oklch(0.18  0.012 60);
+    --term-fg: oklch(0.93  0.012 82);
+    --term-dim:oklch(0.62  0.012 82);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Source Serif 4", Georgia, serif;
+    font-size: 18px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); }
+  code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 0.9em; padding: 1px 4px; background: var(--paper-2); border-radius: 3px; }
+  pre { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 0.86em; line-height: 1.55; }
+  main { max-width: 760px; margin: 0 auto; padding: 60px 28px 120px; }
+  header.masthead { padding: 80px 0 60px; border-bottom: 1px solid var(--rule); margin-bottom: 60px; }
+  header.masthead a.back { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--ink-3); text-decoration: none; }
+  header.masthead a.back:hover { color: var(--accent); }
+  header.masthead .eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--ink-3); margin: 18px 0 14px;
+  }
+  header.masthead h1 {
+    font-size: clamp(36px, 7vw, 64px);
+    font-weight: 600; line-height: 1.05;
+    letter-spacing: -0.025em; margin: 0 0 18px;
+  }
+  header.masthead h1 em { font-style: italic; color: var(--accent); font-weight: 500; }
+  header.masthead .deck { font-size: clamp(17px, 2.8vw, 22px); color: var(--ink-2); line-height: 1.45; max-width: 580px; }
+  @media (max-width: 520px) {
+    main { padding: 36px 18px 80px; }
+    header.masthead { padding: 40px 0 30px; margin-bottom: 36px; }
+  }
+  section { margin: 0 0 70px; }
+  h2 {
+    font-size: 32px; font-weight: 600; line-height: 1.15;
+    letter-spacing: -0.018em; margin: 0 0 22px;
+    border-top: 1px solid var(--rule-2); padding-top: 28px;
+  }
+  h3 {
+    font-size: 21px; font-weight: 600; margin: 36px 0 12px;
+    letter-spacing: -0.015em;
+  }
+  p { margin: 0 0 16px; }
+  ul, ol { margin: 0 0 18px; padding-left: 1.25em; }
+  li { margin-bottom: 6px; }
+  .lead { font-size: 19.5px; color: var(--ink-2); }
+  .term {
+    background: var(--term-bg); color: var(--term-fg);
+    border-radius: 8px; margin: 18px 0;
+    overflow: hidden;
+  }
+  .term-bar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 14px;
+    background: oklch(0.22 0.012 60);
+    border-bottom: 1px solid oklch(0.26 0.012 60);
+    font-family: "JetBrains Mono", monospace; font-size: 11px;
+    color: var(--term-dim);
+    letter-spacing: 0.04em;
+  }
+  .term pre { margin: 0; padding: 16px 18px; overflow-x: auto; }
+  .term .prompt { color: oklch(0.78 0.12 38); margin-right: 6px; }
+  .term .c { color: var(--term-dim); }
+  .term .s { color: oklch(0.84 0.09 100); }
+  .turn {
+    border-left: 3px solid var(--accent-soft);
+    padding: 8px 18px;
+    margin: 14px 0;
+    background: var(--paper-2);
+    border-radius: 0 6px 6px 0;
+  }
+  .turn .who {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10.5px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 4px;
+  }
+  .turn .said { color: var(--ink-2); font-size: 16.5px; line-height: 1.5; }
+  .turn pre { background: var(--term-bg); color: var(--term-fg); padding: 12px 14px; border-radius: 6px; font-size: 12.5px; margin: 8px 0 0; }
+  .note {
+    background: var(--paper-2); border-left: 3px solid var(--accent);
+    padding: 12px 18px; margin: 18px 0; border-radius: 0 6px 6px 0;
+    font-size: 16px; color: var(--ink-2);
+  }
+  .note .label { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.1em; color: var(--accent); text-transform: uppercase; display: block; margin-bottom: 4px; }
+  blockquote.pullquote {
+    margin: 22px 0; padding: 2px 0 4px 20px;
+    border-left: 3px solid var(--accent);
+    font-style: italic; color: var(--ink-2);
+  }
+  blockquote.pullquote p { margin: 0 0 8px; line-height: 1.55; font-size: 16.5px; }
+  blockquote.pullquote .source {
+    font-family: "JetBrains Mono", monospace;
+    font-style: normal; font-size: 10.5px;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-3); margin: 0;
+  }
+  blockquote.pullquote .source a { color: inherit; text-decoration: underline; text-decoration-color: var(--rule-2); }
+  blockquote.pullquote .source a:hover { color: var(--accent); text-decoration-color: var(--accent); }
+  table.disk { border-collapse: collapse; margin: 16px 0; font-size: 14.5px; width: 100%; }
+  table.disk td { padding: 6px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  table.disk td:first-child { font-family: "JetBrains Mono", monospace; color: var(--accent); white-space: nowrap; }
+  footer { margin-top: 80px; padding-top: 24px; border-top: 1px solid var(--rule); font-size: 14px; color: var(--ink-3); }
+  .video {
+    background: var(--paper-2); border: 1px solid var(--rule);
+    border-radius: 12px; padding: 22px 24px; margin: 0 0 40px;
+  }
+  .video .video-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--accent); display: block; margin-bottom: 12px;
+  }
+  .video .placeholder {
+    background: var(--term-bg); color: var(--term-dim);
+    aspect-ratio: 16 / 9; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: "JetBrains Mono", monospace; font-size: 13px;
+    margin-bottom: 14px;
+  }
+  .video h3 { margin: 0 0 10px; font-size: 18px; font-weight: 600; }
+  .video .chapters {
+    margin: 0; padding: 0; list-style: none;
+    font-family: "JetBrains Mono", monospace; font-size: 13.5px;
+    color: var(--ink-2);
+  }
+  .video .chapters li { margin: 0; padding: 3px 0; }
+  .video .chapters code {
+    background: transparent; padding: 0; color: var(--accent); margin-right: 12px;
+  }
+</style>
+<link rel="stylesheet" href="surface-widget.css" />
+</head>
+<body>
+
+<main>
+
+<header class="masthead">
+  <a class="back" href="tutorial.html">← all tutorials</a>
+  <div class="eyebrow">Tutorial · CLI</div>
+  <h1>CLI <em>walkthrough</em></h1>
+  <p class="deck">A full iteration run end to end with shell verbs only. Same scenario as the extension and Claude Code tutorials.</p>
+</header>
+
+<div class="video">
+  <span class="video-label">Video · CLI walkthrough</span>
+  <div class="placeholder">[ YouTube embed: agilemarkdown CLI walkthrough ]</div>
+  <h3>Chapters</h3>
+  <ul class="chapters">
+    <li><code>0:00</code> Intro</li>
+    <li><code>0:30</code> Inception</li>
+    <li><code>2:00</code> Backlog and stories</li>
+    <li><code>4:00</code> Iteration planning</li>
+    <li><code>5:30</code> Story 1: clean accept</li>
+    <li><code>7:00</code> Story 2: refused estimate, decompose</li>
+    <li><code>8:30</code> Story 3: rejection with reason</li>
+    <li><code>10:00</code> Retro</li>
+    <li><code>11:30</code> Starting a second iteration</li>
+  </ul>
+</div>
+
+<section>
+  <h2>What this covers</h2>
+  <p class="lead">A small product team adopts agilemarkdown for an internal tool. They run one full iteration and start the second. Every command in this tutorial runs against the fixture from <code>tests/fixtures/build-sample.sh</code>, so you can replicate it locally.</p>
+  <p>The lifecycle is four phases. Inception is rare (once per project). Iteration planning happens at the start of every iteration. The iteration itself is where stories flow through states, and PM acceptance happens continuously, not in a single demo at the end. Retro closes the iteration.</p>
+  <p>This is the XP cadence, not the Scrum cadence. The iteration plan is a forecast, not a commitment; the team finishes what it finishes. Acceptance is continuous; there is no end-of-sprint demo. Retro is a Friday conversation, not a status report.</p>
+  <p>If you have not installed agilemarkdown yet, see <a href="tutorial.html#prereqs">Before you start</a> on the tutorials index. By the end of those steps your repo has the coach files installed and the MCP server is wired into Claude Code.</p>
+</section>
+
+<section>
+  <h2>Inception</h2>
+  <p>The team is starting a new internal tool. They could just start writing stories, but they choose to spend twenty minutes on an inception first. The output is a one-page document.</p>
+
+  <h3>Run the inception verb</h3>
+  <div class="term">
+    <div class="term-bar"><span>shell · bootstrap</span></div>
+<pre><span class="prompt">$</span> cd ~/code/internal-tool
+<span class="prompt">$</span> am init                       <span class="c"># installs the coach files</span>
+<span class="prompt">$</span> am inception                   <span class="c"># seeds inception.md</span>
+wrote inception.md (template)
+Edit the six sections (user, goal, reason, success, constraints, out of scope) before pulling stories.</pre>
+  </div>
+
+  <p>The team opens <code>inception.md</code> and works through the six sections together. The PM types; the dev pair (or Claude Code) asks the questions. After twenty minutes they commit the document.</p>
+
+  <div class="note">
+    <span class="label">Coach skill</span>
+    Running <code>/am-inception</code> in Claude Code triggers the bundled skill. The agent walks the human through the six questions one at a time, captures the answers, and writes <code>inception.md</code> via the <code>inception_doc</code> MCP tool. The human edits before saving.
+  </div>
+
+  <h3>What lands on disk</h3>
+  <table class="disk">
+    <tr><td>inception.md</td><td>One page. Six headed sections: user, goal, reason, success, constraints, out of scope.</td></tr>
+  </table>
+  <p>That is the whole inception artifact. No backlog yet. No stories. Stories come from the inception, but they get written once the team is ready to plan the first iteration.</p>
+</section>
+
+<section>
+  <h2>Backlog and stories</h2>
+  <p>The team has the inception. Now they need a backlog folder and a few stories. This is the bridge between the one-page narrative and the rank-ordered priority list.</p>
+
+  <h3>Create the backlog folder</h3>
+  <div class="term">
+    <div class="term-bar"><span>shell · backlog</span></div>
+<pre><span class="prompt">$</span> am create-backlog product</pre>
+  </div>
+  <p>This creates <code>product/</code> alongside the code, plus a <code>product.md</code> overview. The same step seeds three sample stories (a feature, a bug, a chore). They are intentional onboarding examples; if you do not want them in your project, delete them: <code>rm product/Sample-*.md</code>.</p>
+
+  <h3>Add stories from the inception</h3>
+  <div class="term">
+    <div class="term-bar"><span>shell · stories</span></div>
+<pre><span class="prompt">$</span> cd product
+<span class="prompt">$</span> am create-item <span class="s">"Login flow"</span>
+<span class="prompt">$</span> am create-item <span class="s">"Search relevance"</span>
+<span class="prompt">$</span> am create-item <span class="s">"Saved searches"</span></pre>
+  </div>
+  <p>Each call writes a <code>.md</code> file with the standard frontmatter (<code>type: feature</code>, <code>status: unstarted</code>) and a body with sections for Problem statement, Possible solution, Acceptance, Comments, and Attachments. The <code>## Acceptance</code> section starts with placeholder bullets.</p>
+
+  <h3>Write real acceptance criteria</h3>
+  <p>Open each story and replace the placeholder bullets with concrete criteria. Two to four bullets per feature. Each is something the PM can check; not a property of the code. Bullets ship as GitHub-style checkboxes: <code>[ ]</code> open by default, <code>[~]</code> when the dev pair claims the bullet is satisfied, <code>[x]</code> after the PM verifies it at acceptance time.</p>
+  <div class="term">
+    <div class="term-bar"><span>product/Login-flow.md</span></div>
+<pre>## Acceptance
+
+- [ ] a registered user can sign in with email + password
+- [ ] a wrong password produces a recoverable error, not a 500
+- [ ] the session persists across a page reload</pre>
+  </div>
+  <p>Add a bullet from the shell with <code>am acceptance add product/Login-flow.md "..."</code>; mark one claimed with <code>am acceptance claim product/Login-flow.md 1 --note "..."</code>; mark verified with <code>am acceptance verify ...</code>. The CLI is one path; the agent skills do the same writes on your behalf. Without this section in the body the agent has no target, and <code>coach_check action=pull</code> refuses. Writing the criteria up front is what keeps the PM ceremony from falling back to "review the diff".</p>
+
+  <h3>Estimate</h3>
+  <p>Estimating in Pivotal is about uncertainty, not effort. The Fibonacci scale (1, 2, 3, 5, 8) maps to confidence: 1 is well-trodden, 8 is the hard cap above which the story is an epic. <code>am estimate --advise</code> prints the framing in the terminal if you need a refresher.</p>
+
+  <blockquote class="pullquote">
+    <p>"A 2-point story for design should equate to the same amount of effort as a 2-point story for a developer. Don't estimate using time. If we find a story is above 3 points, or requires a huge amount of effort, this is a red flag that the story should be broken down."</p>
+    <p class="source">Pivotal Tracker help center · <a href="https://web.archive.org/web/20170503214450/https://www.pivotaltracker.com/help/articles/estimating_stories/">estimating stories</a></p>
+  </blockquote>
+  <div class="term">
+    <div class="term-bar"><span>shell · estimate</span></div>
+<pre><span class="prompt">$</span> am estimate Login-flow.md 5
+<span class="prompt">$</span> am estimate Search-relevance.md 3
+<span class="prompt">$</span> am estimate Saved-searches.md 5</pre>
+  </div>
+
+  <h3>Sync</h3>
+  <p>Run <code>am sync</code> from the project root. Sync regenerates <code>index.md</code>, <code>velocity.md</code>, and friends; validates the schema; and lands every active item in <code>_icebox.md</code> in the order they were created. Items will move from icebox to priority during the next phase.</p>
+</section>
+
+<section>
+  <h2>Iteration planning</h2>
+  <figure class="surface-shot" data-active="cli">
+    <div class="surface-tabs" role="tablist" aria-label="Surface for iteration planning">
+      <button type="button" role="tab" data-surface="cli" aria-selected="true" tabindex="0">Shell</button>
+      <button type="button" role="tab" data-surface="extension" aria-selected="false" tabindex="-1">VS Code</button>
+      <button type="button" role="tab" data-surface="claude" aria-selected="false" tabindex="-1">Claude Code</button>
+    </div>
+    <div class="surface-panels">
+      <div class="surface-panel placeholder" data-surface="cli" role="tabpanel">
+        <div class="label">am sprint plan</div>
+        <p class="what">Terminal view of the iteration plan with committed stories, velocity, and warnings.</p>
+      </div>
+      <div class="surface-panel placeholder" data-surface="extension" role="tabpanel">
+        <div class="label">Plan tab</div>
+        <p class="what">Same iteration plan in the VS Code panel: committed stories, below-the-line backlog, warnings rail.</p>
+      </div>
+      <div class="surface-panel placeholder" data-surface="claude" role="tabpanel">
+        <div class="label">sprint_plan tool</div>
+        <p class="what">Claude Code rendering the same plan via the MCP sprint_plan tool inside a chat.</p>
+      </div>
+    </div>
+    <figcaption>The same Monday view across all three surfaces.</figcaption>
+  </figure>
+  <p>The team has dropped a dozen story ideas into <code>_icebox.md</code> over the last week. Now it is Monday morning, time to plan the first iteration. The PM has been ranking the icebox in the days leading up to today, so the top of icebox is more or less in the order the team will work it.</p>
+
+  <h3>Promote stories from icebox to priority</h3>
+  <div class="term">
+    <div class="term-bar"><span>shell · planning prep</span></div>
+<pre><span class="prompt">$</span> cd product
+<span class="prompt">$</span> am unice Login-flow.md --top
+<span class="prompt">$</span> am unice Search-relevance.md
+<span class="prompt">$</span> am unice Dark-mode.md
+<span class="prompt">$</span> am unice Saved-searches.md
+<span class="prompt">$</span> am unice Pagination.md
+<span class="prompt">$</span> am unice API-tokens.md</pre>
+  </div>
+
+  <p>Six features promoted into the priority list. The PM also moves a bug ("Login bug") and a chore ("Rotate API key") in.</p>
+
+  <h3>Render the plan</h3>
+  <div class="term">
+    <div class="term-bar"><span>shell · sprint plan</span></div>
+<pre><span class="prompt">$</span> am sprint plan
+Iteration plan (product)   velocity 8 / iteration
+
+   1. ★  Login flow                       feature 5p   acceptance: 3 bullets
+   2. ★  Search relevance                 feature 3p   acceptance: 3 bullets
+
+Backlog (below the line, not committed):
+   3. ★  Dark mode                        feature 8p   acceptance: 3 bullets
+   4. ★  Saved searches                   feature 5p   acceptance: 3 bullets
+   5. ★  Pagination                       feature 3p   acceptance: 3 bullets
+   6. ★  API tokens                       feature 5p   acceptance: 3 bullets
+   7. ●  Login bug                        bug      -    acceptance: 0 bullets
+   8. ○  Rotate API key                   chore    -    acceptance: 0 bullets
+
+Committed: 8 pts across 2 stories. Velocity: 8.</pre>
+  </div>
+
+  <p>Velocity is 8 (rolling, computed from the last few iterations). Login flow and Search relevance fit. Dark mode is right there at the top of the below-the-line set; the team flags that it might creep in if Login flow finishes ahead of schedule. The bug and chore stay below the line; the team will pull them when they have slack.</p>
+
+  <blockquote class="pullquote">
+    <p>"Tracker auto-plans the future iterations of the Backlog by stuffing them with stories from the top down until each iteration's accepted points reach the project velocity. The current iteration is filled the same way and then shifts to whatever the team has actually started."</p>
+    <p class="source">Pivotal Tracker help center · <a href="https://web.archive.org/web/20170503214450/https://www.pivotaltracker.com/help/articles/planning_with_velocity/">planning with velocity</a></p>
+  </blockquote>
+
+  <div class="note">
+    <span class="label">The commit moment</span>
+    There is no separate "commit" file. The act of leaving the rank order in <code>_priority.md</code> as-is and starting to pull stories is the commit. Pivotal Tracker worked this way too.
+  </div>
+</section>
+
+<section>
+  <h2>The iteration</h2>
+  <p>The dev pair (Claude Code) and the human (the PM, who is also the developer in solo mode) work through the priority list. The agent pulls the next unstarted story, writes the code, marks the story finished and then delivered. The human reviews, runs the acceptance criteria, says yes or no.</p>
+
+  <h3>Story 1 · Login flow</h3>
+  <div class="turn">
+    <div class="who">You</div>
+    <div class="said">"What's next?"</div>
+  </div>
+  <div class="turn">
+    <div class="who">Claude</div>
+    <div class="said">→ <code>next_item()</code> returns <code>product/Login-flow.md</code>. The story has acceptance criteria; estimate 5; not blocked. Pulls.</div>
+  </div>
+  <div class="turn">
+    <div class="who">Claude</div>
+    <div class="said">→ <code>set_status(Login-flow.md, "started")</code><br />Writes the code. Auth middleware, session cookie, /forgot-password route. Tests pass. Marks finished, then delivered.</div>
+  </div>
+  <div class="turn">
+    <div class="who">Claude</div>
+    <div class="said">→ <code>acceptance_prompt(Login-flow.md)</code>:
+<pre>Story: Login flow (product/Login-flow.md)
+Type: feature
+Status staging: delivered -&gt; accepted
+Estimate: 5 pts
+What to verify:
+  [~] a registered user can sign in with email + password
+       (claim: passes tests/auth_test.go)
+  [~] a wrong password produces a recoverable error
+  [~] the session persists across a page reload
+
+As PM, do you accept?</pre>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="who">You</div>
+    <div class="said">Tries each bullet. They pass. "Yes, accept."</div>
+  </div>
+  <div class="turn">
+    <div class="who">Claude</div>
+    <div class="said">→ <code>set_status(Login-flow.md, "accepted")</code><br />Velocity ledger gains 5 pts.</div>
+  </div>
+
+  <h3>Story 2 · Search relevance</h3>
+  <p>The agent pulls Search relevance. Halfway through, the agent realizes it is bigger than 3 points. It re-estimates and tries to set the new value:</p>
+  <div class="turn">
+    <div class="who">Claude</div>
+    <div class="said">→ <code>coach_check(set_estimate, path=Search-relevance.md, estimate=13)</code></div>
+  </div>
+  <div class="turn">
+    <div class="who">Coach</div>
+    <div class="said">
+<pre>Refused: features over 8 points are epics.
+Source: 8-point-hard-cap
+Next: split this story; keep each piece at or below 8 points.</pre>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="who">Claude</div>
+    <div class="said">"I'll split it. The first half is the search index; the second is the typo tolerance. Want me to call <code>am-decompose</code>?"</div>
+  </div>
+  <div class="turn">
+    <div class="who">You</div>
+    <div class="said">"Yes. Index first; typo tolerance can wait until next iteration."</div>
+  </div>
+  <div class="turn">
+    <div class="who">Claude</div>
+    <div class="said">Splits into two stories: <code>Search-index.md</code> (5 pts) and <code>Search-typo-tolerance.md</code> (3 pts, into icebox). Closes the original. Pulls <code>Search-index.md</code>.</div>
+  </div>
+
+  <p>The dev pair finishes the index, marks delivered. The PM accepts. Velocity ledger gains another 5 points (now 10 for the iteration; the team is over the 8 forecast, which is fine, because yesterday's weather is a forecast, not a budget).</p>
+
+  <h3>A rejected story</h3>
+  <p>The team pulls Dark mode (the next-ranked feature). The dev pair builds it. The PM looks at the result and notices the system-prefers-dark default is wrong: it picked up the OS setting at component mount, not at session start, so a user who toggled their OS theme during the session got jumbled colors.</p>
+  <div class="turn">
+    <div class="who">You</div>
+    <div class="said">"No. The system-prefers-dark is supposed to be the default for new users only, set at signup. This is mid-session theming. Reject."</div>
+  </div>
+  <div class="turn">
+    <div class="who">Claude</div>
+    <div class="said">→ <code>reject_item(Dark-mode.md, reason="system-prefers-dark applies at signup, not mid-session")</code></div>
+  </div>
+  <p>The story is back in the iteration with status <code>rejected</code>. The agent re-pulls it, fixes the bug, marks delivered again. The PM re-accepts.</p>
+
+  <div class="note">
+    <span class="label">Rejection is a ritual</span>
+    Pivotal counted rejection as data, not as failure. A healthy rejection rate is 5–15%. Below that the PM is rubber-stamping; above it the team is shipping the wrong thing. The retro reads the latest <code>rejection_rate</code> and asks why.
+  </div>
+</section>
+
+<section>
+  <h2>Retro</h2>
+  <p>End of the iteration. The team runs <code>am retro</code> and looks at the numbers before the conversation.</p>
+  <div class="term">
+    <div class="term-bar"><span>shell · retro summary</span></div>
+<pre><span class="prompt">$</span> am retro
+Retro summary
+
+  velocity:        10 pts
+  volatility:      28%
+  cycle time:      1.6d (median)
+  rejection rate:  10% (latest, target band 5-15%)
+  accepted total:  3
+  rejected total:  1
+
+Three questions:
+  1. What worked?
+  2. What did not work?
+  3. What changes for next iteration?
+
+Record outputs:
+  am team-agreements --set "..."      (new agreement)
+  am record-learning "..."            (one-line learning)</pre>
+  </div>
+
+  <p>Velocity hit 10 (8 forecast plus the bonus from finishing early). Rejection rate is 10%, in band. Cycle time of 1.6 days median feels right.</p>
+
+  <div class="note">
+    <span class="label">Bootstrap state</span>
+    On a brand-new project the retro numbers are not meaningful yet. Velocity reads as <code>(bootstrap)</code> until the rolling lookback window has real iterations behind it. Rejection rate buckets only completed iterations, so a story rejected today does not show in the rate until the iteration closes. Cycle time medians on a single short iteration are likewise misleading. The numbers stabilize from iteration three onward; before that the retro is conversation, not metrics.
+  </div>
+
+  <p>The team answers the three questions. The PM types:</p>
+
+  <div class="term">
+    <div class="term-bar"><span>shell · retro outputs</span></div>
+<pre><span class="prompt">$</span> am record-learning "Splitting the 13-pointer cost ten minutes and saved an iteration of confusion."
+<span class="prompt">$</span> am record-learning "Mid-session theming is a real edge. Add it to the dark-mode acceptance bullets next time."
+<span class="prompt">$</span> am team-agreements --add "Stories that touch theming check OS prefs at session start, not at component mount."</pre>
+  </div>
+  <p>Use <code>--add</code> to append a new agreement bullet to the existing list. <code>--set</code> overwrites the file and is for bootstrapping or resetting the agreements wholesale.</p>
+
+  <p>That is the whole retro. Two learnings, one new working agreement. The agreement gets read at the start of the next session by every agent that opens this repo, because <code>team-agreements.md</code> is part of the coach's onboarding.</p>
+</section>
+
+<section>
+  <h2>A second iteration</h2>
+  <p>Monday morning again. The PM ranks the icebox; the team runs <code>am sprint plan</code>; the agent pulls the first story. The shape is identical. The difference is rolling velocity now reflects iteration one (10 points), so the iteration-two budget is 10. The team commits to two features and the bug they queued from week one.</p>
+
+  <p>Halfway through the iteration, the dev pair starts a story that has no <code>## Acceptance</code> section in its body. The coach surfaces a nudge:</p>
+  <div class="turn">
+    <div class="who">Coach</div>
+    <div class="said">
+<pre>Nudge: feature has no acceptance criteria.
+Source: acceptance-criteria
+Next: add a `## Acceptance` section with bullets to the body before
+starting, or skip with intent.</pre>
+    </div>
+  </div>
+  <p>The PM stops the agent, drafts three bullets into the body, says go. Agent pulls.</p>
+
+  <p>By the end of iteration two the team has shipped two features and a bug. They run the retro. Velocity is now 11 (rolling). The rolling forecast has nudged up. Yesterday's weather: tomorrow looks like today.</p>
+</section>
+
+<section>
+  <h2>Scripting against the CLI</h2>
+  <p>Every read view above has a <code>--json</code> sibling, and there are six data-export verbs designed for piping. The shapes are the same Go structs the MCP server returns, so anything you script against the CLI will keep working when you switch to the MCP path, and vice versa.</p>
+
+  <div class="term">
+    <div class="term-bar"><span>shell · piping the JSON surface</span></div>
+<pre><span class="prompt">$</span> am next | awk <span class="s">'NR==1{print $1}'</span> | xargs am get-item | jq .title
+<span class="c"># "Search relevance"</span>
+
+<span class="prompt">$</span> am list-items product --status started | jq -r <span class="s">'.items[].title'</span>
+<span class="c"># Work in flight, one title per line.</span>
+
+<span class="prompt">$</span> am dashboard --json | jq <span class="s">'{velocity, accepted: .stories_accepted_total}'</span>
+<span class="c"># A two-field summary you can drop into a status bar or shell prompt.</span>
+
+<span class="prompt">$</span> am list-backlogs | jq -r <span class="s">'.backlogs[]'</span> \
+    | while read b; do am list-items <span class="s">"$b"</span> \
+        | jq -r --arg b <span class="s">"$b"</span> <span class="s">'.items[] | select(.blocked) | "\($b)\t\(.title)"'</span>; \
+      done
+<span class="c"># Every blocked story, across every backlog.</span></pre>
+  </div>
+
+  <p>The same surface is what the VS Code extension uses; the extension shells out per click instead of hosting a long-lived MCP child. Anything the board does, your shell can do.</p>
+</section>
+
+<section>
+  <h2>Where to go from here</h2>
+  <ul>
+    <li><a href="reference.html#data-api">Reference · Data API</a>. The JSON contract behind the <code>--json</code> flag and the six data-export verbs.</li>
+    <li><a href="reference.html#mcp">Reference · MCP integration</a>. The 50 MCP tools the agent uses on your behalf.</li>
+    <li><a href="reference.html#coach">Reference · Coach mode</a>. Projections, hooks, skills, enforcement.</li>
+  </ul>
+</section>
+
+<footer>
+  agilemarkdown · MIT · <a href="https://github.com/mreider/agilemarkdown">github</a>
+</footer>
+
+</main>
+
+<script src="surface-widget.js"></script>
+</body>
+</html>

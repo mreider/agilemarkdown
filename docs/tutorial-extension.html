@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tutorial · VS Code extension · agilemarkdown</title>
+<meta name="description" content="A full iteration end to end inside the VS Code Agile Markdown extension. Same scenario as the CLI and Claude Code tutorials." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,500;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper:   oklch(0.974 0.009 82);
+    --paper-2: oklch(0.945 0.012 82);
+    --ink:     oklch(0.205 0.015 60);
+    --ink-2:   oklch(0.36  0.018 60);
+    --ink-3:   oklch(0.52  0.018 65);
+    --rule:    oklch(0.84  0.014 78);
+    --rule-2:  oklch(0.78  0.016 78);
+    --accent:  oklch(0.52  0.135 38);
+    --accent-soft: oklch(0.85 0.06 38);
+    --term-bg: oklch(0.18  0.012 60);
+    --term-fg: oklch(0.93  0.012 82);
+    --term-dim:oklch(0.62  0.012 82);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: "Source Serif 4", Georgia, serif; font-size: 18px; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+  a { color: var(--accent); }
+  code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 0.9em; padding: 1px 4px; background: var(--paper-2); border-radius: 3px; }
+  main { max-width: 760px; margin: 0 auto; padding: 60px 28px 120px; }
+  header.masthead { padding: 80px 0 60px; border-bottom: 1px solid var(--rule); margin-bottom: 60px; }
+  header.masthead a.back { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--ink-3); text-decoration: none; }
+  header.masthead a.back:hover { color: var(--accent); }
+  header.masthead .eyebrow { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--ink-3); margin: 18px 0 14px; }
+  header.masthead h1 { font-size: clamp(36px, 7vw, 64px); font-weight: 600; line-height: 1.05; letter-spacing: -0.025em; margin: 0 0 18px; }
+  header.masthead h1 em { font-style: italic; color: var(--accent); font-weight: 500; }
+  header.masthead .deck { font-size: clamp(17px, 2.8vw, 22px); color: var(--ink-2); line-height: 1.45; max-width: 580px; }
+  @media (max-width: 520px) {
+    main { padding: 36px 18px 80px; }
+    header.masthead { padding: 40px 0 30px; margin-bottom: 36px; }
+  }
+  section { margin: 0 0 70px; }
+  h2 { font-size: 32px; font-weight: 600; line-height: 1.15; letter-spacing: -0.018em; margin: 0 0 22px; border-top: 1px solid var(--rule-2); padding-top: 28px; }
+  h3 { font-size: 21px; font-weight: 600; margin: 36px 0 12px; letter-spacing: -0.015em; }
+  p { margin: 0 0 16px; }
+  ul { margin: 0 0 18px; padding-left: 1.25em; }
+  li { margin-bottom: 6px; }
+  .lead { font-size: 19.5px; color: var(--ink-2); }
+  .gesture { background: var(--paper-2); border: 1px solid var(--rule); border-radius: 8px; padding: 12px 16px; margin: 14px 0; font-size: 16px; color: var(--ink-2); }
+  .gesture .step { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.1em; color: var(--accent); text-transform: uppercase; display: block; margin-bottom: 4px; }
+  .panel { background: var(--paper-2); border: 1px solid var(--rule); border-radius: 10px; padding: 16px 18px; margin: 14px 0; }
+  .panel h4 { margin: 0 0 8px; font-size: 14px; font-weight: 600; }
+  .panel pre { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12.5px; line-height: 1.55; color: var(--ink); background: var(--paper); padding: 10px 12px; border-radius: 6px; margin: 0; overflow-x: auto; border: 1px solid var(--rule); }
+  .note { background: var(--paper-2); border-left: 3px solid var(--accent); padding: 12px 18px; margin: 18px 0; border-radius: 0 6px 6px 0; font-size: 16px; color: var(--ink-2); }
+  .note .label { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.1em; color: var(--accent); text-transform: uppercase; display: block; margin-bottom: 4px; }
+  footer { margin-top: 80px; padding-top: 24px; border-top: 1px solid var(--rule); font-size: 14px; color: var(--ink-3); }
+  .video {
+    background: var(--paper-2); border: 1px solid var(--rule);
+    border-radius: 12px; padding: 22px 24px; margin: 0 0 40px;
+  }
+  .video .video-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--accent); display: block; margin-bottom: 12px;
+  }
+  .video .placeholder {
+    background: var(--term-bg); color: var(--term-dim);
+    aspect-ratio: 16 / 9; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: "JetBrains Mono", monospace; font-size: 13px;
+    margin-bottom: 14px;
+  }
+  .video h3 { margin: 0 0 10px; font-size: 18px; font-weight: 600; }
+  .video .chapters {
+    margin: 0; padding: 0; list-style: none;
+    font-family: "JetBrains Mono", monospace; font-size: 13.5px;
+    color: var(--ink-2);
+  }
+  .video .chapters li { margin: 0; padding: 3px 0; }
+  .video .chapters code {
+    background: transparent; padding: 0; color: var(--accent); margin-right: 12px;
+  }
+</style>
+<link rel="stylesheet" href="surface-widget.css" />
+</head>
+<body>
+
+<main>
+
+<header class="masthead">
+  <a class="back" href="tutorial.html">← all tutorials</a>
+  <div class="eyebrow">Tutorial · VS Code extension</div>
+  <h1>VS Code <em>walkthrough</em></h1>
+  <p class="deck">The same iteration as the CLI and Claude Code tutorials, run through the VS Code extension. You click the board, drag cards, and fill inline forms; the extension shells out to the <code>am</code> CLI under the hood, one verb per action.</p>
+</header>
+
+<div class="video">
+  <span class="video-label">Video · VS Code extension walkthrough</span>
+  <div class="placeholder">[ YouTube embed: agilemarkdown VS Code walkthrough ]</div>
+  <h3>Chapters</h3>
+  <ul class="chapters">
+    <li><code>0:00</code> Intro</li>
+    <li><code>0:30</code> Inception (shared markdown file)</li>
+    <li><code>1:30</code> Adding stories on the board</li>
+    <li><code>3:00</code> Iteration planning in the Plan tab</li>
+    <li><code>4:30</code> Story 1: clean accept (inline ceremony)</li>
+    <li><code>6:00</code> Story 2: refused estimate</li>
+    <li><code>7:30</code> Story 3: reject with reason</li>
+    <li><code>9:00</code> Retro (terminal)</li>
+  </ul>
+</div>
+
+<section>
+  <h2>What this covers</h2>
+  <p class="lead">The full lifecycle inside the Agile Markdown VS Code extension: a board with Current and Icebox columns, a Plan tab for IPM, a detail panel with the state machine and acceptance ceremony, drag-and-drop reorder, and an inline reject form. Same project as the other two tutorials: a command palette for a notes app.</p>
+  <p>If you have not installed VS Code, Claude Code, the <code>am</code> binary, or run <code>am init</code> in your code repo yet, see <a href="tutorial.html#prereqs">Before you start</a> on the tutorials index. Open the panel with the command palette: <code>Agile Markdown: Open Board</code>.</p>
+</section>
+
+<section>
+  <h2>Inception</h2>
+  <p>The extension does not have a built-in inception editor; it shares <code>inception.md</code> with the rest of the surfaces. Open the file in VS Code and write the six sections.</p>
+  <div class="gesture">
+    <span class="step">Action</span>
+    Command palette → <em>Agile Markdown: Open Item</em> → pick <code>inception.md</code>. Or open it from the file tree. Edit the six headed sections (user, goal, reason, success, constraints, out of scope). Save.
+  </div>
+  <div class="note">
+    <span class="label">Coach skill</span>
+    If you also have Claude Code attached to the same workspace, <code>/am-inception</code> walks you through the questions. The extension does not run skills directly; it shares state with whatever agent is in the workspace.
+  </div>
+</section>
+
+<section>
+  <h2>Backlog and stories</h2>
+  <p>The extension's <em>Add story</em> button (the <code>+</code> in the Current column header) creates an item. The story lands in the icebox so the rank is yours to set.</p>
+  <div class="gesture">
+    <span class="step">Action</span>
+    Click <code>+</code> in the Current column. The card flips to an inline title input. Type "Open palette on cmd-k", press Enter. Repeat for the other two stories. Each appears in the Icebox column as you create them.
+  </div>
+  <p>Click each card to open the detail panel. The new <strong>Acceptance</strong> section sits above Description; replace the placeholder bullets with concrete criteria. Save the description (the textarea + Save action below) when you are done editing.</p>
+  <div class="gesture">
+    <span class="step">Action</span>
+    Click the points pip for each story (1, 2, 3, 5, 8). The card's points badge updates immediately.
+  </div>
+</section>
+
+<section>
+  <h2>Iteration planning</h2>
+  <figure class="surface-shot" data-active="extension">
+    <div class="surface-tabs" role="tablist" aria-label="Surface for iteration planning">
+      <button type="button" role="tab" data-surface="cli" aria-selected="false" tabindex="-1">Shell</button>
+      <button type="button" role="tab" data-surface="extension" aria-selected="true" tabindex="0">VS Code</button>
+      <button type="button" role="tab" data-surface="claude" aria-selected="false" tabindex="-1">Claude Code</button>
+    </div>
+    <div class="surface-panels">
+      <div class="surface-panel placeholder" data-surface="cli" role="tabpanel">
+        <div class="label">am sprint plan</div>
+        <p class="what">Terminal view of the iteration plan with committed stories, velocity, and warnings.</p>
+      </div>
+      <div class="surface-panel placeholder" data-surface="extension" role="tabpanel">
+        <div class="label">Plan tab</div>
+        <p class="what">Same iteration plan in the VS Code panel: committed stories, below-the-line backlog, warnings rail.</p>
+      </div>
+      <div class="surface-panel placeholder" data-surface="claude" role="tabpanel">
+        <div class="label">sprint_plan tool</div>
+        <p class="what">Claude Code rendering the same plan via the MCP sprint_plan tool inside a chat.</p>
+      </div>
+    </div>
+    <figcaption>The same Monday view across all three surfaces.</figcaption>
+  </figure>
+  <p>Drag the three stories from Icebox into Current. Within Current, drag to reorder. The top of Current is what the dev will pull next.</p>
+  <div class="gesture">
+    <span class="step">Action</span>
+    Click the <em>Plan</em> tab in the topbar. The view loads the iteration plan: stories committed up to rolling velocity, plus a below-line backlog and a warnings list (missing acceptance, oversized features, unestimated features, overcommit).
+  </div>
+  <div class="panel">
+    <h4>Plan tab · committed</h4>
+<pre>#  Title                            Type     Pts  Acceptance  Status      Flags
+1  Open palette on cmd-k            feature   3   3 bullets    unstarted
+2  Fuzzy match note titles          feature   3   3 bullets    unstarted
+3  Recent searches dropdown         feature   3   3 bullets    unstarted
+
+Committed: 9 pts. Velocity: 10. Fits.</pre>
+  </div>
+  <p>If a story is missing its <code>## Acceptance</code> section the Plan tab flags it. Click into the card and add bullets before pulling.</p>
+</section>
+
+<section>
+  <h2>The iteration</h2>
+
+  <h3>Story 1 · clean accept</h3>
+  <p>Click the top card. The detail panel opens with the acceptance criteria visible. The dev writes the code; you advance the state machine.</p>
+  <div class="gesture">
+    <span class="step">Action</span>
+    Click <em>started</em> on the state machine. Card status pill flips. After the code lands, click <em>finished</em>, then <em>delivered</em>. Each click writes the corresponding timestamp to the body's frontmatter.
+  </div>
+  <p>Click <em>accepted</em>. <strong>The button does not flip the status.</strong> An inline PM ceremony panel appears with the criteria and a Yes / Cancel pair. Read the criteria; verify the work; click Yes.</p>
+  <div class="panel">
+    <h4>Inline PM ceremony</h4>
+<pre>As PM, do you accept?
+Story         Open palette on cmd-k
+Type          feature
+Estimate      3 pts
+Status        delivered -&gt; accepted
+
+What to verify
+[~] cmd-k opens the palette overlay
+    claim: opens, focused, mouse position preserved
+[~] the palette captures keyboard focus on open
+[~] escape closes it
+
+[ Yes, accept ]   [ Cancel ]</pre>
+  </div>
+  <p>The extension renders each acceptance bullet as a checkbox. The dev pair flips bullets to <code>[~]</code> claimed at delivery time; the PM ticks each one to verify or unticks to reject. When every bullet is verified, the Accept button is enabled. The points roll into velocity for the iteration.</p>
+
+  <h3>Story 2 · refused estimate, decompose</h3>
+  <p>Open the Fuzzy match card. Mid-build, the dev decides this is bigger than 3. Click the <code>5</code> pip. Then click <code>8</code>. Then <code>13</code>. The 13 pip is greyed out; the cap is 8.</p>
+  <p>Try anyway via the CLI to see the refusal text:</p>
+  <div class="panel">
+    <h4>Coach refusal</h4>
+<pre>Refused: features over 8 points are epics.
+Source: 8-point-hard-cap
+Next: split this story; keep each piece at or below 8 points.</pre>
+  </div>
+  <p>Open the file directly, split into "Search index" (5) and "Search typo tolerance" (3, into icebox). Or, in another VS Code window, run <code>/am-decompose</code> in Claude Code and let the skill draft the split. Either way the original story closes; the new one slots into the iteration.</p>
+
+  <h3>Story 3 · rejection with reason</h3>
+  <p>The Recent searches story ships, you click <em>delivered</em>. Acceptance ceremony renders. You spot the bug: the dropdown shows stale entries from the last session. Click <em>Cancel</em>, then click the <em>rejected</em> button.</p>
+  <p>An inline reason form appears.</p>
+  <div class="panel">
+    <h4>Reject with reason</h4>
+<pre>Reject: record the reason
+
+[ stale entries from the prior session leak into the dropdown ]
+
+[ Reject with reason ]   [ Cancel ]</pre>
+  </div>
+  <p>Submit. The body picks up a dated <code>## Rejection notes</code> entry. Status flips to <code>rejected</code>. The dev re-pulls (status auto-restarts), fixes the bug, marks delivered. The acceptance ceremony renders again. Yes.</p>
+</section>
+
+<section>
+  <h2>Retro</h2>
+  <p>The extension does not have a Retro tab today. Open a terminal in VS Code (<code>Ctrl/⌘ + `</code>), run <code>am retro</code>, and capture outputs from there.</p>
+  <div class="panel">
+    <h4>Terminal · retro outputs</h4>
+<pre>$ am retro
+Retro summary
+
+  velocity:        9 pts
+  volatility:      0%
+  cycle time:      0.4d (median)
+  rejection rate:  0% (latest, target band 5-15%)
+  accepted total:  3
+  rejected total:  0
+
+Three questions:
+  1. What worked?
+  2. What did not work?
+  3. What changes for next iteration?
+
+$ am record-learning "Plan tab caught two missing acceptance sections before pulling. Worth keeping the warning loud."
+$ am team-agreements --add "Recent-searches list reads from disk on focus; never from in-memory cache."</pre>
+  </div>
+  <div class="note">
+    <span class="label">Bootstrap state</span>
+    First-iteration retro numbers are not meaningful yet. Velocity reads bootstrap until the rolling lookback fills in. Rejection rate buckets only completed iterations. The numbers stabilize from iteration three; before that, retro is conversation, not metrics.
+  </div>
+</section>
+
+<section>
+  <h2>Where to go from here</h2>
+  <ul>
+    <li><a href="tutorial-cli.html">Tutorial · CLI</a>. Same scenario, shell verbs.</li>
+    <li><a href="tutorial-claude-code.html">Tutorial · Claude Code</a>. Same scenario, the agent operates the tools.</li>
+    <li><a href="reference.html#data-api">Reference · Data API</a>. The JSON surface the extension shells out to per action.</li>
+    <li><a href="reference.html#mcp">Reference · MCP integration</a>. Same data, exposed over stdio for AI agents.</li>
+    <li><a href="reference.html#coach">Reference · Coach mode</a>. Projections, hooks, skills.</li>
+  </ul>
+</section>
+
+<footer>
+  agilemarkdown · MIT · <a href="https://github.com/mreider/agilemarkdown">github</a>
+</footer>
+
+</main>
+
+<script src="surface-widget.js"></script>
+</body>
+</html>

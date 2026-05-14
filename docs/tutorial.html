@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tutorial · agilemarkdown</title>
+<meta name="description" content="One scenario end to end across three surfaces. Inception, iteration plan, the iteration, retro. Switch any screenshot to shell, VS Code, or Claude Code; the choice carries through the page." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,500;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper:   oklch(0.974 0.009 82);
+    --paper-2: oklch(0.945 0.012 82);
+    --paper-3: oklch(0.915 0.014 82);
+    --ink:     oklch(0.205 0.015 60);
+    --ink-2:   oklch(0.36  0.018 60);
+    --ink-3:   oklch(0.52  0.018 65);
+    --rule:    oklch(0.84  0.014 78);
+    --rule-2:  oklch(0.78  0.016 78);
+    --accent:  oklch(0.52  0.135 38);
+    --accent-soft: oklch(0.85 0.06 38);
+    --term-bg: oklch(0.18  0.012 60);
+    --term-fg: oklch(0.93  0.012 82);
+    --term-dim:oklch(0.62  0.012 82);
+    --term-accent: oklch(0.78 0.13 38);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: "Source Serif 4", Georgia, serif;
+    font-size: 18px; line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); }
+  code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 0.9em; padding: 1px 4px; background: var(--paper-2); border-radius: 3px; }
+  main { max-width: 760px; margin: 0 auto; padding: 60px 28px 120px; }
+  header.masthead { padding: 80px 0 50px; border-bottom: 1px solid var(--rule); margin-bottom: 60px; }
+  header.masthead a.back { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--ink-3); text-decoration: none; }
+  header.masthead a.back:hover { color: var(--accent); }
+  header.masthead .eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--ink-3); margin: 18px 0 14px;
+  }
+  header.masthead h1 {
+    font-size: clamp(36px, 7vw, 60px);
+    font-weight: 600; line-height: 1.05;
+    letter-spacing: -0.025em; margin: 0 0 18px;
+  }
+  header.masthead h1 em { font-style: italic; color: var(--accent); font-weight: 500; }
+  header.masthead .deck { font-size: clamp(17px, 2.7vw, 21px); color: var(--ink-2); line-height: 1.45; max-width: 620px; }
+  @media (max-width: 520px) {
+    main { padding: 36px 18px 80px; }
+    header.masthead { padding: 40px 0 30px; margin-bottom: 36px; }
+  }
+  section { margin: 0 0 70px; }
+  h2 {
+    font-size: 32px; font-weight: 600; line-height: 1.15;
+    letter-spacing: -0.018em; margin: 0 0 22px;
+    border-top: 1px solid var(--rule-2); padding-top: 28px;
+  }
+  h3 {
+    font-size: 21px; font-weight: 600; margin: 36px 0 12px;
+    letter-spacing: -0.015em;
+  }
+  p { margin: 0 0 16px; }
+  ul, ol { margin: 0 0 18px; padding-left: 1.25em; }
+  li { margin-bottom: 6px; }
+  .lead { font-size: 19.5px; color: var(--ink-2); }
+  .note {
+    background: var(--paper-2); border-left: 3px solid var(--accent);
+    padding: 12px 18px; margin: 18px 0; border-radius: 0 6px 6px 0;
+    font-size: 16px; color: var(--ink-2);
+  }
+  .note .label { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.1em; color: var(--accent); text-transform: uppercase; display: block; margin-bottom: 4px; }
+  blockquote.pullquote {
+    margin: 22px 0; padding: 2px 0 4px 20px;
+    border-left: 3px solid var(--accent);
+    font-style: italic; color: var(--ink-2);
+  }
+  blockquote.pullquote p { margin: 0 0 8px; line-height: 1.55; font-size: 16.5px; }
+  blockquote.pullquote .source {
+    font-family: "JetBrains Mono", monospace;
+    font-style: normal; font-size: 10.5px;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-3); margin: 0;
+  }
+  blockquote.pullquote .source a { color: inherit; text-decoration: underline; text-decoration-color: var(--rule-2); }
+  blockquote.pullquote .source a:hover { color: var(--accent); text-decoration-color: var(--accent); }
+  table.disk { border-collapse: collapse; margin: 16px 0; font-size: 14.5px; width: 100%; }
+  table.disk td { padding: 6px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  table.disk td:first-child { font-family: "JetBrains Mono", monospace; color: var(--accent); white-space: nowrap; }
+  footer { margin-top: 80px; padding-top: 24px; border-top: 1px solid var(--rule); font-size: 14px; color: var(--ink-3); }
+
+  /* ─── video block ─── */
+  .video {
+    background: var(--paper-2); border: 1px solid var(--rule);
+    border-radius: 12px; padding: 22px 24px; margin: 0 0 50px;
+  }
+  .video .video-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--accent); display: block; margin-bottom: 12px;
+  }
+  .video .placeholder {
+    background: var(--term-bg); color: var(--term-dim);
+    aspect-ratio: 16 / 9; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: "JetBrains Mono", monospace; font-size: 13px;
+    margin-bottom: 14px;
+  }
+  .video h3 { margin: 0 0 10px; font-size: 18px; font-weight: 600; }
+  .video .chapters {
+    margin: 0; padding: 0; list-style: none;
+    font-family: "JetBrains Mono", monospace; font-size: 13.5px;
+    color: var(--ink-2);
+  }
+  .video .chapters li { margin: 0; padding: 3px 0; }
+  .video .chapters code {
+    background: transparent; padding: 0; color: var(--accent); margin-right: 12px;
+  }
+
+  /* ─── prereqs block ─── */
+  .prereqs h3 {
+    font-size: 17px; font-weight: 600;
+    margin: 28px 0 8px;
+    letter-spacing: -0.005em;
+  }
+  .prereqs p { margin: 0 0 14px; }
+
+  /* ─── terminal block ─── */
+  .term {
+    background: var(--term-bg); color: var(--term-fg);
+    border-radius: 6px; margin: 18px 0;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12.5px; line-height: 1.65;
+    overflow: hidden;
+    box-shadow: 0 1px 0 var(--rule), 0 8px 24px -16px oklch(0.2 0.02 60 / 0.4);
+  }
+  .term-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 14px;
+    background: oklch(0.13 0.012 60);
+    border-bottom: 1px solid oklch(0.27 0.012 60);
+    font-size: 10.5px; color: var(--term-dim);
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .term-bar .lights { display: flex; gap: 6px; }
+  .term-bar .lights i { width: 9px; height: 9px; border-radius: 50%; background: oklch(0.42 0.02 60); display: inline-block; }
+  .term pre { margin: 0; padding: 14px 18px; overflow-x: auto; white-space: pre; font-family: "JetBrains Mono", monospace; font-size: 12.5px; }
+  .term pre code { background: transparent; padding: 0; color: inherit; font-size: inherit; }
+  .term .copy {
+    cursor: pointer; background: transparent;
+    border: 1px solid oklch(0.32 0.012 60);
+    color: var(--term-dim);
+    font-family: inherit; font-size: 10px;
+    letter-spacing: 0.12em; padding: 3px 9px;
+    border-radius: 3px; text-transform: uppercase;
+  }
+  .term .copy:hover { color: var(--term-fg); border-color: var(--term-dim); }
+  .term .prompt { color: var(--term-accent); }
+  .term .c { color: oklch(0.55 0.012 82); font-style: italic; }
+  .term .k { color: oklch(0.78 0.10 235); }
+  .term .s { color: oklch(0.78 0.11 130); }
+</style>
+<link rel="stylesheet" href="surface-widget.css" />
+</head>
+<body>
+
+<main>
+
+<header class="masthead">
+  <a class="back" href="index.html">← agilemarkdown</a>
+  <div class="eyebrow">Tutorial</div>
+  <h1>Walkthrough <em>tutorial</em></h1>
+  <p class="deck">One scenario end to end. Every scene shows the same moment on three surfaces: the <code>am</code> shell, the VS Code extension, and Claude Code with the coach skills. Switch any screenshot below, and the rest of the page follows.</p>
+</header>
+
+<div class="video">
+  <span class="video-label">Video · overview</span>
+  <div class="placeholder">[ YouTube embed: agilemarkdown overview ]</div>
+  <h3>Chapters</h3>
+  <ul class="chapters">
+    <li><code>0:00</code> What agilemarkdown is</li>
+    <li><code>0:45</code> Installing the binary and the coach files</li>
+    <li><code>2:00</code> The four phases: inception, plan, iterate, retro</li>
+    <li><code>3:30</code> The three surfaces side by side</li>
+    <li><code>5:00</code> One full iteration, end to end</li>
+  </ul>
+</div>
+
+<section id="prereqs" class="prereqs">
+  <h2>Before you start</h2>
+  <p>Five steps, plus two optional extras. Same setup whichever surface you favor.</p>
+
+  <h3>VS Code</h3>
+  <p>Install <a href="https://code.visualstudio.com">VS Code</a> if you do not have it. Any modern release works.</p>
+
+  <h3>Claude Code in VS Code</h3>
+  <p>Install Claude Code. The official extension is at <a href="https://claude.com/claude-code">claude.com/claude-code</a>; the same page covers the JetBrains plugin and the standalone CLI for users on Cursor or Zed.</p>
+  <p>Other agents that read project files (Cursor, Codex CLI, Copilot) work too. The <code>am init</code> step below ships an instruction file for each.</p>
+
+  <h3>The <code>am</code> binary</h3>
+  <p>A single static binary that runs on Linux, macOS, and Windows for both amd64 and arm64.</p>
+  <div class="term">
+    <div class="term-bar"><span class="lights"><i></i><i></i><i></i></span><span>shell · macOS arm64</span><button class="copy">Copy</button></div>
+<pre><code><span class="c"># macOS arm64</span>
+<span class="prompt">$</span> curl -L -o /usr/local/bin/am \
+    https://github.com/mreider/agilemarkdown/releases/latest/download/agilemarkdown_darwin_arm64
+<span class="prompt">$</span> chmod +x /usr/local/bin/am
+<span class="prompt">$</span> am --version</code></pre>
+  </div>
+  <p>Or build from source with <a href="https://go.dev/dl/">Go 1.23+</a>: <code>go install github.com/mreider/agilemarkdown@latest</code>.</p>
+
+  <h3>Add it to your repo</h3>
+  <p>Open your existing code repo in VS Code, then run <code>am init</code> at the project root.</p>
+  <div class="term">
+    <div class="term-bar"><span class="lights"><i></i><i></i><i></i></span><span>shell · adopt in an existing repo</span><button class="copy">Copy</button></div>
+<pre><code><span class="prompt">$</span> cd ~/code/my-app
+<span class="prompt">$</span> am init</code></pre>
+  </div>
+  <p>This drops the coach-mode files into your repo: an agent-instruction body, the four agent-format projections (Claude, AGENTS, Copilot, Cursor), the five Claude Code skills, and a PreToolUse hook that blocks rule-violating tool calls. Existing files are never overwritten. For a brand-new repo, use <code>am create-backlog</code> instead; it does the same install plus drops a backlog folder. <a href="reference.html#coach">More in the reference</a>.</p>
+
+  <h3>Wire the MCP server</h3>
+  <p>Claude Code reads MCP config from <code>.mcp.json</code> at the workspace root. Add the agilemarkdown server:</p>
+  <div class="term">
+    <div class="term-bar"><span class="lights"><i></i><i></i><i></i></span><span>.mcp.json</span><button class="copy">Copy</button></div>
+<pre><code>{
+  <span class="k">"mcpServers"</span>: {
+    <span class="k">"agilemarkdown"</span>: { <span class="k">"command"</span>: <span class="s">"am"</span>, <span class="k">"args"</span>: [<span class="s">"mcp"</span>] }
+  }
+}</code></pre>
+  </div>
+  <p>For Claude Desktop, the same shape goes in <code>~/Library/Application Support/Claude/claude_desktop_config.json</code> (or your OS equivalent). For Cursor, paste the JSON into Settings &rarr; MCP. For Codex CLI, paste into <code>~/.codex/config.toml</code>.</p>
+
+  <h3>Optional: VS Code extension</h3>
+  <p>A board view inside VS Code (current and icebox columns, drag-and-drop reorder, story detail panel, KPI tab) is available as a separate extension. Same MCP server underneath. Install from the marketplace once it ships, or build from <code>vscode/</code> in this repo.</p>
+
+  <h3>Optional: bash alias and completion</h3>
+  <div class="term">
+    <div class="term-bar"><span class="lights"><i></i><i></i><i></i></span><span>shell · alias</span><button class="copy">Copy</button></div>
+<pre><code><span class="prompt">$</span> $(go env GOPATH)/bin/agilemarkdown alias am</code></pre>
+  </div>
+</section>
+
+<section>
+  <h2>What this covers</h2>
+  <p class="lead">A small product team adopts agilemarkdown for an internal tool. They run one full iteration and start the second. Every command and gesture below maps onto the fixture from <code>tests/fixtures/build-sample.sh</code>, so you can build the same project locally with <code>./scripts/build-demo.sh</code> and follow along.</p>
+  <p>The lifecycle is four phases. Inception is rare (once per project). Iteration planning happens at the start of every iteration. The iteration itself is where stories flow through states, and PM acceptance happens continuously, not in a single demo at the end. Retro closes the iteration.</p>
+  <p>This is the XP cadence, not the Scrum cadence. The iteration plan is a forecast, not a commitment; the team finishes what it finishes. Acceptance is continuous; there is no end-of-sprint demo. Retro is a Friday conversation, not a status report.</p>
+  <p>Each scene below carries the same screenshot triptych. Pick the surface you actually use; the choice carries across every figure on the page and across pages.</p>
+</section>
+
+<section>
+  <h2>Inception</h2>
+  <figure class="surface-shot" data-active="extension">
+    <div class="surface-tabs" role="tablist" aria-label="Surface for inception">
+      <button type="button" role="tab" data-surface="cli" aria-selected="false" tabindex="-1">Shell</button>
+      <button type="button" role="tab" data-surface="extension" aria-selected="true" tabindex="0">VS Code</button>
+      <button type="button" role="tab" data-surface="claude" aria-selected="false" tabindex="-1">Claude Code</button>
+    </div>
+    <div class="surface-panels">
+      <div class="surface-panel placeholder" data-surface="cli" role="tabpanel">
+        <div class="label">am inception</div>
+        <p class="what">Seeds <code>inception.md</code> from the template. Edit the six sections in any editor.</p>
+      </div>
+      <div class="surface-panel placeholder" data-surface="extension" role="tabpanel">
+        <div class="label">Open inception.md</div>
+        <p class="what">The extension shares <code>inception.md</code> with every surface. Open it in VS Code and edit the six sections.</p>
+      </div>
+      <div class="surface-panel placeholder" data-surface="claude" role="tabpanel">
+        <div class="label">/am-inception</div>
+        <p class="what">Claude walks the six questions one at a time, captures the answers, writes <code>inception.md</code> via <code>inception_doc</code>.</p>
+      </div>
+    </div>
+    <figcaption>Inception on each surface. Same artifact lands on disk.</figcaption>
+  </figure>
+
+  <p>The team is starting a new internal tool. They could just start writing stories, but they choose to spend twenty minutes on an inception first. The output is one page with six headed sections: user, goal, reason, success, constraints, out of scope. The PM types; the dev pair (or Claude Code) asks the questions.</p>
+
+  <h3>What lands on disk</h3>
+  <table class="disk">
+    <tr><td>inception.md</td><td>One page. Six headed sections: user, goal, reason, success, constraints, out of scope.</td></tr>
+  </table>
+  <p>That is the whole inception artifact. No backlog yet. No stories. Stories come from the inception, but they get written once the team is ready to plan the first iteration.</p>
+</section>
+
+<section>
+  <h2>Backlog and stories</h2>
+  <figure class="surface-shot" data-active="extension">
+    <div class="surface-tabs" role="tablist" aria-label="Surface for backlog and stories">
+      <button type="button" role="tab" data-surface="cli" aria-selected="false" tabindex="-1">Shell</button>
+      <button type="button" role="tab" data-surface="extension" aria-selected="true" tabindex="0">VS Code</button>
+      <button type="button" role="tab" data-surface="claude" aria-selected="false" tabindex="-1">Claude Code</button>
+    </div>
+    <div class="surface-panels">
+      <div class="surface-panel placeholder" data-surface="cli" role="tabpanel">
+        <div class="label">am create-backlog / am create-item</div>
+        <p class="what"><code>am create-backlog product</code>, then <code>am create-item "Login flow"</code>. Edit each story's <code>## Acceptance</code> section.</p>
+      </div>
+      <div class="surface-panel placeholder" data-surface="extension" role="tabpanel">
+        <div class="label">Board · Add story</div>
+        <p class="what">Click <code>+</code> in the Current column, type the title, hit Enter. Click the points pip; click the card to edit acceptance.</p>
+      </div>
+      <div class="surface-panel placeholder" data-surface="claude" role="tabpanel">
+        <div class="label">Seed from inception</div>
+        <p class="what">"Make a product backlog and seed three stories with acceptance criteria." Claude calls <code>create_backlog</code>, <code>create_item</code>, <code>set_description</code>.</p>
+      </div>
+    </div>
+    <figcaption>Each surface lands the same files; the difference is whether you type or point.</figcaption>
+  </figure>
+
+  <p>The team needs a backlog folder and a few stories. Create a <code>product/</code> folder alongside the code; it gets a <code>product.md</code> overview and three sample stories (a feature, a bug, a chore) you can delete if you do not want the onboarding examples.</p>
+
+  <p>Then write the iteration's stories from the inception. The team adds three features: <strong>Login flow</strong>, <strong>Search relevance</strong>, <strong>Saved searches</strong>. Each story's body has sections for Problem statement, Possible solution, Acceptance, Comments, and Attachments. The <code>## Acceptance</code> section starts with placeholder bullets.</p>
+
+  <h3>Write real acceptance criteria</h3>
+  <p>Replace the placeholder bullets with concrete criteria. Two to four bullets per feature. Each is something the PM can check; not a property of the code. Bullets ship as GitHub-style checkboxes: <code>[ ]</code> open by default, <code>[~]</code> when the dev pair claims the bullet is satisfied, <code>[x]</code> after the PM verifies it at acceptance time.</p>
+  <div class="term">
+    <div class="term-bar"><span class="lights"><i></i><i></i><i></i></span><span>product/Login-flow.md</span></div>
+<pre><code>## Acceptance
+
+- [ ] a registered user can sign in with email + password
+- [ ] a wrong password produces a recoverable error, not a 500
+- [ ] the session persists across a page reload</code></pre>
+  </div>
+  <p>Without this section in the body the agent has no target, and <code>coach_check action=pull</code> refuses. Writing the criteria up front is what keeps the PM ceremony from falling back to "review the diff."</p>
+
+  <h3>Estimate</h3>
+  <p>Estimating in Pivotal is about uncertainty, not effort. The Fibonacci scale (1, 2, 3, 5, 8) maps to confidence: 1 is well-trodden, 8 is the hard cap above which the story is an epic.</p>
+
+  <blockquote class="pullquote">
+    <p>"A 2-point story for design should equate to the same amount of effort as a 2-point story for a developer. Don't estimate using time. If we find a story is above 3 points, or requires a huge amount of effort, this is a red flag that the story should be broken down."</p>
+    <p class="source">Pivotal Tracker help center · <a href="https://web.archive.org/web/20170503214450/https://www.pivotaltracker.com/help/articles/estimating_stories/">estimating stories</a></p>
+  </blockquote>
+  <p>Login flow is a 5. Search relevance starts at 3 (the team will revise this mid-iteration). Saved searches is a 5.</p>
+</section>
+
+<section>
+  <h2>Iteration planning</h2>
+  <figure class="surface-shot" data-active="extension">
+    <div class="surface-tabs" role="tablist" aria-label="Surface for iteration planning">
+      <button type="button" role="tab" data-surface="cli" aria-selected="false" tabindex="-1">Shell</button>
+      <button type="button" role="tab" data-surface="extension" aria-selected="true" tabindex="0">VS Code</button>
+      <button type="button" role="tab" data-surface="claude" aria-selected="false" tabindex="-1">Claude Code</button>
+    </div>
+    <div class="surface-panels">
+      <div class="surface-panel placeholder" data-surface="cli" role="tabpanel">
+        <div class="label">am sprint plan</div>
+        <p class="what">Promote stories with <code>am unice ... --top</code>, then <code>am sprint plan</code> renders the committed set, the below-line backlog, and warnings.</p>
+      </div>
+      <div class="surface-panel placeholder" data-surface="extension" role="tabpanel">
+        <div class="label">Plan tab</div>
+        <p class="what">Drag from Icebox into Current. Click the Plan tab in the topbar: committed stories, below-line backlog, warnings rail.</p>
+      </div>
+      <div class="surface-panel placeholder" data-surface="claude" role="tabpanel">
+        <div class="label">/am-plan</div>
+        <p class="what">"Plan the iteration." The skill calls <code>sprint_plan</code> and renders the same plan inline.</p>
+      </div>
+    </div>
+    <figcaption>The Monday-morning view. Same numbers, same warnings, three surfaces.</figcaption>
+  </figure>
+
+  <p>It is Monday morning. The PM has been ranking the icebox in the days leading up to today, so its top is the order the team will work. Promote the top features from icebox into the priority list, plus a bug and a chore the team plans to slot in if they have slack.</p>
+
+  <div class="note">
+    <span class="label">Plan output</span>
+    Velocity reads as 8 (rolling, from the last few iterations). Login flow (5) and Search relevance (3) fit. Saved searches (5) is right at the top of the below-line set; the team flags that it might creep in if Login flow finishes ahead of schedule. Bug and chore stay below the line.
+  </div>
+
+  <blockquote class="pullquote">
+    <p>"Tracker auto-plans the future iterations of the Backlog by stuffing them with stories from the top down until each iteration's accepted points reach the project velocity. The current iteration is filled the same way and then shifts to whatever the team has actually started."</p>
+    <p class="source">Pivotal Tracker help center · <a href="https://web.archive.org/web/20170503214450/https://www.pivotaltracker.com/help/articles/planning_with_velocity/">planning with velocity</a></p>
+  </blockquote>
+
+  <div class="note">
+    <span class="label">The commit moment</span>
+    There is no separate "commit" file. The act of leaving the rank order in <code>_priority.md</code> as-is and starting to pull stories is the commit. Pivotal Tracker worked this way too.
+  </div>
+</section>
+
+<section>
+  <h2>The iteration</h2>
+  <p>The dev pair (Claude Code, or the developer at the keyboard) works the priority list from the top. Each story moves through unstarted → started → finished → delivered → accepted (or rejected, then back through started). The dev pair never accepts its own work; that seam belongs to the PM.</p>
+
+  <h3>Story 1 · Login flow · clean accept</h3>
+  <figure class="surface-shot" data-active="extension">
+    <div class="surface-tabs" role="tablist" aria-label="Surface for Login flow clean accept">
+      <button type="button" role="tab" data-surface="cli" aria-selected="false" tabindex="-1">Shell</button>
+      <button type="button" role="tab" data-surface="extension" aria-selected="true" tabindex="0">VS Code</button>
+      <button type="button" role="tab" data-surface="claude" aria-selected="false" tabindex="-1">Claude Code</button>
+    </div>
+    <div class="surface-panels">
+      <div class="surface-panel placeholder" data-surface="cli" role="tabpanel">
+        <div class="label">am pull → deliver → accept-prompt</div>
+        <p class="what"><code>am pull</code> claims the top story. After the code lands, <code>am deliver</code>. Then <code>am accept-prompt</code> renders the PM ceremony; <code>am accept</code> flips the status once you say yes.</p>
+      </div>
+      <div class="surface-panel placeholder" data-surface="extension" role="tabpanel">
+        <div class="label">State machine + ceremony panel</div>
+        <p class="what">Click <em>started</em>, then <em>finished</em>, then <em>delivered</em> on the detail panel. Clicking <em>accepted</em> does not flip the status: it opens an inline PM ceremony with the bullets and a Yes / Cancel pair.</p>
+      </div>
+      <div class="surface-panel placeholder" data-surface="claude" role="tabpanel">
+        <div class="label">/am-align → /am-accept</div>
+        <p class="what">The agent restates the story before pulling, writes the code, claims each bullet at delivery, then renders <code>acceptance_prompt</code> and walks the bullets one by one.</p>
+      </div>
+    </div>
+    <figcaption>The same ceremony shows up wherever you work: PM seat, bullet by bullet.</figcaption>
+  </figure>
+
+  <p>The dev pair pulls Login flow. The acceptance bullets are concrete (sign-in with email + password, recoverable error on wrong password, session persists across reload). Code lands; tests pass. The story moves to delivered with each bullet claimed: <code>[~]</code> with a short note about how the claim was met.</p>
+
+  <p>The acceptance prompt renders. The PM walks each bullet, verifies it, and approves. Status flips to accepted. The velocity ledger gains 5 points.</p>
+
+  <div class="note">
+    <span class="label">Bullet states</span>
+    <code>[ ]</code> open · <code>[~]</code> claimed by the dev at delivery · <code>[x]</code> verified by the PM at acceptance · reopened to <code>[ ]</code> on rejection. The agent never writes <code>[x]</code>. That edge is the PM's.
+  </div>
+
+  <h3>Story 2 · Search relevance · refused estimate</h3>
+  <figure class="surface-shot" data-active="extension">
+    <div class="surface-tabs" role="tablist" aria-label="Surface for 8-point cap refusal">
+      <button type="button" role="tab" data-surface="cli" aria-selected="false" tabindex="-1">Shell</button>
+      <button type="button" role="tab" data-surface="extension" aria-selected="true" tabindex="0">VS Code</button>
+      <button type="button" role="tab" data-surface="claude" aria-selected="false" tabindex="-1">Claude Code</button>
+    </div>
+    <div class="surface-panels">
+      <div class="surface-panel placeholder" data-surface="cli" role="tabpanel">
+        <div class="label">am estimate → coach refusal</div>
+        <p class="what"><code>am estimate Search-relevance.md 13</code> fails: features over 8 points are epics. Use <code>am decompose</code> (or split by hand) to land two pieces at or below the cap.</p>
+      </div>
+      <div class="surface-panel placeholder" data-surface="extension" role="tabpanel">
+        <div class="label">Points pip caps at 8</div>
+        <p class="what">The 13 pip is greyed out. Hover for the rule; click 8 if it actually fits, or open a terminal in VS Code and run <code>am decompose</code>.</p>
+      </div>
+      <div class="surface-panel placeholder" data-surface="claude" role="tabpanel">
+        <div class="label">coach_check → /am-decompose</div>
+        <p class="what">The agent's <code>coach_check(set_estimate=13)</code> returns refused. <code>/am-decompose</code> drafts the split, you confirm, the original closes.</p>
+      </div>
+    </div>
+    <figcaption>The 8-point cap shows up at the same seam on every surface.</figcaption>
+  </figure>
+
+  <p>Halfway into Search relevance, the dev pair realizes it is bigger than 3 points. They try to re-estimate at 13. The coach refuses with the rule and the next move: split into two pieces, each at or below 8. The dev pair proposes the split (a search index, 5 points, this iteration; typo tolerance, 3 points, into the icebox); the PM agrees. The original story closes; the new ones slot in. The dev pair finishes the index. The PM accepts.</p>
+
+  <p>Velocity ledger now reads 10 (8 forecast plus the bonus from finishing early). That is fine. The plan is a forecast, not a budget.</p>
+
+  <h3>Story 3 · Dark mode · rejection with reason</h3>
+  <figure class="surface-shot" data-active="extension">
+    <div class="surface-tabs" role="tablist" aria-label="Surface for rejection with reason">
+      <button type="button" role="tab" data-surface="cli" aria-selected="false" tabindex="-1">Shell</button>
+      <button type="button" role="tab" data-surface="extension" aria-selected="true" tabindex="0">VS Code</button>
+      <button type="button" role="tab" data-surface="claude" aria-selected="false" tabindex="-1">Claude Code</button>
+    </div>
+    <div class="surface-panels">
+      <div class="surface-panel placeholder" data-surface="cli" role="tabpanel">
+        <div class="label">am reject --reason</div>
+        <p class="what">After <code>am accept-prompt</code> renders, run <code>am reject Dark-mode.md --reason "system-prefers-dark applies at signup, not mid-session"</code>. The story flips to rejected; the reason lands in <code>## Rejection notes</code>.</p>
+      </div>
+      <div class="surface-panel placeholder" data-surface="extension" role="tabpanel">
+        <div class="label">Inline reject form</div>
+        <p class="what">Cancel the ceremony panel, click <em>rejected</em>. An inline reason form opens; type the reason, submit. The body picks up a dated rejection note.</p>
+      </div>
+      <div class="surface-panel placeholder" data-surface="claude" role="tabpanel">
+        <div class="label">reject_item(failing_bullet=N)</div>
+        <p class="what">"No on bullet 2." Claude calls <code>reject_item</code> with the failing bullet and your reason. Bullet 2 reopens to <code>[ ]</code>; the story flips to rejected; the agent re-pulls.</p>
+      </div>
+    </div>
+    <figcaption>Rejection is data, not failure. Capture the reason; the dev re-pulls.</figcaption>
+  </figure>
+
+  <p>Dark mode ships; the dev pair claims all three acceptance bullets. The PM spots a bug: the system-prefers-dark default is supposed to be the default for new users only, set at signup, but the implementation reads the OS theme at component mount. So a user who toggled their OS theme during the session got jumbled colors. Reject with the reason. The dev pair re-pulls, fixes the bug, delivers again. The PM re-accepts.</p>
+
+  <div class="note">
+    <span class="label">Rejection is a ritual</span>
+    Pivotal counted rejection as data, not as failure. A healthy rejection rate is 5–15%. Below that the PM is rubber-stamping; above it the team is shipping the wrong thing. The retro reads the latest <code>rejection_rate</code> and asks why.
+  </div>
+</section>
+
+<section>
+  <h2>Retro</h2>
+  <figure class="surface-shot" data-active="extension">
+    <div class="surface-tabs" role="tablist" aria-label="Surface for the Friday retro">
+      <button type="button" role="tab" data-surface="cli" aria-selected="false" tabindex="-1">Shell</button>
+      <button type="button" role="tab" data-surface="extension" aria-selected="true" tabindex="0">VS Code</button>
+      <button type="button" role="tab" data-surface="claude" aria-selected="false" tabindex="-1">Claude Code</button>
+    </div>
+    <div class="surface-panels">
+      <div class="surface-panel placeholder" data-surface="cli" role="tabpanel">
+        <div class="label">am retro</div>
+        <p class="what">Numbers (velocity, volatility, cycle time, rejection rate), then three questions. Capture outputs with <code>am record-learning</code> and <code>am team-agreements --add</code>.</p>
+      </div>
+      <div class="surface-panel placeholder" data-surface="extension" role="tabpanel">
+        <div class="label">Terminal pane</div>
+        <p class="what">The extension does not have a Retro tab today. Open the integrated terminal, run <code>am retro</code>, capture outputs from there.</p>
+      </div>
+      <div class="surface-panel placeholder" data-surface="claude" role="tabpanel">
+        <div class="label">/am-retro</div>
+        <p class="what">"Run the retro." The skill pulls dashboard + history, renders the summary, asks the three questions one at a time, and records via <code>record_learning</code> / <code>team_agreements</code>.</p>
+      </div>
+    </div>
+    <figcaption>Same three questions across surfaces. Same files on disk after.</figcaption>
+  </figure>
+
+  <p>End of the iteration. Look at the numbers before the conversation: velocity (rolling), volatility (variance), cycle time (median time started → accepted), rejection rate (target band 5–15%). For this iteration: velocity 10, rejection rate 10%, cycle time around 1.6 days median. The forecast for iteration two is now 10.</p>
+
+  <p>Three questions. What worked? What did not? What changes for next iteration? Record one or two learnings and, if anything came up, a new working agreement. Agreements get read at the start of the next session by every agent that opens this repo, because <code>team-agreements.md</code> is part of the coach's onboarding.</p>
+
+  <div class="note">
+    <span class="label">Bootstrap state</span>
+    On a brand-new project the retro numbers are not meaningful yet. Velocity reads as <code>(bootstrap)</code> until the rolling lookback window has real iterations behind it. Rejection rate buckets only completed iterations, so a story rejected today does not show in the rate until the iteration closes. Cycle time medians on a single short iteration are likewise misleading. The numbers stabilize from iteration three onward; before that the retro is conversation, not metrics.
+  </div>
+</section>
+
+<section>
+  <h2>A second iteration</h2>
+  <p>Monday morning again. The PM ranks the icebox; the team plans iteration two; the dev pair pulls the first story. The shape is identical. The rolling velocity now reflects iteration one (10 points), so the iteration-two forecast is 10.</p>
+
+  <p>Halfway through, the dev pair starts a story whose body has no <code>## Acceptance</code> section. The coach surfaces a nudge with the rule and the next move: add the bullets, or skip with intent. The PM drafts three bullets into the body; the dev pair pulls again. By Friday the team has shipped two features and a bug. Velocity is now 11 (rolling). Yesterday's weather: tomorrow looks like today.</p>
+</section>
+
+<section>
+  <h2>Where to go from here</h2>
+  <ul>
+    <li><a href="reference.html#mcp">Reference · MCP integration</a>. The MCP tools every surface uses underneath.</li>
+    <li><a href="reference.html#coach">Reference · Coach mode</a>. Projections, hooks, skills, enforcement.</li>
+    <li><a href="reference.html#workflow">Reference · Workflow</a>. The state machine, the bullet lifecycle, the four phases.</li>
+  </ul>
+</section>
+
+<footer>
+  agilemarkdown · MIT · <a href="https://github.com/mreider/agilemarkdown">github</a>
+</footer>
+
+</main>
+
+<script>
+  document.querySelectorAll(".term .copy").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var pre = btn.closest(".term").querySelector("pre");
+      if (!pre) return;
+      var text = pre.innerText;
+      navigator.clipboard.writeText(text).then(function () {
+        var prev = btn.textContent;
+        btn.textContent = "Copied";
+        setTimeout(function () { btn.textContent = prev; }, 1400);
+      });
+    });
+  });
+</script>
+<script src="surface-widget.js"></script>
+
+</body>
+</html>

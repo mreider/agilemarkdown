@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>agilemarkdown · reference</title>
+<meta name="description" content="Reference for agilemarkdown: repository layout, item schema, state machine, velocity, MCP tools, CLI verbs, coach mode wiring, and configuration." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,500;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  /* ─────────────────────────────────────────────────────────────
+     agilemarkdown · practitioner manual
+     palette: warm paper / warm ink / single rust accent
+     type:    Source Serif 4 (display + body) · JetBrains Mono
+     ───────────────────────────────────────────────────────────── */
+  :root {
+    --paper:   oklch(0.974 0.009 82);
+    --paper-2: oklch(0.945 0.012 82);
+    --paper-3: oklch(0.915 0.014 82);
+    --ink:     oklch(0.205 0.015 60);
+    --ink-2:   oklch(0.36  0.018 60);
+    --ink-3:   oklch(0.52  0.018 65);
+    --rule:    oklch(0.84  0.014 78);
+    --rule-2:  oklch(0.78  0.016 78);
+    --accent:  oklch(0.52  0.135 38);    /* terracotta / drawing-ink red */
+    --accent-soft: oklch(0.85 0.06 38);
+    --term-bg: oklch(0.18  0.012 60);
+    --term-fg: oklch(0.93  0.012 82);
+    --term-dim:oklch(0.62  0.012 82);
+    --term-accent: oklch(0.78 0.13 38);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+    font-size: 17px;
+    line-height: 1.62;
+    font-feature-settings: "ss01", "onum";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection { background: var(--accent-soft); color: var(--ink); }
+
+  a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--rule-2); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  a:hover { color: var(--accent); text-decoration-color: var(--accent); }
+
+  /* ─── frame ────────────────────────────────────────────────── */
+  .frame {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 56px 48px 96px;
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 64px;
+  }
+  @media (max-width: 980px) {
+    .frame { grid-template-columns: 1fr; padding: 32px 24px 64px; gap: 0; }
+  }
+
+  /* ─── left rail ────────────────────────────────────────────── */
+  .rail {
+    position: sticky;
+    top: 56px;
+    align-self: start;
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 11.5px;
+    line-height: 1.9;
+    letter-spacing: 0.01em;
+    color: var(--ink-3);
+  }
+  .rail .mark { font-family: "Source Serif 4", serif; font-style: italic; font-size: 13px; color: var(--ink-2); margin-bottom: 16px; letter-spacing: 0; }
+  .rail ol { list-style: none; padding: 0; margin: 0 0 22px; }
+  .rail ol li { display: flex; gap: 10px; }
+  .rail a { color: var(--ink-2); text-decoration: none; display: block; padding: 1px 0; }
+  .rail a:hover { color: var(--accent); }
+  .rail .sep { height: 1px; background: var(--rule); margin: 14px 0; }
+  .rail .meta-line { display: flex; justify-content: space-between; }
+  .rail .meta-line span:last-child { color: var(--ink-2); }
+  @media (max-width: 980px) {
+    .rail { position: static; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--rule); }
+  }
+
+  /* ─── content column ──────────────────────────────────────── */
+  main { max-width: 720px; }
+
+  /* ─── masthead ────────────────────────────────────────────── */
+  .masthead { padding-bottom: 8px; margin-bottom: 24px; }
+  .masthead h1 {
+    font-family: "Source Serif 4", serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: clamp(48px, 7vw, 84px);
+    line-height: 0.95;
+    letter-spacing: -0.025em;
+    margin: 0 0 12px;
+    color: var(--ink);
+  }
+  .masthead h1 em { font-style: normal; font-weight: 600; color: var(--accent); }
+  .masthead .deck {
+    font-size: 21px;
+    line-height: 1.45;
+    color: var(--ink-2);
+    max-width: 580px;
+    margin: 18px 0 0;
+    font-weight: 300;
+  }
+  .masthead .deck-cta {
+    margin: 22px 0 0;
+    font-size: 16px;
+  }
+  .masthead .deck-cta a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid var(--accent);
+    padding-bottom: 1px;
+    font-weight: 500;
+  }
+  .masthead .deck-cta a:hover { background: var(--accent-soft); }
+
+  /* ─── section structure ───────────────────────────────────── */
+  section { margin: 56px 0 0; scroll-margin-top: 24px; }
+  .sec-head {
+    margin-bottom: 12px;
+    border-top: 1.5px solid var(--ink);
+    padding-top: 14px;
+  }
+  .sec-head h2 {
+    font-family: "Source Serif 4", serif;
+    font-weight: 400;
+    font-size: 32px;
+    line-height: 1.18;
+    letter-spacing: -0.015em;
+    margin: 0;
+  }
+  .sec-head h2 em { font-style: italic; font-weight: 400; color: var(--ink-2); }
+  .sec-body { padding-left: 0; }
+  @media (max-width: 700px) {
+    .sec-head h2 { font-size: 26px; }
+  }
+
+  h3 {
+    font-family: "Source Serif 4", serif;
+    font-weight: 600;
+    font-size: 17px;
+    line-height: 1.4;
+    color: var(--ink);
+    margin: 28px 0 8px;
+    letter-spacing: -0.005em;
+  }
+
+  p { margin: 0 0 14px; }
+  p + p { text-indent: 0; }
+  p.lead { font-size: 19px; line-height: 1.5; color: var(--ink); margin: 0 0 22px; max-width: 620px; font-weight: 300; }
+
+  ul, ol { margin: 4px 0 14px; padding-left: 22px; }
+  li { margin: 4px 0; }
+  li::marker { color: var(--ink-3); }
+
+  strong { font-weight: 600; color: var(--ink); }
+  em { font-style: italic; }
+
+  /* inline code */
+  code {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 0.86em;
+    background: var(--paper-2);
+    padding: 1px 5px;
+    border-radius: 3px;
+    border: 1px solid var(--rule);
+    color: var(--ink);
+  }
+
+  /* ─── callout ─────────────────────────────────────────────── */
+  .note {
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    background: var(--paper-2);
+    padding: 14px 18px;
+    margin: 18px 0;
+    font-size: 14.5px;
+    color: var(--ink-2);
+  }
+  .note strong { color: var(--ink); }
+  .note .label { display: block; font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+
+  /* ─── terminal block ──────────────────────────────────────── */
+  .term {
+    background: var(--term-bg);
+    color: var(--term-fg);
+    border-radius: 6px;
+    margin: 18px 0;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12.5px;
+    line-height: 1.65;
+    overflow: hidden;
+    box-shadow: 0 1px 0 var(--rule), 0 8px 24px -16px oklch(0.2 0.02 60 / 0.4);
+  }
+  .term-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    background: oklch(0.13 0.012 60);
+    border-bottom: 1px solid oklch(0.27 0.012 60);
+    font-size: 10.5px;
+    color: var(--term-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .term-bar .lights { display: flex; gap: 6px; }
+  .term-bar .lights i { width: 9px; height: 9px; border-radius: 50%; background: oklch(0.42 0.02 60); display: inline-block; }
+  .term pre { margin: 0; padding: 14px 18px; overflow-x: auto; white-space: pre; }
+  .term pre code { background: transparent; border: 0; padding: 0; color: inherit; font-size: inherit; }
+  .term .copy {
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid oklch(0.32 0.012 60);
+    color: var(--term-dim);
+    font-family: inherit;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    padding: 3px 9px;
+    border-radius: 3px;
+    text-transform: uppercase;
+  }
+  .term .copy:hover { color: var(--term-fg); border-color: var(--term-dim); }
+  .term .prompt { color: var(--term-accent); }
+  .term .c { color: oklch(0.55 0.012 82); font-style: italic; }       /* comment */
+  .term .k { color: oklch(0.78 0.10 235); }                            /* key */
+  .term .s { color: oklch(0.78 0.11 130); }                            /* string */
+  .term .n { color: oklch(0.82 0.10 70); }                             /* number */
+  .term .h { color: var(--term-accent); font-weight: 600; }            /* highlight */
+
+  .plain {
+    background: var(--paper-2);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12.5px;
+    line-height: 1.65;
+    color: var(--ink);
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  /* ─── reference table ─────────────────────────────────────── */
+  table.ref {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0 24px;
+    font-size: 14px;
+  }
+  table.ref tr { border-bottom: 1px solid var(--rule); }
+  table.ref tr:first-child { border-top: 1px solid var(--ink); }
+  table.ref td { padding: 9px 12px 9px 0; vertical-align: top; }
+  table.ref td:first-child {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    color: var(--ink);
+    white-space: nowrap;
+    width: 38%;
+    padding-right: 18px;
+  }
+  table.ref td:last-child { color: var(--ink-2); }
+  table.ref code { background: transparent; border: 0; padding: 0; font-size: 12px; }
+
+  table.ref.tight td { padding: 6px 12px 6px 0; }
+  table.ref.tight td:first-child { width: 32%; }
+
+  /* group headers in tables */
+  table.ref tr.group td { padding-top: 22px; padding-bottom: 6px; font-family: "JetBrains Mono", monospace; font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); border-bottom: 1px solid var(--rule); }
+
+  /* ─── state machine diagram ───────────────────────────────── */
+  .state-machine {
+    background: var(--paper-2);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 28px 24px 22px;
+    margin: 22px 0;
+    overflow-x: auto;
+  }
+  .sm-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    flex-wrap: nowrap;
+    min-width: 600px;
+  }
+  .sm-state {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 14px 8px;
+    border: 1.2px solid var(--ink);
+    border-radius: 4px;
+    background: var(--paper);
+    min-width: 78px;
+    text-align: center;
+  }
+  .sm-state .nm { font-family: "JetBrains Mono", monospace; font-size: 11.5px; color: var(--ink); font-weight: 500; letter-spacing: 0.02em; }
+  .sm-state .lb { font-size: 10px; color: var(--ink-3); margin-top: 2px; font-style: italic; }
+  .sm-state.accept { border-color: var(--accent); border-width: 1.6px; box-shadow: inset 0 0 0 2px var(--paper); }
+  .sm-state.accept .nm { color: var(--accent); font-weight: 600; }
+  .sm-arrow { flex: 0 0 28px; height: 1.2px; background: var(--ink); position: relative; margin: 0 -1px; }
+  .sm-arrow::after { content: ""; position: absolute; right: -1px; top: -3px; width: 0; height: 0; border-left: 6px solid var(--ink); border-top: 3.5px solid transparent; border-bottom: 3.5px solid transparent; }
+  .sm-fork {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-left: -2px;
+  }
+  .sm-fork .sm-arrow { width: 28px; }
+  .sm-back {
+    margin-top: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    color: var(--ink-3);
+  }
+  .sm-back code { background: transparent; border: 0; }
+  .sm-legend {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 22px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.05em;
+    color: var(--ink-3);
+    border-top: 1px solid var(--rule);
+    padding-top: 14px;
+  }
+  .sm-legend strong { color: var(--accent); font-weight: 600; }
+
+  /* ─── velocity / chart blocks ─────────────────────────────── */
+  .ascii-frame {
+    background: var(--paper-2);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 22px 28px;
+    margin: 18px 0;
+    overflow-x: auto;
+  }
+  .ascii-frame pre {
+    margin: 0;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--ink);
+    white-space: pre;
+  }
+  .ascii-frame .cap {
+    font-family: "Source Serif 4", serif;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--ink-3);
+    margin-top: 12px;
+    border-top: 1px solid var(--rule);
+    padding-top: 10px;
+  }
+
+  /* ─── tree (project layout) ───────────────────────────────── */
+  .tree {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12.5px;
+    line-height: 1.85;
+    background: var(--paper-2);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 20px 24px;
+    margin: 16px 0;
+    color: var(--ink);
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .tree .dim { color: var(--ink-3); }
+  .tree .cmt { color: var(--ink-3); font-style: italic; }
+  .tree .gen { color: var(--accent); }
+
+  /* ─── colophon ────────────────────────────────────────────── */
+  .colophon {
+    margin-top: 96px;
+    padding-top: 32px;
+    border-top: 2px solid var(--ink);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11.5px;
+    color: var(--ink-3);
+    letter-spacing: 0.04em;
+    line-height: 1.8;
+  }
+  .colophon .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 18px;
+  }
+  .colophon h4 {
+    font-family: "Source Serif 4", serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: 22px;
+    margin: 0;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .colophon a { color: var(--ink-2); text-decoration: none; border-bottom: 1px dotted var(--rule-2); padding-bottom: 1px; }
+  .colophon a:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* hide all non-essentials cleanly on print */
+  @media print {
+    .rail { display: none; }
+    .frame { grid-template-columns: 1fr; max-width: none; padding: 0; }
+    .term, .ascii-frame, .plain, .tree { box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="frame">
+
+  <!-- ───────── persistent left rail ───────── -->
+  <aside class="rail" aria-label="Contents">
+    <div class="mark">Contents</div>
+    <ol>
+      <li><a href="#layout">Repository layout</a></li>
+      <li><a href="#priority">Priority and icebox</a></li>
+      <li><a href="#workflow">State machine</a></li>
+      <li><a href="#velocity">Velocity</a></li>
+      <li><a href="#charts">Charts</a></li>
+      <li><a href="#schema">Item schema</a></li>
+      <li><a href="#users">Users</a></li>
+      <li><a href="#config">Configuration</a></li>
+      <li><a href="#mcp">MCP integration</a></li>
+      <li><a href="#data-api">Data API</a></li>
+      <li><a href="#coach">Coach mode</a></li>
+      <li><a href="#commands">Commands</a></li>
+      <li><a href="#multiuser">Working with a team</a></li>
+    </ol>
+    <div class="sep"></div>
+    <div class="meta-line"><span>overview</span><a href="index.html" style="color: var(--ink-2);">landing ↗</a></div>
+    <div class="meta-line"><span>tutorial</span><a href="tutorial.html" style="color: var(--ink-2);">walkthrough ↗</a></div>
+    <div class="meta-line"><span>source</span><a href="https://github.com/mreider/agilemarkdown" style="color: var(--ink-2);">github ↗</a></div>
+    <div class="meta-line"><span>release</span><a href="https://github.com/mreider/agilemarkdown/releases" style="color: var(--ink-2);">latest ↗</a></div>
+  </aside>
+
+  <!-- ───────── content column ───────── -->
+  <main>
+
+    <header class="masthead">
+      <h1>reference</h1>
+      <p class="deck">Repository layout, item schema, state machine, velocity formula, MCP tools, CLI verbs, coach-mode wiring, and configuration.</p>
+      <p class="deck-cta"><a href="index.html">← Back to overview</a></p>
+    </header>
+
+    <!-- ───────── layout ───────── -->
+    <section id="layout">
+      <div class="sec-head"><h2>Repository layout</h2></div>
+      <div class="sec-body">
+        <p>Items live as <code>.md</code> files. <code>_priority.md</code> and <code>_icebox.md</code> hold the stack-rank order; every active item appears in exactly one of the two, and <code>am sync</code> enforces this invariant.</p>
+
+        <pre class="tree">my-backlog/
+├── <span class="dim">.am/</span>config.yaml         <span class="cmt">iteration · velocity · story-type rules</span>
+├── <span class="dim">.am/</span>iterations.yaml     <span class="cmt">per-iteration team-strength + length</span>
+├── CLAUDE.md               <span class="cmt">coach stance · Claude Code reads automatically</span>
+├── AGENTS.md               <span class="cmt">coach stance · Codex CLI + AGENTS.md convention</span>
+├── <span class="dim">.github/</span>copilot-instructions.md  <span class="cmt">coach stance · GitHub Copilot</span>
+├── <span class="dim">.cursor/</span>rules/coach.mdc <span class="cmt">coach stance · Cursor</span>
+├── <span class="dim">.claude/</span>skills/         <span class="cmt">five skills: am-accept, am-decompose, am-inception, am-plan, am-retro</span>
+├── <span class="dim">.claude/</span>hooks/coach-gate.sh  <span class="cmt">PreToolUse hook · blocks hard-rule violations</span>
+├── <span class="dim">.claude/</span>settings.json   <span class="cmt">wires the gate to set_status and set_estimate</span>
+├── <span class="gen">index.md</span>                <span class="cmt">generated · all backlogs</span>
+├── <span class="gen">velocity.md</span>             <span class="cmt">generated · velocity links</span>
+├── <span class="gen">timeline.md</span>             <span class="cmt">generated · timeline links</span>
+├── <span class="gen">users.md</span>                <span class="cmt">generated · user index</span>
+├── team-agreements.md      <span class="cmt">team rules; coach reads as nudges</span>
+├── learnings.md            <span class="cmt">one-line learnings (record_learning appends)</span>
+├── users/
+│   └── alice.md
+├── <span class="gen">tags/</span>                   <span class="cmt">generated · per-tag pages</span>
+├── <span class="gen">timeline/</span>               <span class="cmt">generated · per-tag ASCII Gantt</span>
+│   └── q2.txt
+└── product/                <span class="cmt">a backlog folder</span>
+    ├── <span class="gen">product.md</span>          <span class="cmt">generated · project overview</span>
+    ├── <span class="gen">archive.md</span>          <span class="cmt">generated · archive page</span>
+    ├── _priority.md        <span class="cmt">stack-rank · top = next iteration</span>
+    ├── _icebox.md          <span class="cmt">stack-rank · not yet committed</span>
+    └── build-login-flow.md <span class="cmt">the actual item</span></pre>
+
+        <p>Files in orange are regenerated on every <code>sync</code>. Don't hand-edit them.</p>
+      </div>
+    </section>
+
+    <!-- ───────── priority ───────── -->
+    <section id="priority">
+      <div class="sec-head"><h2>Priority and icebox</h2></div>
+      <div class="sec-body">
+        <p>Two ordered files per backlog. Top = highest rank.</p>
+        <ul>
+          <li><strong><code>_priority.md</code></strong>. Items committed for an iteration window, or queued just behind it.</li>
+          <li><strong><code>_icebox.md</code></strong>. Stack-ranked but not yet committed. Pre-sprint planning typically sorts the icebox top-down, then bulk-promotes a chunk into priority.</li>
+        </ul>
+        <p>Render with iteration bands sized by rolling velocity:</p>
+
+        <div class="ascii-frame">
+<pre><span style="color: var(--ink-3);">$ am show priority</span>
+
+<strong>Priority (product)</strong>   <span style="color: var(--ink-3);">velocity 13 / iteration</span>
+
+── <span style="color: var(--accent); font-weight: 600;">Iteration 47</span>  Mon May 11   0 / 13 pts ──
+   1. ★  Build login flow                          started     5p
+   2. ●  Reset password bug                        unstarted   1p
+   3. ★  Search relevance                          unstarted   3p
+
+── <span style="color: var(--accent); font-weight: 600;">Iteration 48</span>  Mon May 18   0 / 13 pts ──
+   4. ★  Saved searches                            unstarted   5p
+   5. ⚙  Split OrderService                        unstarted
+
+── <span style="color: var(--ink-3);">Backlog (untimed)</span> ──
+   6. ★  Notifications                             unstarted   8p
+
+── <span style="color: var(--ink-3);">Icebox (12 items)</span> ── <span style="color: var(--ink-3);">see `am show icebox`</span></pre>
+          <div class="cap">Bands fill top-down by points; when an iteration's capacity is full, the next item starts a new band.</div>
+        </div>
+
+        <p>Single-item promote vs. bulk:</p>
+        <div class="term">
+          <div class="term-bar"><span class="lights"><i></i><i></i><i></i></span><span>shell · promotion</span><button class="copy">Copy</button></div>
+<pre><code><span class="prompt">$</span> am unice <span class="s">"saved-searches.md"</span> --top      <span class="c"># single item, lands wherever you want</span>
+<span class="prompt">$</span> am unice --all                          <span class="c"># whole icebox to bottom of priority,</span>
+                                          <span class="c"># order preserved (the Pivotal pre-sprint move)</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── state machine ───────── -->
+    <section id="workflow">
+      <div class="sec-head"><h2>State machine</h2></div>
+      <div class="sec-body">
+        <p class="lead">The state machine matches Pivotal Tracker. Only stories that reach <code>accepted</code> contribute to velocity.</p>
+
+        <div class="state-machine">
+          <div class="sm-row">
+            <div class="sm-state"><div class="nm">unstarted</div><div class="lb">queued</div></div>
+            <div class="sm-arrow"></div>
+            <div class="sm-state"><div class="nm">started</div><div class="lb">in progress</div></div>
+            <div class="sm-arrow"></div>
+            <div class="sm-state"><div class="nm">finished</div><div class="lb">code done</div></div>
+            <div class="sm-arrow"></div>
+            <div class="sm-state"><div class="nm">delivered</div><div class="lb">on staging</div></div>
+            <div class="sm-arrow"></div>
+            <div class="sm-fork">
+              <div class="sm-state accept"><div class="nm">accepted</div><div class="lb">PM signs off</div></div>
+              <div class="sm-state"><div class="nm">rejected</div><div class="lb">sent back</div></div>
+            </div>
+          </div>
+          <div class="sm-back">rejected → started clears completion timestamps · &nbsp; <code>accepted</code> auto-stamps <code>accepted: &lt;ts&gt;</code></div>
+          <div class="sm-legend">
+            <span><strong>accepted</strong> · the only state that feeds velocity</span>
+            <span>chores skip <em>finished</em></span>
+            <span>releases skip <em>started</em></span>
+          </div>
+        </div>
+
+        <h3>State definitions</h3>
+        <ul>
+          <li><strong>finished</strong>. Dev says "code is done."</li>
+          <li><strong>delivered</strong>. Deployed to staging or shown to PM.</li>
+          <li><strong>accepted</strong>. PM signs off. Velocity counts only this state.</li>
+          <li><strong>rejected</strong>. Sent back. The next move (usually <code>started</code>) clears the completion timestamps.</li>
+        </ul>
+
+        <h3>Story types</h3>
+        <ul>
+          <li><code>type: feature</code> (default) feeds velocity.</li>
+          <li><code>type: bug</code> and <code>type: chore</code> do not feed velocity unless <code>story_types.bug_estimable</code> or <code>chore_estimable</code> is enabled in <a href="#config">config</a>.</li>
+          <li><code>type: release</code> is a marker with a <code>release_date</code>. Used for projecting whether the release will hit given current velocity.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ───────── velocity ───────── -->
+    <section id="velocity">
+      <div class="sec-head"><h2>Velocity</h2></div>
+      <div class="sec-body">
+        <p>Average accepted points per iteration over the last <code>velocity.lookback</code> completed iterations.</p>
+        <ul>
+          <li>Iteration windows align to <code>iteration.start_day</code> in <code>iteration.timezone</code> and span <code>iteration.length_weeks</code> weeks.</li>
+          <li>An item lands in iteration N when its <code>accepted</code> timestamp falls inside <code>[start, end)</code>.</li>
+          <li><code>rolling</code> averages the last N. <code>strict</code> drops high and low first. <code>manual</code> pins a constant.</li>
+          <li>New projects bootstrap to <code>velocity.initial_velocity</code>.</li>
+        </ul>
+
+        <h3>The Pivotal velocity formula</h3>
+        <pre class="plain">per_week  = SUM(points_i / strength_i) / SUM(length_weeks_i)
+displayed = floor(per_week * default_length_weeks)</pre>
+        <p>Iterations with <code>team_strength: 0</code> are excluded from both sums.</p>
+      </div>
+    </section>
+
+    <!-- ───────── charts ───────── -->
+    <section id="charts">
+      <div class="sec-head"><h2>Charts</h2></div>
+      <div class="sec-body">
+        <p>Charts are ASCII. Same text in the terminal, in <code>velocity.md</code> and <code>timeline.md</code> on GitHub, and in MCP responses. No images, no binary diffs.</p>
+
+        <div class="ascii-frame">
+<pre><span style="color: var(--ink-3);">$ am velocity 8</span>
+
+<strong>Velocity</strong>  <span style="color: var(--ink-3);">last 8 iterations of 1 week</span>
+
+    8 |                <span style="color: var(--accent);">▇▇</span>
+    6 |          <span style="color: var(--accent);">▇▇</span>    <span style="color: var(--accent);">▇▇</span>
+    4 |    <span style="color: var(--accent);">▇▇</span>    <span style="color: var(--accent);">▇▇</span>    <span style="color: var(--accent);">▇▇</span>
+    2 |    <span style="color: var(--accent);">▇▇</span>    <span style="color: var(--accent);">▇▇</span>    <span style="color: var(--accent);">▇▇</span>
+      +────────────────────────────
+       04/01     04/15     04/29</pre>
+          <div class="cap">Same chart, three surfaces: shell, GitHub-rendered <code>velocity.md</code>, MCP <code>velocity_chart</code> tool.</div>
+        </div>
+
+        <p>Per-tag timelines render the same way: ASCII Gantt printed by the CLI, returned by the <code>timeline_chart</code> MCP tool, and embedded in <code>timeline.md</code> by <code>am sync</code>.</p>
+      </div>
+    </section>
+
+    <!-- ───────── schema ───────── -->
+    <section id="schema">
+      <div class="sec-head"><h2>Item schema</h2></div>
+      <div class="sec-body">
+        <p>An item is YAML frontmatter plus a markdown body.</p>
+
+        <div class="term">
+          <div class="term-bar"><span class="lights"><i></i><i></i><i></i></span><span>build-login-flow.md</span><button class="copy">Copy</button></div>
+<pre><code><span class="c">---</span>
+<span class="k">title</span>:     Build login flow
+<span class="k">project</span>:   product
+<span class="k">type</span>:      feature
+<span class="k">status</span>:    started
+<span class="k">assigned</span>:  alice
+<span class="k">estimate</span>:  <span class="n">5</span>
+<span class="k">epic</span>:      auth-rewrite
+<span class="k">tags</span>:      [q2, auth]
+<span class="k">hypothesis</span>: Login conversion lifts when reset-password is one click
+            instead of three.
+<span class="k">created</span>:   <span class="n">2026-04-15T09:00:00Z</span>
+<span class="k">modified</span>:  <span class="n">2026-05-07T14:02:00Z</span>
+<span class="k">started</span>:   <span class="n">2026-05-07T09:00:00Z</span>
+<span class="k">finished</span>:  <span class="n">2026-05-09T17:00:00Z</span>
+<span class="k">delivered</span>: <span class="n">2026-05-10T10:00:00Z</span>
+<span class="k">accepted</span>:  <span class="n">2026-05-10T16:30:00Z</span>
+<span class="k">timeline</span>:
+  <span class="k">start</span>:   <span class="n">2026-04-15</span>
+  <span class="k">end</span>:     <span class="n">2026-05-10</span>
+<span class="c">---</span>
+
+<span class="h">## Problem statement</span>
+
+…</code></pre>
+        </div>
+
+        <p><code>started</code>, <code>finished</code>, <code>delivered</code>, and <code>accepted</code> timestamps are auto-stamped by <code>am start</code> / <code>am finish</code> / <code>am deliver</code> / <code>am accept</code>. They are not edited by hand. <code>started</code> drives cycle-time calculation and the in-flight band of the cumulative-flow chart.</p>
+
+        <h3>Optional fields</h3>
+        <table class="ref tight">
+          <tr><td><code>epic</code></td><td>slug name. Stories sharing a slug roll up under <code>am show epic SLUG</code> and the <code>epic_progress</code> MCP tool.</td></tr>
+          <tr><td><code>hypothesis</code></td><td>what should be true if the story works. Acceptance shifts from "did we ship X?" to "did the hypothesis hold?"</td></tr>
+          <tr><td><code>release_date</code></td><td>required for <code>type: release</code>. Drives velocity-based ship projection.</td></tr>
+          <tr><td><code>archive: true</code></td><td>set by <code>am archive YYYY-MM-DD</code>. Item moves under <code>archive/</code> on next sync.</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- ───────── users ───────── -->
+    <section id="users">
+      <div class="sec-head"><h2>Users <em>· auto-discovered from git</em></h2></div>
+      <div class="sec-body">
+        <p>You don't have to add users manually. <code>am sync</code> reads <code>git config user.name</code> and walks <code>git log</code>. Anyone who has committed gets a <code>users/&lt;name&gt;.md</code> file generated automatically. <code>am create-user</code> stays as an optional override for renaming, aliasing multiple emails, or pre-adding people who haven't committed yet.</p>
+
+        <p>A user file is just frontmatter:</p>
+        <div class="term">
+          <div class="term-bar"><span class="lights"><i></i><i></i><i></i></span><span>users/alice.md</span><button class="copy">Copy</button></div>
+<pre><code><span class="c">---</span>
+<span class="k">name</span>:   Alice Example
+<span class="k">emails</span>: [alice@example.com, alice@personal.org]
+<span class="c">---</span></code></pre>
+        </div>
+
+        <p>The <code>am sync</code> step also writes a generated work view in the body, listing the user's items grouped by project and status. That part is regenerated every sync. Don't edit it by hand.</p>
+        <p>Items reference users by name, nickname, or email. The lookup is forgiving: <code>assigned: alice</code>, <code>assigned: alice@example.com</code>, and <code>assigned: Alice Example</code> all resolve to the same user file.</p>
+      </div>
+    </section>
+
+    <!-- ───────── config ───────── -->
+    <section id="config">
+      <div class="sec-head"><h2>Configuration</h2></div>
+      <div class="sec-body">
+        <p>Project settings live at <code>.am/config.yaml</code>. Auto-created with sensible defaults on first <code>am create-backlog</code>.</p>
+
+        <div class="term">
+          <div class="term-bar"><span class="lights"><i></i><i></i><i></i></span><span>.am/config.yaml</span><button class="copy">Copy</button></div>
+<pre><code><span class="k">estimation</span>:
+  <span class="k">scale</span>:        fibonacci         <span class="c"># linear | fibonacci | powers | custom</span>
+  <span class="k">values</span>:       [<span class="n">0, 1, 2, 3, 5, 8</span>]
+<span class="k">iteration</span>:
+  <span class="k">length_weeks</span>: <span class="n">1</span>                 <span class="c"># 1 / 2 / 3 / 4</span>
+  <span class="k">start_day</span>:    monday
+  <span class="k">timezone</span>:     UTC
+<span class="k">velocity</span>:
+  <span class="k">strategy</span>:         rolling      <span class="c"># rolling | strict | manual</span>
+  <span class="k">lookback</span>:         <span class="n">3</span>            <span class="c"># iterations to average</span>
+  <span class="k">initial_velocity</span>: <span class="n">10</span>           <span class="c"># bootstrap</span>
+<span class="k">story_types</span>:
+  <span class="k">bug_estimable</span>:   false
+  <span class="k">chore_estimable</span>: false</code></pre>
+        </div>
+
+        <p>Per-iteration <strong>team strength</strong> and <strong>length</strong> overrides live separately in <code>.am/iterations.yaml</code>, mirroring Pivotal Tracker's <code>iteration_override</code> resource:</p>
+
+        <div class="term">
+          <div class="term-bar"><span class="lights"><i></i><i></i><i></i></span><span>.am/iterations.yaml</span><button class="copy">Copy</button></div>
+<pre><code><span class="k">overrides</span>:
+  - <span class="k">number</span>:        <span class="n">12</span>
+    <span class="k">team_strength</span>: <span class="n">0.5</span>           <span class="c"># half-team week (vacation, offsite)</span>
+  - <span class="k">number</span>:        <span class="n">17</span>
+    <span class="k">team_strength</span>: <span class="n">1.4</span>           <span class="c"># surge week</span>
+    <span class="k">length_weeks</span>:  <span class="n">2</span>             <span class="c"># this one iteration is two weeks</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── mcp ───────── -->
+    <section id="mcp">
+      <div class="sec-head"><h2>MCP integration</h2></div>
+      <div class="sec-body">
+        <p class="lead"><code>am mcp</code> runs a stdio MCP server with 55 tools. Any MCP client connects.</p>
+
+        <h3>Claude Desktop</h3>
+        <p>Edit <code>~/Library/Application Support/Claude/claude_desktop_config.json</code> and add:</p>
+        <div class="term">
+          <div class="term-bar"><span class="lights"><i></i><i></i><i></i></span><span>claude_desktop_config.json</span><button class="copy">Copy</button></div>
+<pre><code>{
+  <span class="k">"mcpServers"</span>: {
+    <span class="k">"agilemarkdown"</span>: {
+      <span class="k">"command"</span>: <span class="s">"am"</span>,
+      <span class="k">"args"</span>:    [<span class="s">"mcp"</span>],
+      <span class="k">"cwd"</span>:     <span class="s">"/absolute/path/to/your/backlog"</span>
+    }
+  }
+}</code></pre>
+        </div>
+        <p>Restart Claude Desktop. <code>cwd</code> must be a directory inside a git repo containing your backlogs.</p>
+
+        <h3>Claude Code</h3>
+        <div class="term">
+          <div class="term-bar"><span class="lights"><i></i><i></i><i></i></span><span>shell · register</span><button class="copy">Copy</button></div>
+<pre><code><span class="prompt">$</span> claude mcp add agilemarkdown -- am mcp</code></pre>
+        </div>
+        <p>Run from inside the backlog repo. Claude Code uses the current working directory.</p>
+
+        <h3>Tool reference</h3>
+        <table class="ref">
+          <tr class="group"><td colspan="2">Read · 12 tools</td></tr>
+          <tr><td>list_backlogs</td><td>List backlog folders in the project.</td></tr>
+          <tr><td>list_items</td><td>List items in a backlog with a count, filter by status or tag, and per-item type, assignees, blocked flag, and comment count.</td></tr>
+          <tr><td>get_item</td><td>Read an item's full markdown body plus type, assignees, blocked flag, epic, and parsed acceptance bullets.</td></tr>
+          <tr><td>priority_list</td><td>Ordered <code>_priority.md</code> with status, points, type, assignees, tags, blocked flag, comment counts, plus the project velocity for iteration bands.</td></tr>
+          <tr><td>icebox_list</td><td>Ordered <code>_icebox.md</code> with the same per-item fields and a count.</td></tr>
+          <tr><td>list_iteration_overrides</td><td>Return every active iteration override.</td></tr>
+          <tr><td>list_tasks</td><td>Return parsed checkbox tasks under "## Tasks" on an item.</td></tr>
+          <tr><td>list_acceptance</td><td>Return parsed acceptance bullets with 1-based index, state (open / claimed / verified), text, and optional claim note.</td></tr>
+          <tr><td>get_comments</td><td>Return parsed comments (author, when, text) plus a count for badge rendering.</td></tr>
+          <tr><td>next_item</td><td>Highest-ranked unstarted, unblocked story across the project. The "next pull" answer.</td></tr>
+          <tr><td>dashboard</td><td>One-block project dashboard: velocity, volatility percent, median cycle time, latest rejection rate, total accepted stories.</td></tr>
+          <tr><td>iteration_fit</td><td>Whether the planned iteration fits within rolling velocity. Optionally adds a candidate item to forecast impact.</td></tr>
+
+          <tr class="group"><td colspan="2">Coach · 4 tools</td></tr>
+          <tr><td>coach_check</td><td>Preflight a planned action against the hard rules. Actions: <code>set_status</code>, <code>set_estimate</code>, <code>create_item</code>, and <code>pull</code> (refuses a feature pull when the body has no Acceptance section). Returns a structured verdict with the rule, its slug, and a suggested next move.</td></tr>
+          <tr><td>acceptance_prompt</td><td>Render the PM acceptance ceremony for one delivered story. Returns title, type, estimate, a structured <code>bullets</code> list with per-bullet state, and the rendered <code>prompt_text</code> with <code>[ ]</code> / <code>[~]</code> / <code>[x]</code> markers.</td></tr>
+          <tr><td>inception_doc</td><td>Read or write the project inception. Empty body returns the current <code>inception.md</code> (or the default template); non-empty writes.</td></tr>
+          <tr><td>sprint_plan</td><td>Render the iteration plan: top of priority up to rolling velocity, plus a below-line backlog. Flags missing acceptance criteria, oversized features, unestimated features, overcommit.</td></tr>
+
+          <tr class="group"><td colspan="2">Write · 26 tools</td></tr>
+          <tr><td>create_backlog</td><td>Create a new backlog folder along with sample feature, bug, and chore items.</td></tr>
+          <tr><td>create_item</td><td>Create a new item with a title.</td></tr>
+          <tr><td>archive_items</td><td>Archive every active item modified on or before a date.</td></tr>
+          <tr><td>set_status</td><td>Change the status of an item to one of unstarted, started, finished, delivered, accepted, or rejected. The matching timestamp is stamped automatically.</td></tr>
+          <tr><td>reject_item</td><td>Transition to rejected and append a dated note under "## Rejection notes". Optional <code>failing_bullet</code> cites the acceptance bullet that failed and reopens it from <code>[~]</code> back to <code>[ ]</code>.</td></tr>
+          <tr><td>set_acceptance_state</td><td>Flip one acceptance bullet's state. Open / claimed / verified. The agent marks bullets claimed at delivery; the PM ceremony marks them verified at acceptance time.</td></tr>
+          <tr><td>append_acceptance_bullet</td><td>Append a new open acceptance bullet to a story. Creates the Acceptance section if missing.</td></tr>
+          <tr><td>set_assigned</td><td>Assign an item to one user (string) or up to three (array). Single-owner items keep the YAML scalar form on disk.</td></tr>
+          <tr><td>set_estimate</td><td>Set the story-point estimate.</td></tr>
+          <tr><td>set_hypothesis</td><td>Set the <code>hypothesis:</code> frontmatter on a story.</td></tr>
+          <tr><td>set_tags</td><td>Replace the tags list on an item.</td></tr>
+          <tr><td>set_epic</td><td>Attach a story to an epic slug, or pass an empty slug to clear it.</td></tr>
+          <tr><td>set_description</td><td>Replace the markdown body of an item. Frontmatter is preserved.</td></tr>
+          <tr><td>change_tag</td><td>Rename a tag across every item carrying it.</td></tr>
+          <tr><td>delete_tag</td><td>Remove a tag from every item that carries it.</td></tr>
+          <tr><td>set_iteration_override</td><td>Set a per-iteration team-strength or length override. Mirrors the Pivotal <code>iteration_override</code> resource.</td></tr>
+          <tr><td>rank_item</td><td>Reorder an item inside <code>_priority.md</code> using top, bottom, after, or before.</td></tr>
+          <tr><td>move_to_icebox</td><td>Move a priority item into the icebox.</td></tr>
+          <tr><td>move_to_priority</td><td>Move icebox items into priority. Input order is preserved during a bulk move.</td></tr>
+          <tr><td>block_item</td><td>Mark a story as blocked, optionally with a reason. UIs render a blocked badge.</td></tr>
+          <tr><td>unblock_item</td><td>Clear a story's blocked flag and reason.</td></tr>
+          <tr><td>add_comment</td><td>Append a dated comment under "## Comments" on an item.</td></tr>
+          <tr><td>add_task</td><td>Append a checkbox task under "## Tasks" on an item.</td></tr>
+          <tr><td>set_task_done</td><td>Toggle the checkbox of a task by 1-based index.</td></tr>
+          <tr><td>team_agreements</td><td>Read or overwrite <code>team-agreements.md</code> at the project root.</td></tr>
+          <tr><td>record_learning</td><td>Append a dated one-line learning to <code>learnings.md</code>.</td></tr>
+
+          <tr class="group"><td colspan="2">Run · 13 tools</td></tr>
+          <tr><td>validate</td><td>Run schema validation across all items.</td></tr>
+          <tr><td>sync</td><td>Regenerate derived views, enforce the priority/icebox invariant, commit, and push.</td></tr>
+          <tr><td>velocity_chart</td><td>Render an ASCII bar chart of accepted points per iteration.</td></tr>
+          <tr><td>velocity_history</td><td>Structured velocity history rows: iteration, planned, accepted, length_weeks, team_strength.</td></tr>
+          <tr><td>burnup_chart</td><td>Per-day burnup rows for an iteration window: day, scope, done. Also returns an ASCII rendering as inline text.</td></tr>
+          <tr><td>type_mix</td><td>Counts and percentages of accepted stories by type (feature, bug, chore, release) over the lookback. Also returns an ASCII bar chart as inline text.</td></tr>
+          <tr><td>timeline_chart</td><td>Render an ASCII Gantt for items carrying a given tag.</td></tr>
+          <tr><td>iteration_view</td><td>Render a single iteration window from <code>_priority.md</code>. Offset 0 is the current iteration.</td></tr>
+          <tr><td>epic_progress</td><td>Render an ASCII burnup for stories sharing an <code>epic:</code> slug.</td></tr>
+          <tr><td>cycle_time_chart</td><td>Report median cycle time and the five longest stories in the backlog.</td></tr>
+          <tr><td>rejection_rate</td><td>Report rejection rate per iteration over the lookback window.</td></tr>
+          <tr><td>cumulative_flow</td><td>Per-day cumulative-flow rows over the last N days (default 30): counts of accepted, in-flight, and backlog stories. Three bands; in-flight is computed from <code>started:</code>. The tool returns both structured rows and an ASCII rendering inline so MCP clients (Claude Desktop / Code) can paste the chart into chat.</td></tr>
+          <tr><td>search</td><td>Substring search across all active stories. Scores title (10), tags (5), path (3), and body matches (up to 5). Returns ranked hits with short snippets.</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- ───────── data api ───────── -->
+    <section id="data-api">
+      <div class="sec-head"><h2>Data API</h2></div>
+      <div class="sec-body">
+        <p class="lead">Every read tool the MCP server exposes is also reachable from the CLI as JSON. Pipe it through <code>jq</code>, parse it from a shell script, or hand it to another agent. No MCP framing, no long-lived process.</p>
+
+        <h3>The verbs</h3>
+        <p>Six new verbs and a <code>--json</code> flag on the existing read views:</p>
+        <div class="term">
+          <div class="term-bar"><span class="lights"><i></i><i></i><i></i></span><span>shell · data export</span><button class="copy">Copy</button></div>
+<pre><code><span class="prompt">$</span> am list-backlogs                <span class="c"># {"backlogs":["product","platform"]}</span>
+<span class="prompt">$</span> am list-items product           <span class="c"># every active item with status, type, points, …</span>
+<span class="prompt">$</span> am get-item product/Login.md    <span class="c"># frontmatter + body + parsed acceptance bullets</span>
+<span class="prompt">$</span> am get-comments product/Login.md
+<span class="prompt">$</span> am history product/Login.md     <span class="c"># git log --follow as JSON</span>
+<span class="prompt">$</span> am search <span class="s">"login"</span> --limit 5
+<span class="prompt">$</span> am whoami                       <span class="c"># {"name":"…","email":"…"} — current git user</span>
+<span class="prompt">$</span> am type-mix                     <span class="c"># feature/bug/chore/release breakdown</span>
+<span class="prompt">$</span> am show cfd --json --days 30    <span class="c"># cumulative flow: accepted / in-flight / backlog per day</span>
+<span class="prompt">$</span> am set-description product/Login.md &lt; new-body.md
+<span class="prompt">$</span> am show priority --json
+<span class="prompt">$</span> am show icebox --json
+<span class="prompt">$</span> am show epic auth-rewrite --json
+<span class="prompt">$</span> am dashboard --json
+<span class="prompt">$</span> am task list product/Login.md --json
+<span class="prompt">$</span> am sprint plan --json
+<span class="prompt">$</span> am velocity --json</code></pre>
+        </div>
+
+        <h3>What it looks like</h3>
+        <p>Shapes match the MCP <code>structuredContent</code> field exactly; the same code reads either side.</p>
+        <div class="term">
+          <div class="term-bar"><span class="lights"><i></i><i></i><i></i></span><span>am dashboard --json</span><button class="copy">Copy</button></div>
+<pre><code>{
+  <span class="k">"velocity"</span>: 10,
+  <span class="k">"velocity_bootstrap"</span>: <span class="s">false</span>,
+  <span class="k">"volatility_percent"</span>: 12,
+  <span class="k">"cycle_time_median_hours"</span>: 38.5,
+  <span class="k">"rejection_rate_latest_percent"</span>: 0,
+  <span class="k">"stories_accepted_total"</span>: 24
+}</code></pre>
+        </div>
+
+        <h3>Pipelines</h3>
+        <p>The point of having one is that you can chain them. A few practical patterns:</p>
+        <div class="term">
+          <div class="term-bar"><span class="lights"><i></i><i></i><i></i></span><span>shell · pipelines</span><button class="copy">Copy</button></div>
+<pre><code><span class="c"># Pull the next-ranked story and read its full body.</span>
+<span class="prompt">$</span> am next | awk <span class="s">'NR==1{print $1}'</span> | xargs am get-item
+
+<span class="c"># Stories started but not yet finished (work in flight).</span>
+<span class="prompt">$</span> am list-items product --status started | jq <span class="s">'.items[].title'</span>
+
+<span class="c"># Blocked items across every backlog.</span>
+<span class="prompt">$</span> am list-backlogs \
+    | jq -r <span class="s">'.backlogs[]'</span> \
+    | while read b; do am list-items <span class="s">"$b"</span> | jq -r --arg b <span class="s">"$b"</span> <span class="s">'.items[] | select(.blocked) | "\($b)\t\(.title)"'</span>; done
+
+<span class="c"># Rolling velocity as a single number, for a status-bar widget.</span>
+<span class="prompt">$</span> am dashboard --json | jq .velocity
+
+<span class="c"># Backup the body of every story before a destructive refactor.</span>
+<span class="prompt">$</span> am list-items product | jq -r <span class="s">'.items[].path'</span> \
+    | while read p; do am get-item <span class="s">"$p"</span> | jq -r .body &gt; <span class="s">"backup/$(basename "$p")"</span>; done</code></pre>
+        </div>
+
+        <h3>The stability contract</h3>
+        <p>JSON field names follow the schema declared in <code>mcpserver/</code>. Once a script depends on a field, that field stays. New fields may appear; existing fields will not be renamed or dropped without a version bump on the binary. The same contract holds for the MCP <code>structuredContent</code> values, because they are literally the same Go structs.</p>
+      </div>
+    </section>
+
+    <!-- ───────── coach ───────── -->
+    <section id="coach">
+      <div class="sec-head"><h2>Coach mode</h2></div>
+      <div class="sec-body">
+        <p class="lead">The agent is the dev pair, the human is the PM. Hard rules refuse, agreements nudge, acceptance belongs to the human.</p>
+
+        <p>The agent writes code, drafts stories, points them, and runs the state machine through <code>delivered</code>. It does not accept its own work. The Pivotal workflow has always run on that two-sided check; the AI-paired version keeps the same seam.</p>
+
+        <h3>How it ships</h3>
+        <p><code>am create-backlog</code> writes four files into your repo, one per agent convention. Same body in each. Different filename so each agent reads its native location.</p>
+
+        <table class="ref">
+          <tr class="group"><td colspan="2">Coach projections (written on first <code>am create-backlog</code>)</td></tr>
+          <tr><td><code>.claude/agilemarkdown-coach.md</code></td><td>The source coach body. Read by Claude Code via the <code>@</code> import in <code>CLAUDE.md</code>.</td></tr>
+          <tr><td><code>CLAUDE.md</code></td><td>Thin file containing <code>@.claude/agilemarkdown-coach.md</code>. If a project already has a CLAUDE.md, the import is the way to attach the coach without overwriting your existing instructions.</td></tr>
+          <tr><td><code>AGENTS.md</code></td><td>Read by OpenAI Codex CLI and emerging agents using the AGENTS.md convention. Carries the full body inline.</td></tr>
+          <tr><td><code>.github/copilot-instructions.md</code></td><td>Read by GitHub Copilot. Full body inline.</td></tr>
+          <tr><td><code>.cursor/rules/coach.mdc</code></td><td>Cursor's project-rule format. <code>alwaysApply: true</code> by default. Full body inline.</td></tr>
+
+          <tr class="group"><td colspan="2">Skills (Claude Code, written on first <code>am create-backlog</code>)</td></tr>
+          <tr><td><code>.claude/skills/am-inception/SKILL.md</code></td><td>Walk the human through running an inception. Captures the six sections into <code>inception.md</code>.</td></tr>
+          <tr><td><code>.claude/skills/am-plan/SKILL.md</code></td><td>Run the IPM. Renders the top of priority up to velocity, surfaces missing acceptance criteria and oversized features, loops on edits.</td></tr>
+          <tr><td><code>.claude/skills/am-align/SKILL.md</code></td><td>Pre-pull alignment. Reads the story, restates the agent's understanding, surfaces ambiguous bullets, asks the PM to confirm before any code is written. The genie safeguard.</td></tr>
+          <tr><td><code>.claude/skills/am-decompose/SKILL.md</code></td><td>Break a problem into Pivotal-sized stories. Each ≤ 8 pts, each independently shippable, each with acceptance criteria.</td></tr>
+          <tr><td><code>.claude/skills/am-accept/SKILL.md</code></td><td>PM acceptance ceremony, bullet-by-bullet. Auto-triggers on "accept this story" or <code>/am-accept</code>. Calls <code>acceptance_prompt</code>, walks each <code>[~]</code> claimed bullet for a yes/no, flips bullets to <code>[x]</code> verified, then transitions to <code>accepted</code>.</td></tr>
+          <tr><td><code>.claude/skills/am-retro/SKILL.md</code></td><td>End-of-iteration retro. Pulls dashboard + velocity history + type mix; runs the three retro questions; offers to record outcomes.</td></tr>
+
+          <tr class="group"><td colspan="2">Enforcement gate (Claude Code hooks)</td></tr>
+          <tr><td><code>.claude/hooks/coach-gate.sh</code></td><td>PreToolUse hook. Reads the JSON envelope, calls <code>am coach-check</code>, exits 2 to block the tool when the planned action breaks a hard rule.</td></tr>
+          <tr><td><code>.claude/settings.json</code></td><td>Wires the gate to <code>mcp__agilemarkdown__set_status</code> and <code>mcp__agilemarkdown__set_estimate</code>. Future re-runs do not overwrite local edits.</td></tr>
+        </table>
+
+        <p>Existing files are never overwritten. The full-body projections (AGENTS.md, copilot-instructions, cursor coach.mdc) share the body in <code>.claude/agilemarkdown-coach.md</code>; a CI drift check compares them after stripping per-format frontmatter.</p>
+
+        <h3>Two layers, two behaviors</h3>
+        <p><strong>Hard rules.</strong> The agent refuses to break these: features are capped at 8 points, bugs and chores are not estimated, the dev pair never accepts its own work, a feature without an <code>## Acceptance</code> section cannot be pulled, an iteration cannot silently overcommit beyond rolling velocity, and releases stay as date markers rather than going through the state machine.</p>
+        <p><strong>Working agreements</strong> (project-local). The agent reads <code>team-agreements.md</code> at the project root every session. Conflicts surface as nudges, not refusals. The human can override with a reason.</p>
+
+        <h3>Three seams</h3>
+        <p>The agent pauses at three moments. At <em>pull</em>, the agent restates the story and asks the PM to confirm before code is written; <code>coach_check(action="pull")</code> refuses when a feature has no acceptance bullets. At <em>delivery</em>, the agent flips claimed bullets to <code>[~]</code> with optional claim notes. At <em>accept</em>, the agent renders <code>acceptance_prompt</code> and walks the PM through the bullets one by one. On a hard-rule violation at any seam, the agent prints the rule, its slug, and the next move, then stops. All three are walked end to end in the <a href="tutorial.html">tutorial</a>.</p>
+
+        <h3>Coach tools</h3>
+        <p>Three MCP tools and three CLI mirrors back the ceremony so any agent gets the same primitives:</p>
+        <table class="ref">
+          <tr><td><code>coach_check</code></td><td>Preflight a planned action. Returns allowed/refused, the rule, its slug, and a suggested next move. <code>am coach-check</code> mirrors it; non-zero exit on refusal.</td></tr>
+          <tr><td><code>acceptance_prompt</code></td><td>Render the PM ceremony from a story file. <code>am accept-prompt ITEM</code> mirrors it.</td></tr>
+          <tr><td><code>iteration_fit</code></td><td>Whether planned points fit rolling velocity. Optionally adds a candidate item to forecast impact. <code>am iteration-fit</code> mirrors it.</td></tr>
+        </table>
+
+        <h3>Enforcement (Claude Code hooks)</h3>
+        <p>Words alone are advisory. To make the hard rules enforced rather than encouraged, agilemarkdown ships a <code>PreToolUse</code> hook that gates two MCP tools.</p>
+        <p>When Claude Code is about to call <code>mcp__agilemarkdown__set_status</code> or <code>mcp__agilemarkdown__set_estimate</code>, the hook fires first, runs <code>am coach-check</code> against the planned action, and exits 2 if the verdict is refused. The tool call aborts and the refusal message surfaces in the conversation. The dev pair can no longer flip <code>accepted</code> on its own work or sneak a 13-point estimate past the cap.</p>
+        <p>The hook is plain bash. It reads the standard PreToolUse JSON envelope from stdin, picks out <code>tool_name</code> and <code>tool_input</code>, runs the matching <code>am</code> verb, and exits accordingly. Edit it freely; future <code>am init</code> runs do not overwrite an existing file.</p>
+        <p>Working agreements stay nudges by design. The hook only refuses hard-rule violations. Agreements live in <code>team-agreements.md</code> and the agent surfaces them as warnings, not as blocked tool calls.</p>
+
+        <h3>Solo mode</h3>
+        <p>One human paired with the agent is the common case. The same person wears both hats: dev's pair and PM. The acceptance prompt still renders, and the human still answers. That pause is what turns "did it run?" into "is this what the user needed?". The agent does not enforce a mode toggle; it trusts the human to answer the second question with care.</p>
+      </div>
+    </section>
+
+    <!-- ───────── commands ───────── -->
+    <section id="commands">
+      <div class="sec-head"><h2>Commands</h2></div>
+      <div class="sec-body">
+        <table class="ref">
+          <tr class="group"><td colspan="2">Bootstrap</td></tr>
+          <tr><td>am init</td><td>Install or refresh the coach-mode projections (CLAUDE.md, AGENTS.md, .github/copilot-instructions.md, .cursor/rules/coach.mdc, .claude/skills/*, .claude/hooks/coach-gate.sh, .claude/settings.json) in an existing repo. Idempotent.</td></tr>
+          <tr><td>am create-backlog NAME</td><td>Create a new backlog folder. On first run, also drops the coach projections (same set as <code>am init</code>).</td></tr>
+          <tr><td>am create-item TITLE</td><td>Create an item under the current backlog.</td></tr>
+          <tr><td>am create-user --name N --email E</td><td>Add a user manually (sync auto-discovers from git).</td></tr>
+          <tr><td>am sync</td><td>Validate, regenerate views, commit, push.</td></tr>
+
+          <tr class="group"><td colspan="2">State transitions</td></tr>
+          <tr><td>am start ITEM</td><td>Mark started (in progress).</td></tr>
+          <tr><td>am finish ITEM</td><td>Mark finished (dev complete). Stamps <code>finished</code>.</td></tr>
+          <tr><td>am deliver ITEM</td><td>Mark delivered (deployed). Stamps <code>delivered</code>.</td></tr>
+          <tr><td>am accept ITEM</td><td>Mark accepted. Stamps <code>accepted</code>; counts toward velocity.</td></tr>
+          <tr><td>am reject ITEM [--reason "…"] [--failing-bullet N]</td><td>Reject; clears <code>accepted</code>; with <code>--reason</code>, appends a dated note. With <code>--failing-bullet N</code>, the note cites the failing acceptance bullet and reopens it from <code>[~]</code> to <code>[ ]</code>.</td></tr>
+
+          <tr class="group"><td colspan="2">Item fields</td></tr>
+          <tr><td>am estimate ITEM POINTS</td><td>Set the story-point estimate.</td></tr>
+          <tr><td>am tag ITEM TAG …</td><td>Set tags (replace), or <code>--add T</code> / <code>--remove T</code>.</td></tr>
+          <tr><td>am epic ITEM SLUG</td><td>Attach to an epic, or <code>--unset</code> to clear.</td></tr>
+          <tr><td>am hypothesis ITEM "text"</td><td>Set the hypothesis frontmatter.</td></tr>
+          <tr><td>am strength NUMBER VALUE [--length N]</td><td>Per-iteration team-strength override. <code>--unset</code> clears; <code>--list</code> lists active overrides.</td></tr>
+          <tr><td>am team-agreements [--add "…" | --set "…"]</td><td>Read, append a bullet, or overwrite <code>team-agreements.md</code>. <code>--add</code> is the retro path.</td></tr>
+          <tr><td>am record-learning "note"</td><td>Append a dated one-line learning to <code>learnings.md</code>.</td></tr>
+
+          <tr class="group"><td colspan="2">Ranking · priority · icebox</td></tr>
+          <tr><td>am rank ITEM --top|--bottom|--after X|--before X</td><td>Reorder inside <code>_priority.md</code>.</td></tr>
+          <tr><td>am ice ITEM [--top]</td><td>Move item from priority to icebox.</td></tr>
+          <tr><td>am unice ITEM [--top|--after X]</td><td>Promote item from icebox to priority.</td></tr>
+          <tr><td>am unice --all</td><td>Bulk-move whole icebox to bottom of priority, preserves order.</td></tr>
+
+          <tr class="group"><td colspan="2">Views</td></tr>
+          <tr><td>am show priority [--json]</td><td>ASCII render with iteration bands sized by velocity. <code>--json</code> emits the structured priority list (see <a href="#data-api">data API</a>).</td></tr>
+          <tr><td>am show icebox [--json]</td><td>Plain stack-rank list. <code>--json</code> emits structured rows.</td></tr>
+          <tr><td>am show iteration [N]</td><td>One iteration window; 0 = current, 1 = next.</td></tr>
+          <tr><td>am show epic SLUG [--json]</td><td>ASCII burnup for an epic. <code>--json</code> emits counts plus the ASCII as a field.</td></tr>
+          <tr><td>am show burnup [N] [--json]</td><td>Per-day ASCII burnup for an iteration window. 0 = current. <code>--json</code> emits structured rows.</td></tr>
+          <tr><td>am show cfd [--days N] [--json]</td><td>Project cumulative-flow diagram as ASCII: accepted / in-flight / backlog per day. Default window is 30 days.</td></tr>
+          <tr><td>am dashboard [--json]</td><td>One-block project dashboard: velocity, volatility, cycle time, rejection rate, accepted total. <code>--json</code> emits structured fields.</td></tr>
+          <tr><td>am next</td><td>Print the next pull (top-ranked unstarted, unblocked story).</td></tr>
+          <tr><td>am velocity [N] [--json]</td><td>ASCII velocity chart for last N iterations, or <code>--json</code> for structured rows.</td></tr>
+          <tr><td>am cycle-time</td><td>Median cycle time (<code>started</code> → <code>accepted</code>) for the current backlog plus the five longest stories.</td></tr>
+          <tr><td>am rejection-rate</td><td>Per-iteration rejection rate over the rolling lookback window.</td></tr>
+
+          <tr class="group"><td colspan="2">Coach</td></tr>
+          <tr><td>am coach</td><td>Print the coach's read on the project: pending acceptance, blocked stories, rolling velocity, next pull, working agreements, recent learnings.</td></tr>
+          <tr><td>am inception [--show]</td><td>Seed the project's inception document at <code>inception.md</code>. With <code>--show</code>, print the current doc.</td></tr>
+          <tr><td>am sprint plan [--json]</td><td>Render the iteration plan for the current backlog. <code>--json</code> emits the structured commit + warnings.</td></tr>
+          <tr><td>am retro</td><td>Print an end-of-iteration summary plus the three retro questions and the helper commands for capturing outputs.</td></tr>
+          <tr><td>am pull</td><td>Pull the next-ranked unstarted, unblocked story (combines <code>next</code> and <code>start</code>).</td></tr>
+          <tr><td>am deliver ITEM [--prompt]</td><td>Mark delivered. With <code>--prompt</code>, immediately render the PM acceptance ceremony.</td></tr>
+          <tr><td>am accept-prompt ITEM</td><td>Render the PM acceptance ceremony for a delivered story.</td></tr>
+          <tr><td>am estimate ITEM N [--advise]</td><td>Set the story-point estimate. <code>--advise</code> prints the Pivotal framing and exits without writing.</td></tr>
+          <tr><td>am coach-check ACTION [--path P] [--status S] [--estimate N] [--type T]</td><td>Preflight an action against the hard rules. Actions: <code>set_status</code>, <code>set_estimate</code>, <code>create_item</code>, <code>pull</code>. Non-zero exit on refusal. <code>--action ACTION</code> works as a flag synonym.</td></tr>
+          <tr><td>am iteration-fit [--candidate P]</td><td>Report whether planned iteration points fit rolling velocity.</td></tr>
+
+          <tr class="group"><td colspan="2">Acceptance bullets</td></tr>
+          <tr><td>am acceptance list ITEM</td><td>Print the bullets with state markers and indices.</td></tr>
+          <tr><td>am acceptance add ITEM "text"</td><td>Append a new open bullet.</td></tr>
+          <tr><td>am acceptance claim ITEM N [--note "…"]</td><td>Flip bullet N to claimed; the optional note rides along as a trailing HTML comment.</td></tr>
+          <tr><td>am acceptance verify ITEM N</td><td>Flip bullet N to verified.</td></tr>
+          <tr><td>am acceptance reopen ITEM N</td><td>Flip bullet N back to open.</td></tr>
+          <tr><td>am align ITEM</td><td>Print a structured pre-pull view of a story: title, type, estimate, acceptance bullets with state, and any warnings.</td></tr>
+
+          <tr class="group"><td colspan="2">Story collaboration</td></tr>
+          <tr><td>am block ITEM [--reason "…"]</td><td>Mark a story blocked, optionally with a reason.</td></tr>
+          <tr><td>am unblock ITEM</td><td>Clear a story's blocked flag.</td></tr>
+          <tr><td>am comment ITEM "text"</td><td>Append a dated comment under "## Comments".</td></tr>
+          <tr><td>am task list ITEM [--json]</td><td>List checkbox tasks on an item. <code>--json</code> emits structured rows.</td></tr>
+          <tr><td>am task add ITEM "text"</td><td>Append an unchecked task.</td></tr>
+          <tr><td>am task tick ITEM N [--undo]</td><td>Toggle a task by 1-based index.</td></tr>
+
+          <tr class="group"><td colspan="2">Data export (JSON)</td></tr>
+          <tr><td>am list-backlogs</td><td>Emit the project's backlog names as JSON: <code>{"backlogs":[…]}</code>.</td></tr>
+          <tr><td>am list-items BACKLOG [--status S] [--tag T]</td><td>Emit every active item in a backlog as JSON. Filters narrow by status or tag.</td></tr>
+          <tr><td>am get-item ITEM</td><td>Emit a single item's frontmatter plus body (and parsed acceptance bullets) as JSON.</td></tr>
+          <tr><td>am get-comments ITEM</td><td>Emit an item's <code>## Comments</code> section as JSON.</td></tr>
+          <tr><td>am type-mix</td><td>Emit the feature / bug / chore / release breakdown of accepted work as JSON.</td></tr>
+          <tr><td>am search QUERY [--limit N]</td><td>Substring search across all stories. Scores title, tags, path, and body; emits ranked hits with snippets as JSON.</td></tr>
+          <tr><td>am history ITEM [--limit N]</td><td>Emit git commits that touched ITEM (newest first) as JSON. Uses <code>git log --follow</code> so renames are tracked.</td></tr>
+          <tr><td>am whoami</td><td>Emit the current git user (name + email) as JSON. Used by clients filtering "my work".</td></tr>
+          <tr><td>am set-description ITEM &lt; new-body.md</td><td>Replace an item's body. New markdown is read from stdin.</td></tr>
+
+          <tr class="group"><td colspan="2">Bulk · admin</td></tr>
+          <tr><td>am assign ITEM USER…</td><td>Assign one or more users (up to 3) to a story.</td></tr>
+          <tr><td>am timeline TAG</td><td>Edit start/end dates for items with a tag.</td></tr>
+          <tr><td>am archive YYYY-MM-DD</td><td>Archive items finished before a date.</td></tr>
+          <tr><td>am change-tag OLD NEW</td><td>Rename a tag across every item carrying it.</td></tr>
+          <tr><td>am delete-tag TAG</td><td>Remove a tag from every item carrying it.</td></tr>
+          <tr><td>am change-user OLD NEW</td><td>Reassign every item from OLD to NEW.</td></tr>
+          <tr><td>am delete-user NAME</td><td>Remove a <code>users/&lt;name&gt;.md</code> file.</td></tr>
+          <tr><td>am import CSV</td><td>Import a Pivotal Tracker CSV export.</td></tr>
+          <tr><td>am mcp</td><td>Run the MCP stdio server.</td></tr>
+          <tr><td>am alias am</td><td>Add a Bash alias with completion.</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- ───────── working with a team ───────── -->
+    <section id="multiuser">
+      <div class="sec-head"><h2>Working with a team</h2></div>
+      <div class="sec-body">
+        <p class="lead">Use git. Concurrent edits, attribution, history, access control, and audit are whatever your git host already does for code.</p>
+        <p>Generated views (<code>index.md</code>, <code>velocity.md</code>, <code>timeline.md</code>, <code>users.md</code>, <code>tags/*.md</code>) regenerate every <code>am sync</code>. Set <code>merge=ours</code> on those paths in <code>.gitattributes</code> if the merges get noisy.</p>
+      </div>
+    </section>
+
+    <footer class="colophon">
+      <div class="top">
+        <h4><em>agilemarkdown</em></h4>
+        <span>MIT · © 2026 Matt Reider</span>
+      </div>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+  document.querySelectorAll(".term .copy").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var pre = btn.closest(".term").querySelector("pre");
+      if (!pre) return;
+      var text = pre.innerText;
+      navigator.clipboard.writeText(text).then(function () {
+        var prev = btn.textContent;
+        btn.textContent = "Copied";
+        setTimeout(function () { btn.textContent = prev; }, 1400);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

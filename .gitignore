@@ -14,3 +14,16 @@
 .glide/
 
 .idea/
+
+# Local Claude Code state. The shipped artifacts (skills, hooks,
+# settings.json) stay tracked; everything else under .claude/ is
+# local-only.
+.claude/settings.local.json
+.claude/projects/
+.claude/cache/
+.claude/state/
+.claude/conversations/
+
+# Build artifacts
+agilemarkdown
+agilemarkdown_bash_autocomplete

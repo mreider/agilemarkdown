@@ -1,14 +1,14 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/mreider/agilemarkdown/autocomplete"
 	"github.com/mreider/agilemarkdown/backlog"
 	"github.com/mreider/agilemarkdown/commands"
 	"github.com/mreider/agilemarkdown/git"
-	"gopkg.in/urfave/cli.v1"
+	"github.com/urfave/cli/v3"
 	"log"
-	"math/rand"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -36,42 +36,81 @@ func main() {
 		fmt.Printf("can't set bash autocomplete: %v\n", err)
 	}
 
-	rand.Seed(time.Now().Unix())
-
-	i, err := strconv.ParseInt(version, 10, 64)
-	if err == nil {
+	if i, err := strconv.ParseInt(version, 10, 64); err == nil {
 		version = time.Unix(i, 0).UTC().Format("2006.01.02.150405")
 	}
 
-	app := cli.NewApp()
-	app.Version = version
-	app.EnableBashCompletion = true
-	app.Description = "A framework for managing a backlog using Git, Markdown, and YAML"
-	app.Usage = app.Description
-
-	app.Commands = []cli.Command{
-		commands.CreateBacklogCommand,
-		commands.CreateItemCommand,
-		commands.CreateIdeaCommand,
-		commands.NewSyncCommand(),
-		commands.WorkCommand,
-		commands.PointsCommand,
-		commands.AssignUserCommand,
-		commands.ChangeStatusCommand,
-		commands.VelocityCommand,
-		commands.AliasCommand,
-		commands.ImportCommand,
-		commands.ArchiveCommand,
-		commands.TimelineCommand,
-		commands.DeleteTagCommand,
-		commands.ChangeTagCommand,
-		commands.CreateUserCommand,
-		commands.DeleteUserCommand,
-		commands.ChangeUserCommand,
+	app := &cli.Command{
+		Name:                  "agilemarkdown",
+		Version:               version,
+		Description:           "A framework for managing a backlog using Git, Markdown, and YAML",
+		Usage:                 "A framework for managing a backlog using Git, Markdown, and YAML",
+		EnableShellCompletion: true,
+		Commands: []*cli.Command{
+			commands.InitCommand,
+			commands.CreateBacklogCommand,
+			commands.CreateItemCommand,
+			commands.NewSyncCommand(),
+			commands.AssignUserCommand,
+			commands.ChangeStatusCommand,
+			commands.VelocityCommand,
+			commands.AliasCommand,
+			commands.ImportCommand,
+			commands.ArchiveCommand,
+			commands.TimelineCommand,
+			commands.DeleteTagCommand,
+			commands.ChangeTagCommand,
+			commands.CreateUserCommand,
+			commands.DeleteUserCommand,
+			commands.ChangeUserCommand,
+			commands.StartCommand,
+			commands.FinishCommand,
+			commands.DeliverCommand,
+			commands.AcceptCommand,
+			commands.RejectCommand,
+			commands.RankCommand,
+			commands.IceCommand,
+			commands.UnIceCommand,
+			commands.ShowCommand,
+			commands.EstimateCommand,
+			commands.TagCommand,
+			commands.EpicCommand,
+			commands.HypothesisCommand,
+			commands.StrengthCommand,
+			commands.CycleTimeCommand,
+			commands.RejectionRateCommand,
+			commands.TeamAgreementsCommand,
+			commands.RecordLearningCommand,
+			commands.BlockCommand,
+			commands.UnblockCommand,
+			commands.CommentCommand,
+			commands.TaskCommand,
+			commands.AcceptanceCommand,
+			commands.AlignCommand,
+			commands.DashboardCommand,
+			commands.NextCommand,
+			commands.AcceptancePromptCommand,
+			commands.CoachCheckCommand,
+			commands.CoachStatusCommand,
+			commands.IterationFitCommand,
+			commands.InceptionCommand,
+			commands.SprintCommand,
+			commands.RetroCommand,
+			commands.PullCommand,
+			commands.ListBacklogsCommand,
+			commands.ListItemsCommand,
+			commands.GetItemCommand,
+			commands.GetCommentsCommand,
+			commands.TypeMixCommand,
+			commands.WhoamiCommand,
+			commands.HistoryCommand,
+			commands.SearchCommand,
+			commands.SetDescriptionCommand,
+			commands.NewMCPCommand(version),
+		},
 	}
 
-	err = app.Run(os.Args)
-	if err != nil {
+	if err := app.Run(context.Background(), os.Args); err != nil {
 		log.Fatal(err)
 	}
 }

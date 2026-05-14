@@ -1,0 +1,127 @@
+/* Three-surface screenshot widget shared by the landing and the
+   tutorials. Each instance is a <figure class="surface-shot"> with a
+   tab strip and three panels (one per surface: cli, extension,
+   claude). Panels are either a placeholder div or an <img> with the
+   matching data-surface attribute. */
+
+figure.surface-shot { margin: 28px 0 32px; }
+.surface-tabs {
+  display: flex;
+  border: 1px solid var(--rule);
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+  background: var(--paper-2);
+  overflow: hidden;
+}
+.surface-tabs button {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 0;
+  border-right: 1px solid var(--rule);
+  padding: 12px 16px;
+  cursor: pointer;
+  color: var(--ink-3);
+  flex: 1;
+  transition: color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+.surface-tabs button:last-child { border-right: 0; }
+.surface-tabs button:hover { color: var(--ink); background: var(--paper); }
+.surface-tabs button[aria-selected="true"] {
+  color: var(--accent);
+  background: var(--paper);
+  box-shadow: inset 0 -2px 0 var(--accent);
+  font-weight: 600;
+}
+.surface-tabs button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -3px;
+}
+.surface-panels {
+  position: relative;
+  display: grid;
+  border: 1px solid var(--rule);
+  border-top: 0;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+}
+.surface-panel {
+  grid-area: 1 / 1;
+  opacity: 0;
+  transition: opacity 0.15s;
+  pointer-events: none;
+}
+img.surface-panel {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.surface-panel.placeholder {
+  aspect-ratio: 16 / 10;
+  background: oklch(0.18 0.012 60);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 28px 36px;
+  text-align: center;
+}
+.surface-panel.placeholder .label {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: oklch(0.78 0.13 38);
+}
+.surface-panel.placeholder .what {
+  font-family: "Source Serif 4", serif;
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.5;
+  color: oklch(0.93 0.012 82);
+  max-width: 560px;
+  margin: 0;
+}
+figure.surface-shot[data-active="cli"] .surface-panel[data-surface="cli"],
+figure.surface-shot[data-active="extension"] .surface-panel[data-surface="extension"],
+figure.surface-shot[data-active="claude"] .surface-panel[data-surface="claude"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+figure.surface-shot figcaption {
+  font-family: "Source Serif 4", serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--ink-3);
+  text-align: center;
+  margin-top: 12px;
+  line-height: 1.5;
+}
+
+/* Optional rail switcher (only present on pages that include it).
+   Pages without a rail can skip this block. */
+.surface-switcher { display: flex; flex-direction: column; gap: 4px; margin: 0 0 4px; }
+.surface-switcher .mark { margin-bottom: 6px; }
+.surface-switcher button {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 6px 8px;
+  cursor: pointer;
+  color: var(--ink-2);
+  text-align: left;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.surface-switcher button:hover { color: var(--ink); border-color: var(--rule-2); }
+.surface-switcher button[aria-checked="true"] {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--paper);
+  font-weight: 600;
+}

@@ -1,19 +1,20 @@
 package commands
 
 import (
+	"context"
 	"fmt"
 	"github.com/mreider/agilemarkdown/actions"
 	"github.com/mreider/agilemarkdown/backlog"
 	"github.com/mreider/agilemarkdown/git"
-	"gopkg.in/urfave/cli.v1"
+	"github.com/urfave/cli/v3"
 	"strings"
 )
 
-var CreateBacklogCommand = cli.Command{
+var CreateBacklogCommand = &cli.Command{
 	Name:      "create-backlog",
 	Usage:     "Create a new backlog",
 	ArgsUsage: "BACKLOG_NAME",
-	Action: func(c *cli.Context) error {
+	Action: func(ctx context.Context, c *cli.Command) error {
 		if err := checkIsRootDirectory("."); err != nil {
 			out, statusErr := git.Status()
 			if statusErr != nil && strings.Contains(out, "fatal: not a git repository") {
@@ -35,7 +36,7 @@ var CreateBacklogCommand = cli.Command{
 			return nil
 		}
 
-		backlogName := strings.Join(c.Args(), " ")
+		backlogName := strings.Join(c.Args().Slice(), " ")
 
 		action := actions.NewCreateBacklogAction(".", backlogName)
 		return action.Execute()

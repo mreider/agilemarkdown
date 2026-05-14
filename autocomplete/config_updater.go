@@ -1,7 +1,6 @@
 package autocomplete
 
 import (
-	"io/ioutil"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -16,7 +15,7 @@ func addLineToConfig(configPath, line string) error {
 	if err != nil {
 		return err
 	}
-	content, err := ioutil.ReadFile(configPath)
+	content, err := os.ReadFile(configPath)
 	if err != nil {
 		return err
 	}
@@ -43,7 +42,7 @@ func addLineToConfig(configPath, line string) error {
 	lines = append(lines, "")
 
 	tempFilePath := configPath + "." + strconv.FormatInt(time.Now().Unix(), 10)
-	err = ioutil.WriteFile(tempFilePath, []byte(strings.Join(lines, "\n")), stat.Mode())
+	err = os.WriteFile(tempFilePath, []byte(strings.Join(lines, "\n")), stat.Mode())
 	if err != nil {
 		return err
 	}

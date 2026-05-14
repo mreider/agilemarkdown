@@ -3,7 +3,6 @@ package autocomplete
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -40,13 +39,13 @@ func getBashAutoCompleteScriptPath() (string, error) {
 	}
 	autoCompleteScript := []byte(fmt.Sprintf(bashAutoCompleteScript, absCmdPath))
 	if err == nil {
-		currentScript, err := ioutil.ReadFile(autoCompleteScriptPath)
+		currentScript, err := os.ReadFile(autoCompleteScriptPath)
 		if err == nil && bytes.Equal(autoCompleteScript, currentScript) {
 			return autoCompleteScriptPath, nil
 		}
 	}
 
-	err = ioutil.WriteFile(autoCompleteScriptPath, autoCompleteScript, 0644)
+	err = os.WriteFile(autoCompleteScriptPath, autoCompleteScript, 0644)
 	if err != nil {
 		return "", err
 	}

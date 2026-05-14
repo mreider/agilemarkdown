@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/mreider/agilemarkdown/git"
 	"github.com/mreider/agilemarkdown/utils"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -117,7 +116,7 @@ func (ul *UserList) init() error {
 }
 
 func (ul *UserList) load() error {
-	items, err := ioutil.ReadDir(ul.usersDir)
+	items, err := os.ReadDir(ul.usersDir)
 	users := make([]*User, 0, len(items))
 	if err == nil {
 		for _, item := range items {
@@ -153,7 +152,7 @@ func (ul *UserList) Users() []*User {
 }
 
 func (ul *UserList) fixObsoleteUserFiles() error {
-	items, err := ioutil.ReadDir(ul.usersDir)
+	items, err := os.ReadDir(ul.usersDir)
 	if err != nil {
 		return err
 	}
@@ -176,7 +175,7 @@ func (ul *UserList) fixObsoleteUserFiles() error {
 
 		user, _ := LoadUser(itemPath + ".md")
 		user.SetName(item.Name())
-		content, err := ioutil.ReadFile(itemPath)
+		content, err := os.ReadFile(itemPath)
 		if err != nil {
 			return err
 		}

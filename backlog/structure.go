@@ -1,19 +1,17 @@
 package backlog
 
 import (
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 )
 
 const (
-	configFileName        = ".config.json"
+	configFileName        = ".am/config.yaml"
 	indexFileName         = "index.md"
 	velocityFileName      = "velocity.md"
 	velocityDirectoryName = "velocity"
-	ideasDirectoryName    = "ideas"
-	ideasFileName         = "ideas.md"
 	archiveDirectoryName  = "archive"
 	TagsDirectoryName     = "tags"
 	TagsFileName          = "tags.md"
@@ -24,8 +22,8 @@ const (
 )
 
 var (
-	ForbiddenBacklogNames = []string{velocityDirectoryName, ideasDirectoryName, archiveDirectoryName, TagsDirectoryName, usersDirectoryName, timelineDirectoryName}
-	ForbiddenItemNames    = []string{archiveDirectoryName}
+	ForbiddenBacklogNames = []string{velocityDirectoryName, archiveDirectoryName, TagsDirectoryName, usersDirectoryName, timelineDirectoryName}
+	ForbiddenItemNames    = []string{archiveDirectoryName, "_priority", "_icebox"}
 )
 
 type BacklogsStructure struct {
@@ -64,16 +62,8 @@ func (s *BacklogsStructure) TimelineFile() string {
 	return filepath.Join(s.root, timelineFileName)
 }
 
-func (s *BacklogsStructure) IdeasFile() string {
-	return filepath.Join(s.root, ideasFileName)
-}
-
 func (s *BacklogsStructure) UsersDirectory() string {
 	return filepath.Join(s.root, usersDirectoryName)
-}
-
-func (s *BacklogsStructure) IdeasDirectory() string {
-	return filepath.Join(s.root, ideasDirectoryName)
 }
 
 func (s *BacklogsStructure) TagsDirectory() string {
@@ -85,7 +75,7 @@ func (s *BacklogsStructure) TimelineDirectory() string {
 }
 
 func (s *BacklogsStructure) BacklogDirs() ([]string, error) {
-	infos, err := ioutil.ReadDir(s.root)
+	infos, err := os.ReadDir(s.root)
 	if err != nil {
 		return nil, err
 	}

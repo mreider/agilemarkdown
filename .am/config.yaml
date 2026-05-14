@@ -1,0 +1,20 @@
+estimation:
+    scale: fibonacci
+    values:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 5
+        - 8
+iteration:
+    length_weeks: 1
+    start_day: monday
+    timezone: UTC
+velocity:
+    strategy: rolling
+    lookback: 3
+    manual: 10
+story_types:
+    bug_estimable: false
+    chore_estimable: false

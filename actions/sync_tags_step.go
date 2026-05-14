@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/mreider/agilemarkdown/backlog"
 	"github.com/mreider/agilemarkdown/utils"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
@@ -29,7 +28,7 @@ func (s *SyncTagsStep) Execute() error {
 		return err
 	}
 
-	allTags, itemsTags, ideasTags, overviews, err := backlog.ItemsAndIdeasTags(s.root)
+	allTags, itemsTags, overviews, err := backlog.ItemsTags(s.root)
 	if err != nil {
 		return err
 	}
@@ -37,25 +36,24 @@ func (s *SyncTagsStep) Execute() error {
 	tagsFileNames := make(map[string]bool)
 	for tag := range allTags {
 		tagItems := itemsTags[tag]
-		tagIdeas := ideasTags[tag]
-		tagFileName, err := s.updateTagPage(tagsDir, tag, tagItems, overviews, tagIdeas, s.userList)
+		tagFileName, err := s.updateTagPage(tagsDir, tag, tagItems, overviews, s.userList)
 		if err != nil {
 			return err
 		}
 		tagsFileNames[tagFileName] = true
 	}
 
-	infos, _ := ioutil.ReadDir(tagsDir)
+	infos, _ := os.ReadDir(tagsDir)
 	for _, info := range infos {
 		if _, ok := tagsFileNames[info.Name()]; !ok {
 			_ = os.Remove(filepath.Join(tagsDir, info.Name()))
 		}
 	}
 
-	return s.updateTagsPage(tagsDir, itemsTags, ideasTags)
+	return s.updateTagsPage(tagsDir, itemsTags)
 }
 
-func (s *SyncTagsStep) updateTagPage(tagsDir, tag string, items []*backlog.BacklogItem, overviews map[*backlog.BacklogItem]*backlog.BacklogOverview, ideas []*backlog.BacklogIdea, userList *backlog.UserList) (string, error) {
+func (s *SyncTagsStep) updateTagPage(tagsDir, tag string, items []*backlog.BacklogItem, overviews map[*backlog.BacklogItem]*backlog.BacklogOverview, userList *backlog.UserList) (string, error) {
 	itemsByStatus := make(map[string][]*backlog.BacklogItem)
 	for _, item := range items {
 		itemStatus := strings.ToLower(item.Status())
@@ -82,32 +80,15 @@ func (s *SyncTagsStep) updateTagPage(tagsDir, tag string, items []*backlog.Backl
 		lines = append(lines, itemsLines...)
 		lines = append(lines, "")
 	}
-	if len(ideas) > 0 {
-		lines = append(lines, "## Ideas")
-		lines = append(lines, "")
-		ideasLines := backlog.BacklogView{}.WriteMarkdownIdeas(ideas, tagsDir, tagsDir)
-		lines = append(lines, ideasLines...)
-		lines = append(lines, "")
-	}
 	tagFileName := fmt.Sprintf("%s.md", utils.GetValidFileName(tag))
-	err := ioutil.WriteFile(filepath.Join(tagsDir, tagFileName), []byte(strings.Join(lines, "\n")), 0644)
+	err := os.WriteFile(filepath.Join(tagsDir, tagFileName), []byte(strings.Join(lines, "\n")), 0644)
 	return tagFileName, err
 }
 
-func (s *SyncTagsStep) updateTagsPage(tagsDir string, itemsTags map[string][]*backlog.BacklogItem, ideasTags map[string][]*backlog.BacklogIdea) error {
-	allTagsSet := make(map[string]bool)
-	allTags := make([]string, 0, len(itemsTags)+len(ideasTags))
+func (s *SyncTagsStep) updateTagsPage(tagsDir string, itemsTags map[string][]*backlog.BacklogItem) error {
+	allTags := make([]string, 0, len(itemsTags))
 	for tag := range itemsTags {
-		if !allTagsSet[tag] {
-			allTagsSet[tag] = true
-			allTags = append(allTags, tag)
-		}
-	}
-	for tag := range ideasTags {
-		if !allTagsSet[tag] {
-			allTagsSet[tag] = true
-			allTags = append(allTags, tag)
-		}
+		allTags = append(allTags, tag)
 	}
 	sort.Strings(allTags)
 
@@ -117,5 +98,5 @@ func (s *SyncTagsStep) updateTagsPage(tagsDir string, itemsTags map[string][]*ba
 	for _, tag := range allTags {
 		lines = append(lines, backlog.MakeTagLink(tag, tagsDir, s.root.Root()))
 	}
-	return ioutil.WriteFile(s.root.TagsFile(), []byte(strings.Join(lines, "  \n")), 0644)
+	return os.WriteFile(s.root.TagsFile(), []byte(strings.Join(lines, "  \n")), 0644)
 }

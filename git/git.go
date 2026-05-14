@@ -89,6 +89,14 @@ func Fetch() error {
 	return err
 }
 
+func HasRemote() (bool, error) {
+	out, err := runGitCommand([]string{"remote"})
+	if err != nil {
+		return false, err
+	}
+	return strings.TrimSpace(out) != "", nil
+}
+
 func Merge() (string, error) {
 	args := []string{"merge", "--commit"}
 	return runGitCommand(args)
@@ -122,6 +130,10 @@ func ConflictFiles() ([]string, error) {
 	out, err := runGitCommand(args)
 	if err != nil {
 		return nil, err
+	}
+	out = strings.TrimSpace(out)
+	if out == "" {
+		return nil, nil
 	}
 	return strings.Split(out, "\n"), nil
 }
@@ -191,6 +203,44 @@ func IsRootGitDirectory(dir string) bool {
 	gitFolder := filepath.Join(dir, ".git")
 	_, err := os.Stat(gitFolder)
 	return err == nil
+}
+
+// HistoryEntry is one commit that touched a file, exposed to JSON
+// consumers (CLI --json, MCP) for the per-item History panel.
+type HistoryEntry struct {
+	Hash    string `json:"hash"`
+	Author  string `json:"author"`
+	Email   string `json:"email,omitempty"`
+	When    string `json:"when"`
+	Subject string `json:"subject"`
+}
+
+// HistoryFor returns commits that touched path, newest first.
+// Uses --follow so renames are tracked. limit <= 0 returns all.
+func HistoryFor(path string, limit int) ([]HistoryEntry, error) {
+	args := []string{"log", "--follow", "--no-decorate", "--pretty=format:%H%x1f%an%x1f%ae%x1f%aI%x1f%s"}
+	if limit > 0 {
+		args = append(args, fmt.Sprintf("-n%d", limit))
+	}
+	args = append(args, "--", path)
+	out, err := runGitCommand(args)
+	if err != nil {
+		return nil, err
+	}
+	entries := make([]HistoryEntry, 0)
+	for _, line := range strings.Split(out, "\n") {
+		if line == "" {
+			continue
+		}
+		parts := strings.SplitN(line, "\x1f", 5)
+		if len(parts) < 5 {
+			continue
+		}
+		entries = append(entries, HistoryEntry{
+			Hash: parts[0], Author: parts[1], Email: parts[2], When: parts[3], Subject: parts[4],
+		})
+	}
+	return entries, nil
 }
 
 func runGitCommand(args []string) (string, error) {

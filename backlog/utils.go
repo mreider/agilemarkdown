@@ -2,43 +2,39 @@ package backlog
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 )
 
 const ArchiveFileName = "archive.md"
 
-func ItemsAndIdeasTags(root *BacklogsStructure) (allTags map[string]struct{}, itemsTags map[string][]*BacklogItem, ideasTags map[string][]*BacklogIdea, itemsOverviews map[*BacklogItem]*BacklogOverview, err error) {
+// ItemsTags walks every backlog and returns: the set of tags in use, the
+// items carrying each tag, and a map from item to its backlog overview.
+// Tags are lowercased.
+func ItemsTags(root *BacklogsStructure) (allTags map[string]struct{}, itemsTags map[string][]*BacklogItem, itemsOverviews map[*BacklogItem]*BacklogOverview, err error) {
 	backlogDirs, err := root.BacklogDirs()
 	if err != nil {
-		return nil, nil, nil, nil, err
-	}
-
-	ideasDir := root.IdeasDirectory()
-	ideas, err := LoadIdeas(ideasDir)
-	if err != nil {
-		return nil, nil, nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	allTags = make(map[string]struct{})
 	itemsTags = make(map[string][]*BacklogItem)
-	ideasTags = make(map[string][]*BacklogIdea)
 	itemsOverviews = make(map[*BacklogItem]*BacklogOverview)
 
 	for _, backlogDir := range backlogDirs {
 		overviewPath, ok := FindOverviewFileInRootDirectory(backlogDir)
 		if !ok {
-			return nil, nil, nil, nil, fmt.Errorf("the overview file isn't found for %s", backlogDir)
+			return nil, nil, nil, fmt.Errorf("the overview file isn't found for %s", backlogDir)
 		}
 		overview, err := LoadBacklogOverview(overviewPath)
 		if err != nil {
-			return nil, nil, nil, nil, err
+			return nil, nil, nil, err
 		}
 
 		bck, err := LoadBacklog(backlogDir)
 		if err != nil {
-			return nil, nil, nil, nil, err
+			return nil, nil, nil, err
 		}
 
 		items := bck.ActiveItems()
@@ -52,15 +48,7 @@ func ItemsAndIdeasTags(root *BacklogsStructure) (allTags map[string]struct{}, it
 		}
 	}
 
-	for _, idea := range ideas {
-		for _, tag := range idea.Tags() {
-			tag = strings.ToLower(tag)
-			allTags[tag] = struct{}{}
-			ideasTags[tag] = append(ideasTags[tag], idea)
-		}
-	}
-
-	return allTags, itemsTags, ideasTags, itemsOverviews, nil
+	return allTags, itemsTags, itemsOverviews, nil
 }
 
 func ActiveBacklogItems(root *BacklogsStructure) (items []*BacklogItem, itemsOverviews map[*BacklogItem]*BacklogOverview, err error) {
@@ -117,7 +105,7 @@ func FindOverviewFileInRootDirectory(backlogDir string) (string, bool) {
 	}
 	overviewFileName := fmt.Sprintf("%s.md", overviewName)
 
-	infos, err := ioutil.ReadDir(rootDir)
+	infos, err := os.ReadDir(rootDir)
 	if err != nil {
 		return "", false
 	}
@@ -131,7 +119,7 @@ func FindOverviewFileInRootDirectory(backlogDir string) (string, bool) {
 
 func FindArchiveFileInDirectory(dir string) (string, bool) {
 	dir, _ = filepath.Abs(dir)
-	infos, err := ioutil.ReadDir(dir)
+	infos, err := os.ReadDir(dir)
 	if err != nil {
 		return "", false
 	}

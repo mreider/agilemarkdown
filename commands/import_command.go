@@ -1,16 +1,17 @@
 package commands
 
 import (
+	"context"
 	"fmt"
 	"github.com/mreider/agilemarkdown/actions"
-	"gopkg.in/urfave/cli.v1"
+	"github.com/urfave/cli/v3"
 )
 
-var ImportCommand = cli.Command{
+var ImportCommand = &cli.Command{
 	Name:      "import",
 	Usage:     "Import an existing Pivotal Tracker story",
 	ArgsUsage: "CSV_FILE",
-	Action: func(c *cli.Context) error {
+	Action: func(ctx context.Context, c *cli.Command) error {
 		if err := checkIsBacklogDirectory(); err != nil {
 			fmt.Println(err)
 			return nil
@@ -20,7 +21,7 @@ var ImportCommand = cli.Command{
 			return nil
 		}
 
-		action := actions.NewImportAction(".", c.Args())
+		action := actions.NewImportAction(".", c.Args().Slice())
 		return action.Execute()
 	},
 }

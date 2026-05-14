@@ -22,7 +22,7 @@ func (a *ChangeTagAction) Execute() error {
 		return nil
 	}
 
-	allTags, itemsTags, ideasTags, _, err := backlog.ItemsAndIdeasTags(a.root)
+	allTags, itemsTags, _, err := backlog.ItemsTags(a.root)
 	if err != nil {
 		return err
 	}
@@ -38,17 +38,6 @@ func (a *ChangeTagAction) Execute() error {
 		itemTags = utils.RenameItemIgnoreCase(itemTags, a.oldTag, a.newTag)
 		item.SetTags(itemTags)
 		err := item.Save()
-		if err != nil {
-			return err
-		}
-	}
-
-	tagIdeas := ideasTags[a.oldTag]
-	for _, idea := range tagIdeas {
-		ideaTags := idea.Tags()
-		ideaTags = utils.RenameItemIgnoreCase(ideaTags, a.oldTag, a.newTag)
-		idea.SetTags(ideaTags)
-		err := idea.Save()
 		if err != nil {
 			return err
 		}

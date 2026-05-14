@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tutorial · Claude Code · agilemarkdown</title>
+<meta name="description" content="A full iteration end to end through Claude Code with the coach skills, hooks, and ceremony render. Same scenario as the CLI and extension tutorials." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,500;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper:   oklch(0.974 0.009 82);
+    --paper-2: oklch(0.945 0.012 82);
+    --ink:     oklch(0.205 0.015 60);
+    --ink-2:   oklch(0.36  0.018 60);
+    --ink-3:   oklch(0.52  0.018 65);
+    --rule:    oklch(0.84  0.014 78);
+    --rule-2:  oklch(0.78  0.016 78);
+    --accent:  oklch(0.52  0.135 38);
+    --accent-soft: oklch(0.85 0.06 38);
+    --term-bg: oklch(0.18  0.012 60);
+    --term-fg: oklch(0.93  0.012 82);
+    --term-dim:oklch(0.62  0.012 82);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: "Source Serif 4", Georgia, serif; font-size: 18px; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+  a { color: var(--accent); }
+  code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 0.9em; padding: 1px 4px; background: var(--paper-2); border-radius: 3px; }
+  main { max-width: 760px; margin: 0 auto; padding: 60px 28px 120px; }
+  header.masthead { padding: 80px 0 60px; border-bottom: 1px solid var(--rule); margin-bottom: 60px; }
+  header.masthead a.back { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--ink-3); text-decoration: none; }
+  header.masthead a.back:hover { color: var(--accent); }
+  header.masthead .eyebrow { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--ink-3); margin: 18px 0 14px; }
+  header.masthead h1 { font-size: clamp(36px, 7vw, 64px); font-weight: 600; line-height: 1.05; letter-spacing: -0.025em; margin: 0 0 18px; }
+  header.masthead h1 em { font-style: italic; color: var(--accent); font-weight: 500; }
+  header.masthead .deck { font-size: clamp(17px, 2.8vw, 22px); color: var(--ink-2); line-height: 1.45; max-width: 580px; }
+  @media (max-width: 520px) {
+    main { padding: 36px 18px 80px; }
+    header.masthead { padding: 40px 0 30px; margin-bottom: 36px; }
+  }
+  section { margin: 0 0 70px; }
+  h2 { font-size: 32px; font-weight: 600; line-height: 1.15; letter-spacing: -0.018em; margin: 0 0 22px; border-top: 1px solid var(--rule-2); padding-top: 28px; }
+  h3 { font-size: 21px; font-weight: 600; margin: 36px 0 12px; letter-spacing: -0.015em; }
+  p { margin: 0 0 16px; }
+  ul { margin: 0 0 18px; padding-left: 1.25em; }
+  li { margin-bottom: 6px; }
+  .lead { font-size: 19.5px; color: var(--ink-2); }
+  .turn { border-left: 3px solid var(--accent-soft); padding: 8px 18px; margin: 14px 0; background: var(--paper-2); border-radius: 0 6px 6px 0; }
+  .turn .who { font-family: "JetBrains Mono", monospace; font-size: 10.5px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+  .turn .said { color: var(--ink-2); font-size: 16.5px; line-height: 1.5; }
+  .turn pre { background: var(--term-bg); color: var(--term-fg); padding: 12px 14px; border-radius: 6px; font-size: 12.5px; margin: 8px 0 0; overflow-x: auto; font-family: "JetBrains Mono", ui-monospace, monospace; }
+  .note { background: var(--paper-2); border-left: 3px solid var(--accent); padding: 12px 18px; margin: 18px 0; border-radius: 0 6px 6px 0; font-size: 16px; color: var(--ink-2); }
+  .note .label { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.1em; color: var(--accent); text-transform: uppercase; display: block; margin-bottom: 4px; }
+  footer { margin-top: 80px; padding-top: 24px; border-top: 1px solid var(--rule); font-size: 14px; color: var(--ink-3); }
+  .video {
+    background: var(--paper-2); border: 1px solid var(--rule);
+    border-radius: 12px; padding: 22px 24px; margin: 0 0 40px;
+  }
+  .video .video-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--accent); display: block; margin-bottom: 12px;
+  }
+  .video .placeholder {
+    background: var(--term-bg); color: var(--term-dim);
+    aspect-ratio: 16 / 9; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: "JetBrains Mono", monospace; font-size: 13px;
+    margin-bottom: 14px;
+  }
+  .video h3 { margin: 0 0 10px; font-size: 18px; font-weight: 600; }
+  .video .chapters {
+    margin: 0; padding: 0; list-style: none;
+    font-family: "JetBrains Mono", monospace; font-size: 13.5px;
+    color: var(--ink-2);
+  }
+  .video .chapters li { margin: 0; padding: 3px 0; }
+  .video .chapters code {
+    background: transparent; padding: 0; color: var(--accent); margin-right: 12px;
+  }
+</style>
+<link rel="stylesheet" href="surface-widget.css" />
+</head>
+<body>
+
+<main>
+
+<header class="masthead">
+  <a class="back" href="tutorial.html">← all tutorials</a>
+  <div class="eyebrow">Tutorial · Claude Code</div>
+  <h1>Claude Code <em>walkthrough</em></h1>
+  <p class="deck">The same iteration as the CLI and extension tutorials, run through Claude Code. The agent operates the tools while the human keeps the PM seat at acceptance time. The coach skills and the PreToolUse hook hold the hard rules.</p>
+</header>
+
+<div class="video">
+  <span class="video-label">Video · Claude Code walkthrough</span>
+  <div class="placeholder">[ YouTube embed: agilemarkdown Claude Code walkthrough ]</div>
+  <h3>Chapters</h3>
+  <ul class="chapters">
+    <li><code>0:00</code> Intro</li>
+    <li><code>0:30</code> Inception with <code>/am-inception</code></li>
+    <li><code>2:00</code> Creating stories</li>
+    <li><code>3:30</code> Iteration planning with <code>/am-plan</code></li>
+    <li><code>4:00</code> Pre-pull alignment with <code>/am-align</code></li>
+    <li><code>4:30</code> Story 1: clean accept with <code>/am-accept</code></li>
+    <li><code>6:30</code> Story 2: 8-point cap refusal, <code>/am-decompose</code></li>
+    <li><code>8:00</code> Story 3: rejection with reason</li>
+    <li><code>9:30</code> Retro with <code>/am-retro</code></li>
+  </ul>
+</div>
+
+<section>
+  <h2>What this covers</h2>
+  <p class="lead">Claude Code in VS Code, with agilemarkdown installed. The coach stance lives at <code>.claude/agilemarkdown-coach.md</code> and is pulled into <code>CLAUDE.md</code> via <code>@</code>-import. Six skills (<code>am-inception</code>, <code>am-plan</code>, <code>am-align</code>, <code>am-decompose</code>, <code>am-accept</code>, <code>am-retro</code>) auto-fire on the right phrases. The hook at <code>.claude/hooks/coach-gate.sh</code> blocks any tool call that would break a hard rule.</p>
+  <p>Setup steps live in <a href="tutorial.html#prereqs">Before you start</a> on the tutorials index. After <code>am init</code> in your code repo, open Claude Code and start chatting.</p>
+</section>
+
+<section>
+  <h2>Inception</h2>
+  <div class="turn">
+    <div class="who">You</div>
+    <div class="said">"Let's run an inception. I want to build a command palette for my notes app."</div>
+  </div>
+  <div class="turn">
+    <div class="who">Claude</div>
+    <div class="said">→ <code>/am-inception</code> auto-fires. Skill walks the six questions one at a time.<br /><br />"Who, specifically, are we building this for? Not a demographic, a real person with real circumstances."</div>
+  </div>
+  <div class="turn">
+    <div class="who">You</div>
+    <div class="said">"Me. I keep notes in a markdown vault, 1200+ files, switch windows constantly, and the mouse is too slow."</div>
+  </div>
+  <p>Claude asks the remaining five questions one at a time. After all six answers, the skill calls <code>inception_doc</code> with the assembled body and writes <code>inception.md</code>. Claude prints the doc back and asks if you want to commit it.</p>
+</section>
+
+<section>
+  <h2>Backlog and stories</h2>
+  <div class="turn">
+    <div class="who">You</div>
+    <div class="said">"Make a backlog and seed three stories: cmd-k opens a palette, fuzzy match note titles, recent searches dropdown. Each is a feature, points around 3."</div>
+  </div>
+  <div class="turn">
+    <div class="who">Claude</div>
+    <div class="said">→ <code>create_backlog(name="notes")</code><br />→ <code>create_item</code> × 3<br />→ <code>set_estimate</code> × 3 (3 pts each)<br />→ <code>set_description</code> × 3 with <code>## Acceptance</code> bullets per story (drafted from the inception)<br /><br />"Three stories created with acceptance criteria. Want me to walk you through each before we plan the iteration?"</div>
+  </div>
+  <p>You read each one. Edit a bullet here, add one there. The agent uses <code>set_description</code> to land the changes. The bullets are concrete; you can check them at acceptance time.</p>
+</section>
+
+<section>
+  <h2>Iteration planning</h2>
+  <figure class="surface-shot" data-active="claude">
+    <div class="surface-tabs" role="tablist" aria-label="Surface for iteration planning">
+      <button type="button" role="tab" data-surface="cli" aria-selected="false" tabindex="-1">Shell</button>
+      <button type="button" role="tab" data-surface="extension" aria-selected="false" tabindex="-1">VS Code</button>
+      <button type="button" role="tab" data-surface="claude" aria-selected="true" tabindex="0">Claude Code</button>
+    </div>
+    <div class="surface-panels">
+      <div class="surface-panel placeholder" data-surface="cli" role="tabpanel">
+        <div class="label">am sprint plan</div>
+        <p class="what">Terminal view of the iteration plan with committed stories, velocity, and warnings.</p>
+      </div>
+      <div class="surface-panel placeholder" data-surface="extension" role="tabpanel">
+        <div class="label">Plan tab</div>
+        <p class="what">Same iteration plan in the VS Code panel: committed stories, below-the-line backlog, warnings rail.</p>
+      </div>
+      <div class="surface-panel placeholder" data-surface="claude" role="tabpanel">
+        <div class="label">sprint_plan tool</div>
+        <p class="what">Claude Code rendering the same plan via the MCP sprint_plan tool inside a chat.</p>
+      </div>
+    </div>
+    <figcaption>The same Monday view across all three surfaces.</figcaption>
+  </figure>
+  <div class="turn">
+    <div class="who">You</div>
+    <div class="said">"Plan the iteration."</div>
+  </div>
+  <div class="turn">
+    <div class="who">Claude</div>
+    <div class="said">→ <code>/am-plan</code> auto-fires. Skill calls <code>sprint_plan(backlog="notes")</code>, renders the result.
+<pre>Iteration plan: notes   velocity 10 / iteration
+
+Committed
+  1. ★  Open palette on cmd-k          feature 3p   acceptance: 3
+  2. ★  Fuzzy match note titles        feature 3p   acceptance: 3
+  3. ★  Recent searches dropdown       feature 3p   acceptance: 3
+
+Below the line: (empty)
+Committed: 9 pts. Velocity: 10. Fits.
+No warnings.</pre>
+"Looks clean. Pull the first one?"</div>
+  </div>
+</section>
+
+<section>
+  <h2>The iteration</h2>
+
+  <h3>Story 1 · clean accept</h3>
+  <div class="turn">
+    <div class="who">You</div>
+    <div class="said">"Yes."</div>
+  </div>
+  <div class="turn">
+    <div class="who">Claude</div>
+    <div class="said">→ <code>/am-align</code> auto-fires. The skill reads the story, restates the agent's understanding in one paragraph, lists the acceptance bullets verbatim, asks "anything to clarify before I pull?"</div>
+  </div>
+  <div class="turn">
+    <div class="who">You</div>
+    <div class="said">"Looks right. Pull it."</div>
+  </div>
+  <div class="turn">
+    <div class="who">Claude</div>
+    <div class="said">→ <code>coach_check(action="pull", path=...)</code> returns allowed. <code>set_status(path, "started")</code> goes through.<br />Writes the code. Tests pass.<br />→ <code>set_status(path, "finished")</code><br />→ For each bullet the agent believes it satisfied: <code>set_acceptance_state(path, index=N, state="claimed", claim_note="...")</code>.<br />→ <code>set_status(path, "delivered")</code><br /><br />→ <code>/am-accept</code> auto-fires.<br />→ <code>acceptance_prompt(path)</code></div>
+  </div>
+  <div class="turn">
+    <div class="who">Claude</div>
+    <div class="said"><pre>Story: Open palette on cmd-k (notes/Open-palette-on-cmd-k.md)
+Type: feature
+Status staging: delivered -&gt; accepted
+Estimate: 3 pts
+What to verify:
+  [~] cmd-k opens the palette overlay
+       (claim: opens, focused, mouse position preserved)
+  [~] the palette captures keyboard focus on open
+  [~] escape closes it
+
+As PM, do you accept?</pre></div>
+  </div>
+  <div class="turn">
+    <div class="who">Claude</div>
+    <div class="said">"Bullet 1: does cmd-k open the palette? Yes or no?"</div>
+  </div>
+  <div class="turn">
+    <div class="who">You</div>
+    <div class="said">Verify the bullet manually. Yes.</div>
+  </div>
+  <div class="turn">
+    <div class="who">Claude</div>
+    <div class="said">→ <code>set_acceptance_state(path, index=1, state="verified")</code>. Walks bullets 2 and 3 the same way; both pass.<br />→ <code>set_status(path, "accepted")</code><br />Hook gates this. Verdict: allowed, because the ceremony rendered and every bullet is verified. The status flips. Velocity ledger gains 3 points.</div>
+  </div>
+
+  <h3>Story 2 · 8-point cap refusal</h3>
+  <div class="turn">
+    <div class="who">Claude</div>
+    <div class="said">Mid-build, the agent decides this is bigger than first thought.<br />→ <code>coach_check(action="set_estimate", path=..., estimate=13, type="feature")</code></div>
+  </div>
+  <div class="turn">
+    <div class="who">Coach</div>
+    <div class="said"><pre>Refused: features over 8 points are epics.
+Source: 8-point-hard-cap
+Next: split this story; keep each piece at or below 8 points.</pre></div>
+  </div>
+  <div class="turn">
+    <div class="who">Claude</div>
+    <div class="said">"Cap is 8. I want to split this into Search index (5 pts) and Search typo tolerance (3 pts). Index ships this iteration; typo tolerance into icebox. Sound right?"</div>
+  </div>
+  <div class="turn">
+    <div class="who">You</div>
+    <div class="said">"Yes."</div>
+  </div>
+  <div class="turn">
+    <div class="who">Claude</div>
+    <div class="said">→ <code>/am-decompose</code> auto-fires.<br />→ <code>create_item</code>, <code>set_estimate</code>, <code>set_description</code> with criteria, for each new story.<br />The original closes. Search index pulls in. Build, finish, deliver, ceremony, accept.</div>
+  </div>
+
+  <h3>Story 3 · rejection with reason</h3>
+  <p>Recent searches dropdown ships. The agent renders the ceremony with all three bullets claimed.</p>
+  <div class="turn">
+    <div class="who">Claude</div>
+    <div class="said">"Bullet 2: do recent searches show only the current session? Yes or no?"</div>
+  </div>
+  <div class="turn">
+    <div class="who">You</div>
+    <div class="said">"No. The dropdown shows stale entries from the prior session. Reject bullet 2 with that reason."</div>
+  </div>
+  <div class="turn">
+    <div class="who">Claude</div>
+    <div class="said">→ <code>reject_item(path, reason="stale entries from prior session leak into dropdown", failing_bullet=2)</code><br />Bullet 2 reopens from <code>[~]</code> to <code>[ ]</code>. Body picks up a dated <code>## Rejection notes</code> entry citing the bullet. Status flips to <code>rejected</code>.<br /><br />"Got it. Pulling again to fix bullet 2."</div>
+  </div>
+  <p>The agent re-starts, fixes the bug, re-claims bullet 2 with a new note, delivers. The ceremony renders again. You verify. Accept.</p>
+</section>
+
+<section>
+  <h2>Retro</h2>
+  <div class="turn">
+    <div class="who">You</div>
+    <div class="said">"Run the retro."</div>
+  </div>
+  <div class="turn">
+    <div class="who">Claude</div>
+    <div class="said">→ <code>/am-retro</code> auto-fires.<br />Pulls <code>dashboard()</code>, <code>velocity_history</code>, <code>type_mix</code>, reads <code>learnings.md</code> and <code>team-agreements.md</code>. Renders the summary, asks the three questions one at a time.<br /><br />"What worked?"</div>
+  </div>
+  <div class="turn">
+    <div class="who">You</div>
+    <div class="said">"Splitting the 13-pointer mid-iteration, fast. Coach refusal saved a guess."</div>
+  </div>
+  <div class="turn">
+    <div class="who">Claude</div>
+    <div class="said">→ <code>record_learning("Split a 13-pointer in 10 min. Coach refusal was the trigger.")</code><br /><br />"What did not work?"</div>
+  </div>
+  <div class="turn">
+    <div class="who">You</div>
+    <div class="said">"Recent searches store leaked across sessions. Worth an agreement: state lives in disk, not memory."</div>
+  </div>
+  <div class="turn">
+    <div class="who">Claude</div>
+    <div class="said">→ <code>team_agreements(add="Cross-session UI state reads from disk on focus, never from in-memory cache.")</code><br /><br />"What changes for next iteration?"</div>
+  </div>
+  <p>You answer the third question; the agent records it. The retro updates <code>learnings.md</code> and <code>team-agreements.md</code>, then closes the iteration.</p>
+  <div class="note">
+    <span class="label">Bootstrap state</span>
+    The numbers in the retro summary stabilize from iteration three. Velocity, volatility, cycle time, and rejection rate are not meaningful yet on a fresh project.
+  </div>
+</section>
+
+<section>
+  <h2>Where to go from here</h2>
+  <ul>
+    <li><a href="tutorial-cli.html">Tutorial · CLI</a>. Same scenario, shell verbs.</li>
+    <li><a href="tutorial-extension.html">Tutorial · VS Code extension</a>. Same scenario, click and drag.</li>
+    <li><a href="reference.html#coach">Reference · Coach mode</a>. Projections, hooks, skills.</li>
+  </ul>
+</section>
+
+<footer>
+  agilemarkdown · MIT · <a href="https://github.com/mreider/agilemarkdown">github</a>
+</footer>
+
+</main>
+
+<script src="surface-widget.js"></script>
+</body>
+</html>

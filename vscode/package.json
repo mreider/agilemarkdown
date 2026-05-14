@@ -1,0 +1,143 @@
+{
+  "name": "agilemarkdown",
+  "displayName": "Agile Markdown",
+  "description": "Pivotal-style backlog board, detail panel, and analytics for any agilemarkdown repo.",
+  "version": "0.1.4",
+  "publisher": "mreider",
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mreider/agilemarkdown"
+  },
+  "engines": {
+    "vscode": "^1.85.0",
+    "am": ">=4.3.0"
+  },
+  "categories": [
+    "Visualization",
+    "Other"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "workspaceContains:.am/config.yaml",
+    "onView:agilemarkdown.welcome",
+    "onCommand:agilemarkdown.openBoard"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "agilemarkdown.openBoard",
+        "title": "Agile Markdown: Open Board",
+        "category": "Agile Markdown"
+      },
+      {
+        "command": "agilemarkdown.refreshBoard",
+        "title": "Agile Markdown: Refresh Board",
+        "category": "Agile Markdown"
+      },
+      {
+        "command": "agilemarkdown.installCli",
+        "title": "Agile Markdown: Install am CLI",
+        "category": "Agile Markdown"
+      },
+      {
+        "command": "agilemarkdown.createBacklog",
+        "title": "Agile Markdown: New Backlog in This Folder",
+        "category": "Agile Markdown"
+      },
+      {
+        "command": "agilemarkdown.openWorkspaceFolder",
+        "title": "Agile Markdown: Open or Create a Folder",
+        "category": "Agile Markdown"
+      },
+      {
+        "command": "agilemarkdown.initFolder",
+        "title": "Agile Markdown: Initialize AM in This Folder",
+        "category": "Agile Markdown"
+      },
+      {
+        "command": "agilemarkdown.switchBacklog",
+        "title": "Agile Markdown: Switch Backlog",
+        "category": "Agile Markdown"
+      },
+      {
+        "command": "agilemarkdown.newStoryInCurrentBacklog",
+        "title": "Agile Markdown: New Story",
+        "category": "Agile Markdown"
+      },
+      {
+        "command": "agilemarkdown.sync",
+        "title": "Agile Markdown: Sync",
+        "category": "Agile Markdown"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "agilemarkdown",
+          "title": "Agile Markdown",
+          "icon": "media/activitybar-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "agilemarkdown": [
+        {
+          "id": "agilemarkdown.welcome",
+          "name": "Agile Markdown"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "agilemarkdown.welcome",
+        "contents": "No folder is open. Agile Markdown stores stories alongside your code, so open a folder to get started.\n[Open Folder](command:workbench.action.files.openFolder)",
+        "when": "agilemarkdown.state == 'noFolder'"
+      },
+      {
+        "view": "agilemarkdown.welcome",
+        "contents": "This folder isn't an Agile Markdown project yet. Initialize it to create the `.am/` config and your first backlog.\n[Initialize Agile Markdown Here](command:agilemarkdown.initFolder)",
+        "when": "agilemarkdown.state == 'uninitialized'"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "Agile Markdown",
+      "properties": {
+        "agilemarkdown.cliPath": {
+          "type": "string",
+          "default": "",
+          "description": "Absolute path to the `am` binary. When empty, the extension searches PATH, ~/go/bin/am, and ~/.am/bin/am, then prompts to download."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "webpack --mode production",
+    "watch": "webpack --mode development --watch",
+    "vscode:prepublish": "webpack --mode production",
+    "package": "npm run build && vsce package",
+    "test": "vitest run && tsc -p ./ --noEmit",
+    "lint": "tsc -p ./ --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^2.24.0",
+    "css-loader": "^6.10.0",
+    "ovsx": "^0.9.1",
+    "style-loader": "^3.3.4",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.3.3",
+    "vitest": "^4.1.5",
+    "webpack": "^5.90.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}

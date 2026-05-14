@@ -1,27 +1,32 @@
 package commands
 
 import (
+	"context"
 	"fmt"
-	"github.com/mreider/agilemarkdown/actions"
-	"gopkg.in/urfave/cli.v1"
+	"path/filepath"
 	"strings"
+
+	"github.com/mreider/agilemarkdown/actions"
+	"github.com/mreider/agilemarkdown/backlog"
+	"github.com/mreider/agilemarkdown/utils"
+	"github.com/urfave/cli/v3"
 )
 
-var CreateItemCommand = cli.Command{
+var CreateItemCommand = &cli.Command{
 	Name:      "create-item",
 	Usage:     "Create a new item for the backlog",
 	ArgsUsage: "ITEM_NAME",
 	Flags: []cli.Flag{
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:   "simulate",
 			Hidden: true,
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:   "user",
 			Hidden: true,
 		},
 	},
-	Action: func(c *cli.Context) error {
+	Action: func(ctx context.Context, c *cli.Command) error {
 		simulate := c.Bool("simulate")
 		user := c.String("user")
 
@@ -35,8 +40,35 @@ var CreateItemCommand = cli.Command{
 			}
 			return nil
 		}
-		itemTitle := strings.Join(c.Args(), " ")
+		itemTitle := strings.Join(c.Args().Slice(), " ")
 		action := actions.NewCreateItemAction(".", itemTitle, user, simulate)
-		return action.Execute()
+		if err := action.Execute(); err != nil {
+			return err
+		}
+		if simulate {
+			return nil
+		}
+		// Stage the new item into _icebox.md so it shows up in views
+		// without requiring a separate `am sync` pass. Matches the
+		// behavior of the MCP create_item tool.
+		dir, err := filepath.Abs(".")
+		if err != nil {
+			return nil
+		}
+		fileName := utils.GetValidFileName(itemTitle) + ".md"
+		ice, err := backlog.LoadIcebox(dir)
+		if err != nil {
+			return nil
+		}
+		if ice.IndexOf(fileName) >= 0 {
+			return nil
+		}
+		pri, perr := backlog.LoadPriority(dir)
+		if perr == nil && pri.IndexOf(fileName) >= 0 {
+			return nil
+		}
+		ice.InsertBottom(backlog.OrderEntry{Title: itemTitle, Path: fileName})
+		_ = ice.Save()
+		return nil
 	},
 }

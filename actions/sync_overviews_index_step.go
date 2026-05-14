@@ -3,19 +3,16 @@ package actions
 import (
 	"fmt"
 	"github.com/mreider/agilemarkdown/backlog"
-	"github.com/mreider/agilemarkdown/config"
-	"github.com/mreider/agilemarkdown/utils"
 )
 
 type SyncOverviewsAndIndexStep struct {
 	root     *backlog.BacklogsStructure
-	cfg      *config.Config
 	userList *backlog.UserList
 	author   string
 }
 
-func NewSyncOverviewsAndIndexStep(root *backlog.BacklogsStructure, cfg *config.Config, userList *backlog.UserList, author string) *SyncOverviewsAndIndexStep {
-	return &SyncOverviewsAndIndexStep{root: root, cfg: cfg, userList: userList, author: author}
+func NewSyncOverviewsAndIndexStep(root *backlog.BacklogsStructure, userList *backlog.UserList, author string) *SyncOverviewsAndIndexStep {
+	return &SyncOverviewsAndIndexStep{root: root, userList: userList, author: author}
 }
 
 func (s *SyncOverviewsAndIndexStep) Execute() error {
@@ -84,11 +81,6 @@ func (s *SyncOverviewsAndIndexStep) Execute() error {
 		if err != nil {
 			return err
 		}
-		fmt.Printf("Sending new comments for '%s' stories\n", overview.Title())
-		err = s.sendNewCommentsForItems(overview, activeItems)
-		if err != nil {
-			return err
-		}
 		err = overview.Save()
 		if err != nil {
 			return err
@@ -116,12 +108,15 @@ func (s *SyncOverviewsAndIndexStep) Execute() error {
 		}
 
 		for _, item := range bck.AllItems() {
-			item.SetHeader(fmt.Sprintf("Project: %s", overview.Title()))
-			err = item.UpdateLinks(s.root.Root(), overviewPath, archivePath)
-			if err != nil {
-				return err
+			if item.Project() != overview.Title() {
+				item.SetProject(overview.Title())
+				if err := item.Save(); err != nil {
+					return err
+				}
 			}
 		}
+		_ = overviewPath
+		_ = archivePath
 	}
 
 	fmt.Println("Generating index page")
@@ -155,18 +150,3 @@ func (s *SyncOverviewsAndIndexStep) moveItemsToActiveAndArchiveDirectory(backlog
 	return nil
 }
 
-func (s *SyncOverviewsAndIndexStep) sendNewCommentsForItems(overview *backlog.BacklogOverview, items []*backlog.BacklogItem) error {
-	userList := backlog.NewUserList(s.root.UsersDirectory())
-	var mailSender *utils.MailSender
-	if s.cfg.SmtpServer != "" {
-		mailSender = utils.NewMailSender(s.cfg.SmtpServer, s.cfg.SmtpUser, s.cfg.SmtpPassword, s.cfg.EmailFrom)
-	}
-
-	commented := make([]backlog.Commented, len(items))
-	for i := range items {
-		commented[i] = items[i]
-	}
-	return sendNewComments(commented, func(item backlog.Commented, to []string, comment []string) (me string, err error) {
-		return sendComment(userList, comment, overview.Title(), s.author, to, mailSender, s.cfg, s.root.Root(), item.Path())
-	})
-}

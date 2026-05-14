@@ -3,25 +3,12 @@ package commands
 import (
 	"errors"
 	"fmt"
-	"github.com/mreider/agilemarkdown/backlog"
-	"github.com/mreider/agilemarkdown/git"
-	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
-	"unicode"
-)
 
-const (
-	defaultConfig = `
-{
-  "SmtpServer": "",
-  "SmtpUser": "",
-  "SmtpPassword": "",
-  "EmailFrom": "",
-  "RemoteGitUrlFormat": "%s/blob/master/%s",
-  "RemoteWebUrlFormat": ""
-}`
+	"github.com/mreider/agilemarkdown/backlog"
+	"github.com/mreider/agilemarkdown/config"
+	"github.com/mreider/agilemarkdown/git"
 )
 
 func checkIsBacklogDirectory() error {
@@ -59,37 +46,40 @@ func findRootDirectory() (string, error) {
 	return dir, nil
 }
 
+// AddConfigAndGitIgnore creates `.am/config.yaml` with sensible defaults
+// when missing, and writes a baseline `.gitignore`. Both are committed
+// in one shot so a fresh repo starts clean.
 func AddConfigAndGitIgnore(root *backlog.BacklogsStructure) error {
 	hasChanges := false
 
 	configPath := root.ConfigFile()
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		err := ioutil.WriteFile(configPath, []byte(strings.TrimLeftFunc(defaultConfig, unicode.IsSpace)), 0644)
-		if err != nil {
+		if err := config.Defaults().Save(configPath); err != nil {
 			return err
 		}
-		err = git.Add(configPath)
-		if err != nil {
+		if err := git.Add(configPath); err != nil {
 			return err
 		}
 		hasChanges = true
 	}
 	gitIgnorePath := filepath.Join(root.Root(), ".gitignore")
 	if _, err := os.Stat(gitIgnorePath); os.IsNotExist(err) {
-		err := ioutil.WriteFile(gitIgnorePath, []byte(filepath.Base(configPath)), 0644)
-		if err != nil {
+		// Tracked files only. Generated indexes (index.md, velocity.md,
+		// timeline.md, users.md, tags/) stay tracked so a clone renders
+		// on GitHub without an `am sync`. Local build/binary outputs are
+		// ignored.
+		gitignore := "agilemarkdown\nagilemarkdown_bash_autocomplete\n"
+		if err := os.WriteFile(gitIgnorePath, []byte(gitignore), 0644); err != nil {
 			return err
 		}
-		err = git.Add(gitIgnorePath)
-		if err != nil {
+		if err := git.Add(gitIgnorePath); err != nil {
 			return err
 		}
 		hasChanges = true
 	}
 
 	if hasChanges {
-		err := git.Commit("configuration", "")
-		if err != nil {
+		if err := git.Commit("agilemarkdown init", ""); err != nil {
 			return err
 		}
 	}

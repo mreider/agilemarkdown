@@ -1,7 +1,6 @@
 package backlog
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -39,7 +38,7 @@ func LoadBacklog(backlogDir string) (*Backlog, error) {
 }
 
 func loadItems(dir string) ([]*BacklogItem, error) {
-	infos, err := ioutil.ReadDir(dir)
+	infos, err := os.ReadDir(dir)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, nil

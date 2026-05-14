@@ -16,11 +16,11 @@ func NewDeleteTagAction(rootDir, tag string) *DeleteTagAction {
 }
 
 func (a *DeleteTagAction) Execute() error {
-	if !confirmAction("This will delete links to ideas and timelines ok? (y or n)") {
+	if !confirmAction("This will delete the tag from all items and remove its timeline ok? (y or n)") {
 		return nil
 	}
 
-	allTags, itemsTags, ideasTags, _, err := backlog.ItemsAndIdeasTags(a.root)
+	allTags, itemsTags, _, err := backlog.ItemsTags(a.root)
 	if err != nil {
 		return err
 	}
@@ -37,17 +37,6 @@ func (a *DeleteTagAction) Execute() error {
 		item.SetTags(itemTags)
 		item.ClearTimeline()
 		err := item.Save()
-		if err != nil {
-			return err
-		}
-	}
-
-	tagIdeas := ideasTags[a.tag]
-	for _, idea := range tagIdeas {
-		ideaTags := idea.Tags()
-		ideaTags = utils.RemoveItemIgnoreCase(ideaTags, a.tag)
-		idea.SetTags(ideaTags)
-		err := idea.Save()
 		if err != nil {
 			return err
 		}

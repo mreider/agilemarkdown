@@ -1,0 +1,72 @@
+name: VS Code extension
+
+on:
+  push:
+    branches: [master]
+    tags:
+      - 'vscode-v*'
+      - 'v*'
+  pull_request:
+    paths:
+      - 'vscode/**'
+      - '.github/workflows/extension.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: vscode/package-lock.json
+      - run: npm ci
+        working-directory: vscode
+      - run: npm test
+        working-directory: vscode
+      - run: npm run build
+        working-directory: vscode
+      - run: npx vsce package
+        working-directory: vscode
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vsix
+          path: vscode/*.vsix
+
+  publish:
+    needs: build
+    # Fire on either tag prefix: dedicated extension releases
+    # (vscode-v*) or unified am releases (v*). The marketplace publish
+    # steps are still gated on their PAT secrets being set, so missing
+    # creds skip publishing without failing the run.
+    if: startsWith(github.ref, 'refs/tags/vscode-v') || startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    env:
+      VSCE_PAT: ${{ secrets.VSCE_PAT }}
+      OVSX_PAT: ${{ secrets.OVSX_PAT }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: vscode/package-lock.json
+      - run: npm ci
+        working-directory: vscode
+      - run: npm run build
+        working-directory: vscode
+      - run: npx vsce package
+        working-directory: vscode
+      - name: Publish to VS Code Marketplace (skipped if VSCE_PAT secret is empty)
+        if: env.VSCE_PAT != ''
+        run: npx vsce publish --packagePath *.vsix -p $VSCE_PAT
+        working-directory: vscode
+      - name: Publish to Open VSX (skipped if OVSX_PAT secret is empty)
+        if: env.OVSX_PAT != ''
+        run: npx ovsx publish *.vsix -p $OVSX_PAT
+        working-directory: vscode
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: vscode/*.vsix

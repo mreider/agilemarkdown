@@ -1,12 +1,12 @@
 package backlog
 
 import (
-	"fmt"
+	"path/filepath"
+	"strings"
+
+	"github.com/mreider/agilemarkdown/config"
 	"github.com/mreider/agilemarkdown/markdown"
 	"github.com/mreider/agilemarkdown/utils"
-	"io/ioutil"
-	"os"
-	"path/filepath"
 )
 
 type Velocity struct {
@@ -37,42 +37,27 @@ func (velocity *Velocity) SetTitle(title string) {
 	velocity.markdown.SetTitle(title)
 }
 
-func (velocity *Velocity) Update(backlogs []*Backlog, overviews []*BacklogOverview, backlogDirs []string, baseDir string) error {
+// Update regenerates velocity.md with one ASCII chart per backlog.
+func (velocity *Velocity) Update(backlogs []*Backlog, overviews []*BacklogOverview, backlogDirs []string, baseDir string, cfg *config.Config) error {
+	overrides, _ := LoadIterationOverrides(baseDir)
 	var lines []string
 	for i, bck := range backlogs {
 		overview := overviews[i]
-		velocityImagePath, err := velocity.generateVelocityImage(backlogDirs[i], bck, overview)
-		if err != nil {
-			continue
-		}
 		lines = append(lines, "")
 		lines = append(lines, "---")
 		lines = append(lines, "")
 		lines = append(lines, utils.JoinMarkdownLinks(MakeOverviewLink(overview, baseDir)))
 		lines = append(lines, "")
-		lines = append(lines, utils.MakeMarkdownImageLink("velocity", velocityImagePath, baseDir))
+		lines = append(lines, "```")
+		ascii := strings.TrimRight(VelocityASCII(bck, 12, cfg, overrides), "\n")
+		lines = append(lines, strings.Split(ascii, "\n")...)
+		lines = append(lines, "```")
 		lines = append(lines, "")
 	}
 	lines = append(lines, "")
 
 	velocity.markdown.SetFreeText(lines)
 	return velocity.Save()
-}
-
-func (velocity *Velocity) generateVelocityImage(backlogDir string, bck *Backlog, overview *BacklogOverview) (string, error) {
-	chart, err := BacklogView{}.VelocityImage(bck, 12)
-	if err != nil {
-		return "", nil
-	}
-
-	velocityDir := filepath.Join(filepath.Dir(backlogDir), velocityDirectoryName)
-	err = os.MkdirAll(velocityDir, 0777)
-	if err != nil {
-		return "", err
-	}
-	velocityPngPath := filepath.Join(velocityDir, fmt.Sprintf("%s.png", filepath.Base(backlogDir)))
-	err = ioutil.WriteFile(velocityPngPath, chart, 0644)
-	return velocityPngPath, err
 }
 
 func (velocity *Velocity) UpdateLinks(rootDir string) error {

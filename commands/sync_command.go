@@ -1,26 +1,27 @@
 package commands
 
 import (
+	"context"
 	"github.com/mreider/agilemarkdown/actions"
-	"gopkg.in/urfave/cli.v1"
+	"github.com/urfave/cli/v3"
 )
 
-func NewSyncCommand() cli.Command {
-	return cli.Command{
+func NewSyncCommand() *cli.Command {
+	return &cli.Command{
 		Name:      "sync",
 		Usage:     "Sync state",
 		ArgsUsage: " ",
 		Flags: []cli.Flag{
-			cli.BoolFlag{
+			&cli.BoolFlag{
 				Name:   "test",
 				Hidden: true,
 			},
-			cli.StringFlag{
+			&cli.StringFlag{
 				Name:   "author",
 				Hidden: true,
 			},
 		},
-		Action: func(c *cli.Context) error {
+		Action: func(ctx context.Context, c *cli.Command) error {
 			rootDir, err := findRootDirectory()
 			if err != nil {
 				return err

@@ -96,17 +96,39 @@ func (imp *CsvImporter) cellValue(line []string, header string) string {
 }
 
 func (imp *CsvImporter) stateToStatus(state string) *BacklogItemStatus {
-	switch strings.ToLower(state) {
+	switch strings.ToLower(strings.TrimSpace(state)) {
 	case "accepted":
+		return AcceptedStatus
+	case "delivered":
+		return DeliveredStatus
+	case "finished":
 		return FinishedStatus
-	case "delivered", "finished", "started":
-		return DoingStatus
-	case "unstarted":
-		return PlannedStatus
+	case "started":
+		return StartedStatus
+	case "rejected":
+		return RejectedStatus
+	case "unstarted", "planned":
+		return UnstartedStatus
 	case "unscheduled":
-		return UnplannedStatus
+		return UnstartedStatus
 	}
-	return UnplannedStatus
+	return UnstartedStatus
+}
+
+// storyType maps Pivotal's "Story Type" column to our `type:` field.
+// Unknown values default to feature.
+func (imp *CsvImporter) storyType(s string) string {
+	switch strings.ToLower(strings.TrimSpace(s)) {
+	case "feature", "":
+		return "feature"
+	case "bug":
+		return "bug"
+	case "chore":
+		return "chore"
+	case "release":
+		return "release"
+	}
+	return "feature"
 }
 
 func (imp *CsvImporter) getItemName(title string) string {
@@ -149,10 +171,34 @@ func (imp *CsvImporter) createItemIfNotExists(line []string, userList *UserList)
 
 	estimate := imp.cellValue(line, "estimate")
 	status := imp.stateToStatus(imp.cellValue(line, "current state"))
+	storyType := imp.storyType(imp.cellValue(line, "story type"))
 	created := imp.cellValue(line, "created at")
 	author := imp.cellValue(line, "requested by")
 	assigned := imp.cellValue(line, "owned by")
 	description := imp.cellValue(line, "description")
+
+	// Pivotal's CSV exports use either "Mon 2, 2006" or ISO-ish forms.
+	// Normalize to our timestamp.
+	parseDate := func(s string) string {
+		s = strings.TrimSpace(s)
+		if s == "" {
+			return ""
+		}
+		layouts := []string{"Jan 2, 2006", "2006-01-02", "2006-01-02T15:04:05Z", time.RFC3339}
+		for _, layout := range layouts {
+			if t, err := time.Parse(layout, s); err == nil {
+				if layout == "Jan 2, 2006" || layout == "2006-01-02" {
+					t = t.Add(12 * time.Hour)
+				}
+				return utils.GetTimestamp(t)
+			}
+		}
+		return ""
+	}
+	created = parseDate(created)
+	acceptedAt := parseDate(imp.cellValue(line, "accepted at"))
+	finishedAt := parseDate(imp.cellValue(line, "started at"))
+	deliveredAt := parseDate(imp.cellValue(line, "delivered at"))
 
 	description += `
 
@@ -163,24 +209,37 @@ func (imp *CsvImporter) createItemIfNotExists(line []string, userList *UserList)
 ## Attachments
 `
 
-	if createdDate, err := time.Parse("Jan 2, 2006", created); err == nil {
-		createdDate = createdDate.Add(time.Hour * 12)
-		created = utils.GetTimestamp(createdDate)
-	}
-
 	err = imp.resolveUnknownUsers(line, userList)
 	if err != nil {
 		return err
 	}
 
 	item.SetTitle(title)
-	item.SetCreated(created)
-	item.SetModified(created)
+	if created != "" {
+		item.SetCreated(created)
+		item.SetModified(created)
+	}
 	item.SetAuthor(author)
+	item.SetType(storyType)
 	item.SetStatus(status)
 	item.SetAssigned(assigned)
-	item.SetEstimate(estimate)
+	if storyType != "bug" && storyType != "chore" {
+		item.SetEstimate(estimate)
+	}
 	item.SetTags(tags)
+	if finishedAt != "" {
+		item.SetFinished(finishedAt)
+	}
+	if deliveredAt != "" {
+		item.SetDelivered(deliveredAt)
+	}
+	if acceptedAt != "" {
+		item.SetAccepted(acceptedAt)
+	} else if status == AcceptedStatus && created != "" {
+		// Pivotal CSV often omits accepted_at; fall back to created so
+		// velocity has something to bucket against.
+		item.SetAccepted(created)
+	}
 	item.SetDescription(description)
 	return item.Save()
 }

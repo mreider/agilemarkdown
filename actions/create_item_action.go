@@ -13,6 +13,11 @@ const newItemTemplate = `## Problem statement
 
 ## Possible solution
 
+## Acceptance
+
+- [ ] (replace with a concrete, PM-checkable bullet)
+- [ ] (one user-visible behavior per bullet)
+
 ## Comments
 
 ## Attachments
@@ -63,11 +68,12 @@ func (a *CreateItemAction) Execute() error {
 	}
 	currentTimestamp := utils.GetCurrentTimestamp()
 	item.SetTitle(utils.TitleFirstLetter(a.itemTitle))
+	item.SetType("feature")
 	item.SetCreated(currentTimestamp)
 	item.SetModified(currentTimestamp)
 	item.SetTags(nil)
 	item.SetAuthor(currentUser)
-	item.SetStatus(backlog.UnplannedStatus)
+	item.SetStatus(backlog.UnstartedStatus)
 	item.SetAssigned("")
 	item.SetEstimate("")
 	item.SetDescription(newItemTemplate)

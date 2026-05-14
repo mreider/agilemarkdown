@@ -24,31 +24,22 @@ func (ch *SyncUsersCheck) Check() (bool, error) {
 		return false, err
 	}
 
-	ideasDir := ch.root.IdeasDirectory()
-	ideas, err := backlog.LoadIdeas(ideasDir)
-	if err != nil {
-		return false, err
-	}
-
-	unknownUsers := ch.getUnknownUsers(items, ideas)
+	unknownUsers := ch.getUnknownUsers(items)
 	unknownUsers, err = ch.userList.ResolveGitUsers(unknownUsers)
 	if err != nil {
 		return false, err
 	}
 
 	if len(unknownUsers) != 0 {
-		fmt.Printf("You should resolve unknown users: %s\n", strings.Join(unknownUsers, ", "))
-		return false, nil
+		fmt.Printf("Note: %d user reference(s) without a users/ entry: %s. They will be auto-added on next sync if they appear in git log; or run `am create-user`.\n",
+			len(unknownUsers), strings.Join(unknownUsers, ", "))
 	}
-
 	return true, nil
 }
 
-func (ch *SyncUsersCheck) getUnknownUsers(items []*backlog.BacklogItem, ideas []*backlog.BacklogIdea) []string {
+func (ch *SyncUsersCheck) getUnknownUsers(items []*backlog.BacklogItem) []string {
 	unknownUsersSet := make(map[string]struct{})
 	for _, item := range items {
-		// TODO check git status
-
 		if item.Assigned() != "" {
 			assigned := ch.userList.User(item.Assigned())
 			if assigned == nil {
@@ -57,18 +48,6 @@ func (ch *SyncUsersCheck) getUnknownUsers(items []*backlog.BacklogItem, ideas []
 		}
 
 		for _, comment := range item.Comments() {
-			for _, user := range comment.Users {
-				if ch.userList.User(user) == nil {
-					unknownUsersSet[user] = struct{}{}
-				}
-			}
-		}
-	}
-
-	for _, idea := range ideas {
-		// TODO check git status
-
-		for _, comment := range idea.Comments() {
 			for _, user := range comment.Users {
 				if ch.userList.User(user) == nil {
 					unknownUsersSet[user] = struct{}{}
