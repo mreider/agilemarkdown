@@ -237,6 +237,7 @@
     <ol>
       <li><a href="#premise">What it is</a></li>
       <li><a href="#why-now">Why now</a></li>
+      <li><a href="#install">Install</a></li>
       <li><a href="#next">Where to go from here</a></li>
     </ol>
     <div class="sep"></div>
@@ -256,7 +257,7 @@
     <header class="masthead">
       <h1>agile<em>markdown</em></h1>
       <p class="deck">The Pivotal Tracker workflow as plain markdown in git. Drive it from a shell, VS Code, or your AI client.</p>
-      <p class="deck-cta"><a href="tutorial.html">Walk through the tutorial →</a></p>
+      <p class="deck-cta"><a href="tutorial.html">Walk through the tutorial →</a> &nbsp;·&nbsp; <a href="#install">install it now →</a></p>
     </header>
 
     <!-- ───────── what it is ───────── -->
@@ -317,6 +318,26 @@ Priority (stories)   <span class="dim">velocity 7 / iteration</span>
         <p><strong>The economics flipped.</strong> The XP practices the Pivotal way runs on (pair programming, refactor-as-you-go, small batches, test-first work) were treated as too expensive when the industry chose its default in the early 2000s. AI agents inverted the math. Pair programming is what you get for free when an agent sits in your editor, and refactoring is nearly costless when the agent does the typing. Kent Beck calls the new mode <em>augmented coding</em>; <a href="further-reading.html">further reading</a> tracks the wider conversation.</p>
 
         <p><strong>Acceptance is the seam that matters most.</strong> "The dev pair never accepts its own work" was a check on humans missing details. With an AI in the dev-pair seat, it is a check on the main mistake AI agents make: confidently building the wrong thing. Acceptance criteria written into the story before the agent pulls it give the agent a target; the product manager checks those criteria before flipping the story to <code>accepted</code>. That seam is what stops the team from shipping fast but wrong.</p>
+      </div>
+    </section>
+
+    <!-- ───────── install ───────── -->
+    <section id="install">
+      <div class="sec-head"><h2>Install</h2></div>
+      <div class="sec-body">
+        <p class="lead">The fastest path to a working backlog is GitHub Codespaces, which boots a browser VM with the CLI, the VS Code extension, and a seeded 54-story demo project all pre-installed. The native installs are quick too.</p>
+
+        <h3>Try it in your browser</h3>
+        <p><a href="https://codespaces.new/mreider/agilemarkdown?quickstart=1">Open in GitHub Codespaces</a> and wait about a minute for the workspace to build. When the editor opens, the demo project lives at <code>/workspaces/am-demo</code> and the board view is already pinned in the sidebar.</p>
+
+        <h3>The <code>am</code> CLI</h3>
+        <p>The CLI is the foundation, and both the VS Code extension and the MCP server call into it. Download a prebuilt binary from the <a href="https://github.com/mreider/agilemarkdown/releases/latest">latest release</a> for macOS, Linux, or Windows, or build from source with <a href="https://go.dev/dl/">Go 1.23+</a> by running <code>go install github.com/mreider/agilemarkdown@latest</code>.</p>
+
+        <h3>The VS Code extension</h3>
+        <p>Download the <code>agilemarkdown-*.vsix</code> file from the <a href="https://github.com/mreider/agilemarkdown/releases/latest">latest release</a> and install it from the Command Palette under <em>Extensions: Install from VSIX…</em>. The board, the detail panel, and the inline pickers all sit on top of your <code>stories/</code> folder and the same <code>am</code> CLI underneath.</p>
+
+        <h3>The MCP server</h3>
+        <p>Once <code>am</code> is on PATH, the MCP server is the same binary in MCP mode, run as <code>am mcp</code>. Wire that command into Claude Code, Cursor, or any other MCP client, and the agent picks up a Pivotal-style coach plus around fifty tool calls covering the entire workflow. The <a href="reference.html">reference</a> has per-client config snippets.</p>
       </div>
     </section>
 
