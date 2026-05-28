@@ -1,18 +1,19 @@
 package commands
 
 import (
+	"context"
 	"fmt"
 	"github.com/mreider/agilemarkdown/actions"
-	"gopkg.in/urfave/cli.v1"
+	"github.com/urfave/cli/v3"
 	"path/filepath"
 	"strings"
 )
 
-var ChangeTagCommand = cli.Command{
+var ChangeTagCommand = &cli.Command{
 	Name:      "change-tag",
 	Usage:     "Change a tag",
 	ArgsUsage: "OLD_TAG NEW_TAG",
-	Action: func(c *cli.Context) error {
+	Action: func(ctx context.Context, c *cli.Command) error {
 		if c.NArg() != 2 {
 			fmt.Println("old and new tags should be specified")
 			return nil
@@ -25,8 +26,8 @@ var ChangeTagCommand = cli.Command{
 			return err
 		}
 
-		oldTag := strings.ToLower(c.Args()[0])
-		newTag := strings.ToLower(c.Args()[1])
+		oldTag := strings.ToLower(c.Args().Get(0))
+		newTag := strings.ToLower(c.Args().Get(1))
 
 		action := actions.NewChangeTagAction(rootDir, oldTag, newTag)
 		return action.Execute()

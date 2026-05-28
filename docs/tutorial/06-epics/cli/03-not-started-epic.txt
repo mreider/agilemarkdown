@@ -1,0 +1,11 @@
+$ am show epic the-moon-watch
+Epic: the-moon-watch   0/3 stories  0/11 pts  0%
+[░░░░░░░░░░░░░░░░░░░░░░░░]
+
+Accepted:
+  (none yet)
+
+Open:
+  ★  Brew a small pot of tear-water tea before midnight  [unstarted]  (stories/brew-a-small-pot-of-tear-water-tea-before-midnight.md)
+  ★  Plan the moons very first birthday party  [unstarted]  (stories/plan-the-moons-very-first-birthday-party.md)
+  ★  Stand on a chair to watch the moon properly  [unstarted]  (stories/stand-on-a-chair-to-watch-the-moon-properly.md)

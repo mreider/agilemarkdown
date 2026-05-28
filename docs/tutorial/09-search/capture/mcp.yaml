@@ -1,0 +1,11 @@
+- name: 01-search-text
+  tool: search
+  args:
+    query: seedling
+    limit: 5
+
+- name: 02-list-by-tag
+  tool: list_items
+  args:
+    backlog: stories
+    tag: garden

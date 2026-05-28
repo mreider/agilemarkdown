@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>agilemarkdown</title>
+<meta name="description" content="A CLI and MCP server for managing backlogs as plain markdown files in git. The Pivotal Tracker workflow, in plaintext. AI as dev pair, human as PM." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,500;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  /* ─────────────────────────────────────────────────────────────
+     agilemarkdown · practitioner manual
+     palette: warm paper / warm ink / single rust accent
+     type:    Source Serif 4 (display + body) · JetBrains Mono
+     ───────────────────────────────────────────────────────────── */
+  :root {
+    --paper:   oklch(0.974 0.009 82);
+    --paper-2: oklch(0.945 0.012 82);
+    --paper-3: oklch(0.915 0.014 82);
+    --ink:     oklch(0.205 0.015 60);
+    --ink-2:   oklch(0.36  0.018 60);
+    --ink-3:   oklch(0.52  0.018 65);
+    --rule:    oklch(0.84  0.014 78);
+    --rule-2:  oklch(0.78  0.016 78);
+    --accent:  oklch(0.52  0.135 38);    /* terracotta / drawing-ink red */
+    --accent-soft: oklch(0.85 0.06 38);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+    font-size: 17px;
+    line-height: 1.62;
+    font-feature-settings: "ss01", "onum";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection { background: var(--accent-soft); color: var(--ink); }
+
+  a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--rule-2); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  a:hover { color: var(--accent); text-decoration-color: var(--accent); }
+
+  /* ─── frame ────────────────────────────────────────────────── */
+  .frame {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 56px 48px 96px;
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 64px;
+  }
+  @media (max-width: 980px) {
+    .frame { grid-template-columns: 1fr; padding: 32px 24px 64px; gap: 0; }
+  }
+
+  /* ─── left rail ────────────────────────────────────────────── */
+  .rail {
+    position: sticky;
+    top: 56px;
+    align-self: start;
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 11.5px;
+    line-height: 1.9;
+    letter-spacing: 0.01em;
+    color: var(--ink-3);
+  }
+  .rail .mark { font-family: "Source Serif 4", serif; font-style: italic; font-size: 13px; color: var(--ink-2); margin-bottom: 16px; letter-spacing: 0; }
+  .rail ol { list-style: none; padding: 0; margin: 0 0 22px; }
+  .rail ol li { display: flex; gap: 10px; }
+  .rail a { color: var(--ink-2); text-decoration: none; display: block; padding: 1px 0; }
+  .rail a:hover { color: var(--accent); }
+  .rail .sep { height: 1px; background: var(--rule); margin: 14px 0; }
+  @media (max-width: 980px) {
+    .rail { position: static; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--rule); }
+  }
+
+  /* ─── content column ──────────────────────────────────────── */
+  main { max-width: 720px; }
+
+  /* ─── masthead ────────────────────────────────────────────── */
+  .masthead { padding-bottom: 8px; margin-bottom: 24px; }
+  .masthead h1 {
+    font-family: "Source Serif 4", serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: clamp(48px, 7vw, 84px);
+    line-height: 0.95;
+    letter-spacing: -0.025em;
+    margin: 0 0 12px;
+    color: var(--ink);
+  }
+  .masthead h1 em { font-style: normal; font-weight: 600; color: var(--accent); }
+  .masthead .deck {
+    font-size: 21px;
+    line-height: 1.45;
+    color: var(--ink-2);
+    max-width: 580px;
+    margin: 18px 0 0;
+    font-weight: 300;
+  }
+  .masthead .deck-cta {
+    margin: 36px 0 16px;
+    font-size: 16.5px;
+  }
+  .masthead .deck-cta a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid var(--accent);
+    padding-bottom: 3px;
+    font-weight: 500;
+    letter-spacing: 0.005em;
+    transition: background 0.12s ease;
+  }
+  .masthead .deck-cta a:hover { background: var(--accent-soft); }
+
+  /* ─── section structure ───────────────────────────────────── */
+  section { margin: 56px 0 0; scroll-margin-top: 24px; }
+  .sec-head {
+    margin-bottom: 12px;
+    border-top: 1.5px solid var(--ink);
+    padding-top: 14px;
+  }
+  .sec-head h2 {
+    font-family: "Source Serif 4", serif;
+    font-weight: 400;
+    font-size: 32px;
+    line-height: 1.18;
+    letter-spacing: -0.015em;
+    margin: 0;
+  }
+  .sec-head h2 em { font-style: italic; font-weight: 400; color: var(--ink-2); }
+  .sec-body { padding-left: 0; }
+  @media (max-width: 700px) {
+    .sec-head h2 { font-size: 26px; }
+  }
+
+  h3 {
+    font-family: "Source Serif 4", serif;
+    font-weight: 600;
+    font-size: 17px;
+    line-height: 1.4;
+    color: var(--ink);
+    margin: 28px 0 8px;
+    letter-spacing: -0.005em;
+  }
+
+  p { margin: 0 0 14px; }
+  p + p { text-indent: 0; }
+  p.lead { font-size: 19px; line-height: 1.5; color: var(--ink); margin: 0 0 22px; max-width: 620px; font-weight: 300; }
+
+  ul, ol { margin: 4px 0 14px; padding-left: 22px; }
+  li { margin: 4px 0; }
+  li::marker { color: var(--ink-3); }
+
+  strong { font-weight: 600; color: var(--ink); }
+  em { font-style: italic; }
+
+  /* inline code */
+  code {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 0.86em;
+    background: var(--paper-2);
+    padding: 1px 5px;
+    border-radius: 3px;
+    border: 1px solid var(--rule);
+    color: var(--ink);
+  }
+
+  /* ─── screenshot figure ────────────────────────────────────── */
+  figure.shot { margin: 28px 0 32px; }
+  figure.shot img {
+    width: 100%; height: auto; display: block;
+    border-radius: 8px;
+    box-shadow: 0 2px 0 var(--rule), 0 12px 32px -20px oklch(0.2 0.02 60 / 0.5);
+  }
+  figure.shot figcaption {
+    font-family: "Source Serif 4", serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--ink-3);
+    text-align: center;
+    margin-top: 12px;
+    line-height: 1.5;
+  }
+
+  /* ─── colophon ────────────────────────────────────────────── */
+  .colophon {
+    margin-top: 96px;
+    padding-top: 32px;
+    border-top: 2px solid var(--ink);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11.5px;
+    color: var(--ink-3);
+    letter-spacing: 0.04em;
+    line-height: 1.8;
+  }
+  .colophon .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 18px;
+  }
+  .colophon h4 {
+    font-family: "Source Serif 4", serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: 22px;
+    margin: 0;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .colophon a { color: var(--ink-2); text-decoration: none; border-bottom: 1px dotted var(--rule-2); padding-bottom: 1px; }
+  .colophon a:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* hide all non-essentials cleanly on print */
+  @media print {
+    .rail { display: none; }
+    .frame { grid-template-columns: 1fr; max-width: none; padding: 0; }
+  }
+</style>
+<link rel="stylesheet" href="surface-widget.css" />
+</head>
+<body>
+
+<div class="frame">
+
+  <!-- ───────── persistent left rail ───────── -->
+  <aside class="rail" aria-label="Contents">
+    <div class="mark">Contents</div>
+    <ol>
+      <li><a href="#premise">What it is</a></li>
+      <li><a href="#why-now">Why now</a></li>
+      <li><a href="#next">Where to go from here</a></li>
+    </ol>
+    <div class="sep"></div>
+    <ol>
+      <li><a href="tutorial.html">Tutorial</a></li>
+      <li><a href="reference.html">Reference</a></li>
+      <li><a href="further-reading.html">Further reading</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="https://github.com/mreider/agilemarkdown">GitHub ↗</a></li>
+      <li><a href="https://github.com/mreider/agilemarkdown/releases">Latest release ↗</a></li>
+    </ol>
+  </aside>
+
+  <!-- ───────── content column ───────── -->
+  <main>
+
+    <header class="masthead">
+      <h1>agile<em>markdown</em></h1>
+      <p class="deck">The Pivotal Tracker workflow as plain markdown in git. Drive it from a shell, VS Code, or your AI client.</p>
+      <p class="deck-cta"><a href="tutorial.html">Walk through the tutorial →</a></p>
+    </header>
+
+    <!-- ───────── what it is ───────── -->
+    <section id="premise">
+      <div class="sec-head"><h2>What it is</h2></div>
+      <div class="sec-body">
+        <p class="lead">Three pieces fit together: a markdown backlog in git, three ways to drive it, and a Pivotal-style coach for what Kent Beck now calls <a href="further-reading.html">augmented coding</a>.</p>
+
+        <p><strong>The backlog lives next to the code.</strong> Stories are markdown files: a small header for metadata, then the body. Priority is a ranked list; the icebox is a capture pile, not ranked. Because the story files sit alongside your code files, the same commit that ships a feature can update the story that asked for it.</p>
+
+        <p><strong>Three ways to drive the same files.</strong> The shell CLI is the foundation and a prerequisite for the other two. <code>am</code> creates stories, ranks them, estimates them, and moves them from started to delivered to accepted. A VS Code extension lays a board on top: current and icebox columns, drag-to-reorder, a detail panel. An MCP server, <code>am mcp</code>, exposes around fifty tools to Claude Desktop, Claude Code, Cursor, and any other AI client that speaks MCP.</p>
+
+        <figure class="surface-shot triptych" data-active="extension">
+          <div class="surface-tabs" role="tablist" aria-label="The same backlog on each surface">
+            <button role="tab" aria-selected="true" tabindex="0" data-surface="extension">VS Code</button>
+            <button role="tab" aria-selected="false" tabindex="-1" data-surface="cli">Shell</button>
+            <button role="tab" aria-selected="false" tabindex="-1" data-surface="claude">Claude Code</button>
+          </div>
+          <div class="surface-panels">
+            <div class="surface-panel term" data-surface="cli" role="tabpanel">
+<pre><span class="cmd">$ am show priority</span>
+Priority (stories)   <span class="dim">velocity 7 / iteration</span>
+
+<span class="dim">── Iteration 1378  Mon May 25  9 / 7 pts ──</span>
+   1. ★  Wait by the mailbox for any kind of rep…  started     3p
+   2. ★  Pace exactly seven times up and down th…  started     2p
+   3. ★  Watch the seedling for the smallest sig…  started     5p
+   4. ★  Build a small fence so the seedling fee…  accepted    3p
+   5. ★  Set a tiny chair beside the seedling      accepted    1p
+   6. ★  Send a thank-you note by Snail            accepted    2p
+   7. ★  Sort the unread letters into three quie…  delivered   3p
+
+<span class="dim">── Iteration 1379  Mon Jun 01  0 / 7 pts ──</span>
+   8. ★  Yell at the seedling to grow faster       rejected    3p
+   9. ★  Apologize to the seedling for yelling     unstarted   1p
+  10. ★  Decline the dinner party invitation pol…  unstarted   2p</pre>
+            </div>
+            <img class="surface-panel" data-surface="extension" role="tabpanel"
+                 src="board-hero.png"
+                 alt="The same backlog as a board in VS Code: the current iteration banded at the top with story cards moving through accepted, delivered, started, then the next iteration with rejected and unstarted, each card showing status, epic tag, labels, owner, and points." />
+            <div class="surface-panel session" data-surface="claude" role="tabpanel">
+              <div class="turn you"><span class="who">You</span><span class="body">What's on this iteration?</span></div>
+              <div class="tool">priority_list({ backlog: "stories" }) <span class="ok">→ 18 items</span></div>
+              <div class="turn claude"><span class="who">Claude</span><span class="body">Iteration 1378 is carrying <strong>9 points against a velocity of 7</strong>, so it's over the line, worth watching. Three stories are in flight (Wait, Pace, Watch), three are accepted (Build, Set, Send), and Sort is delivered, waiting on your acceptance. Want me to pull the next story, or accept Sort first?</span></div>
+            </div>
+          </div>
+          <figcaption>One ranked backlog, three ways to drive it. The <a href="tutorial.html">tutorial</a> walks the full workflow on each surface.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ───────── why this ───────── -->
+    <section id="why-now">
+      <div class="sec-head"><h2>Why now</h2></div>
+      <div class="sec-body">
+        <p class="lead">agilemarkdown's first commit was in 2018, before today's AI coding agents existed; the Pivotal way was already worth running then, and AI agents have since made it both cheaper to run and more necessary to keep.</p>
+
+        <p><strong>The economics flipped.</strong> The XP practices the Pivotal way runs on (pair programming, refactor-as-you-go, small batches, test-first work) were treated as too expensive when the industry chose its default in the early 2000s. AI agents inverted the math. Pair programming is what you get for free when an agent sits in your editor, and refactoring is nearly costless when the agent does the typing. Kent Beck calls the new mode <em>augmented coding</em>; <a href="further-reading.html">further reading</a> tracks the wider conversation.</p>
+
+        <p><strong>Acceptance is the seam that matters most.</strong> "The dev pair never accepts its own work" was a check on humans missing details. With an AI in the dev-pair seat, it is a check on the main mistake AI agents make: confidently building the wrong thing. Acceptance criteria written into the story before the agent pulls it give the agent a target; the product manager checks those criteria before flipping the story to <code>accepted</code>. That seam is what stops the team from shipping fast but wrong.</p>
+      </div>
+    </section>
+
+    <!-- ───────── where to next ───────── -->
+    <section id="next">
+      <div class="sec-head"><h2>Where to go from here</h2></div>
+      <div class="sec-body">
+        <h3>Try the tutorial</h3>
+        <p><a href="tutorial.html">The tutorial</a> runs a two-iteration scenario end to end: inception, planning, pulling stories, the 8-point cap kicking in, acceptance, retro. Each scene carries a triptych so you can switch any screenshot to shell, VS Code, or Claude Code; the choice carries through the page. About twenty minutes.</p>
+
+        <h3>Look up the details</h3>
+        <p><a href="reference.html">The reference</a> covers the repo layout, item schema, state machine, velocity formula, MCP tools, CLI verbs, coach-mode files, and configuration. Use it when you know what you want but forgot the exact field or flag.</p>
+
+        <h3>Read more</h3>
+        <p><a href="further-reading.html">Further reading</a> is the list of essays driving the XP renaissance conversation in the AI era: Kent Beck on augmented coding, Martin Fowler on refactoring, the XP 2025 conference, and the practitioners who are calling the trend by name.</p>
+
+        <h3>Source code</h3>
+        <p>Code, issues, and releases at <a href="https://github.com/mreider/agilemarkdown">github.com/mreider/agilemarkdown</a>.</p>
+      </div>
+    </section>
+
+    <footer class="colophon">
+      <div class="top">
+        <h4><em>agilemarkdown</em></h4>
+        <span>MIT · © 2026 <a href="about.html">Matt Reider</a></span>
+      </div>
+    </footer>
+
+  </main>
+</div>
+
+<script src="surface-widget.js"></script>
+
+</body>
+</html>

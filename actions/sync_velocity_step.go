@@ -2,15 +2,18 @@ package actions
 
 import (
 	"fmt"
+
 	"github.com/mreider/agilemarkdown/backlog"
+	"github.com/mreider/agilemarkdown/config"
 )
 
 type SyncVelocityStep struct {
 	root *backlog.BacklogsStructure
+	cfg  *config.Config
 }
 
-func NewSyncVelocityStep(root *backlog.BacklogsStructure) *SyncVelocityStep {
-	return &SyncVelocityStep{root: root}
+func NewSyncVelocityStep(root *backlog.BacklogsStructure, cfg *config.Config) *SyncVelocityStep {
+	return &SyncVelocityStep{root: root, cfg: cfg}
 }
 
 func (s *SyncVelocityStep) Execute() error {
@@ -51,7 +54,7 @@ func (s *SyncVelocityStep) Execute() error {
 		backlogs = append(backlogs, bck)
 	}
 	fmt.Println("Generating velocity graphs and pages")
-	err = velocity.Update(backlogs, overviews, backlogDirs, s.root.Root())
+	err = velocity.Update(backlogs, overviews, backlogDirs, s.root.Root(), s.cfg)
 	if err != nil {
 		return err
 	}

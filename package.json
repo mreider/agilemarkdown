@@ -1,0 +1,8 @@
+{
+  "name": "agilemarkdown-tooling",
+  "private": true,
+  "description": "Repo-level dev tooling (currently just the tutorial Playwright runner). The VS Code extension and its tests live under vscode/.",
+  "devDependencies": {
+    "@playwright/test": "^1.60.0"
+  }
+}

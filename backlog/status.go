@@ -2,10 +2,18 @@ package backlog
 
 import (
 	"fmt"
-	"github.com/mreider/agilemarkdown/utils"
 	"strings"
+
+	"github.com/mreider/agilemarkdown/utils"
 )
 
+// BacklogItemStatus is one cell of the Pivotal-Tracker-derived workflow:
+//
+//	unstarted -> started -> finished -> delivered -> accepted
+//	                                              -> rejected -> started
+//
+// `accepted` is the only status that contributes to velocity. `rejected`
+// is a holding state; the next action sends the item back to `started`.
 type BacklogItemStatus struct {
 	Code        string
 	Name        string
@@ -13,28 +21,38 @@ type BacklogItemStatus struct {
 }
 
 var (
-	DoingStatus     = &BacklogItemStatus{"d", "doing", "in doing"}
-	PlannedStatus   = &BacklogItemStatus{"p", "planned", "planned"}
-	UnplannedStatus = &BacklogItemStatus{"u", "unplanned", "unplanned"}
-	FinishedStatus  = &BacklogItemStatus{"f", "finished", "finished"}
+	UnstartedStatus = &BacklogItemStatus{"u", "unstarted", "unstarted (in backlog)"}
+	StartedStatus   = &BacklogItemStatus{"s", "started", "in progress"}
+	FinishedStatus  = &BacklogItemStatus{"f", "finished", "dev complete, awaiting delivery"}
+	DeliveredStatus = &BacklogItemStatus{"d", "delivered", "deployed, awaiting acceptance"}
+	AcceptedStatus  = &BacklogItemStatus{"a", "accepted", "accepted (counts toward velocity)"}
+	RejectedStatus  = &BacklogItemStatus{"r", "rejected", "rejected; back to started"}
 )
 
-var AllStatuses = []*BacklogItemStatus{DoingStatus, PlannedStatus, UnplannedStatus, FinishedStatus}
+// AllStatuses is the canonical workflow order, used in views and pickers.
+var AllStatuses = []*BacklogItemStatus{
+	UnstartedStatus,
+	StartedStatus,
+	FinishedStatus,
+	DeliveredStatus,
+	AcceptedStatus,
+	RejectedStatus,
+}
 
-func StatusByCode(statusCode string) *BacklogItemStatus {
-	for _, status := range AllStatuses {
-		if status.Code == statusCode {
-			return status
+func StatusByCode(code string) *BacklogItemStatus {
+	for _, s := range AllStatuses {
+		if s.Code == code {
+			return s
 		}
 	}
 	return nil
 }
 
-func StatusByName(statusName string) *BacklogItemStatus {
-	statusName = strings.ToLower(statusName)
-	for _, status := range AllStatuses {
-		if status.Name == statusName {
-			return status
+func StatusByName(name string) *BacklogItemStatus {
+	name = strings.ToLower(strings.TrimSpace(name))
+	for _, s := range AllStatuses {
+		if s.Name == name {
+			return s
 		}
 	}
 	return nil
@@ -44,47 +62,46 @@ func StatusIndex(status *BacklogItemStatus) int {
 	if status == nil {
 		return -1
 	}
-
-	for i, st := range AllStatuses {
-		if st.Name == status.Name {
+	for i, s := range AllStatuses {
+		if s.Name == status.Name {
 			return i
 		}
 	}
 	return -1
 }
 
-func StatusNameByCode(statusCode string) string {
-	status := StatusByCode(statusCode)
-	if status != nil {
-		return status.Name
+func StatusNameByCode(code string) string {
+	if s := StatusByCode(code); s != nil {
+		return s.Name
 	}
 	return "unknown"
 }
 
-func IsValidStatusCode(statusCode string) bool {
-	for _, status := range AllStatuses {
-		if status.Code == statusCode {
-			return true
-		}
-	}
-	return false
+func IsValidStatusCode(code string) bool {
+	return StatusByCode(code) != nil
 }
 
 func AllStatusesList() string {
-	result := make([]string, 0, len(AllStatuses))
-	for _, status := range AllStatuses {
-		result = append(result, fmt.Sprintf("%s (%s)", status.Code, status.Name))
+	parts := make([]string, 0, len(AllStatuses))
+	for _, s := range AllStatuses {
+		parts = append(parts, fmt.Sprintf("%s (%s)", s.Code, s.Name))
 	}
-	return strings.Join(result, ", ")
+	return strings.Join(parts, ", ")
 }
 
-func (status *BacklogItemStatus) CapitalizedName() string {
-	return utils.TitleFirstLetter(status.Name)
+func (s *BacklogItemStatus) CapitalizedName() string {
+	return utils.TitleFirstLetter(s.Name)
 }
 
-func (status *BacklogItemStatus) Hint() string {
-	if strings.HasPrefix(status.Name, status.Code) {
-		return fmt.Sprintf("(%s)%s", status.Code, strings.TrimPrefix(status.Name, status.Code))
+func (s *BacklogItemStatus) Hint() string {
+	if strings.HasPrefix(s.Name, s.Code) {
+		return fmt.Sprintf("(%s)%s", s.Code, strings.TrimPrefix(s.Name, s.Code))
 	}
-	return fmt.Sprintf("(%s)%s", status.Code, status.Name)
+	return fmt.Sprintf("(%s)%s", s.Code, s.Name)
+}
+
+// CountsForVelocity reports whether items in this status contribute to
+// velocity. Only `accepted` does.
+func (s *BacklogItemStatus) CountsForVelocity() bool {
+	return s == AcceptedStatus
 }

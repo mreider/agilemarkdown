@@ -1,0 +1,29 @@
+{
+  "request": {
+    "id": 5,
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "arguments": {
+        "backlog": "stories",
+        "title": "Write the README"
+      },
+      "name": "create_item"
+    }
+  },
+  "response": {
+    "id": 5,
+    "jsonrpc": "2.0",
+    "result": {
+      "content": [
+        {
+          "text": "{\"path\":\"stories/Write-the-README.md\"}",
+          "type": "text"
+        }
+      ],
+      "structuredContent": {
+        "path": "stories/Write-the-README.md"
+      }
+    }
+  }
+}

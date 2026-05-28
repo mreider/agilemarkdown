@@ -1,0 +1,29 @@
+{
+  "request": {
+    "id": 5,
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "arguments": {
+        "path": "stories/wait-by-the-mailbox-for-any-kind-of-reply.md",
+        "status": "delivered"
+      },
+      "name": "set_status"
+    }
+  },
+  "response": {
+    "id": 5,
+    "jsonrpc": "2.0",
+    "result": {
+      "content": [
+        {
+          "text": "{\"ok\":true}",
+          "type": "text"
+        }
+      ],
+      "structuredContent": {
+        "ok": true
+      }
+    }
+  }
+}

@@ -1,28 +1,29 @@
 package commands
 
 import (
+	"context"
 	"github.com/mreider/agilemarkdown/actions"
-	"gopkg.in/urfave/cli.v1"
+	"github.com/urfave/cli/v3"
 )
 
-var CreateUserCommand = cli.Command{
+var CreateUserCommand = &cli.Command{
 	Name:      "create-user",
 	Usage:     "Create a new user",
 	ArgsUsage: "NAME EMAIL",
 	Flags: []cli.Flag{
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:   "name",
 			Hidden: true,
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:   "email",
 			Hidden: true,
 		},
 	},
-	Action: func(c *cli.Context) error {
+	Action: func(ctx context.Context, c *cli.Command) error {
 		name := c.String("name")
 		email := c.String("email")
-		parts := c.Args()
+		parts := c.Args().Slice()
 
 		rootDir, err := findRootDirectory()
 		if err != nil {

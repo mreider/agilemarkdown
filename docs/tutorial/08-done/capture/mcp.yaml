@@ -1,0 +1,9 @@
+- name: 01-done-list
+  tool: done_list
+  args:
+    backlog: stories
+
+- name: 02-record-learning
+  tool: record_learning
+  args:
+    note: "Pointing the gnarly one first kept the rest honest."

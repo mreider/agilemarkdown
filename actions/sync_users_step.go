@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/mreider/agilemarkdown/backlog"
 	"github.com/mreider/agilemarkdown/utils"
-	"io/ioutil"
+	"os"
 	"strings"
 )
 
@@ -54,5 +54,5 @@ func (s *SyncUsersStep) updateUsersPage(userList *backlog.UserList) error {
 	for _, user := range userList.Users() {
 		lines = append(lines, fmt.Sprintf("| %s | %s | %s |", backlog.MakeUserLink(user, user.Name(), s.root.Root()), user.Nickname(), strings.Join(user.Emails(), ", ")))
 	}
-	return ioutil.WriteFile(s.root.UsersFile(), []byte(strings.Join(lines, "  \n")), 0644)
+	return os.WriteFile(s.root.UsersFile(), []byte(strings.Join(lines, "  \n")), 0644)
 }

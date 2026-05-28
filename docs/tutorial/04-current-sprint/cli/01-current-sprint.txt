@@ -1,0 +1,17 @@
+$ am show priority
+Priority (stories)   velocity 7 / iteration
+
+── Iteration 1378  Mon May 25  9 / 7 pts ──
+   1. ★  Wait by the mailbox for any kind of rep…  started     3p
+   2. ★  Pace exactly seven times up and down th…  started     2p
+   3. ★  Watch the seedling for the smallest sig…  started     5p
+   4. ★  Build a small fence so the seedling fee…  accepted    3p
+   5. ★  Set a tiny chair beside the seedling      accepted    1p
+   6. ★  Send a thank-you note by Snail            accepted    2p
+   7. ★  Sort the unread letters into three quie…  delivered   3p
+
+── Iteration 1379  Mon Jun 01  0 / 7 pts ──
+   8. ★  Yell at the seedling to grow faster       rejected    3p
+   9. ★  Apologize to the seedling for yelling     unstarted   1p
+  10. ★  Decline the dinner party invitation pol…  unstarted   2p
+

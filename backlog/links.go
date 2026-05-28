@@ -8,19 +8,11 @@ import (
 )
 
 func MakeItemLink(item *BacklogItem, baseDir string) string {
-	itemPath := item.markdown.ContentPath()
+	itemPath := item.Path()
 	if itemPath == "" {
 		itemPath = item.Name()
 	}
 	return utils.MakeMarkdownLink(item.Title(), itemPath, baseDir)
-}
-
-func MakeIdeaLink(idea *BacklogIdea, baseDir string) string {
-	ideaPath := idea.markdown.ContentPath()
-	if ideaPath == "" {
-		ideaPath = idea.Name()
-	}
-	return utils.MakeMarkdownLink(idea.Title(), ideaPath, baseDir)
 }
 
 func MakeOverviewLink(overview *BacklogOverview, baseDir string) string {
@@ -35,10 +27,6 @@ func MakeArchiveLink(archive *BacklogOverview, title string, baseDir string) str
 
 func MakeIndexLink(rootDir, baseDir string) string {
 	return utils.MakeMarkdownLink("home", filepath.Join(rootDir, indexFileName), baseDir)
-}
-
-func MakeIdeasLink(rootDir, baseDir string) string {
-	return utils.MakeMarkdownLink("idea list", filepath.Join(rootDir, ideasFileName), baseDir)
 }
 
 func MakeTagsLink(rootDir, baseDir string) string {
@@ -64,7 +52,6 @@ func MakeTimelineLink(rootDir, baseDir string) string {
 func MakeStandardLinks(rootDir, baseDir string) []string {
 	return []string{
 		MakeIndexLink(rootDir, baseDir),
-		MakeIdeasLink(rootDir, baseDir),
 		MakeTagsLink(rootDir, baseDir),
 		MakeVelocityLink(rootDir, baseDir),
 		MakeTimelineLink(rootDir, baseDir),

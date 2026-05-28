@@ -1,0 +1,6 @@
+$ am team-agreements --add "Bugs go to the top of priority"
+recorded: 1 agreement
+$ am team-agreements --add "8-point hard cap. Above 3 is a red flag."
+recorded: 2 agreements
+$ am team-agreements --add "PM rejects with a reason"
+recorded: 3 agreements

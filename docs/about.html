@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>About · agilemarkdown</title>
+<meta name="description" content="About the author of agilemarkdown, and the lineage of the Pivotal-style workflow it implements." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,500;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper:   oklch(0.974 0.009 82);
+    --paper-2: oklch(0.945 0.012 82);
+    --ink:     oklch(0.205 0.015 60);
+    --ink-2:   oklch(0.36  0.018 60);
+    --ink-3:   oklch(0.52  0.018 65);
+    --rule:    oklch(0.84  0.014 78);
+    --rule-2:  oklch(0.78  0.016 78);
+    --accent:  oklch(0.52  0.135 38);
+    --accent-soft: oklch(0.85 0.06 38);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: "Source Serif 4", Georgia, serif;
+    font-size: 18px; line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--rule-2); text-underline-offset: 3px; }
+  a:hover { color: var(--accent); text-decoration-color: var(--accent); }
+  main { max-width: 720px; margin: 0 auto; padding: 60px 28px 120px; }
+  header.masthead { padding: 60px 0 40px; border-bottom: 1px solid var(--rule); margin-bottom: 40px; }
+  header.masthead a.back { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--ink-3); text-decoration: none; }
+  header.masthead a.back:hover { color: var(--accent); }
+  header.masthead .eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--ink-3); margin: 18px 0 14px;
+  }
+  header.masthead h1 {
+    font-size: clamp(36px, 7vw, 56px);
+    font-weight: 400; font-style: italic;
+    line-height: 1.05; letter-spacing: -0.022em; margin: 0 0 14px;
+  }
+  header.masthead h1 em { font-style: normal; font-weight: 600; color: var(--accent); }
+  p { margin: 0 0 18px; }
+  figure.team-photo { margin: 32px 0 28px; }
+  figure.team-photo img {
+    width: 100%; max-width: 720px; height: auto; display: block;
+    border-radius: 6px;
+    box-shadow: 0 1px 0 var(--rule), 0 12px 32px -20px oklch(0.2 0.02 60 / 0.5);
+  }
+  figure.team-photo figcaption {
+    font-family: "Source Serif 4", serif;
+    font-style: italic; font-size: 14px;
+    color: var(--ink-3); text-align: center;
+    margin-top: 10px; line-height: 1.5;
+  }
+  footer { margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--rule); font-size: 14px; color: var(--ink-3); }
+  footer a { color: var(--ink-2); }
+</style>
+</head>
+<body>
+<main>
+  <header class="masthead">
+    <a class="back" href="index.html">← agilemarkdown</a>
+    <div class="eyebrow">About</div>
+    <h1>About <em>agilemarkdown</em></h1>
+  </header>
+
+  <p>agilemarkdown started as a way to keep a Pivotal-style backlog next to the code, in plain markdown, without depending on a hosted tool that might be shut down. Pivotal Tracker itself was sunset in 2025; the workflow was worth carrying forward.</p>
+
+  <p>I worked at Pivotal Software, not Pivotal Labs, and I count myself a latecomer to the Pivotal way. I had picked up most of these practices earlier at Engine Yard, the hosting provider for Pivotal's sites and for a lot of the SF Ruby community (GitHub, New Relic, Zendesk), where the same XP playbook was already in the air. If you were on the earlier Pivotal Labs team and I have something wrong in the <a href="tutorial.html">tutorial</a>, please send me a note.</p>
+
+  <figure class="team-photo">
+    <img src="pivotal-cloud-team.jpg" alt="Three Pivotal engineers in matching green 'CLOUD' t-shirts at the Pivotal Software office: Amit Gupta, Matt Reider, and Matt Royal." width="960" height="720" />
+    <figcaption>On the Cloud Foundry Ops Manager team at Pivotal Software, San Francisco, around 2014. From left: Amit Gupta, me, Matt Royal.</figcaption>
+  </figure>
+
+  <p>The project is MIT-licensed. Source, issues, and releases are on <a href="https://github.com/mreider/agilemarkdown">GitHub</a>.</p>
+
+  <footer>
+    <a href="index.html">← back to agilemarkdown</a>
+  </footer>
+</main>
+</body>
+</html>

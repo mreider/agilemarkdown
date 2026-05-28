@@ -1,0 +1,29 @@
+{
+  "request": {
+    "id": 2,
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "arguments": {},
+      "name": "inception_doc"
+    }
+  },
+  "response": {
+    "id": 2,
+    "jsonrpc": "2.0",
+    "result": {
+      "content": [
+        {
+          "text": "{\"body\":\"# Inception\\n\\n## The user\\n\\nA small team that wants to track letters, gardens, and small\\nceremonies without buying a SaaS. They live in a meadow.\\n\\n## The goal\\n\\nKeep one shared list of small commitments. Honour them.\\n\\n## The reason\\n\\nToad cannot remember things. Frog is patient but forgetful.\\nA written list helps; a written list with timestamps helps more.\\n\\n## Success\\n\\nBy spring the seedling has grown, the letters have been answered,\\nand the moon has had a birthday.\\n\\n## Constraints\\n\\n- One git repo for everything\\n- No SaaS dependencies\\n- Decisions in writing\\n\\n## Out of scope\\n\\n- Hurrying\\n- Anything that would upset Bear before the Long-Sleep\\n\",\"existed\":true,\"path\":\".am/inception.md\",\"wrote\":false}",
+          "type": "text"
+        }
+      ],
+      "structuredContent": {
+        "body": "# Inception\n\n## The user\n\nA small team that wants to track letters, gardens, and small\nceremonies without buying a SaaS. They live in a meadow.\n\n## The goal\n\nKeep one shared list of small commitments. Honour them.\n\n## The reason\n\nToad cannot remember things. Frog is patient but forgetful.\nA written list helps; a written list with timestamps helps more.\n\n## Success\n\nBy spring the seedling has grown, the letters have been answered,\nand the moon has had a birthday.\n\n## Constraints\n\n- One git repo for everything\n- No SaaS dependencies\n- Decisions in writing\n\n## Out of scope\n\n- Hurrying\n- Anything that would upset Bear before the Long-Sleep\n",
+        "existed": true,
+        "path": ".am/inception.md",
+        "wrote": false
+      }
+    }
+  }
+}

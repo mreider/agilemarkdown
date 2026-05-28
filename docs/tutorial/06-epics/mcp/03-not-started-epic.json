@@ -1,0 +1,34 @@
+{
+  "request": {
+    "id": 5,
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "arguments": {
+        "slug": "the-moon-watch"
+      },
+      "name": "epic_progress"
+    }
+  },
+  "response": {
+    "id": 5,
+    "jsonrpc": "2.0",
+    "result": {
+      "content": [
+        {
+          "text": "Epic: the-moon-watch   0/3 stories  0/11 pts  0%\n[░░░░░░░░░░░░░░░░░░░░░░░░]\n\nAccepted:\n  (none yet)\n\nOpen:\n  ★  Brew a small pot of tear-water tea before midnight  [unstarted]  (stories/brew-a-small-pot-of-tear-water-tea-before-midnight.md)\n  ★  Plan the moons very first birthday party  [unstarted]  (stories/plan-the-moons-very-first-birthday-party.md)\n  ★  Stand on a chair to watch the moon properly  [unstarted]  (stories/stand-on-a-chair-to-watch-the-moon-properly.md)\n",
+          "type": "text"
+        }
+      ],
+      "structuredContent": {
+        "accepted_points": 0,
+        "accepted_stories": 0,
+        "ascii": "Epic: the-moon-watch   0/3 stories  0/11 pts  0%\n[░░░░░░░░░░░░░░░░░░░░░░░░]\n\nAccepted:\n  (none yet)\n\nOpen:\n  ★  Brew a small pot of tear-water tea before midnight  [unstarted]  (stories/brew-a-small-pot-of-tear-water-tea-before-midnight.md)\n  ★  Plan the moons very first birthday party  [unstarted]  (stories/plan-the-moons-very-first-birthday-party.md)\n  ★  Stand on a chair to watch the moon properly  [unstarted]  (stories/stand-on-a-chair-to-watch-the-moon-properly.md)\n",
+        "percent_done": 0,
+        "slug": "the-moon-watch",
+        "total_points": 11,
+        "total_stories": 3
+      }
+    }
+  }
+}

@@ -1,0 +1,2 @@
+$ echo '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | am mcp
+... 52 tools, one per registered MCP capability

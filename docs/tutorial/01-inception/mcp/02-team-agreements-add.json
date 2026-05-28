@@ -1,0 +1,26 @@
+{
+  "request": {
+    "id": 3,
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "arguments": {
+        "add": "Bugs go to the top of priority"
+      },
+      "name": "team_agreements"
+    }
+  },
+  "response": {
+    "id": 3,
+    "jsonrpc": "2.0",
+    "result": {
+      "content": [
+        {
+          "text": "validating \"arguments\": validating root: unexpected additional properties [\"add\"]",
+          "type": "text"
+        }
+      ],
+      "isError": true
+    }
+  }
+}

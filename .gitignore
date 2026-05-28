@@ -14,3 +14,26 @@
 .glide/
 
 .idea/
+
+# Local Claude Code state. The shipped artifacts (skills, hooks,
+# settings.json) stay tracked; everything else under .claude/ is
+# local-only.
+.claude/settings.local.json
+.claude/projects/
+.claude/cache/
+.claude/state/
+.claude/conversations/
+
+# Build artifacts
+agilemarkdown
+agilemarkdown_bash_autocomplete
+
+# Node + extension packaging artifacts
+node_modules/
+vscode/*.vsix
+
+# Stray agilemarkdown state if someone runs `am` in the repo root.
+# The codespace seeds a real demo at /workspaces/am-demo, separate
+# from the repo itself.
+.am/
+stories/

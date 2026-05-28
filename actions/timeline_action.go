@@ -26,7 +26,7 @@ func NewTimelineAction(rootDir, tag string) *TimelineAction {
 }
 
 func (a *TimelineAction) Execute() error {
-	_, itemsTags, _, overviews, err := backlog.ItemsAndIdeasTags(a.root)
+	_, itemsTags, overviews, err := backlog.ItemsTags(a.root)
 	if err != nil {
 		return err
 	}
@@ -117,9 +117,9 @@ func (a *TimelineAction) Execute() error {
 func (a *TimelineAction) sortItems(items []*backlog.BacklogItem) {
 	statuses := map[string]int{
 		strings.ToLower(backlog.FinishedStatus.Name):  0,
-		strings.ToLower(backlog.DoingStatus.Name):     1,
-		strings.ToLower(backlog.PlannedStatus.Name):   2,
-		strings.ToLower(backlog.UnplannedStatus.Name): 3,
+		strings.ToLower(backlog.StartedStatus.Name):     1,
+		strings.ToLower(backlog.UnstartedStatus.Name):   2,
+		strings.ToLower(backlog.UnstartedStatus.Name): 3,
 	}
 
 	sort.Slice(items, func(i, j int) bool {

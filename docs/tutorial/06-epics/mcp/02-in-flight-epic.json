@@ -1,0 +1,34 @@
+{
+  "request": {
+    "id": 13,
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "arguments": {
+        "slug": "the-garden-of-patience"
+      },
+      "name": "epic_progress"
+    }
+  },
+  "response": {
+    "id": 13,
+    "jsonrpc": "2.0",
+    "result": {
+      "content": [
+        {
+          "text": "Epic: the-garden-of-patience   6/12 stories  12/34 pts  35%\n[████████░░░░░░░░░░░░░░░░]\n\nAccepted:\n  ★  Build a small fence so the seedling feels safer  (stories/build-a-small-fence-so-the-seedling-feels-safer.md)\n  ★  Hum a small tune over the seed at night  (stories/hum-a-small-tune-over-the-seed-at-night.md)\n  ★  Place a single seed in soft brown dirt  (stories/place-a-single-seed-in-soft-brown-dirt.md)\n  ★  Set a tiny chair beside the seedling  (stories/set-a-tiny-chair-beside-the-seedling.md)\n  ★  Speak to the seed in a soft, hopeful voice  (stories/speak-to-the-seed-in-a-soft-hopeful-voice.md)\n  ★  Water the seed at exactly dawn  (stories/water-the-seed-at-exactly-dawn.md)\n\nOpen:\n  ★  Apologize to the seedling for yelling  [unstarted]  (stories/apologize-to-the-seedling-for-yelling.md)\n  ★  Knit a tiny sweater for the seedling  [unstarted]  (stories/knit-a-tiny-sweater-for-the-seedling.md)\n  ★  Read a long, slow book to the seedling  [unstarted]  (stories/read-a-long-slow-book-to-the-seedling.md)\n  ★  Replant the seedling somewhere a little warmer  [unstarted]  (stories/replant-the-seedling-somewhere-a-little-warmer.md)\n  ★  Watch the seedling for the smallest sign of movement  [started]  (stories/watch-the-seedling-for-the-smallest-sign-of-movement.md)\n  ★  Yell at the seedling to grow faster  [unstarted]  (stories/yell-at-the-seedling-to-grow-faster.md)\n",
+          "type": "text"
+        }
+      ],
+      "structuredContent": {
+        "accepted_points": 12,
+        "accepted_stories": 6,
+        "ascii": "Epic: the-garden-of-patience   6/12 stories  12/34 pts  35%\n[████████░░░░░░░░░░░░░░░░]\n\nAccepted:\n  ★  Build a small fence so the seedling feels safer  (stories/build-a-small-fence-so-the-seedling-feels-safer.md)\n  ★  Hum a small tune over the seed at night  (stories/hum-a-small-tune-over-the-seed-at-night.md)\n  ★  Place a single seed in soft brown dirt  (stories/place-a-single-seed-in-soft-brown-dirt.md)\n  ★  Set a tiny chair beside the seedling  (stories/set-a-tiny-chair-beside-the-seedling.md)\n  ★  Speak to the seed in a soft, hopeful voice  (stories/speak-to-the-seed-in-a-soft-hopeful-voice.md)\n  ★  Water the seed at exactly dawn  (stories/water-the-seed-at-exactly-dawn.md)\n\nOpen:\n  ★  Apologize to the seedling for yelling  [unstarted]  (stories/apologize-to-the-seedling-for-yelling.md)\n  ★  Knit a tiny sweater for the seedling  [unstarted]  (stories/knit-a-tiny-sweater-for-the-seedling.md)\n  ★  Read a long, slow book to the seedling  [unstarted]  (stories/read-a-long-slow-book-to-the-seedling.md)\n  ★  Replant the seedling somewhere a little warmer  [unstarted]  (stories/replant-the-seedling-somewhere-a-little-warmer.md)\n  ★  Watch the seedling for the smallest sign of movement  [started]  (stories/watch-the-seedling-for-the-smallest-sign-of-movement.md)\n  ★  Yell at the seedling to grow faster  [unstarted]  (stories/yell-at-the-seedling-to-grow-faster.md)\n",
+        "percent_done": 35.294117647058826,
+        "slug": "the-garden-of-patience",
+        "total_points": 34,
+        "total_stories": 12
+      }
+    }
+  }
+}

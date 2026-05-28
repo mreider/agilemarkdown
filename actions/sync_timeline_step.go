@@ -2,12 +2,12 @@ package actions
 
 import (
 	"fmt"
-	"github.com/mreider/agilemarkdown/backlog"
-	"github.com/mreider/agilemarkdown/utils"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/mreider/agilemarkdown/backlog"
+	"github.com/mreider/agilemarkdown/utils"
 )
 
 type SyncTimelineStep struct {
@@ -21,33 +21,32 @@ func NewSyncTimelineStep(root *backlog.BacklogsStructure) *SyncTimelineStep {
 func (s *SyncTimelineStep) Execute() error {
 	fmt.Println("Generating timeline page")
 
-	allTags, itemsTags, _, _, err := backlog.ItemsAndIdeasTags(s.root)
+	allTags, itemsTags, _, err := backlog.ItemsTags(s.root)
 	if err != nil {
 		return err
 	}
 
-	timelineGenerator := backlog.NewTimelineGenerator(s.root)
+	gen := backlog.NewTimelineGenerator(s.root)
 	for tag, tagItems := range itemsTags {
 		hasTimeline := false
 		for _, item := range tagItems {
-			startDate, endDate := item.Timeline()
-			if !startDate.IsZero() && !endDate.IsZero() {
+			start, end := item.Timeline()
+			if !start.IsZero() && !end.IsZero() {
 				hasTimeline = true
 				break
 			}
 		}
 		if hasTimeline {
-			err := timelineGenerator.ExecuteForTag(tag)
-			if err != nil {
+			if err := gen.ExecuteForTag(tag); err != nil {
 				return err
 			}
 		} else {
-			timelineGenerator.RemoveTimeline(tag)
+			gen.RemoveTimeline(tag)
 		}
 	}
 
 	timelineDir := s.root.TimelineDirectory()
-	items, err := ioutil.ReadDir(timelineDir)
+	items, err := os.ReadDir(timelineDir)
 	if err != nil && !os.IsNotExist(err) {
 		return err
 	}
@@ -57,19 +56,26 @@ func (s *SyncTimelineStep) Execute() error {
 	lines = append(lines, "")
 
 	for _, item := range items {
-		if strings.HasSuffix(item.Name(), ".png") {
-			timelineImagePath := filepath.Join(timelineDir, item.Name())
-			timelineTag := strings.TrimSuffix(item.Name(), ".png")
-			if _, ok := allTags[timelineTag]; ok {
-				lines = append(lines, fmt.Sprintf("## Tag: %s", utils.MakeMarkdownLink(timelineTag, filepath.Join(s.root.TagsDirectory(), timelineTag), s.root.Root())))
-				lines = append(lines, "")
-				lines = append(lines, utils.MakeMarkdownImageLink(timelineTag, timelineImagePath, s.root.Root()))
-				lines = append(lines, "")
-			} else {
-				_ = os.Remove(timelineImagePath)
-			}
+		if !strings.HasSuffix(item.Name(), ".txt") {
+			continue
 		}
+		timelineTag := strings.TrimSuffix(item.Name(), ".txt")
+		if _, ok := allTags[timelineTag]; !ok {
+			_ = os.Remove(filepath.Join(timelineDir, item.Name()))
+			continue
+		}
+		lines = append(lines,
+			fmt.Sprintf("## Tag: %s",
+				utils.MakeMarkdownLink(timelineTag, filepath.Join(s.root.TagsDirectory(), timelineTag), s.root.Root())))
+		lines = append(lines, "")
+		body, err := os.ReadFile(filepath.Join(timelineDir, item.Name()))
+		if err != nil {
+			return err
+		}
+		lines = append(lines, "```")
+		lines = append(lines, strings.TrimRight(string(body), "\n"))
+		lines = append(lines, "```", "")
 	}
 
-	return ioutil.WriteFile(s.root.TimelineFile(), []byte(strings.Join(lines, "\n")), 0644)
+	return os.WriteFile(s.root.TimelineFile(), []byte(strings.Join(lines, "\n")), 0644)
 }

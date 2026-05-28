@@ -1,0 +1,18 @@
+- name: 01-reject
+  tool: reject_item
+  args:
+    path: stories/sort-the-unread-letters-into-three-quiet-piles.md
+    reason: "PM noticed the third pile is mislabeled."
+    author: pm
+
+- name: 02-unstart
+  tool: set_status
+  args:
+    path: stories/yell-at-the-seedling-to-grow-faster.md
+    status: unstarted
+
+- name: 03-block
+  tool: block_item
+  args:
+    path: stories/pace-exactly-seven-times-up-and-down-the-path.md
+    reason: "Path is wet from the rain. Waiting for it to dry."

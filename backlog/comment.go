@@ -1,10 +1,54 @@
 package backlog
 
 import (
-	"github.com/mreider/agilemarkdown/markdown"
+	"fmt"
 	"strings"
+	"time"
 	"unicode"
 )
+
+// AppendComment writes a new dated comment under "## Comments" in body.
+// The comment is inserted inside the section (before any later heading)
+// so the body stays parseable. The section is created when missing.
+func AppendComment(body, author, text string) string {
+	stamp := time.Now().UTC().Format("2006-01-02")
+	header := fmt.Sprintf("@%s %s", strings.TrimPrefix(strings.TrimSpace(author), "@"), stamp)
+
+	lines := strings.Split(body, "\n")
+	startIdx := -1
+	for i := len(lines) - 1; i >= 0; i-- {
+		if commentsTitleRe.MatchString(lines[i]) {
+			startIdx = i + 1
+			break
+		}
+	}
+	if startIdx < 0 {
+		trimmed := strings.TrimRight(body, "\n")
+		if trimmed != "" {
+			trimmed += "\n\n"
+		}
+		return trimmed + "## Comments\n\n" + header + "\n" + text + "\n"
+	}
+	end := len(lines)
+	for i := startIdx; i < len(lines); i++ {
+		if strings.HasPrefix(strings.TrimSpace(lines[i]), "#") {
+			end = i
+			break
+		}
+	}
+	insertAt := end
+	for insertAt > startIdx && strings.TrimSpace(lines[insertAt-1]) == "" {
+		insertAt--
+	}
+	out := make([]string, 0, len(lines)+3)
+	out = append(out, lines[:insertAt]...)
+	if insertAt > startIdx {
+		out = append(out, "")
+	}
+	out = append(out, header, text)
+	out = append(out, lines[insertAt:]...)
+	return strings.Join(out, "\n")
+}
 
 type Commented interface {
 	Comments() []*Comment
@@ -32,33 +76,26 @@ func (c *Comment) AddLine(line string) {
 	}
 }
 
-type MarkdownComments struct {
-	markdown *markdown.Content
-}
-
-func NewMarkdownComments(content *markdown.Content) *MarkdownComments {
-	return &MarkdownComments{markdown: content}
-}
-
-func (c *MarkdownComments) Comments() []*Comment {
-	commentsStartIndex := -1
-	for i := len(c.markdown.FreeText()) - 1; i >= 0; i-- {
-		if commentsTitleRe.MatchString(c.markdown.FreeText()[i]) {
-			commentsStartIndex = i + 1
+func parseBodyComments(body string) []*Comment {
+	lines := strings.Split(body, "\n")
+	startIdx := -1
+	for i := len(lines) - 1; i >= 0; i-- {
+		if commentsTitleRe.MatchString(lines[i]) {
+			startIdx = i + 1
 			break
 		}
 	}
-	if commentsStartIndex == -1 {
+	if startIdx == -1 {
 		return nil
 	}
 
-	comments := make([]*Comment, 0)
+	var comments []*Comment
 	var comment *Comment
-	for i := commentsStartIndex; i < len(c.markdown.FreeText()); i++ {
-		line := strings.TrimRightFunc(c.markdown.FreeText()[i], unicode.IsSpace)
+	for i := startIdx; i < len(lines); i++ {
+		line := strings.TrimRightFunc(lines[i], unicode.IsSpace)
 		if line == "" {
 			if comment != nil {
-				comment.rawText = append(comment.rawText, c.markdown.FreeText()[i])
+				comment.rawText = append(comment.rawText, lines[i])
 			}
 			continue
 		}
@@ -71,18 +108,16 @@ func (c *MarkdownComments) Comments() []*Comment {
 				comments = append(comments, comment)
 			}
 			rawUsers := commentUserSeparatorRe.Split(matches[2], -1)
-			allUsers := make(map[string]bool)
+			seen := make(map[string]bool)
 			users := make([]string, 0, len(rawUsers))
-			for _, user := range rawUsers {
-				user = strings.TrimPrefix(user, "@")
-				user = strings.TrimSuffix(user, ".")
-				if user == "" {
+			for _, u := range rawUsers {
+				u = strings.TrimPrefix(u, "@")
+				u = strings.TrimSuffix(u, ".")
+				if u == "" || seen[u] {
 					continue
 				}
-				if !allUsers[user] {
-					users = append(users, user)
-					allUsers[user] = true
-				}
+				users = append(users, u)
+				seen[u] = true
 			}
 			comment = &Comment{Users: users}
 			if len(matches[1]) > 0 {
@@ -92,18 +127,17 @@ func (c *MarkdownComments) Comments() []*Comment {
 			if text != "" {
 				comment.Text = append(comment.Text, text)
 			}
-			comment.rawText = append(comment.rawText, c.markdown.FreeText()[i])
-		} else {
-			if comment != nil {
-				line := strings.TrimSpace(line)
-				if strings.HasPrefix(strings.ToLower(line), "sent by ") {
-					comment.Closed = true
-				} else if strings.HasPrefix(strings.ToLower(line), "can't send by ") {
-					comment.Unsent = true
-				}
-				comment.Text = append(comment.Text, line)
-				comment.rawText = append(comment.rawText, c.markdown.FreeText()[i])
+			comment.rawText = append(comment.rawText, lines[i])
+		} else if comment != nil {
+			trimmed := strings.TrimSpace(line)
+			low := strings.ToLower(trimmed)
+			if strings.HasPrefix(low, "sent by ") {
+				comment.Closed = true
+			} else if strings.HasPrefix(low, "can't send by ") {
+				comment.Unsent = true
 			}
+			comment.Text = append(comment.Text, trimmed)
+			comment.rawText = append(comment.rawText, lines[i])
 		}
 	}
 	if comment != nil {
@@ -112,36 +146,34 @@ func (c *MarkdownComments) Comments() []*Comment {
 	return comments
 }
 
-func (c *MarkdownComments) UpdateComments(comments []*Comment) {
-	commentsStartIndex := -1
-	for i := len(c.markdown.FreeText()) - 1; i >= 0; i-- {
-		if commentsTitleRe.MatchString(c.markdown.FreeText()[i]) {
-			commentsStartIndex = i + 1
+func updateBodyComments(body string, comments []*Comment) string {
+	lines := strings.Split(body, "\n")
+	startIdx := -1
+	for i := len(lines) - 1; i >= 0; i-- {
+		if commentsTitleRe.MatchString(lines[i]) {
+			startIdx = i + 1
 			break
 		}
 	}
-	if commentsStartIndex == -1 {
-		return
+	if startIdx == -1 {
+		return body
 	}
-
-	for commentsStartIndex < len(c.markdown.FreeText()) && strings.TrimSpace(c.markdown.FreeText()[commentsStartIndex]) == "" {
-		commentsStartIndex++
+	for startIdx < len(lines) && strings.TrimSpace(lines[startIdx]) == "" {
+		startIdx++
 	}
-
-	commentsFinishIndex := commentsStartIndex
-	for i := commentsStartIndex; i < len(c.markdown.FreeText()); i++ {
-		line := strings.TrimRightFunc(c.markdown.FreeText()[i], unicode.IsSpace)
-		commentsFinishIndex = i
-		if strings.HasPrefix(line, "#") {
+	finishIdx := startIdx
+	for i := startIdx; i < len(lines); i++ {
+		finishIdx = i
+		if strings.HasPrefix(strings.TrimRightFunc(lines[i], unicode.IsSpace), "#") {
 			break
 		}
 	}
 
-	newFreeText := make([]string, 0, len(c.markdown.FreeText()))
-	newFreeText = append(newFreeText, c.markdown.FreeText()[:commentsStartIndex]...)
-	for _, comment := range comments {
-		newFreeText = append(newFreeText, comment.rawText...)
+	out := make([]string, 0, len(lines))
+	out = append(out, lines[:startIdx]...)
+	for _, c := range comments {
+		out = append(out, c.rawText...)
 	}
-	newFreeText = append(newFreeText, c.markdown.FreeText()[commentsFinishIndex:]...)
-	c.markdown.SetFreeText(newFreeText)
+	out = append(out, lines[finishIdx:]...)
+	return strings.Join(out, "\n")
 }

@@ -1,0 +1,27 @@
+{
+  "request": {
+    "id": 26,
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "arguments": {
+        "index": 2,
+        "path": "stories/plan-the-moons-very-first-birthday-party.md"
+      },
+      "name": "set_task_done"
+    }
+  },
+  "response": {
+    "id": 26,
+    "jsonrpc": "2.0",
+    "result": {
+      "content": [
+        {
+          "text": "validating \"arguments\": validating root: required: missing properties: [\"done\"]",
+          "type": "text"
+        }
+      ],
+      "isError": true
+    }
+  }
+}

@@ -1,18 +1,19 @@
 package commands
 
 import (
+	"context"
 	"fmt"
 	"github.com/mreider/agilemarkdown/actions"
-	"gopkg.in/urfave/cli.v1"
+	"github.com/urfave/cli/v3"
 	"path/filepath"
 	"time"
 )
 
-var ArchiveCommand = cli.Command{
+var ArchiveCommand = &cli.Command{
 	Name:      "archive",
 	Usage:     "Archive stories before a certain date",
 	ArgsUsage: "YYYY-MM-DD",
-	Action: func(c *cli.Context) error {
+	Action: func(ctx context.Context, c *cli.Command) error {
 		if err := checkIsBacklogDirectory(); err != nil {
 			fmt.Println(err)
 			return nil
@@ -23,7 +24,7 @@ var ArchiveCommand = cli.Command{
 			return nil
 		}
 
-		beforeDate, err := time.Parse("2006-1-2", c.Args()[0])
+		beforeDate, err := time.Parse("2006-1-2", c.Args().Get(0))
 		if err != nil {
 			fmt.Println("Invalid date. Should be in YYYY-MM-DD format.")
 			return nil

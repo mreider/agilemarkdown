@@ -1,0 +1,29 @@
+{
+  "request": {
+    "id": 4,
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "arguments": {
+        "note": "Pointing the gnarly one first kept the rest honest."
+      },
+      "name": "record_learning"
+    }
+  },
+  "response": {
+    "id": 4,
+    "jsonrpc": "2.0",
+    "result": {
+      "content": [
+        {
+          "text": "- 2026-05-28: Pointing the gnarly one first kept the rest honest.\n",
+          "type": "text"
+        }
+      ],
+      "structuredContent": {
+        "entry": "- 2026-05-28: Pointing the gnarly one first kept the rest honest.\n",
+        "path": ".am/learnings.md"
+      }
+    }
+  }
+}

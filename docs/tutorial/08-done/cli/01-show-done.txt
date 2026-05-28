@@ -1,0 +1,21 @@
+$ am show done
+Done (stories)   18 stories
+
+── Iteration 1377  Mon May 18 ──
+   1. ★  Wave once at the moon through the window  accepted    1p
+   2. ★  Address the very first letter to Snail    accepted    3p
+   3. ★  Hum a small tune over the seed at night   accepted    2p
+
+── Iteration 1376  Mon May 11 ──
+   4. ★  Water the seed at exactly dawn            accepted    3p
+   5. ★  Toss the last crumb to a hopeful bird     accepted    1p
+   6. ★  Speak to the seed in a soft, hopeful vo…  accepted    1p
+
+── Iteration 1375  Mon May 04 ──
+   7. ★  Eat half the cookies anyway               accepted    2p
+   8. ★  Hide the cookies under the bed for safe…  accepted    3p
+   9. ★  Place a single seed in soft brown dirt    accepted    2p
+
+── Iteration 1374  Mon Apr 27 ──
+  10. ⚙  Knock politely on every door on Maple L…  accepted    
+  11. ★  Wear the brown coat the whole afternoon   accepted    1p

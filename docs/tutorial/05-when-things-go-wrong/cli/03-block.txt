@@ -1,0 +1,3 @@
+$ am block stories/pace-exactly-seven-times-up-and-down-the-path.md \
+    --reason "Path is wet from the rain. Waiting for it to dry."
+✓ blocked

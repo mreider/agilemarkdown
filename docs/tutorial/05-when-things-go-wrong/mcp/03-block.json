@@ -1,0 +1,29 @@
+{
+  "request": {
+    "id": 10,
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "arguments": {
+        "path": "stories/pace-exactly-seven-times-up-and-down-the-path.md",
+        "reason": "Path is wet from the rain. Waiting for it to dry."
+      },
+      "name": "block_item"
+    }
+  },
+  "response": {
+    "id": 10,
+    "jsonrpc": "2.0",
+    "result": {
+      "content": [
+        {
+          "text": "{\"ok\":true}",
+          "type": "text"
+        }
+      ],
+      "structuredContent": {
+        "ok": true
+      }
+    }
+  }
+}

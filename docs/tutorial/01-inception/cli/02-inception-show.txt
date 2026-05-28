@@ -1,0 +1,22 @@
+$ am inception
+seeded .am/inception.md (edit it; ask the team)
+$ am inception --show
+# Inception
+
+## The user
+(describe the people you are building for)
+
+## The goal
+(one sentence the team agrees with)
+
+## The reason
+(why now, why us)
+
+## Success
+(what specifically must be true for this to have worked)
+
+## Constraints
+- (hard limits on time, scope, dependencies)
+
+## Out of scope
+- (what you're consciously not doing)

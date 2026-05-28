@@ -1,0 +1,2 @@
+$ am accept stories/first-frost-release.md
+✓ status: accepted   accepted_at: 2026-06-17T12:00:00Z

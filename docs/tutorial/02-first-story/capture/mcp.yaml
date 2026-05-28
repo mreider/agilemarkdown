@@ -1,0 +1,25 @@
+- name: 01-create
+  tool: create_item
+  args:
+    backlog: stories
+    title: "Write the README"
+
+- name: 02-estimate
+  tool: set_estimate
+  args:
+    path: stories/write-the-readme.md
+    estimate: "3"
+
+- name: 03-rank
+  tool: move_to_priority
+  args:
+    backlog: stories
+    item_paths:
+      - stories/write-the-readme.md
+    position: top
+
+- name: 04-start
+  tool: set_status
+  args:
+    path: stories/write-the-readme.md
+    status: started

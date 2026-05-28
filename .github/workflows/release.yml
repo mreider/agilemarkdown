@@ -1,0 +1,85 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  ci:
+    name: Verify (build + unit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - run: go vet ./...
+      - run: go test ./...
+      - run: go build -o agilemarkdown .
+
+  create-release:
+    name: Create GitHub release
+    needs: ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create or reuse release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          # Idempotent create: tolerate already-exists so this is safe to
+          # rerun and safe to run alongside extension.yml's publish job
+          # (which uploads the VSIX to the same release).
+          if ! gh release view "$GITHUB_REF_NAME" --repo "$REPO" >/dev/null 2>&1; then
+            gh release create "$GITHUB_REF_NAME" \
+              --repo "$REPO" \
+              --title "$GITHUB_REF_NAME" \
+              --generate-notes \
+              || gh release view "$GITHUB_REF_NAME" --repo "$REPO" >/dev/null
+          fi
+
+  build:
+    name: Build matrix and upload
+    needs: create-release
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { goos: linux,   goarch: amd64 }
+          - { goos: linux,   goarch: arm64 }
+          - { goos: darwin,  goarch: amd64 }
+          - { goos: darwin,  goarch: arm64 }
+          - { goos: windows, goarch: amd64 }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Build ${{ matrix.goos }}/${{ matrix.goarch }}
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 0
+        run: |
+          BIN=agilemarkdown_${{ matrix.goos }}_${{ matrix.goarch }}
+          [ "${{ matrix.goos }}" = "windows" ] && BIN="${BIN}.exe"
+          REPO_VERSION="${GITHUB_REF_NAME#v}"
+          mkdir -p dist
+          go build -trimpath -ldflags "-s -w -X main.version=${REPO_VERSION}" -o "dist/${BIN}" .
+          (cd dist && shasum -a 256 "${BIN}" > "${BIN}.sha256")
+      - name: Upload binaries
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          # The release is already created by the create-release job.
+          # --clobber overwrites any prior upload of the same asset, so
+          # re-running this workflow on the same tag is safe.
+          gh release upload "$GITHUB_REF_NAME" dist/* --repo "$REPO" --clobber

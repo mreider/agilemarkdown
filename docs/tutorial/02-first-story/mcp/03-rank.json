@@ -1,0 +1,30 @@
+{
+  "request": {
+    "id": 7,
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "arguments": {
+        "backlog": "stories",
+        "item_paths": [
+          "stories/write-the-readme.md"
+        ],
+        "position": "top"
+      },
+      "name": "move_to_priority"
+    }
+  },
+  "response": {
+    "id": 7,
+    "jsonrpc": "2.0",
+    "result": {
+      "content": [
+        {
+          "text": "write-the-readme.md not in icebox",
+          "type": "text"
+        }
+      ],
+      "isError": true
+    }
+  }
+}

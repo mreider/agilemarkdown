@@ -1,0 +1,29 @@
+{
+  "request": {
+    "id": 31,
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "arguments": {
+        "path": "stories/plan-the-moons-very-first-birthday-party.md",
+        "status": "started"
+      },
+      "name": "set_status"
+    }
+  },
+  "response": {
+    "id": 31,
+    "jsonrpc": "2.0",
+    "result": {
+      "content": [
+        {
+          "text": "{\"ok\":true}",
+          "type": "text"
+        }
+      ],
+      "structuredContent": {
+        "ok": true
+      }
+    }
+  }
+}

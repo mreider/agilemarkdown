@@ -2,15 +2,17 @@ package backlog
 
 import (
 	"fmt"
-	"github.com/mreider/agilemarkdown/markdown"
-	"github.com/mreider/agilemarkdown/utils"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/mreider/agilemarkdown/markdown"
+	"github.com/mreider/agilemarkdown/utils"
 )
 
 const (
-	UserEmailMetadataKey = "Email"
+	userKeyName   = "name"
+	userKeyEmails = "emails"
 )
 
 var (
@@ -18,45 +20,46 @@ var (
 )
 
 type User struct {
-	content *markdown.Content
+	file *markdown.FrontmatterFile
 }
 
 func LoadUser(userPath string) (*User, error) {
-	content, err := markdown.LoadMarkdown(userPath,
-		[]string{UserEmailMetadataKey},
-		nil, "", nil)
+	f, err := markdown.LoadFrontmatter(userPath)
 	if err != nil {
 		return nil, err
 	}
-	return &User{content}, nil
+	return &User{file: f}, nil
 }
 
 func NewUser(markdownData, contentPath string) (*User, error) {
-	content := markdown.NewMarkdown(markdownData, contentPath,
-		[]string{UserEmailMetadataKey},
-		nil, "", nil)
-	return &User{content}, nil
+	f, err := markdown.ParseFrontmatter(markdownData)
+	if err != nil {
+		return nil, err
+	}
+	f.SetPath(contentPath)
+	return &User{file: f}, nil
 }
 
 func (u *User) Name() string {
-	return utils.CollapseWhiteSpaces(u.content.Title())
+	return utils.CollapseWhiteSpaces(u.file.GetString(userKeyName))
 }
 
 func (u *User) SetName(name string) {
-	u.content.SetTitle(utils.CollapseWhiteSpaces(name))
+	u.file.SetString(userKeyName, utils.CollapseWhiteSpaces(name))
 }
 
 func (u *User) Emails() []string {
-	emailStr := u.content.MetadataValue(UserEmailMetadataKey)
-	parts := utils.SplitByRegexp(emailStr, emailSeparators)
-	emails := make([]string, 0, len(parts))
-	for _, email := range parts {
-		email = utils.CollapseWhiteSpaces(email)
-		if email != "" {
-			emails = append(emails, email)
+	if list := u.file.GetStringSlice(userKeyEmails); len(list) > 0 {
+		out := make([]string, 0, len(list))
+		for _, e := range list {
+			e = utils.CollapseWhiteSpaces(e)
+			if e != "" {
+				out = append(out, e)
+			}
 		}
+		return out
 	}
-	return emails
+	return nil
 }
 
 func (u *User) PrimaryEmail() string {
@@ -72,19 +75,15 @@ func (u *User) Nickname() string {
 	if email == "" {
 		return strings.Replace(u.Name(), " ", ".", -1)
 	}
-
-	parts := strings.SplitN(email, "@", 2)
-	return parts[0]
+	return strings.SplitN(email, "@", 2)[0]
 }
 
 func (u *User) HasEmail(email string) bool {
 	if email == "" {
 		return false
 	}
-
-	emails := u.Emails()
-	for _, m := range emails {
-		if m == email {
+	for _, m := range u.Emails() {
+		if strings.EqualFold(m, email) {
 			return true
 		}
 	}
@@ -92,67 +91,59 @@ func (u *User) HasEmail(email string) bool {
 }
 
 func (u *User) HasName(name string) bool {
-	return strings.ToLower(u.Name()) == utils.CollapseWhiteSpaces(strings.ToLower(name))
+	return strings.EqualFold(u.Name(), utils.CollapseWhiteSpaces(name))
 }
 
 func (u *User) AddEmailIfNotExist(email string) bool {
 	email = utils.CollapseWhiteSpaces(email)
-	if u.HasEmail(email) {
+	if email == "" || u.HasEmail(email) {
 		return false
 	}
-	emails := u.Emails()
-	if email != "" {
-		emails = append(emails, email)
-	}
-	u.content.SetMetadataValue(UserEmailMetadataKey, strings.Join(emails, ", "))
-	u.content.SetHeader("")
+	u.file.SetStringSlice(userKeyEmails, append(u.Emails(), email))
 	return true
 }
 
-func (u *User) Save() error {
-	return u.content.Save()
-}
+func (u *User) Save() error { return u.file.Save() }
 
+func (u *User) Path() string { return u.file.Path() }
+
+// UpdateItems regenerates the body of the user page with a markdown listing
+// of the user's items, grouped by project and status. Frontmatter is left
+// untouched.
 func (u *User) UpdateItems(rootDir, tagsDir string, items []*BacklogItem, overviews map[*BacklogItem]*BacklogOverview) (string, error) {
-	itemsByProjectAndStatus := make(map[*BacklogOverview]map[string][]*BacklogItem)
+	byOverview := make(map[*BacklogOverview]map[string][]*BacklogItem)
 	for _, item := range items {
 		itemStatus := strings.ToLower(item.Status())
 		overview := overviews[item]
-		if _, ok := itemsByProjectAndStatus[overview]; !ok {
-			itemsByProjectAndStatus[overview] = make(map[string][]*BacklogItem)
+		if _, ok := byOverview[overview]; !ok {
+			byOverview[overview] = make(map[string][]*BacklogItem)
 		}
-		itemsByProjectAndStatus[overview][itemStatus] = append(itemsByProjectAndStatus[overview][itemStatus], item)
+		byOverview[overview][itemStatus] = append(byOverview[overview][itemStatus], item)
 	}
+
 	var lines []string
-	for overview, itemsByStatus := range itemsByProjectAndStatus {
-		lines = append(lines, "")
-		lines = append(lines, fmt.Sprintf("## %s", overview.Title()))
-		lines = append(lines, "")
+	links := MakeStandardLinks(rootDir, filepath.Dir(u.file.Path()))
+	lines = append(lines, utils.JoinMarkdownLinks(links...))
+	lines = append(lines, "")
+
+	for overview, byStatus := range byOverview {
+		lines = append(lines, fmt.Sprintf("## %s", overview.Title()), "")
 		for _, status := range AllStatuses {
-			statusItems := itemsByStatus[strings.ToLower(status.Name)]
+			statusItems := byStatus[strings.ToLower(status.Name)]
 			if len(statusItems) == 0 {
 				continue
 			}
 			sorter := NewBacklogItemsSorter(overview)
 			sorter.SortItemsByStatus(status, statusItems)
 			lines = append(lines, fmt.Sprintf("### %s", status.CapitalizedName()))
-			itemsLines := BacklogView{}.WriteMarkdownItemsWithoutAssigned(statusItems, status, filepath.Dir(u.content.ContentPath()), tagsDir)
-			lines = append(lines, itemsLines...)
+			lines = append(lines, BacklogView{}.WriteMarkdownItemsWithoutAssigned(statusItems, status, filepath.Dir(u.file.Path()), tagsDir)...)
 			lines = append(lines, "")
 		}
 	}
 
-	links := MakeStandardLinks(rootDir, filepath.Dir(u.content.ContentPath()))
-	u.content.SetLinks(utils.JoinMarkdownLinks(links...))
-	u.SetFreeText(lines)
-	err := u.Save()
-	return u.content.ContentPath(), err
-}
-
-func (u *User) SetFreeText(freeText []string) {
-	u.content.SetFreeText(freeText)
-}
-
-func (u *User) Path() string {
-	return u.content.ContentPath()
+	u.file.SetBody(strings.Join(lines, "\n"))
+	if err := u.Save(); err != nil {
+		return "", err
+	}
+	return u.file.Path(), nil
 }

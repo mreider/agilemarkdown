@@ -1,0 +1,33 @@
+{
+  "request": {
+    "id": 33,
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "arguments": {
+        "backlog": "stories"
+      },
+      "name": "iteration_fit"
+    }
+  },
+  "response": {
+    "id": 33,
+    "jsonrpc": "2.0",
+    "result": {
+      "content": [
+        {
+          "text": "{\"delta_points\":-7,\"fits\":true,\"items_counted\":0,\"iteration_length_weeks\":1,\"planned_points\":0,\"velocity\":7}",
+          "type": "text"
+        }
+      ],
+      "structuredContent": {
+        "delta_points": -7,
+        "fits": true,
+        "items_counted": 0,
+        "iteration_length_weeks": 1,
+        "planned_points": 0,
+        "velocity": 7
+      }
+    }
+  }
+}

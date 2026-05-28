@@ -1,24 +1,26 @@
 package commands
 
 import (
+	"context"
 	"fmt"
 	"github.com/mreider/agilemarkdown/actions"
 	"github.com/mreider/agilemarkdown/backlog"
-	"gopkg.in/urfave/cli.v1"
+	"github.com/urfave/cli/v3"
 	"path/filepath"
 )
 
-var ChangeStatusCommand = cli.Command{
+var ChangeStatusCommand = &cli.Command{
 	Name:      "change-status",
-	Usage:     "Change story status",
+	Usage:     "Change story status (legacy picker; prefer start/finish/deliver/accept/reject)",
+	Hidden:    true,
 	ArgsUsage: " ",
 	Flags: []cli.Flag{
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "s",
-			Usage: fmt.Sprintf("Status - %s", backlog.AllStatusesList()),
+			Usage: fmt.Sprintf("List items currently in this status, then change them. %s", backlog.AllStatusesList()),
 		},
 	},
-	Action: func(c *cli.Context) error {
+	Action: func(ctx context.Context, c *cli.Command) error {
 		statusCode := c.String("s")
 		if statusCode == "" {
 			fmt.Println("-s option is required")

@@ -1,17 +1,18 @@
 package commands
 
 import (
+	"context"
 	"fmt"
 	"github.com/mreider/agilemarkdown/autocomplete"
-	"gopkg.in/urfave/cli.v1"
+	"github.com/urfave/cli/v3"
 	"runtime"
 )
 
-var AliasCommand = cli.Command{
+var AliasCommand = &cli.Command{
 	Name:      "alias",
 	Usage:     "Add a Bash alias for the script",
 	ArgsUsage: "ALIAS",
-	Action: func(c *cli.Context) error {
+	Action: func(ctx context.Context, c *cli.Command) error {
 		if runtime.GOOS != "linux" && runtime.GOOS != "darwin" {
 			fmt.Println("Unsupported OS")
 			return nil
@@ -22,7 +23,7 @@ var AliasCommand = cli.Command{
 			return nil
 		}
 
-		err := autocomplete.AddAliasWithBashAutoComplete(c.Args()[0])
+		err := autocomplete.AddAliasWithBashAutoComplete(c.Args().Get(0))
 		if err != nil {
 			fmt.Println(err)
 			return nil

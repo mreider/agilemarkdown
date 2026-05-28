@@ -1,0 +1,12 @@
+$ am show epic the-button-quest
+Epic: the-button-quest   4/4 stories  11/11 pts  100%
+[████████████████████████]
+
+Accepted:
+  ★  Count all the buttons in a small wooden box  (stories/count-all-the-buttons-in-a-small-wooden-box.md)
+  ★  Find a small white button  (stories/find-a-small-white-button.md)
+  ★  Look in the bushes near the pond  (stories/look-in-the-bushes-near-the-pond.md)
+  ★  Wear the brown coat the whole afternoon  (stories/wear-the-brown-coat-the-whole-afternoon.md)
+
+Open:
+  (none open)

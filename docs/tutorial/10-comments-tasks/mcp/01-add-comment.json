@@ -1,0 +1,30 @@
+{
+  "request": {
+    "id": 24,
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "arguments": {
+        "author": "frog",
+        "path": "stories/plan-the-moons-very-first-birthday-party.md",
+        "text": "Maybe Owl should bake the cake?"
+      },
+      "name": "add_comment"
+    }
+  },
+  "response": {
+    "id": 24,
+    "jsonrpc": "2.0",
+    "result": {
+      "content": [
+        {
+          "text": "{\"ok\":true}",
+          "type": "text"
+        }
+      ],
+      "structuredContent": {
+        "ok": true
+      }
+    }
+  }
+}

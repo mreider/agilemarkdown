@@ -1,4 +1,8 @@
 #!/bin/bash
+set -euo pipefail
 
-go install -i -ldflags="-X main.version=$(git log -1 --format=%cd --date=unix)"
-go build -i -ldflags="-X main.version=$(git log -1 --format=%cd --date=unix)"
+VERSION=$(git log -1 --format=%cd --date=unix)
+LDFLAGS="-X main.version=${VERSION}"
+
+go install -ldflags="${LDFLAGS}" .
+go build -ldflags="${LDFLAGS}" .

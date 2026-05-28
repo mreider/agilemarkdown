@@ -1,0 +1,3 @@
+$ am comment stories/plan-the-moons-very-first-birthday-party.md \
+    "Maybe Owl should bake the cake?" --author frog
+✓ comment added

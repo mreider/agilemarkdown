@@ -1,0 +1,6 @@
+$ am create-item "Spring planting"
+created stories/spring-planting.md
+$ am set-type stories/spring-planting.md release
+spring-planting.md type=release
+$ am set-release-date stories/spring-planting.md 2026-09-01
+spring-planting.md release_date=2026-09-01

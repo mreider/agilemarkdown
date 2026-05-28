@@ -1,0 +1,8 @@
+- name: 01-inception-doc
+  tool: inception_doc
+  args: {}
+
+- name: 02-team-agreements-add
+  tool: team_agreements
+  args:
+    add: "Bugs go to the top of priority"

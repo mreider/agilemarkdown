@@ -1,0 +1,22 @@
+- name: 01-tools-list
+  tool: priority_list
+  args:
+    backlog: stories
+
+- name: 02-set-status
+  tool: set_status
+  args:
+    path: stories/plan-the-moons-very-first-birthday-party.md
+    status: started
+
+- name: 03-add-comment-as-agent
+  tool: add_comment
+  args:
+    path: stories/plan-the-moons-very-first-birthday-party.md
+    text: "Started the birthday plan. I will draft the invitations first."
+    author: agent
+
+- name: 04-iteration-fit
+  tool: iteration_fit
+  args:
+    backlog: stories

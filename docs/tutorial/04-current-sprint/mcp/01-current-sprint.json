@@ -1,0 +1,328 @@
+{
+  "request": {
+    "id": 3,
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "arguments": {
+        "backlog": "stories"
+      },
+      "name": "priority_list"
+    }
+  },
+  "response": {
+    "id": 3,
+    "jsonrpc": "2.0",
+    "result": {
+      "content": [
+        {
+          "text": "{\"backlog\":\"stories\",\"count\":18,\"items\":[{\"accepted\":\"2026-05-27T17:05:43Z\",\"assignees\":[\"frog\"],\"comment_count\":2,\"delivered\":\"2026-05-27T17:05:43Z\",\"epic\":\"letters-by-snail\",\"estimate\":\"3\",\"finished\":\"2026-05-27T17:05:42Z\",\"index\":0,\"path\":\"wait-by-the-mailbox-for-any-kind-of-reply.md\",\"started\":\"2026-05-21T09:00:00Z\",\"status\":\"accepted\",\"tags\":[\"letters\",\"patience\"],\"title\":\"Wait by the mailbox for any kind of reply\",\"type\":\"feature\"},{\"assignees\":[\"toad\"],\"epic\":\"letters-by-snail\",\"estimate\":\"2\",\"index\":1,\"path\":\"pace-exactly-seven-times-up-and-down-the-path.md\",\"started\":\"2026-05-21T09:00:00Z\",\"status\":\"started\",\"tags\":[\"letters\",\"patience\"],\"title\":\"Pace exactly seven times up and down the path\",\"type\":\"feature\"},{\"assignees\":[\"toad\"],\"comment_count\":3,\"epic\":\"the-garden-of-patience\",\"estimate\":\"5\",\"index\":2,\"path\":\"watch-the-seedling-for-the-smallest-sign-of-movement.md\",\"started\":\"2026-05-21T09:00:00Z\",\"status\":\"started\",\"tags\":[\"garden\",\"seedling\"],\"title\":\"Watch the seedling for the smallest sign of movement\",\"type\":\"feature\"},{\"accepted\":\"2026-05-27T15:00:00Z\",\"assignees\":[\"frog\"],\"delivered\":\"2026-05-27T11:00:00Z\",\"epic\":\"the-garden-of-patience\",\"estimate\":\"3\",\"finished\":\"2026-05-27T09:00:00Z\",\"index\":3,\"path\":\"build-a-small-fence-so-the-seedling-feels-safer.md\",\"started\":\"2026-05-24T09:00:00Z\",\"status\":\"accepted\",\"tags\":[\"garden\",\"seedling\"],\"title\":\"Build a small fence so the seedling feels safer\",\"type\":\"feature\"},{\"accepted\":\"2026-05-27T15:00:00Z\",\"assignees\":[\"toad\"],\"delivered\":\"2026-05-27T11:00:00Z\",\"epic\":\"the-garden-of-patience\",\"estimate\":\"1\",\"finished\":\"2026-05-27T09:00:00Z\",\"index\":4,\"path\":\"set-a-tiny-chair-beside-the-seedling.md\",\"started\":\"2026-05-24T09:00:00Z\",\"status\":\"accepted\",\"tags\":[\"garden\",\"seedling\"],\"title\":\"Set a tiny chair beside the seedling\",\"type\":\"feature\"},{\"accepted\":\"2026-05-27T15:00:00Z\",\"assignees\":[\"mouse\"],\"delivered\":\"2026-05-27T11:00:00Z\",\"epic\":\"letters-by-snail\",\"estimate\":\"2\",\"finished\":\"2026-05-27T09:00:00Z\",\"index\":5,\"path\":\"send-a-thank-you-note-by-snail.md\",\"started\":\"2026-05-24T09:00:00Z\",\"status\":\"accepted\",\"tags\":[\"letters\",\"manners\"],\"title\":\"Send a thank-you note by Snail\",\"type\":\"feature\"},{\"assignees\":[\"mouse\"],\"comment_count\":1,\"delivered\":\"2026-05-21T17:00:00Z\",\"epic\":\"letters-by-snail\",\"estimate\":\"3\",\"finished\":\"2026-05-21T15:00:00Z\",\"index\":6,\"path\":\"sort-the-unread-letters-into-three-quiet-piles.md\",\"started\":\"2026-05-21T09:00:00Z\",\"status\":\"delivered\",\"tags\":[\"letters\"],\"title\":\"Sort the unread letters into three quiet piles\",\"type\":\"feature\"},{\"assignees\":[\"toad\"],\"comment_count\":1,\"epic\":\"the-garden-of-patience\",\"estimate\":\"3\",\"index\":7,\"path\":\"yell-at-the-seedling-to-grow-faster.md\",\"status\":\"rejected\",\"tags\":[\"garden\",\"regret\"],\"title\":\"Yell at the seedling to grow faster\",\"type\":\"feature\"},{\"assignees\":[\"toad\"],\"comment_count\":1,\"epic\":\"the-garden-of-patience\",\"estimate\":\"1\",\"index\":8,\"path\":\"apologize-to-the-seedling-for-yelling.md\",\"status\":\"unstarted\",\"tags\":[\"garden\",\"manners\"],\"title\":\"Apologize to the seedling for yelling\",\"type\":\"feature\"},{\"assignees\":[\"mouse\"],\"estimate\":\"2\",\"index\":9,\"path\":\"decline-the-dinner-party-invitation-politely.md\",\"status\":\"unstarted\",\"tags\":[\"manners\"],\"title\":\"Decline the dinner party invitation politely\",\"type\":\"feature\"},{\"assignees\":[\"frog\"],\"epic\":\"the-garden-of-patience\",\"estimate\":\"3\",\"index\":10,\"path\":\"replant-the-seedling-somewhere-a-little-warmer.md\",\"status\":\"unstarted\",\"tags\":[\"garden\",\"seedling\"],\"title\":\"Replant the seedling somewhere a little warmer\",\"type\":\"feature\"},{\"assignees\":[\"toad\"],\"epic\":\"the-garden-of-patience\",\"estimate\":\"5\",\"index\":11,\"path\":\"knit-a-tiny-sweater-for-the-seedling.md\",\"status\":\"unstarted\",\"tags\":[\"garden\",\"knitting\"],\"title\":\"Knit a tiny sweater for the seedling\",\"type\":\"feature\"},{\"assignees\":[\"owl\"],\"epic\":\"the-garden-of-patience\",\"estimate\":\"5\",\"index\":12,\"path\":\"read-a-long-slow-book-to-the-seedling.md\",\"status\":\"unstarted\",\"tags\":[\"garden\",\"books\"],\"title\":\"Read a long, slow book to the seedling\",\"type\":\"feature\"},{\"index\":13,\"path\":\"first-frost-release.md\",\"release_date\":\"2026-06-24\",\"status\":\"unstarted\",\"title\":\"First-frost release\",\"type\":\"release\"},{\"assignees\":[\"owl\"],\"comment_count\":1,\"epic\":\"the-moon-watch\",\"estimate\":\"2\",\"index\":14,\"path\":\"brew-a-small-pot-of-tear-water-tea-before-midnight.md\",\"status\":\"unstarted\",\"tags\":[\"moon\",\"tea\"],\"title\":\"Brew a small pot of tear-water tea before midnight\",\"type\":\"feature\"},{\"assignees\":[\"owl\"],\"epic\":\"the-moon-watch\",\"estimate\":\"3\",\"index\":15,\"path\":\"stand-on-a-chair-to-watch-the-moon-properly.md\",\"status\":\"unstarted\",\"tags\":[\"moon\"],\"title\":\"Stand on a chair to watch the moon properly\",\"type\":\"feature\"},{\"assignees\":[\"owl\"],\"comment_count\":1,\"epic\":\"the-moon-watch\",\"estimate\":\"8\",\"index\":16,\"path\":\"plan-the-moons-very-first-birthday-party.md\",\"status\":\"unstarted\",\"tags\":[\"moon\",\"party\"],\"title\":\"Plan the moons very first birthday party\",\"type\":\"feature\"},{\"index\":17,\"path\":\"the-long-sleep-release.md\",\"release_date\":\"2026-08-23\",\"status\":\"unstarted\",\"title\":\"The Long-Sleep release\",\"type\":\"release\"}],\"velocity\":7}",
+          "type": "text"
+        }
+      ],
+      "structuredContent": {
+        "backlog": "stories",
+        "count": 18,
+        "items": [
+          {
+            "accepted": "2026-05-27T17:05:43Z",
+            "assignees": [
+              "frog"
+            ],
+            "comment_count": 2,
+            "delivered": "2026-05-27T17:05:43Z",
+            "epic": "letters-by-snail",
+            "estimate": "3",
+            "finished": "2026-05-27T17:05:42Z",
+            "index": 0,
+            "path": "wait-by-the-mailbox-for-any-kind-of-reply.md",
+            "started": "2026-05-21T09:00:00Z",
+            "status": "accepted",
+            "tags": [
+              "letters",
+              "patience"
+            ],
+            "title": "Wait by the mailbox for any kind of reply",
+            "type": "feature"
+          },
+          {
+            "assignees": [
+              "toad"
+            ],
+            "epic": "letters-by-snail",
+            "estimate": "2",
+            "index": 1,
+            "path": "pace-exactly-seven-times-up-and-down-the-path.md",
+            "started": "2026-05-21T09:00:00Z",
+            "status": "started",
+            "tags": [
+              "letters",
+              "patience"
+            ],
+            "title": "Pace exactly seven times up and down the path",
+            "type": "feature"
+          },
+          {
+            "assignees": [
+              "toad"
+            ],
+            "comment_count": 3,
+            "epic": "the-garden-of-patience",
+            "estimate": "5",
+            "index": 2,
+            "path": "watch-the-seedling-for-the-smallest-sign-of-movement.md",
+            "started": "2026-05-21T09:00:00Z",
+            "status": "started",
+            "tags": [
+              "garden",
+              "seedling"
+            ],
+            "title": "Watch the seedling for the smallest sign of movement",
+            "type": "feature"
+          },
+          {
+            "accepted": "2026-05-27T15:00:00Z",
+            "assignees": [
+              "frog"
+            ],
+            "delivered": "2026-05-27T11:00:00Z",
+            "epic": "the-garden-of-patience",
+            "estimate": "3",
+            "finished": "2026-05-27T09:00:00Z",
+            "index": 3,
+            "path": "build-a-small-fence-so-the-seedling-feels-safer.md",
+            "started": "2026-05-24T09:00:00Z",
+            "status": "accepted",
+            "tags": [
+              "garden",
+              "seedling"
+            ],
+            "title": "Build a small fence so the seedling feels safer",
+            "type": "feature"
+          },
+          {
+            "accepted": "2026-05-27T15:00:00Z",
+            "assignees": [
+              "toad"
+            ],
+            "delivered": "2026-05-27T11:00:00Z",
+            "epic": "the-garden-of-patience",
+            "estimate": "1",
+            "finished": "2026-05-27T09:00:00Z",
+            "index": 4,
+            "path": "set-a-tiny-chair-beside-the-seedling.md",
+            "started": "2026-05-24T09:00:00Z",
+            "status": "accepted",
+            "tags": [
+              "garden",
+              "seedling"
+            ],
+            "title": "Set a tiny chair beside the seedling",
+            "type": "feature"
+          },
+          {
+            "accepted": "2026-05-27T15:00:00Z",
+            "assignees": [
+              "mouse"
+            ],
+            "delivered": "2026-05-27T11:00:00Z",
+            "epic": "letters-by-snail",
+            "estimate": "2",
+            "finished": "2026-05-27T09:00:00Z",
+            "index": 5,
+            "path": "send-a-thank-you-note-by-snail.md",
+            "started": "2026-05-24T09:00:00Z",
+            "status": "accepted",
+            "tags": [
+              "letters",
+              "manners"
+            ],
+            "title": "Send a thank-you note by Snail",
+            "type": "feature"
+          },
+          {
+            "assignees": [
+              "mouse"
+            ],
+            "comment_count": 1,
+            "delivered": "2026-05-21T17:00:00Z",
+            "epic": "letters-by-snail",
+            "estimate": "3",
+            "finished": "2026-05-21T15:00:00Z",
+            "index": 6,
+            "path": "sort-the-unread-letters-into-three-quiet-piles.md",
+            "started": "2026-05-21T09:00:00Z",
+            "status": "delivered",
+            "tags": [
+              "letters"
+            ],
+            "title": "Sort the unread letters into three quiet piles",
+            "type": "feature"
+          },
+          {
+            "assignees": [
+              "toad"
+            ],
+            "comment_count": 1,
+            "epic": "the-garden-of-patience",
+            "estimate": "3",
+            "index": 7,
+            "path": "yell-at-the-seedling-to-grow-faster.md",
+            "status": "rejected",
+            "tags": [
+              "garden",
+              "regret"
+            ],
+            "title": "Yell at the seedling to grow faster",
+            "type": "feature"
+          },
+          {
+            "assignees": [
+              "toad"
+            ],
+            "comment_count": 1,
+            "epic": "the-garden-of-patience",
+            "estimate": "1",
+            "index": 8,
+            "path": "apologize-to-the-seedling-for-yelling.md",
+            "status": "unstarted",
+            "tags": [
+              "garden",
+              "manners"
+            ],
+            "title": "Apologize to the seedling for yelling",
+            "type": "feature"
+          },
+          {
+            "assignees": [
+              "mouse"
+            ],
+            "estimate": "2",
+            "index": 9,
+            "path": "decline-the-dinner-party-invitation-politely.md",
+            "status": "unstarted",
+            "tags": [
+              "manners"
+            ],
+            "title": "Decline the dinner party invitation politely",
+            "type": "feature"
+          },
+          {
+            "assignees": [
+              "frog"
+            ],
+            "epic": "the-garden-of-patience",
+            "estimate": "3",
+            "index": 10,
+            "path": "replant-the-seedling-somewhere-a-little-warmer.md",
+            "status": "unstarted",
+            "tags": [
+              "garden",
+              "seedling"
+            ],
+            "title": "Replant the seedling somewhere a little warmer",
+            "type": "feature"
+          },
+          {
+            "assignees": [
+              "toad"
+            ],
+            "epic": "the-garden-of-patience",
+            "estimate": "5",
+            "index": 11,
+            "path": "knit-a-tiny-sweater-for-the-seedling.md",
+            "status": "unstarted",
+            "tags": [
+              "garden",
+              "knitting"
+            ],
+            "title": "Knit a tiny sweater for the seedling",
+            "type": "feature"
+          },
+          {
+            "assignees": [
+              "owl"
+            ],
+            "epic": "the-garden-of-patience",
+            "estimate": "5",
+            "index": 12,
+            "path": "read-a-long-slow-book-to-the-seedling.md",
+            "status": "unstarted",
+            "tags": [
+              "garden",
+              "books"
+            ],
+            "title": "Read a long, slow book to the seedling",
+            "type": "feature"
+          },
+          {
+            "index": 13,
+            "path": "first-frost-release.md",
+            "release_date": "2026-06-24",
+            "status": "unstarted",
+            "title": "First-frost release",
+            "type": "release"
+          },
+          {
+            "assignees": [
+              "owl"
+            ],
+            "comment_count": 1,
+            "epic": "the-moon-watch",
+            "estimate": "2",
+            "index": 14,
+            "path": "brew-a-small-pot-of-tear-water-tea-before-midnight.md",
+            "status": "unstarted",
+            "tags": [
+              "moon",
+              "tea"
+            ],
+            "title": "Brew a small pot of tear-water tea before midnight",
+            "type": "feature"
+          },
+          {
+            "assignees": [
+              "owl"
+            ],
+            "epic": "the-moon-watch",
+            "estimate": "3",
+            "index": 15,
+            "path": "stand-on-a-chair-to-watch-the-moon-properly.md",
+            "status": "unstarted",
+            "tags": [
+              "moon"
+            ],
+            "title": "Stand on a chair to watch the moon properly",
+            "type": "feature"
+          },
+          {
+            "assignees": [
+              "owl"
+            ],
+            "comment_count": 1,
+            "epic": "the-moon-watch",
+            "estimate": "8",
+            "index": 16,
+            "path": "plan-the-moons-very-first-birthday-party.md",
+            "status": "unstarted",
+            "tags": [
+              "moon",
+              "party"
+            ],
+            "title": "Plan the moons very first birthday party",
+            "type": "feature"
+          },
+          {
+            "index": 17,
+            "path": "the-long-sleep-release.md",
+            "release_date": "2026-08-23",
+            "status": "unstarted",
+            "title": "The Long-Sleep release",
+            "type": "release"
+          }
+        ],
+        "velocity": 7
+      }
+    }
+  }
+}

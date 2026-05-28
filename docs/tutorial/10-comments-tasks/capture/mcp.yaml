@@ -1,0 +1,23 @@
+- name: 01-add-comment
+  tool: add_comment
+  args:
+    path: stories/plan-the-moons-very-first-birthday-party.md
+    text: "Maybe Owl should bake the cake?"
+    author: frog
+
+- name: 02-add-task
+  tool: add_task
+  args:
+    path: stories/plan-the-moons-very-first-birthday-party.md
+    text: "Find a stand for the cake"
+
+- name: 03-tick-task
+  tool: set_task_done
+  args:
+    path: stories/plan-the-moons-very-first-birthday-party.md
+    index: 2
+
+- name: 04-get-comments
+  tool: get_comments
+  args:
+    path: stories/plan-the-moons-very-first-birthday-party.md

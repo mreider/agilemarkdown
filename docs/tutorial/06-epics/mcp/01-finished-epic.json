@@ -1,0 +1,34 @@
+{
+  "request": {
+    "id": 12,
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "arguments": {
+        "slug": "the-button-quest"
+      },
+      "name": "epic_progress"
+    }
+  },
+  "response": {
+    "id": 12,
+    "jsonrpc": "2.0",
+    "result": {
+      "content": [
+        {
+          "text": "Epic: the-button-quest   4/4 stories  11/11 pts  100%\n[████████████████████████]\n\nAccepted:\n  ★  Count all the buttons in a small wooden box  (stories/count-all-the-buttons-in-a-small-wooden-box.md)\n  ★  Find a small white button  (stories/find-a-small-white-button.md)\n  ★  Look in the bushes near the pond  (stories/look-in-the-bushes-near-the-pond.md)\n  ★  Wear the brown coat the whole afternoon  (stories/wear-the-brown-coat-the-whole-afternoon.md)\n\nOpen:\n  (none open)\n",
+          "type": "text"
+        }
+      ],
+      "structuredContent": {
+        "accepted_points": 11,
+        "accepted_stories": 4,
+        "ascii": "Epic: the-button-quest   4/4 stories  11/11 pts  100%\n[████████████████████████]\n\nAccepted:\n  ★  Count all the buttons in a small wooden box  (stories/count-all-the-buttons-in-a-small-wooden-box.md)\n  ★  Find a small white button  (stories/find-a-small-white-button.md)\n  ★  Look in the bushes near the pond  (stories/look-in-the-bushes-near-the-pond.md)\n  ★  Wear the brown coat the whole afternoon  (stories/wear-the-brown-coat-the-whole-afternoon.md)\n\nOpen:\n  (none open)\n",
+        "percent_done": 100,
+        "slug": "the-button-quest",
+        "total_points": 11,
+        "total_stories": 4
+      }
+    }
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "request": {
+    "id": 21,
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "arguments": {
+        "limit": 5,
+        "query": "seedling"
+      },
+      "name": "search"
+    }
+  },
+  "response": {
+    "id": 21,
+    "jsonrpc": "2.0",
+    "result": {
+      "content": [
+        {
+          "text": "{\"count\":5,\"hits\":[{\"path\":\"stories/build-a-small-fence-so-the-seedling-feels-safer.md\",\"score\":19,\"snippet\":\"…ence around the pot will keep the cat out and will make the seedling feel a little less exposed.  ## Comments\",\"status\":\"accepted\",\"title\":\"Build a small fence so the seedling feels safer\",\"type\":\"feature\"},{\"path\":\"stories/replant-the-seedling-somewhere-a-little-warmer.md\",\"score\":19,\"snippet\":\"…emperature  - [ ] Find a pot with no chips  - [ ] Carry the seedling gently across the kitchen\",\"status\":\"unstarted\",\"title\":\"Replant the seedling somewhere a little warmer\",\"type\":\"feature\"},{\"path\":\"stories/set-a-tiny-chair-beside-the-seedling.md\",\"score\":19,\"snippet\":\"## Problem statement  Toad will sit beside the seedling for a few quiet minutes each evening. The chair is just big…\",\"status\":\"accepted\",\"title\":\"Set a tiny chair beside the seedling\",\"type\":\"feature\"},{\"path\":\"stories/watch-the-seedling-for-the-smallest-sign-of-movement.md\",\"score\":18,\"status\":\"started\",\"title\":\"Watch the seedling for the smallest sign of movement\",\"type\":\"feature\"},{\"path\":\"stories/knit-a-tiny-sweater-for-the-seedling.md\",\"score\":15,\"snippet\":\"## Problem statement  The seedling looks chilly. A tiny sweater, knit from soft yellow yarn, i…\",\"status\":\"unstarted\",\"title\":\"Knit a tiny sweater for the seedling\",\"type\":\"feature\"}],\"query\":\"seedling\"}",
+          "type": "text"
+        }
+      ],
+      "structuredContent": {
+        "count": 5,
+        "hits": [
+          {
+            "path": "stories/build-a-small-fence-so-the-seedling-feels-safer.md",
+            "score": 19,
+            "snippet": "…ence around the pot will keep the cat out and will make the seedling feel a little less exposed.  ## Comments",
+            "status": "accepted",
+            "title": "Build a small fence so the seedling feels safer",
+            "type": "feature"
+          },
+          {
+            "path": "stories/replant-the-seedling-somewhere-a-little-warmer.md",
+            "score": 19,
+            "snippet": "…emperature  - [ ] Find a pot with no chips  - [ ] Carry the seedling gently across the kitchen",
+            "status": "unstarted",
+            "title": "Replant the seedling somewhere a little warmer",
+            "type": "feature"
+          },
+          {
+            "path": "stories/set-a-tiny-chair-beside-the-seedling.md",
+            "score": 19,
+            "snippet": "## Problem statement  Toad will sit beside the seedling for a few quiet minutes each evening. The chair is just big…",
+            "status": "accepted",
+            "title": "Set a tiny chair beside the seedling",
+            "type": "feature"
+          },
+          {
+            "path": "stories/watch-the-seedling-for-the-smallest-sign-of-movement.md",
+            "score": 18,
+            "status": "started",
+            "title": "Watch the seedling for the smallest sign of movement",
+            "type": "feature"
+          },
+          {
+            "path": "stories/knit-a-tiny-sweater-for-the-seedling.md",
+            "score": 15,
+            "snippet": "## Problem statement  The seedling looks chilly. A tiny sweater, knit from soft yellow yarn, i…",
+            "status": "unstarted",
+            "title": "Knit a tiny sweater for the seedling",
+            "type": "feature"
+          }
+        ],
+        "query": "seedling"
+      }
+    }
+  }
+}

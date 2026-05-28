@@ -1,0 +1,2 @@
+$ am unice stories/write-the-readme.md --top
+moved 1 item from icebox into priority (top)

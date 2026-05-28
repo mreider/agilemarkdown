@@ -1,0 +1,14 @@
+- name: 01-finished-epic
+  tool: epic_progress
+  args:
+    slug: the-button-quest
+
+- name: 02-in-flight-epic
+  tool: epic_progress
+  args:
+    slug: the-garden-of-patience
+
+- name: 03-not-started-epic
+  tool: epic_progress
+  args:
+    slug: the-moon-watch

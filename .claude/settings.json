@@ -1,0 +1,25 @@
+{
+  "//": "Agile Markdown coach gate. Installed by `am create-backlog` and `am init`. Edit freely; future re-runs do not overwrite.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "mcp__agilemarkdown__set_status",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/coach-gate.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__agilemarkdown__set_estimate",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/coach-gate.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

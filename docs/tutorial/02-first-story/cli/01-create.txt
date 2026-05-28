@@ -1,0 +1,2 @@
+$ am create-item "Write the README" --target icebox
+created stories/write-the-readme.md

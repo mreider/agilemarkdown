@@ -1,0 +1,10 @@
+- name: 01-priority-with-markers
+  tool: priority_list
+  args:
+    backlog: stories
+
+- name: 02-iteration-view
+  tool: iteration_view
+  args:
+    backlog: stories
+    offset: 0

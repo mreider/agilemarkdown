@@ -1,24 +1,23 @@
 package tests
 
 import (
+	"testing"
+
 	"github.com/mreider/agilemarkdown/backlog"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
-const (
-	itemMarkdownData = `# Support for clarification requests
-
-Project: Test job
-
-[title1](link1) [title2](link2)
-
-Created: 2018-05-03 03:32 PM  
-Modified: 2018-05-08 09:18 PM  
-Author: mreider  
-Status: doing  
-Assigned: falconandy  
-Estimate: 3  
+const itemMarkdownData = `---
+title: Support for clarification requests
+project: Test job
+status: started
+assigned: falconandy
+estimate: 3
+tags: [docs, comments]
+author: mreider
+created: 2018-05-03T15:32:00Z
+modified: 2018-05-08T21:18:00Z
+---
 
 ## Problem statement
 
@@ -42,20 +41,19 @@ How to do?
 
 ## Attachments
 `
-)
 
 func TestBacklogItem(t *testing.T) {
 	item := backlog.NewBacklogItem("comments", itemMarkdownData)
 
 	assert.Equal(t, "Support for clarification requests", item.Title())
-	assert.Equal(t, "Project: Test job", item.Header())
-	assert.Equal(t, "[title1](link1) [title2](link2)", item.Links())
+	assert.Equal(t, "Test job", item.Project())
 	assert.Equal(t, "2018-05-03 15:32", item.Created().Format("2006-01-02 15:04"))
 	assert.Equal(t, "2018-05-08 21:18", item.Modified().Format("2006-01-02 15:04"))
 	assert.Equal(t, "mreider", item.Author())
-	assert.Equal(t, "doing", item.Status())
+	assert.Equal(t, "started", item.Status())
 	assert.Equal(t, "falconandy", item.Assigned())
 	assert.Equal(t, "3", item.Estimate())
+	assert.Equal(t, []string{"docs", "comments"}, item.Tags())
 
 	comments := item.Comments()
 	assert.Equal(t, 5, len(comments))

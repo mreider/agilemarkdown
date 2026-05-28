@@ -1,0 +1,378 @@
+{
+  "request": {
+    "id": 3,
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "arguments": {
+        "backlog": "stories"
+      },
+      "name": "done_list"
+    }
+  },
+  "response": {
+    "id": 3,
+    "jsonrpc": "2.0",
+    "result": {
+      "content": [
+        {
+          "text": "{\"backlog\":\"stories\",\"count\":18,\"items\":[{\"accepted\":\"2026-05-21T15:00:00Z\",\"assignees\":[\"owl\"],\"delivered\":\"2026-05-21T11:00:00Z\",\"estimate\":\"1\",\"finished\":\"2026-05-21T09:00:00Z\",\"index\":0,\"path\":\"wave-once-at-the-moon-through-the-window.md\",\"started\":\"2026-05-18T09:00:00Z\",\"status\":\"accepted\",\"tags\":[\"moon\"],\"title\":\"Wave once at the moon through the window\",\"type\":\"feature\"},{\"accepted\":\"2026-05-21T15:00:00Z\",\"assignees\":[\"frog\"],\"delivered\":\"2026-05-21T11:00:00Z\",\"epic\":\"letters-by-snail\",\"estimate\":\"3\",\"finished\":\"2026-05-21T09:00:00Z\",\"index\":1,\"path\":\"address-the-very-first-letter-to-snail.md\",\"started\":\"2026-05-18T09:00:00Z\",\"status\":\"accepted\",\"tags\":[\"letters\"],\"title\":\"Address the very first letter to Snail\",\"type\":\"feature\"},{\"accepted\":\"2026-05-21T15:00:00Z\",\"assignees\":[\"toad\"],\"delivered\":\"2026-05-21T11:00:00Z\",\"epic\":\"the-garden-of-patience\",\"estimate\":\"2\",\"finished\":\"2026-05-21T09:00:00Z\",\"index\":2,\"path\":\"hum-a-small-tune-over-the-seed-at-night.md\",\"started\":\"2026-05-18T09:00:00Z\",\"status\":\"accepted\",\"tags\":[\"garden\",\"seedling\"],\"title\":\"Hum a small tune over the seed at night\",\"type\":\"feature\"},{\"accepted\":\"2026-05-14T15:00:00Z\",\"assignees\":[\"toad\"],\"delivered\":\"2026-05-14T11:00:00Z\",\"epic\":\"the-garden-of-patience\",\"estimate\":\"3\",\"finished\":\"2026-05-14T09:00:00Z\",\"index\":3,\"path\":\"water-the-seed-at-exactly-dawn.md\",\"started\":\"2026-05-11T09:00:00Z\",\"status\":\"accepted\",\"tags\":[\"garden\",\"seedling\"],\"title\":\"Water the seed at exactly dawn\",\"type\":\"feature\"},{\"accepted\":\"2026-05-14T15:00:00Z\",\"assignees\":[\"frog\"],\"delivered\":\"2026-05-14T11:00:00Z\",\"epic\":\"cookies-in-the-jar\",\"estimate\":\"1\",\"finished\":\"2026-05-14T09:00:00Z\",\"index\":4,\"path\":\"toss-the-last-crumb-to-a-hopeful-bird.md\",\"started\":\"2026-05-11T09:00:00Z\",\"status\":\"accepted\",\"tags\":[\"cookies\",\"birds\"],\"title\":\"Toss the last crumb to a hopeful bird\",\"type\":\"feature\"},{\"accepted\":\"2026-05-14T15:00:00Z\",\"assignees\":[\"toad\"],\"delivered\":\"2026-05-14T11:00:00Z\",\"epic\":\"the-garden-of-patience\",\"estimate\":\"1\",\"finished\":\"2026-05-14T09:00:00Z\",\"index\":5,\"path\":\"speak-to-the-seed-in-a-soft-hopeful-voice.md\",\"started\":\"2026-05-11T09:00:00Z\",\"status\":\"accepted\",\"tags\":[\"garden\",\"seedling\"],\"title\":\"Speak to the seed in a soft, hopeful voice\",\"type\":\"feature\"},{\"accepted\":\"2026-05-07T15:00:00Z\",\"assignees\":[\"frog\"],\"delivered\":\"2026-05-07T11:00:00Z\",\"epic\":\"cookies-in-the-jar\",\"estimate\":\"2\",\"finished\":\"2026-05-07T09:00:00Z\",\"index\":6,\"path\":\"eat-half-the-cookies-anyway.md\",\"started\":\"2026-05-04T09:00:00Z\",\"status\":\"accepted\",\"tags\":[\"cookies\"],\"title\":\"Eat half the cookies anyway\",\"type\":\"feature\"},{\"accepted\":\"2026-05-07T15:00:00Z\",\"assignees\":[\"toad\"],\"delivered\":\"2026-05-07T11:00:00Z\",\"epic\":\"cookies-in-the-jar\",\"estimate\":\"3\",\"finished\":\"2026-05-07T09:00:00Z\",\"index\":7,\"path\":\"hide-the-cookies-under-the-bed-for-safekeeping.md\",\"started\":\"2026-05-04T09:00:00Z\",\"status\":\"accepted\",\"tags\":[\"cookies\"],\"title\":\"Hide the cookies under the bed for safekeeping\",\"type\":\"feature\"},{\"accepted\":\"2026-05-07T15:00:00Z\",\"assignees\":[\"frog\"],\"delivered\":\"2026-05-07T11:00:00Z\",\"epic\":\"the-garden-of-patience\",\"estimate\":\"2\",\"finished\":\"2026-05-07T09:00:00Z\",\"index\":8,\"path\":\"place-a-single-seed-in-soft-brown-dirt.md\",\"started\":\"2026-05-04T09:00:00Z\",\"status\":\"accepted\",\"tags\":[\"garden\",\"seedling\"],\"title\":\"Place a single seed in soft brown dirt\",\"type\":\"feature\"},{\"accepted\":\"2026-04-30T15:00:00Z\",\"assignees\":[\"mouse\"],\"delivered\":\"2026-04-30T11:00:00Z\",\"finished\":\"2026-04-30T09:00:00Z\",\"index\":9,\"path\":\"knock-politely-on-every-door-on-maple-lane.md\",\"started\":\"2026-04-27T09:00:00Z\",\"status\":\"accepted\",\"tags\":[\"invitations\"],\"title\":\"Knock politely on every door on Maple Lane\",\"type\":\"chore\"},{\"accepted\":\"2026-04-30T15:00:00Z\",\"assignees\":[\"toad\"],\"delivered\":\"2026-04-30T11:00:00Z\",\"epic\":\"the-button-quest\",\"estimate\":\"1\",\"finished\":\"2026-04-30T09:00:00Z\",\"index\":10,\"path\":\"wear-the-brown-coat-the-whole-afternoon.md\",\"started\":\"2026-04-27T09:00:00Z\",\"status\":\"accepted\",\"tags\":[\"buttons\",\"coat\"],\"title\":\"Wear the brown coat the whole afternoon\",\"type\":\"feature\"},{\"accepted\":\"2026-04-30T15:00:00Z\",\"assignees\":[\"toad\"],\"delivered\":\"2026-04-30T11:00:00Z\",\"epic\":\"cookies-in-the-jar\",\"estimate\":\"5\",\"finished\":\"2026-04-30T09:00:00Z\",\"index\":11,\"path\":\"bake-a-tall-tray-of-warm-cookies.md\",\"started\":\"2026-04-27T09:00:00Z\",\"status\":\"accepted\",\"tags\":[\"cookies\",\"baking\"],\"title\":\"Bake a tall tray of warm cookies\",\"type\":\"feature\"},{\"accepted\":\"2026-04-23T15:00:00Z\",\"assignees\":[\"toad\"],\"delivered\":\"2026-04-23T11:00:00Z\",\"epic\":\"cookies-in-the-jar\",\"estimate\":\"1\",\"finished\":\"2026-04-23T09:00:00Z\",\"index\":12,\"path\":\"open-the-cookie-jar-very-slowly.md\",\"started\":\"2026-04-20T09:00:00Z\",\"status\":\"accepted\",\"tags\":[\"cookies\"],\"title\":\"Open the cookie jar very slowly\",\"type\":\"feature\"},{\"accepted\":\"2026-04-23T15:00:00Z\",\"assignees\":[\"sparrow\"],\"delivered\":\"2026-04-23T11:00:00Z\",\"finished\":\"2026-04-23T09:00:00Z\",\"index\":13,\"path\":\"sweep-the-front-porch-before-tea.md\",\"started\":\"2026-04-20T09:00:00Z\",\"status\":\"accepted\",\"tags\":[\"porch\",\"tea\"],\"title\":\"Sweep the front porch before tea\",\"type\":\"chore\"},{\"accepted\":\"2026-04-23T15:00:00Z\",\"assignees\":[\"frog\"],\"delivered\":\"2026-04-23T11:00:00Z\",\"epic\":\"the-button-quest\",\"estimate\":\"5\",\"finished\":\"2026-04-23T09:00:00Z\",\"index\":14,\"path\":\"count-all-the-buttons-in-a-small-wooden-box.md\",\"started\":\"2026-04-20T09:00:00Z\",\"status\":\"accepted\",\"tags\":[\"buttons\",\"attic\"],\"title\":\"Count all the buttons in a small wooden box\",\"type\":\"feature\"},{\"accepted\":\"2026-04-16T15:00:00Z\",\"assignees\":[\"toad\"],\"delivered\":\"2026-04-16T11:00:00Z\",\"epic\":\"the-button-quest\",\"estimate\":\"3\",\"finished\":\"2026-04-16T09:00:00Z\",\"index\":15,\"path\":\"find-a-small-white-button.md\",\"started\":\"2026-04-13T09:00:00Z\",\"status\":\"accepted\",\"tags\":[\"buttons\",\"coat\"],\"title\":\"Find a small white button\",\"type\":\"feature\"},{\"accepted\":\"2026-04-16T15:00:00Z\",\"assignees\":[\"toad\"],\"delivered\":\"2026-04-16T11:00:00Z\",\"estimate\":\"1\",\"finished\":\"2026-04-16T09:00:00Z\",\"index\":16,\"path\":\"make-a-list-of-small-things-to-do-today.md\",\"started\":\"2026-04-13T09:00:00Z\",\"status\":\"accepted\",\"tags\":[\"lists\"],\"title\":\"Make a list of small things to do today\",\"type\":\"feature\"},{\"accepted\":\"2026-04-16T15:00:00Z\",\"assignees\":[\"frog\"],\"delivered\":\"2026-04-16T11:00:00Z\",\"epic\":\"the-button-quest\",\"estimate\":\"2\",\"finished\":\"2026-04-16T09:00:00Z\",\"index\":17,\"path\":\"look-in-the-bushes-near-the-pond.md\",\"started\":\"2026-04-13T09:00:00Z\",\"status\":\"accepted\",\"tags\":[\"buttons\",\"pond\"],\"title\":\"Look in the bushes near the pond\",\"type\":\"feature\"}]}",
+          "type": "text"
+        }
+      ],
+      "structuredContent": {
+        "backlog": "stories",
+        "count": 18,
+        "items": [
+          {
+            "accepted": "2026-05-21T15:00:00Z",
+            "assignees": [
+              "owl"
+            ],
+            "delivered": "2026-05-21T11:00:00Z",
+            "estimate": "1",
+            "finished": "2026-05-21T09:00:00Z",
+            "index": 0,
+            "path": "wave-once-at-the-moon-through-the-window.md",
+            "started": "2026-05-18T09:00:00Z",
+            "status": "accepted",
+            "tags": [
+              "moon"
+            ],
+            "title": "Wave once at the moon through the window",
+            "type": "feature"
+          },
+          {
+            "accepted": "2026-05-21T15:00:00Z",
+            "assignees": [
+              "frog"
+            ],
+            "delivered": "2026-05-21T11:00:00Z",
+            "epic": "letters-by-snail",
+            "estimate": "3",
+            "finished": "2026-05-21T09:00:00Z",
+            "index": 1,
+            "path": "address-the-very-first-letter-to-snail.md",
+            "started": "2026-05-18T09:00:00Z",
+            "status": "accepted",
+            "tags": [
+              "letters"
+            ],
+            "title": "Address the very first letter to Snail",
+            "type": "feature"
+          },
+          {
+            "accepted": "2026-05-21T15:00:00Z",
+            "assignees": [
+              "toad"
+            ],
+            "delivered": "2026-05-21T11:00:00Z",
+            "epic": "the-garden-of-patience",
+            "estimate": "2",
+            "finished": "2026-05-21T09:00:00Z",
+            "index": 2,
+            "path": "hum-a-small-tune-over-the-seed-at-night.md",
+            "started": "2026-05-18T09:00:00Z",
+            "status": "accepted",
+            "tags": [
+              "garden",
+              "seedling"
+            ],
+            "title": "Hum a small tune over the seed at night",
+            "type": "feature"
+          },
+          {
+            "accepted": "2026-05-14T15:00:00Z",
+            "assignees": [
+              "toad"
+            ],
+            "delivered": "2026-05-14T11:00:00Z",
+            "epic": "the-garden-of-patience",
+            "estimate": "3",
+            "finished": "2026-05-14T09:00:00Z",
+            "index": 3,
+            "path": "water-the-seed-at-exactly-dawn.md",
+            "started": "2026-05-11T09:00:00Z",
+            "status": "accepted",
+            "tags": [
+              "garden",
+              "seedling"
+            ],
+            "title": "Water the seed at exactly dawn",
+            "type": "feature"
+          },
+          {
+            "accepted": "2026-05-14T15:00:00Z",
+            "assignees": [
+              "frog"
+            ],
+            "delivered": "2026-05-14T11:00:00Z",
+            "epic": "cookies-in-the-jar",
+            "estimate": "1",
+            "finished": "2026-05-14T09:00:00Z",
+            "index": 4,
+            "path": "toss-the-last-crumb-to-a-hopeful-bird.md",
+            "started": "2026-05-11T09:00:00Z",
+            "status": "accepted",
+            "tags": [
+              "cookies",
+              "birds"
+            ],
+            "title": "Toss the last crumb to a hopeful bird",
+            "type": "feature"
+          },
+          {
+            "accepted": "2026-05-14T15:00:00Z",
+            "assignees": [
+              "toad"
+            ],
+            "delivered": "2026-05-14T11:00:00Z",
+            "epic": "the-garden-of-patience",
+            "estimate": "1",
+            "finished": "2026-05-14T09:00:00Z",
+            "index": 5,
+            "path": "speak-to-the-seed-in-a-soft-hopeful-voice.md",
+            "started": "2026-05-11T09:00:00Z",
+            "status": "accepted",
+            "tags": [
+              "garden",
+              "seedling"
+            ],
+            "title": "Speak to the seed in a soft, hopeful voice",
+            "type": "feature"
+          },
+          {
+            "accepted": "2026-05-07T15:00:00Z",
+            "assignees": [
+              "frog"
+            ],
+            "delivered": "2026-05-07T11:00:00Z",
+            "epic": "cookies-in-the-jar",
+            "estimate": "2",
+            "finished": "2026-05-07T09:00:00Z",
+            "index": 6,
+            "path": "eat-half-the-cookies-anyway.md",
+            "started": "2026-05-04T09:00:00Z",
+            "status": "accepted",
+            "tags": [
+              "cookies"
+            ],
+            "title": "Eat half the cookies anyway",
+            "type": "feature"
+          },
+          {
+            "accepted": "2026-05-07T15:00:00Z",
+            "assignees": [
+              "toad"
+            ],
+            "delivered": "2026-05-07T11:00:00Z",
+            "epic": "cookies-in-the-jar",
+            "estimate": "3",
+            "finished": "2026-05-07T09:00:00Z",
+            "index": 7,
+            "path": "hide-the-cookies-under-the-bed-for-safekeeping.md",
+            "started": "2026-05-04T09:00:00Z",
+            "status": "accepted",
+            "tags": [
+              "cookies"
+            ],
+            "title": "Hide the cookies under the bed for safekeeping",
+            "type": "feature"
+          },
+          {
+            "accepted": "2026-05-07T15:00:00Z",
+            "assignees": [
+              "frog"
+            ],
+            "delivered": "2026-05-07T11:00:00Z",
+            "epic": "the-garden-of-patience",
+            "estimate": "2",
+            "finished": "2026-05-07T09:00:00Z",
+            "index": 8,
+            "path": "place-a-single-seed-in-soft-brown-dirt.md",
+            "started": "2026-05-04T09:00:00Z",
+            "status": "accepted",
+            "tags": [
+              "garden",
+              "seedling"
+            ],
+            "title": "Place a single seed in soft brown dirt",
+            "type": "feature"
+          },
+          {
+            "accepted": "2026-04-30T15:00:00Z",
+            "assignees": [
+              "mouse"
+            ],
+            "delivered": "2026-04-30T11:00:00Z",
+            "finished": "2026-04-30T09:00:00Z",
+            "index": 9,
+            "path": "knock-politely-on-every-door-on-maple-lane.md",
+            "started": "2026-04-27T09:00:00Z",
+            "status": "accepted",
+            "tags": [
+              "invitations"
+            ],
+            "title": "Knock politely on every door on Maple Lane",
+            "type": "chore"
+          },
+          {
+            "accepted": "2026-04-30T15:00:00Z",
+            "assignees": [
+              "toad"
+            ],
+            "delivered": "2026-04-30T11:00:00Z",
+            "epic": "the-button-quest",
+            "estimate": "1",
+            "finished": "2026-04-30T09:00:00Z",
+            "index": 10,
+            "path": "wear-the-brown-coat-the-whole-afternoon.md",
+            "started": "2026-04-27T09:00:00Z",
+            "status": "accepted",
+            "tags": [
+              "buttons",
+              "coat"
+            ],
+            "title": "Wear the brown coat the whole afternoon",
+            "type": "feature"
+          },
+          {
+            "accepted": "2026-04-30T15:00:00Z",
+            "assignees": [
+              "toad"
+            ],
+            "delivered": "2026-04-30T11:00:00Z",
+            "epic": "cookies-in-the-jar",
+            "estimate": "5",
+            "finished": "2026-04-30T09:00:00Z",
+            "index": 11,
+            "path": "bake-a-tall-tray-of-warm-cookies.md",
+            "started": "2026-04-27T09:00:00Z",
+            "status": "accepted",
+            "tags": [
+              "cookies",
+              "baking"
+            ],
+            "title": "Bake a tall tray of warm cookies",
+            "type": "feature"
+          },
+          {
+            "accepted": "2026-04-23T15:00:00Z",
+            "assignees": [
+              "toad"
+            ],
+            "delivered": "2026-04-23T11:00:00Z",
+            "epic": "cookies-in-the-jar",
+            "estimate": "1",
+            "finished": "2026-04-23T09:00:00Z",
+            "index": 12,
+            "path": "open-the-cookie-jar-very-slowly.md",
+            "started": "2026-04-20T09:00:00Z",
+            "status": "accepted",
+            "tags": [
+              "cookies"
+            ],
+            "title": "Open the cookie jar very slowly",
+            "type": "feature"
+          },
+          {
+            "accepted": "2026-04-23T15:00:00Z",
+            "assignees": [
+              "sparrow"
+            ],
+            "delivered": "2026-04-23T11:00:00Z",
+            "finished": "2026-04-23T09:00:00Z",
+            "index": 13,
+            "path": "sweep-the-front-porch-before-tea.md",
+            "started": "2026-04-20T09:00:00Z",
+            "status": "accepted",
+            "tags": [
+              "porch",
+              "tea"
+            ],
+            "title": "Sweep the front porch before tea",
+            "type": "chore"
+          },
+          {
+            "accepted": "2026-04-23T15:00:00Z",
+            "assignees": [
+              "frog"
+            ],
+            "delivered": "2026-04-23T11:00:00Z",
+            "epic": "the-button-quest",
+            "estimate": "5",
+            "finished": "2026-04-23T09:00:00Z",
+            "index": 14,
+            "path": "count-all-the-buttons-in-a-small-wooden-box.md",
+            "started": "2026-04-20T09:00:00Z",
+            "status": "accepted",
+            "tags": [
+              "buttons",
+              "attic"
+            ],
+            "title": "Count all the buttons in a small wooden box",
+            "type": "feature"
+          },
+          {
+            "accepted": "2026-04-16T15:00:00Z",
+            "assignees": [
+              "toad"
+            ],
+            "delivered": "2026-04-16T11:00:00Z",
+            "epic": "the-button-quest",
+            "estimate": "3",
+            "finished": "2026-04-16T09:00:00Z",
+            "index": 15,
+            "path": "find-a-small-white-button.md",
+            "started": "2026-04-13T09:00:00Z",
+            "status": "accepted",
+            "tags": [
+              "buttons",
+              "coat"
+            ],
+            "title": "Find a small white button",
+            "type": "feature"
+          },
+          {
+            "accepted": "2026-04-16T15:00:00Z",
+            "assignees": [
+              "toad"
+            ],
+            "delivered": "2026-04-16T11:00:00Z",
+            "estimate": "1",
+            "finished": "2026-04-16T09:00:00Z",
+            "index": 16,
+            "path": "make-a-list-of-small-things-to-do-today.md",
+            "started": "2026-04-13T09:00:00Z",
+            "status": "accepted",
+            "tags": [
+              "lists"
+            ],
+            "title": "Make a list of small things to do today",
+            "type": "feature"
+          },
+          {
+            "accepted": "2026-04-16T15:00:00Z",
+            "assignees": [
+              "frog"
+            ],
+            "delivered": "2026-04-16T11:00:00Z",
+            "epic": "the-button-quest",
+            "estimate": "2",
+            "finished": "2026-04-16T09:00:00Z",
+            "index": 17,
+            "path": "look-in-the-bushes-near-the-pond.md",
+            "started": "2026-04-13T09:00:00Z",
+            "status": "accepted",
+            "tags": [
+              "buttons",
+              "pond"
+            ],
+            "title": "Look in the bushes near the pond",
+            "type": "feature"
+          }
+        ]
+      }
+    }
+  }
+}

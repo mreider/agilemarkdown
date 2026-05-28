@@ -1,0 +1,30 @@
+{
+  "request": {
+    "id": 8,
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "arguments": {
+        "author": "pm",
+        "path": "stories/sort-the-unread-letters-into-three-quiet-piles.md",
+        "reason": "PM noticed the third pile is mislabeled."
+      },
+      "name": "reject_item"
+    }
+  },
+  "response": {
+    "id": 8,
+    "jsonrpc": "2.0",
+    "result": {
+      "content": [
+        {
+          "text": "{\"ok\":true}",
+          "type": "text"
+        }
+      ],
+      "structuredContent": {
+        "ok": true
+      }
+    }
+  }
+}

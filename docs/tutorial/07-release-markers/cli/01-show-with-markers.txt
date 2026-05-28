@@ -1,0 +1,36 @@
+$ am show priority --iterations 5
+Priority (stories)   velocity 7 / iteration
+
+── Iteration 1378  Mon May 25  9 / 7 pts ──
+   1. ★  Wait by the mailbox for any kind of rep…  accepted    3p
+   2. ★  Pace exactly seven times up and down th…  unstarted   2p
+   3. ★  Watch the seedling for the smallest sig…  started     5p
+   4. ★  Build a small fence so the seedling fee…  accepted    3p
+   5. ★  Set a tiny chair beside the seedling      accepted    1p
+   6. ★  Send a thank-you note by Snail            accepted    2p
+   7. ★  Sort the unread letters into three quie…  started     3p
+
+── Iteration 1379  Mon Jun 01  0 / 7 pts ──
+   8. ★  Yell at the seedling to grow faster       unstarted   3p
+   9. ★  Apologize to the seedling for yelling     unstarted   1p
+  10. ★  Decline the dinner party invitation pol…  unstarted   2p
+
+── Iteration 1380  Mon Jun 08  0 / 7 pts ──
+  11. ★  Replant the seedling somewhere a little…  unstarted   3p
+
+── Iteration 1381  Mon Jun 15  0 / 7 pts ──
+  12. ★  Knit a tiny sweater for the seedling      unstarted   5p
+
+── Iteration 1382  Mon Jun 22  0 / 7 pts ──
+  13. ★  Read a long, slow book to the seedling    unstarted   5p
+  14. ▶  First-frost release                       unstarted   
+       on track: target 2026-06-24
+  15. ★  Brew a small pot of tear-water tea befo…  unstarted   
+
+── Backlog (untimed) ──
+  16. ★  Stand on a chair to watch the moon prop…  unstarted   3p
+  17. ★  Plan the moons very first birthday party  unstarted   8p
+  18. ▶  The Long-Sleep release                    unstarted   
+       on track: target 2026-08-23
+
+── Icebox (18 items) ── see `am show icebox`

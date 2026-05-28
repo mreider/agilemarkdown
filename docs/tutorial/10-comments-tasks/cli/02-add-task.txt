@@ -1,0 +1,3 @@
+$ am task add stories/plan-the-moons-very-first-birthday-party.md \
+    "Find a stand for the cake"
+✓ task added

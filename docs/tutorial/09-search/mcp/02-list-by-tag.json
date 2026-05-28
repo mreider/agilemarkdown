@@ -1,0 +1,227 @@
+{
+  "request": {
+    "id": 22,
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "arguments": {
+        "backlog": "stories",
+        "tag": "garden"
+      },
+      "name": "list_items"
+    }
+  },
+  "response": {
+    "id": 22,
+    "jsonrpc": "2.0",
+    "result": {
+      "content": [
+        {
+          "text": "{\"count\":12,\"items\":[{\"assigned\":\"toad\",\"assignees\":[\"toad\"],\"comment_count\":1,\"epic\":\"the-garden-of-patience\",\"estimate\":\"1\",\"path\":\"stories/apologize-to-the-seedling-for-yelling.md\",\"status\":\"unstarted\",\"tags\":[\"garden\",\"manners\"],\"title\":\"Apologize to the seedling for yelling\",\"type\":\"feature\"},{\"assigned\":\"frog\",\"assignees\":[\"frog\"],\"epic\":\"the-garden-of-patience\",\"estimate\":\"3\",\"path\":\"stories/build-a-small-fence-so-the-seedling-feels-safer.md\",\"status\":\"accepted\",\"tags\":[\"garden\",\"seedling\"],\"title\":\"Build a small fence so the seedling feels safer\",\"type\":\"feature\"},{\"assigned\":\"toad\",\"assignees\":[\"toad\"],\"epic\":\"the-garden-of-patience\",\"estimate\":\"2\",\"path\":\"stories/hum-a-small-tune-over-the-seed-at-night.md\",\"status\":\"accepted\",\"tags\":[\"garden\",\"seedling\"],\"title\":\"Hum a small tune over the seed at night\",\"type\":\"feature\"},{\"assigned\":\"toad\",\"assignees\":[\"toad\"],\"epic\":\"the-garden-of-patience\",\"estimate\":\"5\",\"path\":\"stories/knit-a-tiny-sweater-for-the-seedling.md\",\"status\":\"unstarted\",\"tags\":[\"garden\",\"knitting\"],\"title\":\"Knit a tiny sweater for the seedling\",\"type\":\"feature\"},{\"assigned\":\"frog\",\"assignees\":[\"frog\"],\"epic\":\"the-garden-of-patience\",\"estimate\":\"2\",\"path\":\"stories/place-a-single-seed-in-soft-brown-dirt.md\",\"status\":\"accepted\",\"tags\":[\"garden\",\"seedling\"],\"title\":\"Place a single seed in soft brown dirt\",\"type\":\"feature\"},{\"assigned\":\"owl\",\"assignees\":[\"owl\"],\"epic\":\"the-garden-of-patience\",\"estimate\":\"5\",\"path\":\"stories/read-a-long-slow-book-to-the-seedling.md\",\"status\":\"unstarted\",\"tags\":[\"garden\",\"books\"],\"title\":\"Read a long, slow book to the seedling\",\"type\":\"feature\"},{\"assigned\":\"frog\",\"assignees\":[\"frog\"],\"epic\":\"the-garden-of-patience\",\"estimate\":\"3\",\"path\":\"stories/replant-the-seedling-somewhere-a-little-warmer.md\",\"status\":\"unstarted\",\"tags\":[\"garden\",\"seedling\"],\"title\":\"Replant the seedling somewhere a little warmer\",\"type\":\"feature\"},{\"assigned\":\"toad\",\"assignees\":[\"toad\"],\"epic\":\"the-garden-of-patience\",\"estimate\":\"1\",\"path\":\"stories/set-a-tiny-chair-beside-the-seedling.md\",\"status\":\"accepted\",\"tags\":[\"garden\",\"seedling\"],\"title\":\"Set a tiny chair beside the seedling\",\"type\":\"feature\"},{\"assigned\":\"toad\",\"assignees\":[\"toad\"],\"epic\":\"the-garden-of-patience\",\"estimate\":\"1\",\"path\":\"stories/speak-to-the-seed-in-a-soft-hopeful-voice.md\",\"status\":\"accepted\",\"tags\":[\"garden\",\"seedling\"],\"title\":\"Speak to the seed in a soft, hopeful voice\",\"type\":\"feature\"},{\"assigned\":\"toad\",\"assignees\":[\"toad\"],\"blocked\":true,\"comment_count\":3,\"epic\":\"the-garden-of-patience\",\"estimate\":\"5\",\"path\":\"stories/watch-the-seedling-for-the-smallest-sign-of-movement.md\",\"status\":\"started\",\"tags\":[\"garden\",\"seedling\"],\"title\":\"Watch the seedling for the smallest sign of movement\",\"type\":\"feature\"},{\"assigned\":\"toad\",\"assignees\":[\"toad\"],\"epic\":\"the-garden-of-patience\",\"estimate\":\"3\",\"path\":\"stories/water-the-seed-at-exactly-dawn.md\",\"status\":\"accepted\",\"tags\":[\"garden\",\"seedling\"],\"title\":\"Water the seed at exactly dawn\",\"type\":\"feature\"},{\"assigned\":\"toad\",\"assignees\":[\"toad\"],\"comment_count\":1,\"epic\":\"the-garden-of-patience\",\"estimate\":\"3\",\"path\":\"stories/yell-at-the-seedling-to-grow-faster.md\",\"status\":\"unstarted\",\"tags\":[\"garden\",\"regret\"],\"title\":\"Yell at the seedling to grow faster\",\"type\":\"feature\"}]}",
+          "type": "text"
+        }
+      ],
+      "structuredContent": {
+        "count": 12,
+        "items": [
+          {
+            "assigned": "toad",
+            "assignees": [
+              "toad"
+            ],
+            "comment_count": 1,
+            "epic": "the-garden-of-patience",
+            "estimate": "1",
+            "path": "stories/apologize-to-the-seedling-for-yelling.md",
+            "status": "unstarted",
+            "tags": [
+              "garden",
+              "manners"
+            ],
+            "title": "Apologize to the seedling for yelling",
+            "type": "feature"
+          },
+          {
+            "assigned": "frog",
+            "assignees": [
+              "frog"
+            ],
+            "epic": "the-garden-of-patience",
+            "estimate": "3",
+            "path": "stories/build-a-small-fence-so-the-seedling-feels-safer.md",
+            "status": "accepted",
+            "tags": [
+              "garden",
+              "seedling"
+            ],
+            "title": "Build a small fence so the seedling feels safer",
+            "type": "feature"
+          },
+          {
+            "assigned": "toad",
+            "assignees": [
+              "toad"
+            ],
+            "epic": "the-garden-of-patience",
+            "estimate": "2",
+            "path": "stories/hum-a-small-tune-over-the-seed-at-night.md",
+            "status": "accepted",
+            "tags": [
+              "garden",
+              "seedling"
+            ],
+            "title": "Hum a small tune over the seed at night",
+            "type": "feature"
+          },
+          {
+            "assigned": "toad",
+            "assignees": [
+              "toad"
+            ],
+            "epic": "the-garden-of-patience",
+            "estimate": "5",
+            "path": "stories/knit-a-tiny-sweater-for-the-seedling.md",
+            "status": "unstarted",
+            "tags": [
+              "garden",
+              "knitting"
+            ],
+            "title": "Knit a tiny sweater for the seedling",
+            "type": "feature"
+          },
+          {
+            "assigned": "frog",
+            "assignees": [
+              "frog"
+            ],
+            "epic": "the-garden-of-patience",
+            "estimate": "2",
+            "path": "stories/place-a-single-seed-in-soft-brown-dirt.md",
+            "status": "accepted",
+            "tags": [
+              "garden",
+              "seedling"
+            ],
+            "title": "Place a single seed in soft brown dirt",
+            "type": "feature"
+          },
+          {
+            "assigned": "owl",
+            "assignees": [
+              "owl"
+            ],
+            "epic": "the-garden-of-patience",
+            "estimate": "5",
+            "path": "stories/read-a-long-slow-book-to-the-seedling.md",
+            "status": "unstarted",
+            "tags": [
+              "garden",
+              "books"
+            ],
+            "title": "Read a long, slow book to the seedling",
+            "type": "feature"
+          },
+          {
+            "assigned": "frog",
+            "assignees": [
+              "frog"
+            ],
+            "epic": "the-garden-of-patience",
+            "estimate": "3",
+            "path": "stories/replant-the-seedling-somewhere-a-little-warmer.md",
+            "status": "unstarted",
+            "tags": [
+              "garden",
+              "seedling"
+            ],
+            "title": "Replant the seedling somewhere a little warmer",
+            "type": "feature"
+          },
+          {
+            "assigned": "toad",
+            "assignees": [
+              "toad"
+            ],
+            "epic": "the-garden-of-patience",
+            "estimate": "1",
+            "path": "stories/set-a-tiny-chair-beside-the-seedling.md",
+            "status": "accepted",
+            "tags": [
+              "garden",
+              "seedling"
+            ],
+            "title": "Set a tiny chair beside the seedling",
+            "type": "feature"
+          },
+          {
+            "assigned": "toad",
+            "assignees": [
+              "toad"
+            ],
+            "epic": "the-garden-of-patience",
+            "estimate": "1",
+            "path": "stories/speak-to-the-seed-in-a-soft-hopeful-voice.md",
+            "status": "accepted",
+            "tags": [
+              "garden",
+              "seedling"
+            ],
+            "title": "Speak to the seed in a soft, hopeful voice",
+            "type": "feature"
+          },
+          {
+            "assigned": "toad",
+            "assignees": [
+              "toad"
+            ],
+            "blocked": true,
+            "comment_count": 3,
+            "epic": "the-garden-of-patience",
+            "estimate": "5",
+            "path": "stories/watch-the-seedling-for-the-smallest-sign-of-movement.md",
+            "status": "started",
+            "tags": [
+              "garden",
+              "seedling"
+            ],
+            "title": "Watch the seedling for the smallest sign of movement",
+            "type": "feature"
+          },
+          {
+            "assigned": "toad",
+            "assignees": [
+              "toad"
+            ],
+            "epic": "the-garden-of-patience",
+            "estimate": "3",
+            "path": "stories/water-the-seed-at-exactly-dawn.md",
+            "status": "accepted",
+            "tags": [
+              "garden",
+              "seedling"
+            ],
+            "title": "Water the seed at exactly dawn",
+            "type": "feature"
+          },
+          {
+            "assigned": "toad",
+            "assignees": [
+              "toad"
+            ],
+            "comment_count": 1,
+            "epic": "the-garden-of-patience",
+            "estimate": "3",
+            "path": "stories/yell-at-the-seedling-to-grow-faster.md",
+            "status": "unstarted",
+            "tags": [
+              "garden",
+              "regret"
+            ],
+            "title": "Yell at the seedling to grow faster",
+            "type": "feature"
+          }
+        ]
+      }
+    }
+  }
+}

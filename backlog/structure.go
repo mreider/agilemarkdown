@@ -1,31 +1,36 @@
 package backlog
 
 import (
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 )
 
+// The derived view directories and aggregated overview files all
+// live under `.am/` so the project root stays scannable. Only
+// human-edited content (stories, per-backlog overview, backlog
+// folders) is visible at the root. `.am/archive/` is NOT used:
+// archived stories stay alongside their owning backlog at
+// `<backlog>/archive/` so a story's history is local to the
+// backlog that produced it.
 const (
-	configFileName        = ".config.json"
+	configFileName        = ".am/config.yaml"
 	indexFileName         = "index.md"
-	velocityFileName      = "velocity.md"
-	velocityDirectoryName = "velocity"
-	ideasDirectoryName    = "ideas"
-	ideasFileName         = "ideas.md"
+	velocityFileName      = ".am/velocity.md"
+	velocityDirectoryName = ".am/velocity"
 	archiveDirectoryName  = "archive"
-	TagsDirectoryName     = "tags"
-	TagsFileName          = "tags.md"
-	usersDirectoryName    = "users"
-	usersFileName         = "users.md"
-	timelineFileName      = "timeline.md"
-	timelineDirectoryName = "timeline"
+	TagsDirectoryName     = ".am/tags"
+	TagsFileName          = ".am/tags.md"
+	usersDirectoryName    = ".am/users"
+	usersFileName         = ".am/users.md"
+	timelineFileName      = ".am/timeline.md"
+	timelineDirectoryName = ".am/timeline"
 )
 
 var (
-	ForbiddenBacklogNames = []string{velocityDirectoryName, ideasDirectoryName, archiveDirectoryName, TagsDirectoryName, usersDirectoryName, timelineDirectoryName}
-	ForbiddenItemNames    = []string{archiveDirectoryName}
+	ForbiddenBacklogNames = []string{velocityDirectoryName, archiveDirectoryName, TagsDirectoryName, usersDirectoryName, timelineDirectoryName}
+	ForbiddenItemNames    = []string{archiveDirectoryName, "_priority", "_icebox"}
 )
 
 type BacklogsStructure struct {
@@ -64,16 +69,8 @@ func (s *BacklogsStructure) TimelineFile() string {
 	return filepath.Join(s.root, timelineFileName)
 }
 
-func (s *BacklogsStructure) IdeasFile() string {
-	return filepath.Join(s.root, ideasFileName)
-}
-
 func (s *BacklogsStructure) UsersDirectory() string {
 	return filepath.Join(s.root, usersDirectoryName)
-}
-
-func (s *BacklogsStructure) IdeasDirectory() string {
-	return filepath.Join(s.root, ideasDirectoryName)
 }
 
 func (s *BacklogsStructure) TagsDirectory() string {
@@ -84,8 +81,14 @@ func (s *BacklogsStructure) TimelineDirectory() string {
 	return filepath.Join(s.root, timelineDirectoryName)
 }
 
+// BacklogDirs returns the project's backlog directories. Convention:
+// a backlog is a folder at the project root that has a matching
+// `<dir-name>.md` overview file alongside it. The canonical name is
+// `stories` (one project = one backlog); legacy `am-*` folders from
+// earlier projects still validate as long as the overview is there.
+// Other content (docs/, confluence/, etc.) is silently ignored.
 func (s *BacklogsStructure) BacklogDirs() ([]string, error) {
-	infos, err := ioutil.ReadDir(s.root)
+	infos, err := os.ReadDir(s.root)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +97,11 @@ func (s *BacklogsStructure) BacklogDirs() ([]string, error) {
 		if !info.IsDir() || strings.HasPrefix(info.Name(), ".") || IsForbiddenBacklogName(info.Name()) {
 			continue
 		}
-		result = append(result, filepath.Join(s.root, info.Name()))
+		dir := filepath.Join(s.root, info.Name())
+		if _, ok := FindOverviewFileInRootDirectory(dir); !ok {
+			continue
+		}
+		result = append(result, dir)
 	}
 	sort.Strings(result)
 	return result, nil

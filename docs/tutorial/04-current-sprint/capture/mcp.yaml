@@ -1,0 +1,27 @@
+# Chapter 4: MCP traces. Each entry produces one
+# docs/tutorial/04-current-sprint/mcp/<name>.json.
+#
+# These calls are read-only, they reflect state the Playwright spec
+# already changed, they don't drive new mutations themselves.
+- name: 01-current-sprint
+  tool: priority_list
+  args:
+    backlog: stories
+
+- name: 02-finish
+  tool: set_status
+  args:
+    path: stories/wait-by-the-mailbox-for-any-kind-of-reply.md
+    status: finished
+
+- name: 03-deliver
+  tool: set_status
+  args:
+    path: stories/wait-by-the-mailbox-for-any-kind-of-reply.md
+    status: delivered
+
+- name: 04-accept
+  tool: set_status
+  args:
+    path: stories/wait-by-the-mailbox-for-any-kind-of-reply.md
+    status: accepted

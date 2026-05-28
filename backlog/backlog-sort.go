@@ -47,27 +47,48 @@ func (s *BacklogItemsSorter) SortedItemsByStatus() map[string][]string {
 }
 
 func (s *BacklogItemsSorter) updateSortedItems(overview *BacklogOverview, sortedItemsByStatus map[string][]string) {
+	groupTitlesForStatus := map[*BacklogItemStatus][]string{
+		UnstartedStatus: {"Unstarted"},
+		StartedStatus:   {"Started"},
+		FinishedStatus:  {"Finished"},
+		DeliveredStatus: {"Delivered"},
+		AcceptedStatus:  {"Accepted"},
+		RejectedStatus:  {"Rejected"},
+	}
 	for _, status := range AllStatuses {
-		title := status.CapitalizedName()
-		group := overview.markdown.Group(title)
-		if group == nil {
-			if _, ok := sortedItemsByStatus[status.Name]; !ok {
-				sortedItemsByStatus[status.Name] = nil
+		titles := groupTitlesForStatus[status]
+		lowerStatus := strings.ToLower(status.Name)
+		var statusItems []string
+		for _, title := range titles {
+			group := overview.markdown.Group(title)
+			if group == nil {
+				continue
 			}
-			continue
-		}
-		for _, line := range group.Lines() {
-			matches := overviewItemRe.FindAllStringSubmatch(line, -1)
-			for _, match := range matches {
-				itemPath := match[1]
-				if strings.HasPrefix(itemPath, usersDirectoryName+"/") {
-					continue
+			var groupItems []string
+			for _, line := range group.Lines() {
+				matches := overviewItemRe.FindAllStringSubmatch(line, -1)
+				for _, match := range matches {
+					itemPath := match[1]
+					if strings.HasPrefix(itemPath, usersDirectoryName+"/") {
+						continue
+					}
+					itemName := filepath.Base(itemPath)
+					itemName = strings.TrimSuffix(itemName, filepath.Ext(itemName))
+					groupItems = append(groupItems, itemName)
+					break
 				}
-				itemName := filepath.Base(itemPath)
-				itemName = strings.TrimSuffix(itemName, filepath.Ext(itemName))
-				sortedItemsByStatus[status.Name] = append(sortedItemsByStatus[status.Name], itemName)
-				break
 			}
+			statusItems = append(statusItems, groupItems...)
+			// Also expose the legacy heading as its own map key so
+			// callers that look up by raw fixture heading still work.
+			if lowerLegacy := strings.ToLower(title); lowerLegacy != lowerStatus {
+				sortedItemsByStatus[lowerLegacy] = append(sortedItemsByStatus[lowerLegacy], groupItems...)
+			}
+		}
+		if statusItems != nil {
+			sortedItemsByStatus[lowerStatus] = append(sortedItemsByStatus[lowerStatus], statusItems...)
+		} else if _, ok := sortedItemsByStatus[lowerStatus]; !ok {
+			sortedItemsByStatus[lowerStatus] = nil
 		}
 	}
 }

@@ -16,14 +16,8 @@ func NewSyncDownCaseStep(root *backlog.BacklogsStructure, userList *backlog.User
 }
 
 func (s *SyncDownCaseStep) Execute() error {
-	fmt.Println("Downcasing story and idea metadata")
-
-	err := s.updateItems()
-	if err != nil {
-		return err
-	}
-
-	return s.updateIdeas()
+	fmt.Println("Downcasing story metadata")
+	return s.updateItems()
 }
 
 func (s *SyncDownCaseStep) updateItems() error {
@@ -74,25 +68,3 @@ func (s *SyncDownCaseStep) updateItems() error {
 	return nil
 }
 
-func (s *SyncDownCaseStep) updateIdeas() error {
-	ideasDir := s.root.IdeasDirectory()
-	ideas, err := backlog.LoadIdeas(ideasDir)
-	if err != nil {
-		return err
-	}
-
-	for _, idea := range ideas {
-		tags := idea.Tags()
-		if len(tags) > 0 {
-			for i, tag := range tags {
-				tags[i] = strings.ToLower(tag)
-			}
-			idea.SetTags(tags)
-		}
-		err := idea.Save()
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}

@@ -1,0 +1,2 @@
+$ am task tick stories/plan-the-moons-very-first-birthday-party.md 2
+✓ task toggled

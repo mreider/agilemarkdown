@@ -1,0 +1,1098 @@
+/* Agile Markdown VS Code extension webview styles. Ported from the
+   Cadence design prototype, trimmed to the surface area we ship. */
+
+:root {
+  --bg: #F4F4F2;
+  --bg-elev: #FFFFFF;
+  --bg-panel: #FFFFFF;
+  --bg-soft: #FAFAF9;
+  --ink: #0F0F0E;
+  --ink-2: #2B2B29;
+  --ink-3: #5C5C58;
+  --ink-4: #8A8A85;
+  --ink-5: #B5B5B0;
+  --line: #E4E4E0;
+  --line-2: #EFEFEC;
+  --line-3: #F5F5F2;
+
+  --accent: #4F3DDB;
+  --accent-soft: #ECEAFB;
+
+  --st-unstarted: #8A8A85; /* gray */
+  --st-started: #1F6FE5;   /* blue */
+  --st-finished: #D97706;  /* orange/amber */
+  --st-delivered: #0F0F0E; /* near-black */
+  --st-accepted: #15803D;  /* green */
+  --st-rejected: #B42318;  /* red */
+
+  /* Pivotal Tracker palette. Used for card backgrounds (yellow for
+     the current iteration band, white below the line), the
+     iteration-header strip, and the action buttons. The state-pill
+     colors above stay as-is for the detail panel's state-machine. */
+  --pivotal-current-bg:     #FFF8C8;  /* pale warm yellow */
+  --pivotal-current-border: #E8E1A4;
+  --pivotal-iter-bar:       #6F6C4E;  /* olive band header */
+  --pivotal-iter-bar-fg:    #F5F1D6;
+  --pivotal-btn-bg:         #4A4A48;  /* dark gray progress button */
+  --pivotal-btn-fg:         #F5F4EF;
+  --pivotal-accept:         #5BA85B;  /* green Accept button */
+  --pivotal-reject:         #D14747;  /* red Reject button */
+  --pivotal-star:           #E8B83C;  /* gold feature star */
+
+  --t-feature: #B45309;     --t-feature-bg: #FAEFD9;
+  --t-bug: #B42318;          --t-bug-bg: #FBE3DF;
+  --t-chore: #5C5C58;        --t-chore-bg: #ECECE8;
+  --t-release: #15803D;      --t-release-bg: #DEF1E2;
+
+  --r-1: 4px;
+  --r-2: 6px;
+  --r-3: 10px;
+  --r-4: 14px;
+
+  --shadow-1: 0 1px 1px rgba(15,15,14,0.04), 0 1px 2px rgba(15,15,14,0.04);
+  --shadow-2: 0 4px 12px -4px rgba(15,15,14,0.10), 0 1px 1px rgba(15,15,14,0.04);
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, monospace;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+input, textarea { font-family: inherit; }
+
+#root { height: 100%; }
+
+.app {
+  display: grid;
+  grid-template-rows: 44px 1fr;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.topbar {
+  display: flex; align-items: center; gap: 14px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-elev);
+}
+.brand { display: flex; align-items: center; gap: 9px; font-weight: 600; }
+.brand-dot { width: 14px; height: 14px; border-radius: 4px; background: var(--ink); }
+.topbar-spacer { flex: 1; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 10px;
+  border-radius: var(--r-2);
+  font-weight: 500; font-size: 13px;
+  border: 1px solid var(--line);
+  background: var(--bg-elev);
+  color: var(--ink-2);
+}
+.btn:hover { background: var(--bg-soft); }
+
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--r-2);
+  font-weight: 500; font-size: 13px;
+  background: var(--accent); color: white;
+  border: none;
+}
+.btn-primary:hover { filter: brightness(1.08); }
+
+.searchbox {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  padding: 4px 8px;
+  width: 280px;
+  margin-right: 8px;
+}
+.searchbox-icon { color: var(--ink-4); display: inline-flex; margin-right: 6px; }
+.searchbox-input {
+  flex: 1; border: none; outline: none; background: transparent;
+  font-size: 13px; color: var(--ink);
+}
+.searchbox-kbd {
+  font-family: var(--font-mono); font-size: 10.5px;
+  color: var(--ink-4);
+  padding: 1px 5px; border: 1px solid var(--line);
+  border-radius: 3px;
+}
+.searchbox-popover {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 360px;
+  overflow-y: auto;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  box-shadow: var(--shadow-2);
+  padding: 4px;
+  z-index: 10;
+}
+.searchbox-hit {
+  display: block;
+  width: 100%; text-align: left;
+  padding: 8px 10px;
+  border-radius: var(--r-2);
+  background: transparent;
+  color: var(--ink);
+}
+.searchbox-hit:hover, .searchbox-hit.active { background: var(--bg-soft); }
+.searchbox-hit-title { font-size: 13px; font-weight: 500; }
+.searchbox-hit-meta { font-size: 11px; color: var(--ink-4); font-family: var(--font-mono); margin-top: 2px; }
+.searchbox-hit-snippet { font-size: 12px; color: var(--ink-3); margin-top: 4px; line-height: 1.4; }
+.searchbox-empty { padding: 10px; font-size: 12px; color: var(--ink-4); text-align: center; }
+
+.col-head-icon { display: inline-flex; color: var(--ink-3); margin-right: 2px; }
+
+.error-banner {
+  background: var(--t-bug-bg);
+  color: var(--t-bug);
+  padding: 6px 14px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+}
+
+.empty {
+  padding: 18px;
+  color: var(--ink-4);
+  font-size: 13px;
+  text-align: center;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 48px 24px;
+  max-width: 520px;
+  margin: 0 auto;
+  text-align: center;
+}
+.empty-state h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.empty-state p {
+  margin: 0;
+  color: var(--ink-3);
+  font-size: 14px;
+  line-height: 1.55;
+}
+.empty-state .cta {
+  margin-top: 8px;
+  padding: 8px 16px;
+  border-radius: var(--r-2);
+  background: var(--accent);
+  color: white;
+  font-weight: 500;
+  font-size: 13px;
+  border: none;
+}
+.empty-state .cta:hover {
+  background: oklch(0.45 0.135 280);
+}
+.empty-state .cta[disabled] {
+  opacity: 0.5; cursor: not-allowed; background: var(--accent);
+}
+.empty-state-form { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
+/* New-story modal. Centered overlay above the board so the
+   create-story flow is column-agnostic: the inline composer that
+   used to live in the Current column header implied stories would
+   land in Current, but `am create-item` actually stages into Icebox.
+   The modal states that up front. */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 999;
+  background: rgba(0, 0, 0, 0.35);
+  display: grid; place-items: center;
+  animation: am-modal-fade-in 120ms ease-out both;
+}
+@keyframes am-modal-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.modal-panel {
+  width: min(380px, calc(100vw - 32px));
+  min-width: 240px;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.30);
+  padding: 16px 18px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.modal-head { display: flex; align-items: flex-start; gap: 8px; }
+.modal-title { font-size: 15px; font-weight: 600; color: var(--ink); line-height: 1.2; }
+.modal-subtitle { font-size: 12px; color: var(--ink-3); margin-top: 3px; }
+.modal-subtitle code { font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-2); }
+.modal-head .icon-btn { margin-left: auto; flex: 0 0 auto; }
+.modal-body { display: flex; flex-direction: column; gap: 10px; }
+.modal-field { display: flex; flex-direction: column; gap: 5px; }
+.modal-label { font-family: var(--font-mono); font-size: 10.5px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+/* Modal actions: Cancel left, primary right, 8px apart, both
+   right-edge-aligned. The selector below overrides .btn-mini's
+   default margin-left:auto (which was meant for card-row spacing
+   and was splitting our two buttons across the full row). */
+.modal-actions {
+  display: flex; gap: 8px;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+.modal-actions .btn-mini { margin-left: 0; padding: 6px 14px; font-size: 12.5px; }
+.modal-actions .btn-mini.primary {
+  background: var(--accent); color: white; border-color: var(--accent);
+}
+.modal-actions .btn-mini.primary:hover { filter: brightness(1.08); }
+.modal-actions .btn-mini.primary[disabled] { background: var(--ink-4); border-color: var(--ink-4); opacity: 1; }
+.empty-state-form .inline-input { min-width: 220px; }
+.empty-state-error { margin-top: 8px; font-size: 12px; color: var(--errorForeground, #c33); }
+
+.board {
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+}
+/* Each visible column flexes to fill the available width. One
+   column visible = it spans the whole board. Three visible = they
+   share evenly. The min-width keeps cards readable on very narrow
+   webviews. */
+.board > .col { flex: 1 1 0; min-width: 280px; }
+.board > .col.epic-only { min-width: 240px; }
+
+.side {
+  border-right: 1px solid var(--line);
+  padding: 14px 12px;
+  overflow-y: auto;
+  background: var(--bg-elev);
+  display: flex; flex-direction: column; gap: 12px;
+}
+.side-section-title {
+  font-size: 10.5px; font-weight: 600;
+  color: var(--ink-4); letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0 6px 6px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 8px;
+  border-radius: var(--r-2);
+  font-size: 13px; color: var(--ink-2);
+  font-weight: 500;
+}
+.nav-item:hover { background: var(--bg-soft); cursor: pointer; }
+.nav-item.active { background: var(--accent-soft); color: var(--accent); }
+.nav-item-icon { display: inline-flex; color: var(--ink-3); }
+.nav-item.active .nav-item-icon { color: var(--accent); }
+.nav-item-label { flex: 1; }
+.nav-count {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--ink-4); font-weight: 500;
+}
+
+
+.velocity-card {
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  padding: 12px;
+  margin-top: auto;
+}
+.velocity-num { font-size: 28px; font-weight: 600; line-height: 1; }
+.velocity-num small { font-size: 12px; color: var(--ink-3); margin-left: 4px; }
+.velocity-label { font-size: 10.5px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; font-weight: 600; }
+.velocity-foot { margin-top: 6px; font-size: 10.5px; color: var(--ink-4); font-family: var(--font-mono); }
+
+.col {
+  display: flex; flex-direction: column;
+  border-right: 1px solid var(--line);
+  min-height: 0;
+  background: var(--bg-soft);
+}
+.col:last-of-type { border-right: none; }
+.col-head {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 14px;
+  /* Lock the header height to a single line regardless of whether
+     the column has an icon-button action. The Current column carries
+     a 28px tall `+` button while Icebox/Epics don't, and without a
+     min-height the column rows visibly disagreed on header height. */
+  min-height: 40px;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-elev);
+}
+.col-title { font-weight: 600; font-size: 13px; }
+.col-meta { font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-3); }
+.col-actions { margin-left: auto; display: flex; gap: 2px; }
+.icon-btn {
+  width: 28px; height: 28px;
+  display: grid; place-items: center;
+  border-radius: var(--r-2);
+  color: var(--ink-2);
+}
+.icon-btn:hover { background: var(--line-2); }
+
+/* col-add is the prominent + button on the Current and Icebox column
+   headers. Same accent-purple as the old "Add story" CTA so it reads
+   as a primary affordance, not a quiet icon button. */
+.col-add {
+  width: 26px; height: 26px;
+  display: grid; place-items: center;
+  border-radius: 999px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(79, 61, 219, 0.30);
+  transition: filter 80ms, transform 80ms;
+}
+.col-add:hover { filter: brightness(1.08); transform: scale(1.05); }
+.col-add:active { transform: scale(0.97); }
+
+/* Quiet X button on each column header. Removing a column hides it
+   from the board; the user can bring it back via the + Column
+   picker at the right edge. */
+.col-close {
+  width: 22px; height: 22px;
+  display: grid; place-items: center;
+  border-radius: 4px;
+  border: none; background: transparent;
+  color: var(--ink-4); cursor: pointer;
+}
+.col-close:hover { background: var(--line-2); color: var(--ink-2); }
+
+
+/* Empty state: no content columns visible AND no search query.
+   Sits centered in the board area with a card offering one-click
+   restores per available column. */
+.board-empty {
+  flex: 1;
+  display: grid; place-items: center;
+  background: var(--bg);
+}
+.board-empty-card {
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  padding: 28px 32px;
+  text-align: center;
+  max-width: 420px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+.board-empty-title { font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.board-empty-sub { font-size: 13px; color: var(--ink-3); margin-bottom: 18px; }
+.board-empty-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.board-empty-actions .btn-mini.primary {
+  background: var(--accent); color: white; border-color: var(--accent);
+  padding: 6px 12px;
+}
+
+/* Settings tab */
+.settings {
+  padding: 24px 28px 60px;
+  overflow-y: auto;
+  max-width: 720px;
+}
+.settings.empty { color: var(--ink-3); }
+.settings-section { margin-bottom: 28px; }
+.settings-section h3 {
+  font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--ink-3); margin: 0 0 12px;
+  padding-bottom: 6px; border-bottom: 1px solid var(--line);
+}
+.settings-field {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 12px; align-items: center;
+  padding: 8px 0;
+}
+.settings-label { font-size: 13px; color: var(--ink-2); }
+.settings-value .inline-input { min-width: 180px; }
+.settings-value input[type="checkbox"] { transform: scale(1.2); accent-color: var(--accent); }
+.settings-footer {
+  position: sticky; bottom: 0;
+  padding: 12px 0; margin-top: 8px;
+  background: linear-gradient(to bottom, transparent, var(--bg-panel) 40%);
+  display: flex; gap: 12px; align-items: center;
+}
+.settings-footer .btn-mini.primary {
+  background: var(--accent); color: white; border-color: var(--accent);
+  padding: 6px 14px; font-size: 12.5px;
+}
+.settings-footer .btn-mini.primary[disabled] { background: var(--ink-4); border-color: var(--ink-4); opacity: 1; cursor: not-allowed; }
+.settings-saved { font-size: 12px; color: var(--st-accepted); }
+.settings-hint {
+  font-size: 11.5px; color: var(--ink-4);
+  margin-top: 4px;
+  padding-left: 232px; /* align with the field-value column */
+}
+
+/* Autocomplete popover. Anchors below the input via the .autocomplete
+   wrapper; rendered while the input is focused AND there are matches.
+   Tab/Enter/click accepts the highlighted row. */
+.autocomplete { position: relative; display: inline-block; }
+.autocomplete .inline-input { width: 100%; }
+.autocomplete-pop {
+  position: absolute; top: calc(100% + 4px); left: 0;
+  min-width: 220px; max-width: 320px;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+  padding: 4px;
+  z-index: 100;
+  display: flex; flex-direction: column;
+}
+.autocomplete-opt {
+  text-align: left;
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: var(--r-1);
+  border: none;
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.autocomplete-opt:hover,
+.autocomplete-opt.active {
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+.autocomplete-opt strong { color: var(--accent); font-weight: 600; }
+.autocomplete-opt.active strong { color: var(--accent); }
+.autocomplete-hint {
+  font-size: 10.5px;
+  color: var(--ink-4);
+  padding: 4px 10px 2px;
+  border-top: 1px solid var(--line-2);
+  margin-top: 2px;
+  font-family: var(--font-mono);
+}
+.icon-btn.detail-delete:hover { color: var(--errorForeground, #c33); }
+
+/* The "Saving…" toast appears fixed at top-center whenever writes
+   are in flight to the CLI. Bold and high-contrast so the click
+   acknowledgement is impossible to miss; floats above any column
+   layout so a narrow pane can't hide it. The minimum-visible window
+   is enforced from the useBusy hook, so fast writes still flash a
+   visible spinner. */
+/* Two-layer busy indicator. The thin progress bar at the top edge of
+   the webview is the YouTube/GitHub/Cursor convention; the pill below
+   it spells out what's happening. Both fire on the same useBusy flag
+   so they appear and clear together. */
+.busy-bar {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: 3px;
+  z-index: 1001;
+  background: transparent;
+  overflow: hidden;
+  pointer-events: none;
+}
+.busy-bar::before {
+  content: '';
+  position: absolute; top: 0; bottom: 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, var(--accent, #4F3DDB), transparent);
+  animation: am-bar 1.0s linear infinite;
+}
+@keyframes am-bar {
+  0%   { left: -40%; }
+  100% { left: 100%; }
+}
+
+.busy-pill {
+  position: fixed;
+  top: 14px; left: 50%; transform: translateX(-50%);
+  z-index: 1000;
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 14px; font-weight: 700; color: white;
+  padding: 10px 20px; border-radius: 999px;
+  background: var(--accent, #4F3DDB);
+  box-shadow: 0 6px 20px rgba(79, 61, 219, 0.45), 0 2px 6px rgba(0,0,0,0.18);
+  font-family: var(--font-sans);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  animation: am-fade-in 120ms ease-out both, am-pulse 1.4s ease-in-out infinite;
+  pointer-events: none;
+}
+.busy-pill .am-spinner { width: 16px; height: 16px; }
+.am-spinner { animation: am-spin 0.8s linear infinite; }
+@keyframes am-spin { to { transform: rotate(360deg); } }
+@keyframes am-fade-in { from { opacity: 0; transform: translate(-50%, -6px); } to { opacity: 1; transform: translate(-50%, 0); } }
+/* Subtle pulse so the pill draws the eye even when the CLI returns
+   fast. Stays within the minimum-visible window enforced by useBusy. */
+@keyframes am-pulse {
+  0%, 100% { box-shadow: 0 6px 20px rgba(79, 61, 219, 0.45), 0 2px 6px rgba(0,0,0,0.18); }
+  50%      { box-shadow: 0 6px 28px rgba(79, 61, 219, 0.75), 0 2px 8px rgba(0,0,0,0.25); }
+}
+.col-body {
+  overflow-y: auto;
+  padding: 8px 10px 80px;
+  flex: 1;
+}
+
+/* Pivotal-style iteration header: an olive bar at the top of each
+   iteration band with the date range and points total in light
+   type. Same color whether or not the band is the current one;
+   the yellow card-fill below differentiates current. */
+.iter-marker {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center; gap: 12px;
+  padding: 6px 10px;
+  margin: 8px 0 6px;
+  background: var(--pivotal-iter-bar);
+  color: var(--pivotal-iter-bar-fg);
+  border-radius: var(--r-1);
+  font-size: 12px;
+}
+.iter-marker:first-child { margin-top: 0; }
+.iter-num { font-size: 13px; font-weight: 700; line-height: 1; color: var(--pivotal-iter-bar-fg); font-variant-numeric: tabular-nums; }
+.iter-info { display: flex; flex-direction: column; gap: 1px; }
+.iter-range { font-size: 12px; font-weight: 600; color: var(--pivotal-iter-bar-fg); }
+.iter-sub { font-size: 10.5px; color: var(--pivotal-iter-bar-fg); opacity: 0.75; font-family: var(--font-mono); }
+.iter-progress { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--pivotal-iter-bar-fg); }
+.progress-track { position: relative; width: 70px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.2); overflow: hidden; }
+.progress-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--pivotal-iter-bar-fg); border-radius: 2px; }
+
+/* Cards in the current iteration band wear the Pivotal yellow
+   background. Below-the-line stories keep the neutral panel color.
+   The .iter-current wrapper comes from the Board's bands.map(). */
+.iter-current .story {
+  background: var(--pivotal-current-bg);
+  border-color: var(--pivotal-current-border);
+}
+.iter-current .story:hover {
+  border-color: #C9C079;
+  box-shadow: var(--shadow-1);
+}
+
+.story {
+  position: relative;
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--r-3);
+  border: 1px solid transparent;
+  margin-bottom: 4px;
+  cursor: pointer;
+  background: var(--bg-elev);
+}
+.story:hover { border-color: var(--line); box-shadow: var(--shadow-1); }
+.story.selected { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+.story.is-icebox {
+  background: oklch(0.96 0.025 230);
+  border-color: oklch(0.86 0.05 230);
+}
+.story.is-icebox:hover { border-color: oklch(0.78 0.08 230); }
+.story.is-icebox .story-title { color: oklch(0.32 0.06 235); }
+/* Accepted stories (current iter or done) render with the success
+   palette. No action buttons, no estimate pips. */
+.story.is-accepted {
+  background: oklch(0.95 0.05 145);
+  border-color: oklch(0.78 0.10 145);
+}
+.story.is-accepted:hover { border-color: oklch(0.68 0.13 145); }
+.story.is-accepted .story-title { color: oklch(0.30 0.10 145); }
+.story.is-readonly { cursor: pointer; }
+/* Epic chip: pill that names the story's epic. Shape echoes
+   .label-chip (tags) but distinct: rounded pill, layer icon prefix,
+   colored from the same epicColor() palette used by the Epics
+   column cards so the link is visible. Clickable, single-click
+   opens an epic filter column. */
+.epic-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid var(--line-2);
+  border-radius: 12px;
+  background: var(--bg-soft);
+  color: var(--ink-3);
+  cursor: pointer;
+  user-select: none;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.epic-chip:hover { filter: brightness(0.96); }
+.epic-chip svg { flex-shrink: 0; width: 11px; height: 11px; }
+
+.story.add-row {
+  grid-template-columns: 1fr;
+}
+.story.add-row input {
+  width: 100%; border: none; outline: none;
+  font-size: 13px; padding: 4px 6px; background: transparent;
+}
+
+.type-glyph {
+  width: 22px; height: 22px;
+  border-radius: 5px;
+  display: grid; place-items: center;
+  font-size: 14px; line-height: 1; flex: 0 0 auto;
+  background: transparent;
+}
+/* Per-type tints only apply to the release flag SVG, since the
+   feature/bug/chore glyphs now render an emoji and carry their own
+   color information. */
+.type-release { background: var(--t-release-bg); color: var(--t-release); }
+.type-chip-emoji { margin-right: 2px; }
+
+.story-body { min-width: 0; display: flex; flex-direction: column; gap: 7px; }
+.story-row1 { display: flex; align-items: flex-start; gap: 10px; }
+.story-title { flex: 1; min-width: 0; font-size: 13px; font-weight: 500; }
+.story-points {
+  font-family: var(--font-mono); font-size: 12px; font-weight: 600;
+  padding: 1px 8px; border-radius: 4px;
+  background: var(--bg-soft); border: 1px solid var(--line); color: var(--ink);
+}
+.story-points.unestimated { color: var(--ink-4); background: transparent; border-style: dashed; }
+.story-row2 { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.story-meta { display: flex; align-items: center; gap: 4px; color: var(--ink-3); font-size: 11.5px; }
+.label-chip { font-size: 11px; padding: 1px 7px; border-radius: 4px; background: var(--line-3); color: var(--ink-2); font-weight: 500; }
+
+.state-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 600; }
+.state-pill .dot { width: 6px; height: 6px; border-radius: 50%; }
+.s-unstarted { color: var(--ink-4); }
+.s-unstarted .dot { background: var(--ink-5); border: 1px solid var(--ink-4); box-sizing: border-box; }
+.s-started { color: var(--st-started); }   .s-started .dot   { background: var(--st-started); }
+.s-finished { color: var(--st-finished); } .s-finished .dot  { background: var(--st-finished); }
+.s-delivered { color: var(--st-delivered); } .s-delivered .dot { background: var(--st-delivered); }
+.s-accepted { color: var(--st-accepted); } .s-accepted .dot  { background: var(--st-accepted); }
+.s-rejected { color: var(--st-rejected); } .s-rejected .dot  { background: var(--st-rejected); }
+
+/* Release bar: a horizontal date stake, not a story card. Renders
+   distinct from .story so it doesn't look like another row of work. */
+.release-bar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px;
+  margin: 6px 0;
+  border-radius: 4px;
+  background: linear-gradient(90deg, oklch(0.94 0.10 80) 0%, oklch(0.96 0.06 80) 100%);
+  border: 1px solid oklch(0.78 0.14 80);
+  cursor: pointer;
+  font-weight: 500;
+}
+.release-bar:hover { border-color: oklch(0.66 0.18 80); }
+.release-bar.selected { box-shadow: 0 0 0 2px var(--accent-soft); }
+.release-bar .release-flag {
+  color: oklch(0.45 0.16 60);
+  display: inline-flex; align-items: center;
+}
+.release-bar .release-title {
+  flex: 1; min-width: 0;
+  font-size: 13px;
+  color: oklch(0.32 0.12 60);
+}
+.release-bar .release-date {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: oklch(0.40 0.14 60);
+  padding: 2px 8px;
+  background: oklch(1 0 0 / 0.5);
+  border-radius: 12px;
+}
+
+.story.is-release {
+  background: var(--t-release-bg);
+  border-color: #BFE0C5;
+  border-radius: var(--r-2);
+  display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+}
+.release-flag { color: var(--t-release); }
+.story.is-release .story-title { font-weight: 600; color: var(--t-release); }
+
+.avatar {
+  width: 18px; height: 18px; border-radius: 50%;
+  display: grid; place-items: center;
+  color: white; font-family: var(--font-mono); font-size: 9px; font-weight: 600;
+  flex: 0 0 auto;
+}
+.avatar-empty { width: 18px; height: 18px; border-radius: 50%; border: 1px dashed var(--line); flex: 0 0 auto; }
+.story-blocked { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; color: var(--st-rejected); border: none; background: none; padding: 0; }
+
+.btn-mini {
+  font-size: 11.5px; font-weight: 600;
+  padding: 2px 9px; border-radius: var(--r-1);
+  border: 1px solid var(--line); background: var(--bg-elev);
+  color: var(--ink-2); margin-left: auto; flex: 0 0 auto;
+}
+/* When buttons sit inside .story-actions the cluster takes the
+   right-pin via margin-left:auto so the individual buttons can sit
+   tight together with the cluster's own gap. Without this the second
+   button reclaimed an auto-margin and Accept/Reject ended up at
+   opposite ends of the row. */
+.story-actions { display: flex; gap: 6px; margin-left: auto; flex: 0 0 auto; }
+.story-actions .btn-mini { margin-left: 0; }
+/* Card-level action buttons follow Pivotal Tracker conventions:
+   forward-progress (Start/Finish/Deliver = .primary) is a uniform
+   dark gray-brown; the PM verdict buttons get green (Accept) and
+   red (Reject). Modal and Settings buttons override .primary to
+   the accent purple so the dialog primary stands apart from the
+   in-card progress button. */
+.btn-mini.primary { background: var(--pivotal-btn-bg); color: var(--pivotal-btn-fg); border-color: var(--pivotal-btn-bg); }
+.btn-mini.primary:hover { filter: brightness(1.15); }
+.btn-mini.success { background: var(--pivotal-accept); color: white; border-color: var(--pivotal-accept); }
+.btn-mini.success:hover { filter: brightness(1.08); }
+.btn-mini.danger { background: var(--pivotal-reject); color: white; border-color: var(--pivotal-reject); }
+.btn-mini.danger:hover { filter: brightness(1.08); }
+.btn-mini[disabled] { opacity: 0.5; cursor: not-allowed; }
+
+/* PM ceremony + reject reason inline panels */
+.ceremony {
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+  border-radius: var(--r-3);
+  padding: 14px;
+  margin: 14px 0 18px;
+}
+.ceremony-head { font-weight: 600; font-size: 14px; margin-bottom: 10px; color: var(--ink); }
+.ceremony-body { font-size: 13px; color: var(--ink-2); }
+.ceremony-row { display: flex; gap: 8px; margin-bottom: 4px; }
+.ceremony-label { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; min-width: 84px; }
+.ceremony-empty { font-size: 12.5px; color: var(--ink-4); padding: 6px 10px; background: var(--bg-soft); border-radius: var(--r-2); border: 1px dashed var(--line); margin-bottom: 12px; }
+.ceremony-actions { display: flex; gap: 8px; margin-top: 12px; }
+.reject-reason { width: 100%; min-height: 80px; font-family: var(--font-sans); font-size: 13px; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--r-2); margin: 8px 0; resize: vertical; }
+
+
+/* Epics */
+.epic-list { padding: 12px 14px 80px; overflow-y: auto; flex: 1; background: var(--bg-soft); }
+.epic-card { border: 1px solid var(--line); border-radius: var(--r-3); padding: 14px; background: var(--bg-elev); margin-bottom: 8px; }
+.epic-card-head { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
+.epic-color { width: 12px; height: 12px; border-radius: 3px; margin-top: 3px; background: var(--accent); flex: 0 0 auto; }
+.epic-name { font-size: 14px; font-weight: 600; }
+.epic-id { font-family: var(--font-mono); font-size: 11px; color: var(--ink-4); margin-top: 2px; }
+.epic-progress { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.epic-progress-track { flex: 1; height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.epic-progress-fill { height: 100%; background: var(--accent); }
+.epic-progress-pct { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
+.epic-stack { display: flex; height: 4px; border-radius: 2px; overflow: hidden; margin-bottom: 8px; background: var(--line-2); }
+.epic-stack-bar { height: 100%; }
+
+.history-list { list-style: none; padding: 0; margin: 0; }
+.history-entry {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "row1 hash" "subject hash";
+  gap: 4px 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line-2);
+  font-size: 12.5px;
+}
+.history-entry:last-child { border-bottom: none; }
+.history-row1 { grid-area: row1; display: flex; gap: 8px; }
+.history-author { font-weight: 500; color: var(--ink); }
+.history-when { color: var(--ink-4); font-family: var(--font-mono); font-size: 11px; }
+.history-subject { grid-area: subject; color: var(--ink-2); }
+.history-hash { grid-area: hash; font-family: var(--font-mono); font-size: 11px; color: var(--ink-4); align-self: center; }
+.epic-meta { display: flex; gap: 16px; font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); flex-wrap: wrap; }
+.epic-eta { color: var(--ink-2); }
+.epic-eta.pending {
+  color: oklch(0.50 0.12 60);
+  font-style: italic;
+}
+.filter-header {
+  margin: 6px 0 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+}
+.filter-header .epic-card { margin: 0; }
+
+/* Detail panel */
+.detail-overlay {
+  position: fixed; inset: 0;
+  background: rgba(15,15,14,0.18);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.18s;
+  z-index: 50;
+}
+.detail-overlay.open { opacity: 1; pointer-events: auto; }
+.detail-panel {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: 480px; max-width: 92vw;
+  background: var(--bg-panel);
+  border-left: 1px solid var(--line);
+  box-shadow: -16px 0 48px -16px rgba(15,15,14,0.18);
+  transform: translateX(100%);
+  transition: transform 0.22s ease;
+  display: flex; flex-direction: column;
+  z-index: 60;
+}
+.detail-panel.open { transform: translateX(0); }
+.detail-head {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+}
+.detail-body { flex: 1; overflow-y: auto; padding: 16px 18px 80px; }
+.detail-title { font-size: 18px; font-weight: 600; margin: 0 0 12px; line-height: 1.3; }
+
+.state-machine { display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; }
+.state-step {
+  font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: var(--r-1);
+  background: var(--line-3); color: var(--ink-3);
+  border: 1px solid transparent; cursor: pointer;
+}
+.state-step:hover { border-color: var(--ink-4); }
+.state-step.done { background: var(--bg-soft); color: var(--ink-2); }
+
+/* Chip: the state-step that matches the story's current status.
+   Solid fill in the state's accent + white text so the PM can see
+   "you are here" at a glance. */
+.state-step.current.s-unstarted { background: var(--st-unstarted); color: white; }
+.state-step.current.s-started   { background: var(--st-started);   color: white; }
+.state-step.current.s-finished  { background: var(--st-finished);  color: white; }
+.state-step.current.s-delivered { background: var(--st-delivered); color: white; }
+.state-step.current.s-accepted  { background: var(--st-accepted);  color: white; }
+.state-step.current.s-rejected  { background: var(--st-rejected);  color: white; }
+
+/* Button: the same state-step rendered as a transition target. Tinted
+   text + matching border, no fill, so it reads as a clickable hint
+   distinct from the solid chip. The color encodes the action verb
+   per the design spec: start = gray, finish = blue (started chip
+   color), deliver = orange (finished chip color), accept = green,
+   reject = red. */
+.state-step.s-unstarted:not(.current),
+.state-step.s-started:not(.current)   { color: var(--st-unstarted); border-color: var(--st-unstarted); background: transparent; }
+.state-step.s-finished:not(.current)  { color: var(--st-started);   border-color: var(--st-started);   background: transparent; }
+.state-step.s-delivered:not(.current) { color: var(--st-finished);  border-color: var(--st-finished);  background: transparent; }
+.state-step.s-accepted:not(.current)  { color: var(--st-accepted);  border-color: var(--st-accepted);  background: transparent; }
+.state-step.s-rejected:not(.current)  { color: var(--st-rejected);  border-color: var(--st-rejected);  background: transparent; }
+
+.field-grid {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  row-gap: 10px; column-gap: 16px;
+  font-size: 13px;
+  margin-bottom: 18px;
+}
+.field-label { color: var(--ink-3); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.04em; padding-top: 4px; }
+.field-value { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.points-picker { display: inline-flex; gap: 2px; padding: 1px; border-radius: var(--r-2); background: var(--line-3); }
+/* Type chooser in the detail panel field-grid. Tints each chip with
+   the same per-type accent the TypeGlyph uses so feature/bug/chore
+   are scannable. The non-active chips render flat; active gets the
+   colored fill. */
+.type-picker { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.type-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12.5px; font-weight: 500; text-transform: capitalize;
+  padding: 5px 11px; border-radius: var(--r-2);
+  border: 1px solid var(--line); background: var(--bg-elev);
+  color: var(--ink-2); cursor: pointer;
+  transition: border-color 80ms, background 80ms;
+}
+.type-chip:hover { border-color: var(--ink-4); }
+/* Active state: a single neutral fill regardless of type. Type
+   identity is carried by the emoji prefix; using the per-type
+   status-adjacent colors here (brown, red, gray) made the chips
+   compete with status pills for the same visual weight. */
+.type-chip.active {
+  background: var(--ink);
+  color: white;
+  border-color: var(--ink);
+}
+.type-chip-emoji { font-size: 13px; line-height: 1; }
+/* Card-level pip row. Smaller than the detail-panel picker so the
+   card stays single-line. Pinned right via margin-left:auto to mirror
+   the read-only points label it replaced. */
+.story-points-pips {
+  display: inline-flex; gap: 1px; padding: 1px; margin-left: auto;
+  border-radius: var(--r-2); background: var(--line-3);
+  flex: 0 0 auto;
+}
+.story-points-pips .points-pip {
+  width: 20px; height: 18px; font-size: 11px;
+  cursor: pointer;
+}
+.story-points-pips .points-pip:hover { background: var(--line-2); color: var(--ink-2); }
+.story-points-pips .points-pip.active { background: var(--ink); color: white; }
+.story-points-pips .points-pip.active:hover { background: var(--ink); color: white; }
+.points-pip {
+  width: 26px; height: 24px; display: grid; place-items: center;
+  font-family: var(--font-mono); font-size: 12px; font-weight: 600;
+  border-radius: var(--r-1); color: var(--ink-3);
+  border: none; background: transparent;
+}
+.points-pip.active { background: var(--ink); color: white; }
+.inline-input {
+  font-size: 13px; padding: 4px 8px;
+  border: 1px solid var(--line); border-radius: var(--r-2);
+  background: var(--bg-elev); color: var(--ink); min-width: 180px;
+}
+.owner-row { display: flex; gap: 4px; margin-top: 4px; }
+
+.section-h { margin-top: 18px; margin-bottom: 8px; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); display: flex; align-items: center; }
+.tasks-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+.task-row { display: flex; align-items: center; gap: 10px; }
+.task-check {
+  width: 18px; height: 18px; border-radius: 4px;
+  border: 1px solid var(--line); background: var(--bg-elev);
+  display: grid; place-items: center; color: white;
+}
+.task-check.done { background: var(--st-accepted); border-color: var(--st-accepted); }
+.task-text { font-size: 13px; }
+.task-text.done { text-decoration: line-through; color: var(--ink-4); }
+
+.desc-view { white-space: pre-wrap; font-family: var(--font-mono); font-size: 12px; line-height: 1.5; background: var(--bg-soft); padding: 10px 12px; border-radius: var(--r-2); border: 1px solid var(--line); margin: 0; }
+.desc-edit { width: 100%; min-height: 180px; font-family: var(--font-mono); font-size: 12px; line-height: 1.5; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--r-2); background: var(--bg-elev); color: var(--ink); resize: vertical; }
+
+.comment { display: grid; grid-template-columns: 28px 1fr; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line-2); }
+.comment.add { padding-top: 12px; }
+.comment-name { font-weight: 600; font-size: 12px; }
+.comment-when { font-size: 11px; color: var(--ink-4); margin-left: 6px; font-family: var(--font-mono); }
+.comment-body { font-size: 13px; color: var(--ink-2); margin-top: 2px; line-height: 1.5; }
+
+/* Analytics */
+.analytics { padding: 18px; overflow-y: auto; }
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 12px;
+}
+.kpi-card {
+  grid-column: span 3;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  padding: 14px;
+}
+.kpi-label { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+.kpi-value { font-size: 30px; font-weight: 600; line-height: 1.1; margin-top: 6px; font-variant-numeric: tabular-nums; }
+.kpi-unit { font-size: 14px; color: var(--ink-3); margin-left: 4px; }
+.kpi-delta { font-size: 11px; color: var(--ink-4); margin-top: 4px; }
+
+.chart-card {
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  padding: 14px;
+}
+.chart-card.span-7 { grid-column: span 7; }
+.chart-card.span-5 { grid-column: span 5; }
+.chart-title { font-weight: 600; font-size: 13px; }
+.chart-sub { font-size: 11.5px; color: var(--ink-3); margin-top: 2px; }
+
+.type-mix { margin-top: 12px; }
+.type-mix-bar { display: flex; height: 16px; border-radius: 999px; overflow: hidden; background: var(--line-2); }
+.type-mix-seg.type-feature { background: var(--t-feature); }
+.type-mix-seg.type-bug { background: var(--t-bug); }
+.type-mix-seg.type-chore { background: var(--t-chore); }
+.type-mix-seg.type-release { background: var(--t-release); }
+.type-mix-legend { margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.type-mix-row { display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
+.type-mix-swatch { width: 14px; height: 14px; border-radius: 4px; }
+.type-mix-swatch.type-feature { background: var(--t-feature); }
+.type-mix-swatch.type-bug { background: var(--t-bug); }
+.type-mix-swatch.type-chore { background: var(--t-chore); }
+.type-mix-swatch.type-release { background: var(--t-release); }
+.type-mix-label { font-weight: 500; flex: 1; }
+.type-mix-count { font-family: var(--font-mono); font-weight: 600; }
+.type-mix-pct { font-family: var(--font-mono); color: var(--ink-4); }
+
+/* Search column form. The Search column lives in the user-toggled
+   set (activity-bar tree) and renders its own multi-field form
+   instead of relying on a top-bar input. */
+.search-form {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-soft);
+}
+.search-text {
+  padding: 6px 8px;
+  border: 1px solid var(--line-2);
+  border-radius: 4px;
+  font-size: 13px;
+  background: var(--bg);
+  color: var(--ink);
+}
+.search-text:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+.search-label { font-size: 11px; color: var(--ink-3); margin-top: 4px; }
+.search-select {
+  padding: 5px 6px;
+  border: 1px solid var(--line-2);
+  border-radius: 4px;
+  font-size: 12px;
+  background: var(--bg);
+  color: var(--ink);
+}
+.search-status-row { display: flex; flex-wrap: wrap; gap: 4px; }
+.search-status-chip {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 3px 6px;
+  font-size: 11px;
+  border: 1px solid var(--line-2);
+  border-radius: 10px;
+  background: var(--bg);
+  cursor: pointer;
+  user-select: none;
+}
+.search-status-chip input { display: none; }
+.search-status-chip.on {
+  background: var(--ink);
+  color: var(--bg);
+  border-color: var(--ink);
+}
+.search-clear {
+  align-self: flex-start;
+  margin-top: 6px;
+}
+
+/* Done column. Cards inside are all is-accepted so they pick up the
+   success palette from the .story.is-accepted rule above. */
+.col-done .col-body { padding-top: 0; }
+
+/* Filter columns opened by double-clicking an epic or a tag chip. */
+.col-filter .col-title {
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.label-chip { cursor: pointer; }
+.label-chip:hover { background: var(--accent-soft); }
+
+/* VS Code dark theme rebalancing */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16181C;
+    --bg-elev: #1F2125;
+    --bg-soft: #1C1E22;
+    --bg-panel: #1F2125;
+    --ink: #ECECEA;
+    --ink-2: #C5C5C0;
+    --ink-3: #8E8E89;
+    --ink-4: #6B6B66;
+    --ink-5: #4A4A45;
+    --line: #2E3137;
+    --line-2: #25282E;
+    --line-3: #20232A;
+    --accent-soft: rgba(79,61,219,0.18);
+  }
+}

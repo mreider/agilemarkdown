@@ -1,0 +1,30 @@
+{
+  "request": {
+    "id": 32,
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "arguments": {
+        "author": "agent",
+        "path": "stories/plan-the-moons-very-first-birthday-party.md",
+        "text": "Started the birthday plan. I will draft the invitations first."
+      },
+      "name": "add_comment"
+    }
+  },
+  "response": {
+    "id": 32,
+    "jsonrpc": "2.0",
+    "result": {
+      "content": [
+        {
+          "text": "{\"ok\":true}",
+          "type": "text"
+        }
+      ],
+      "structuredContent": {
+        "ok": true
+      }
+    }
+  }
+}

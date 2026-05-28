@@ -1,0 +1,6 @@
+$ cd projects/meadow-letters
+$ git init
+Initialized empty Git repository
+$ am create-backlog
+created backlog: stories
+created .am/config.yaml

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Epics and ETA · agilemarkdown tutorial</title>
+<meta name="description" content="agilemarkdown tutorial · chapter 06: Epics and ETA. Same operation shown three ways, the board, the CLI verb, the MCP JSON-RPC frame." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,500;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper:   oklch(0.974 0.009 82);
+    --paper-2: oklch(0.945 0.012 82);
+    --paper-3: oklch(0.915 0.014 82);
+    --ink:     oklch(0.205 0.015 60);
+    --ink-2:   oklch(0.36  0.018 60);
+    --ink-3:   oklch(0.52  0.018 65);
+    --rule:    oklch(0.84  0.014 78);
+    --rule-2:  oklch(0.78  0.016 78);
+    --accent:  oklch(0.52  0.135 38);
+    --accent-soft: oklch(0.85 0.06 38);
+    --term-bg: oklch(0.18  0.012 60);
+    --term-fg: oklch(0.93  0.012 82);
+    --term-dim:oklch(0.62  0.012 82);
+    --term-accent: oklch(0.78 0.13 38);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: "Source Serif 4", Georgia, serif;
+    font-size: 18px; line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); }
+  code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 0.9em; padding: 1px 4px; background: var(--paper-2); border-radius: 3px; }
+  main { max-width: 1100px; margin: 0 auto; padding: 60px 28px 120px; }
+  header.masthead { padding: 60px 0 40px; border-bottom: 1px solid var(--rule); margin-bottom: 50px; }
+  header.masthead a.back { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--ink-3); text-decoration: none; }
+  header.masthead a.back:hover { color: var(--accent); }
+  header.masthead .eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--ink-3); margin: 18px 0 14px;
+  }
+  header.masthead h1 {
+    font-size: clamp(34px, 6.5vw, 54px);
+    font-weight: 600; line-height: 1.08;
+    letter-spacing: -0.025em; margin: 0 0 14px;
+  }
+  header.masthead h1 em { font-style: italic; color: var(--accent); font-weight: 500; }
+  header.masthead .deck { font-size: clamp(17px, 2.6vw, 21px); color: var(--ink-2); line-height: 1.45; max-width: 720px; }
+  @media (max-width: 520px) {
+    main { padding: 36px 18px 80px; }
+    header.masthead { padding: 36px 0 26px; margin-bottom: 30px; }
+  }
+  h1 { font-size: 36px; font-weight: 600; letter-spacing: -0.022em; margin: 38px 0 18px; }
+  h2 {
+    font-size: 26px; font-weight: 600; line-height: 1.18;
+    letter-spacing: -0.018em; margin: 50px 0 16px;
+    border-top: 1px solid var(--rule-2); padding-top: 30px;
+  }
+  h3 {
+    font-size: 19px; font-weight: 600; margin: 28px 0 10px;
+    letter-spacing: -0.012em;
+  }
+  p { margin: 0 0 16px; }
+  ul, ol { margin: 0 0 18px; padding-left: 1.25em; }
+  li { margin-bottom: 6px; }
+  blockquote { margin: 18px 0; padding: 4px 18px; border-left: 3px solid var(--accent); color: var(--ink-2); font-style: italic; }
+
+   
+  table {
+    width: 100%; border-collapse: collapse; margin: 22px 0;
+    font-size: 14.5px;
+  }
+  th {
+    text-align: left; padding: 8px 12px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-3); font-weight: 500;
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper-2);
+  }
+  td {
+    padding: 12px 12px;
+    vertical-align: top;
+    border-bottom: 1px solid var(--rule);
+    width: 33.33%;
+  }
+  td img { max-width: 100%; height: auto; border-radius: 6px; border: 1px solid var(--rule); }
+  td pre {
+    margin: 0;
+    background: var(--term-bg); color: var(--term-fg);
+    padding: 10px 12px; border-radius: 5px;
+    font-family: "JetBrains Mono", monospace; font-size: 12px;
+    line-height: 1.55;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  td pre code { background: transparent; padding: 0; color: inherit; font-size: inherit; }
+  td details { margin-top: 8px; }
+  td details summary {
+    font-family: "JetBrains Mono", monospace; font-size: 11px;
+    color: var(--accent); cursor: pointer; user-select: none;
+    padding: 4px 0;
+  }
+  td details summary:hover { text-decoration: underline; }
+  td details > * { margin-top: 8px; }
+  @media (max-width: 760px) {
+    table, thead, tbody, tr { display: block; }
+    th { display: none; }
+    td { display: block; width: 100%; border-bottom: none; padding: 8px 0; }
+    td + td { border-top: 1px solid var(--rule); padding-top: 12px; }
+    td::before {
+      content: attr(data-channel);
+      display: block;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--ink-3); margin-bottom: 6px;
+    }
+  }
+
+   
+  h3 + ul {
+    background: var(--paper-2);
+    padding: 12px 18px 12px 36px;
+    border-radius: 6px;
+    border-left: 3px solid var(--accent-soft);
+  }
+
+   
+  nav.pager {
+    display: flex; justify-content: space-between; gap: 16px;
+    margin: 70px 0 0; padding-top: 22px; border-top: 1px solid var(--rule);
+    font-family: "JetBrains Mono", monospace; font-size: 13px;
+  }
+  nav.pager a { color: var(--ink-2); text-decoration: none; }
+  nav.pager a:hover { color: var(--accent); }
+  nav.pager .label {
+    font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink-3); display: block; margin-bottom: 4px;
+  }
+  nav.pager .next { text-align: right; }
+
+  footer { margin-top: 80px; padding-top: 24px; border-top: 1px solid var(--rule); font-size: 14px; color: var(--ink-3); text-align: center; }
+
+   
+  .chapter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    margin: 30px 0 60px;
+  }
+  .chapter-card {
+    display: block;
+    padding: 18px 20px;
+    background: var(--paper-2);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--ink);
+    transition: border-color 120ms, transform 120ms;
+  }
+  .chapter-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+  .chapter-card .num {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px; color: var(--accent);
+    letter-spacing: 0.08em;
+  }
+  .chapter-card .title {
+    font-size: 20px; font-weight: 600;
+    letter-spacing: -0.012em;
+    margin: 4px 0 0;
+  }
+</style>
+<link rel="stylesheet" href="surface-widget.css" />
+</head>
+<body>
+<main>
+  <header class="masthead">
+    <a class="back" href="tutorial.html">← Tutorial</a>
+    <div class="eyebrow">Chapter 06</div>
+    <h1>Epics and ETA</h1>
+  </header>
+  <h1 id="6-epics-and-eta">6. Epics and ETA</h1>
+<p>An epic in agilemarkdown is just a slug: any story with
+<code>epic: &lt;slug&gt;</code> in its frontmatter belongs to it, and there is no
+separate &quot;epic&quot; object beyond the slug itself. The board's Epics
+column rolls each slug up into a card with counts, progress, and a
+projected ship date.</p>
+<h2 id="61-a-finished-epic">6.1 A finished epic</h2>
+<p><code>the-button-quest</code> is four stories, all accepted in prior weeks,
+and the roll-up shows 4/4 stories, 11/11 points, 100%. No ETA is
+needed since the epic is already history.</p>
+<figure class="surface-shot tut" data-active="extension">
+<div class="surface-tabs" role="tablist" aria-label="The same moment on each surface">
+<button role="tab" aria-selected="true" tabindex="0" data-surface="extension">VS Code</button>
+<button role="tab" aria-selected="false" tabindex="-1" data-surface="cli">Shell</button>
+<button role="tab" aria-selected="false" tabindex="-1" data-surface="claude">MCP</button>
+</div>
+<div class="surface-panels">
+<div class="surface-panel" data-surface="extension" role="tabpanel"><img src="tutorial/06-epics/images/01-finished-epic.png"></div>
+<div class="surface-panel" data-surface="cli" role="tabpanel">
+<pre><code>$ am show epic the-button-quest
+Epic: the-button-quest   4/4 stories  11/11 pts  100%
+[████████████████████████]
+
+Accepted:
+  ★  Count all the buttons in a small wooden box
+  ★  Find a small white button
+  ★  Look in the bushes near the pond
+  ★  Wear the brown coat the whole afternoon
+</code></pre>
+</div>
+<div class="surface-panel" data-surface="claude" role="tabpanel">
+<p><code>epic_progress</code> returns the same counts plus the ASCII bar.</p>
+<details><summary>Full envelope</summary>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;method&quot;: &quot;tools/call&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;epic_progress&quot;,
+    &quot;arguments&quot;: { &quot;slug&quot;: &quot;the-button-quest&quot; }
+  }
+}
+</code></pre>
+<p>Response: <code>{total_stories: 4, accepted_stories: 4, total_points: 11, accepted_points: 11, percent_done: 100, ascii: &quot;...&quot;}</code>.</p>
+</details>
+</div>
+</div>
+</figure>
+<h2 id="62-an-in-flight-epic-with-a-projected-eta">6.2 An in-flight epic with a projected ETA</h2>
+<p><code>the-garden-of-patience</code> is twelve stories, six accepted, several
+in flight, more unstarted in priority. Every story has an estimate,
+so the client computes an ETA from <code>remaining_points / velocity</code>,
+anchored to the next sprint Monday.</p>
+<p>The card reads &quot;6/12 stories, 12/34 pts, 35%, ETA Jun 21, 2026&quot;,
+with the bar showing the visible fraction and the date showing
+the math behind it.</p>
+<figure class="surface-shot tut" data-active="extension">
+<div class="surface-tabs" role="tablist" aria-label="The same moment on each surface">
+<button role="tab" aria-selected="true" tabindex="0" data-surface="extension">VS Code</button>
+<button role="tab" aria-selected="false" tabindex="-1" data-surface="cli">Shell</button>
+<button role="tab" aria-selected="false" tabindex="-1" data-surface="claude">MCP</button>
+</div>
+<div class="surface-panels">
+<div class="surface-panel" data-surface="extension" role="tabpanel"><img src="tutorial/06-epics/images/02-eta-epic.png"></div>
+<div class="surface-panel" data-surface="cli" role="tabpanel">
+<pre><code>$ am show epic the-garden-of-patience
+Epic: the-garden-of-patience   6/12 stories  12/34 pts  35%
+[████████░░░░░░░░░░░░░░░░]
+</code></pre>
+</div>
+<div class="surface-panel" data-surface="claude" role="tabpanel">
+<p>ETA isn't computed server-side, the React tree does it from
+<code>remaining_points</code> (everything not yet accepted) and the project
+velocity from <code>priority_list</code>. The MCP tool returns the raw
+numbers so any agent can compute its own projection.</p>
+<details><summary>Full envelope</summary>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;method&quot;: &quot;tools/call&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;epic_progress&quot;,
+    &quot;arguments&quot;: { &quot;slug&quot;: &quot;the-garden-of-patience&quot; }
+  }
+}
+</code></pre>
+</details>
+</div>
+</div>
+</figure>
+<h3 id="what-just-happened-math">What just happened (math)</h3>
+<pre><code>remaining_points = total_points - accepted_points
+sprints_to_ship  = ceil(remaining_points / velocity)
+eta_monday       = next_monday + sprints_to_ship weeks
+</code></pre>
+<p>For the garden epic: <code>(34 − 12) / 7 ≈ 4 sprints</code>. Counting that
+many sprint Mondays out from the current sprint lands on the date
+the card shows, Jun 21, 2026.</p>
+<h2 id="63-an-epic-that-cant-be-projected">6.3 An epic that can't be projected</h2>
+<p><code>the-moon-watch</code> is three stories, two with point estimates and
+one (brew the tea) still unsized. The card shows the counts it has
+(0/3 stories, 0/11 pts) but refuses to commit to a date, surfacing
+<em>ETA pending, 1 story needs sizing</em> in its place. The rule is that
+agilemarkdown will not fake a forecast it cannot compute: as soon
+as the missing estimate lands the ETA appears.</p>
+<figure class="surface-shot tut" data-active="extension">
+<div class="surface-tabs" role="tablist" aria-label="The same moment on each surface">
+<button role="tab" aria-selected="true" tabindex="0" data-surface="extension">VS Code</button>
+<button role="tab" aria-selected="false" tabindex="-1" data-surface="cli">Shell</button>
+<button role="tab" aria-selected="false" tabindex="-1" data-surface="claude">MCP</button>
+</div>
+<div class="surface-panels">
+<div class="surface-panel" data-surface="extension" role="tabpanel"><img src="tutorial/06-epics/images/03-eta-pending.png"></div>
+<div class="surface-panel" data-surface="cli" role="tabpanel">
+<pre><code>$ am show epic the-moon-watch
+Epic: the-moon-watch   0/3 stories  0/11 pts  0%
+[░░░░░░░░░░░░░░░░░░░░░░░░]
+</code></pre>
+</div>
+<div class="surface-panel" data-surface="claude" role="tabpanel">
+<p><code>epic_progress</code> returns the counts and <code>total_points</code> (here, the 11
+points from the two estimated stories); the structuredContent does
+not include an ETA because there is none to compute. The React
+layer compares the per-story estimates from <code>priority_list</code> against
+the epic's total story count and shows the &quot;ETA pending&quot; indicator
+when a story is missing one.</p>
+<details><summary>Full envelope</summary>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;method&quot;: &quot;tools/call&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;epic_progress&quot;,
+    &quot;arguments&quot;: { &quot;slug&quot;: &quot;the-moon-watch&quot; }
+  }
+}
+</code></pre>
+</details>
+</div>
+</div>
+</figure>
+<p>Next: <a href="tutorial-07-release-markers.html">Release markers are date stakes →</a></p>
+
+  <nav class="pager">
+    <div class="prev">
+      <a href="tutorial-05-when-things-go-wrong.html"><span class="label">Previous</span>← When things go wrong</a>
+    </div>
+    <div class="next">
+      <a href="tutorial-07-release-markers.html"><span class="label">Next</span>Release markers →</a>
+    </div>
+  </nav>
+  <footer>agilemarkdown · <a href="index.html">home</a> · <a href="reference.html">reference</a></footer>
+</main>
+<script src="surface-widget.js"></script>
+</body>
+</html>

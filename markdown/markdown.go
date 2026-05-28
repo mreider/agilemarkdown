@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/mreider/agilemarkdown/utils"
-	"io/ioutil"
+	"io"
 	"os"
 	"regexp"
 	"sort"
@@ -45,7 +45,7 @@ func LoadMarkdown(markdownPath string, topMetadataKeys, bottomMetadataKeys []str
 			return nil, err
 		}
 		defer itemFile.Close()
-		data, err = ioutil.ReadAll(itemFile)
+		data, err = io.ReadAll(itemFile)
 		if err != nil {
 			return nil, err
 		}
@@ -159,7 +159,7 @@ func (content *Content) Save() error {
 		return nil
 	}
 	data := content.Content()
-	err := ioutil.WriteFile(content.contentPath, data, 0644)
+	err := os.WriteFile(content.contentPath, data, 0644)
 	if err != nil {
 		return err
 	}
@@ -253,6 +253,14 @@ func (content *Content) RemoveMetadata(key string) {
 
 func (content *Content) GroupCount() int {
 	return len(content.groups)
+}
+
+// GroupAt returns the group at index i (0..GroupCount-1) in document order.
+func (content *Content) GroupAt(i int) *Group {
+	if i < 0 || i >= len(content.groups) {
+		return nil
+	}
+	return content.groups[i]
 }
 
 func (content *Content) Group(title string) *Group {

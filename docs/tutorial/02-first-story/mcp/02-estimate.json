@@ -1,0 +1,29 @@
+{
+  "request": {
+    "id": 6,
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "arguments": {
+        "estimate": "3",
+        "path": "stories/write-the-readme.md"
+      },
+      "name": "set_estimate"
+    }
+  },
+  "response": {
+    "id": 6,
+    "jsonrpc": "2.0",
+    "result": {
+      "content": [
+        {
+          "text": "{\"ok\":true}",
+          "type": "text"
+        }
+      ],
+      "structuredContent": {
+        "ok": true
+      }
+    }
+  }
+}

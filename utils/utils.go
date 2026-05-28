@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -12,7 +13,7 @@ import (
 )
 
 const (
-	timestampLayout = "2006-01-02 03:04 PM"
+	timestampLayout = "2006-01-02T15:04:05Z07:00"
 )
 
 var (
@@ -46,22 +47,31 @@ func PadStringLeft(value string, width int) string {
 	return result
 }
 
+// WeekStart returns the Monday 00:00 of the ISO-week containing value.
+// Day arithmetic uses AddDate so DST transitions don't shift the result.
 func WeekStart(value time.Time) time.Time {
-	weekday := value.Weekday()
+	weekday := int(value.Weekday())
 	if weekday == 0 {
 		weekday = 7
 	}
-	weekStart := value.Add(time.Duration(-(weekday-1)*24) * time.Hour)
-	weekStart = time.Date(weekStart.Year(), weekStart.Month(), weekStart.Day(), 0, 0, 0, 0, weekStart.Location())
-	return weekStart
+	d := time.Date(value.Year(), value.Month(), value.Day(), 0, 0, 0, 0, value.Location())
+	return d.AddDate(0, 0, -(weekday - 1))
 }
 
+// WeekEnd returns the Sunday 00:00 closing the ISO-week of value.
 func WeekEnd(value time.Time) time.Time {
 	return WeekStart(value).AddDate(0, 0, 6)
 }
 
+// WeekDelta returns the number of whole calendar weeks separating the
+// week of `value` from the week of `baseValue`. Negative when value is
+// earlier than base. Rounds to the nearest week so DST drift doesn't
+// produce off-by-one errors.
 func WeekDelta(baseValue, value time.Time) int {
-	return int(WeekStart(value).Sub(WeekStart(baseValue)).Hours()) / 24 / 7
+	a := WeekStart(baseValue)
+	b := WeekStart(value)
+	weeks := b.Sub(a).Hours() / (24 * 7)
+	return int(math.Round(weeks))
 }
 
 func AreEqualStrings(items1, items2 []string) bool {
@@ -100,15 +110,29 @@ func ContainsStringIgnoreCase(items []string, item string) bool {
 }
 
 func GetCurrentTimestamp() string {
-	return GetTimestamp(time.Now())
+	return GetTimestamp(time.Now().UTC())
 }
 
 func GetTimestamp(moment time.Time) string {
-	return moment.Format(timestampLayout)
+	return moment.UTC().Format(timestampLayout)
 }
 
 func ParseTimestamp(timestamp string) (time.Time, error) {
-	return time.Parse(timestampLayout, timestamp)
+	timestamp = strings.TrimSpace(timestamp)
+	if timestamp == "" {
+		return time.Time{}, nil
+	}
+	for _, layout := range []string{
+		timestampLayout,
+		"2006-01-02 03:04 PM",
+		"2006-01-02 15:04",
+		"2006-01-02",
+	} {
+		if t, err := time.Parse(layout, timestamp); err == nil {
+			return t, nil
+		}
+	}
+	return time.Time{}, &time.ParseError{Layout: timestampLayout, Value: timestamp}
 }
 
 func MakeMarkdownLink(linkTitle, linkPath, baseDir string) string {

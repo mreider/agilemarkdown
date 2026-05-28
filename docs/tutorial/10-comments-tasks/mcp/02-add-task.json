@@ -1,0 +1,29 @@
+{
+  "request": {
+    "id": 25,
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "arguments": {
+        "path": "stories/plan-the-moons-very-first-birthday-party.md",
+        "text": "Find a stand for the cake"
+      },
+      "name": "add_task"
+    }
+  },
+  "response": {
+    "id": 25,
+    "jsonrpc": "2.0",
+    "result": {
+      "content": [
+        {
+          "text": "{\"ok\":true}",
+          "type": "text"
+        }
+      ],
+      "structuredContent": {
+        "ok": true
+      }
+    }
+  }
+}

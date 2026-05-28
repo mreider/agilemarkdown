@@ -1,0 +1,31 @@
+{
+  "name": "agilemarkdown",
+  "image": "mcr.microsoft.com/devcontainers/go:1-1.25",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "postStartCommand": "bash .devcontainer/welcome.sh",
+  "workspaceFolder": "/workspaces/am-demo",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.go"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "files.exclude": {
+          "**/.git": true
+        }
+      }
+    }
+  },
+  "remoteEnv": {
+    "PATH": "${containerEnv:PATH}:/usr/local/go/bin:${containerEnv:HOME}/go/bin"
+  },
+  "forwardPorts": [],
+  "remoteUser": "vscode"
+}

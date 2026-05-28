@@ -1,0 +1,2 @@
+$ am estimate stories/write-the-readme.md 3
+✓ estimate: 3

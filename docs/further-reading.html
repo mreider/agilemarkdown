@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Further reading · agilemarkdown</title>
+<meta name="description" content="A reading list on the XP renaissance in the AI-assisted coding era: Kent Beck on augmented coding, Martin Fowler on what comes next, the XP 2025 conference, and the related practitioner writing from 2025 through early 2026." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,500;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper:   oklch(0.974 0.009 82);
+    --paper-2: oklch(0.945 0.012 82);
+    --ink:     oklch(0.205 0.015 60);
+    --ink-2:   oklch(0.36  0.018 60);
+    --ink-3:   oklch(0.52  0.018 65);
+    --rule:    oklch(0.84  0.014 78);
+    --rule-2:  oklch(0.78  0.016 78);
+    --accent:  oklch(0.52  0.135 38);
+    --accent-soft: oklch(0.85 0.06 38);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: "Source Serif 4", Georgia, serif;
+    font-size: 18px; line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--rule-2); text-underline-offset: 3px; }
+  a:hover { color: var(--accent); text-decoration-color: var(--accent); }
+  main { max-width: 760px; margin: 0 auto; padding: 60px 28px 120px; }
+  header.masthead { padding: 60px 0 50px; border-bottom: 1px solid var(--rule); margin-bottom: 40px; }
+  header.masthead a.back { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--ink-3); text-decoration: none; }
+  header.masthead a.back:hover { color: var(--accent); }
+  header.masthead .eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--ink-3); margin: 18px 0 14px;
+  }
+  header.masthead h1 {
+    font-size: clamp(36px, 7vw, 56px);
+    font-weight: 400; font-style: italic;
+    line-height: 1.05; letter-spacing: -0.022em; margin: 0 0 18px;
+  }
+  header.masthead h1 em { font-style: normal; font-weight: 600; color: var(--accent); }
+  header.masthead .deck { font-size: clamp(17px, 2.6vw, 20px); color: var(--ink-2); line-height: 1.5; max-width: 620px; }
+  @media (max-width: 520px) {
+    main { padding: 36px 18px 80px; }
+    header.masthead { padding: 24px 0 32px; margin-bottom: 28px; }
+    ol.refs > li {
+      grid-template-columns: 28px 1fr;
+      column-gap: 12px;
+    }
+    section.historical h2.section-h2 { font-size: clamp(26px, 6vw, 36px); }
+  }
+  p { margin: 0 0 18px; }
+  .intro p { font-size: 19px; max-width: 660px; }
+  .intro p.note { font-size: 16px; color: var(--ink-3); }
+  ol.refs { list-style: none; padding: 0; margin: 24px 0 0; counter-reset: ref; }
+  ol.refs > li {
+    counter-increment: ref;
+    padding: 22px 0 24px;
+    border-top: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: 38px 1fr;
+    column-gap: 16px;
+  }
+  ol.refs > li:last-child { border-bottom: 1px solid var(--rule); }
+  ol.refs > li::before {
+    content: counter(ref, decimal-leading-zero);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    color: var(--ink-3);
+    padding-top: 5px;
+    letter-spacing: 0.02em;
+  }
+  ol.refs .meta {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px; letter-spacing: 0.06em;
+    color: var(--ink-3); text-transform: uppercase;
+    margin: 0 0 4px;
+  }
+  ol.refs h2 {
+    font-size: 21px; font-weight: 600; line-height: 1.35;
+    letter-spacing: -0.01em; margin: 0 0 8px;
+  }
+  ol.refs h2 a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--rule); padding-bottom: 1px; }
+  ol.refs h2 a:hover { color: var(--accent); border-color: var(--accent); }
+  ol.refs .summary { color: var(--ink-2); font-size: 17px; margin: 0; line-height: 1.55; }
+  section.historical {
+    margin: 60px 0 0;
+    padding-top: 32px;
+    border-top: 2px solid var(--ink);
+  }
+  section.historical .eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 12px;
+  }
+  section.historical h2.section-h2 {
+    font-family: "Source Serif 4", serif;
+    font-weight: 400; font-style: italic;
+    font-size: 36px; line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin: 0 0 16px;
+    color: var(--ink);
+  }
+  section.historical > p {
+    font-size: 18px; color: var(--ink-2);
+    max-width: 660px; line-height: 1.6;
+    margin: 0 0 24px;
+  }
+  footer.colophon {
+    margin-top: 80px; padding-top: 24px;
+    border-top: 1.5px solid var(--ink);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11.5px; color: var(--ink-3);
+    letter-spacing: 0.04em; line-height: 1.8;
+    display: flex; justify-content: space-between; align-items: baseline;
+    flex-wrap: wrap; gap: 18px;
+  }
+  footer.colophon h4 {
+    font-family: "Source Serif 4", serif;
+    font-weight: 400; font-style: italic;
+    font-size: 22px; margin: 0; color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+</style>
+</head>
+<body>
+
+<main>
+
+<header class="masthead">
+  <a class="back" href="index.html">← agilemarkdown</a>
+  <div class="eyebrow">Further reading</div>
+  <h1>The <em>XP renaissance</em></h1>
+  <p class="deck">A reading list on Extreme Programming in the AI-assisted coding era. Eleven pieces written between early 2025 and early 2026, ordered by how central the voice is to the conversation rather than by date.</p>
+</header>
+
+<div class="intro">
+  <p>This tool ports the Pivotal Tracker workflow to plain markdown. The Pivotal way was always a port of Extreme Programming. The pieces below explain why XP practices that were once dismissed as expensive (pair programming, small batches, working agreements, real refactoring, short feedback loops) suddenly look essential when an AI agent is in the dev-pair seat.</p>
+  <p class="note">Test-driven development is the practice these pieces most often cite. This project does not opine on testing, so TDD is the lens through which several of the entries below frame their case; pull the practice you care about and ignore the framing where it does not apply.</p>
+</div>
+
+<ol class="refs">
+
+  <li>
+    <div>
+      <div class="meta">Kent Beck · Tidy First? · June 2025</div>
+      <h2><a href="https://tidyfirst.substack.com/p/augmented-coding-beyond-the-vibes">Augmented Coding: Beyond the Vibes</a></h2>
+      <p class="summary">The creator of XP introduces the working term "augmented coding": pairing with an AI assistant while keeping XP discipline (vision, strategy, task breakdown, feedback loops). Distinguishes augmented coding from vibe coding, where there is no plan and no acceptance. The framing this project leans on.</p>
+    </div>
+  </li>
+
+  <li>
+    <div>
+      <div class="meta">The Pragmatic Engineer · February 2026</div>
+      <h2><a href="https://newsletter.pragmaticengineer.com/p/the-future-of-software-engineering-with-ai">The Future of Software Engineering with AI: Six Predictions</a></h2>
+      <p class="summary">Gergely Orosz reports from Martin Fowler's invite-only "Future of Software Development" retreat. Names the return of Extreme Programming, which predates Agile, as one of the six major trends shaping the next phase.</p>
+    </div>
+  </li>
+
+  <li>
+    <div>
+      <div class="meta">The Pragmatic Engineer · November 2025</div>
+      <h2><a href="https://newsletter.pragmaticengineer.com/p/martin-fowler">Martin Fowler interview</a></h2>
+      <p class="summary">Fowler on why LLM output has to be tested with deterministic checks, why refactoring matters more than ever now that the cost of producing code is near zero, and how AI tools combined with classical engineering technique are what teams actually need.</p>
+    </div>
+  </li>
+
+  <li>
+    <div>
+      <div class="meta">Joshua Kerievsky · XP 2025 Conference · 2025</div>
+      <h2><a href="https://conf.researchr.org/details/xp-2025/ai-and-agile-2025/2/eXtreme-Programming-with-Artificial-Intelligence">eXtreme Programming with Artificial Intelligence</a></h2>
+      <p class="summary">From the XP 2025 conference itself: if you want to craft excellent software using AI, follow XP's values and practices. The official XP community's position.</p>
+    </div>
+  </li>
+
+  <li>
+    <div>
+      <div class="meta">Jason Gorman · Codemanship · November 2025</div>
+      <h2><a href="https://codemanship.wordpress.com/2025/11/01/the-ai-ready-software-developer-16-a-token-of-our-extreme/">The AI-Ready Software Developer #16: A Token of Our eXtreme</a></h2>
+      <p class="summary">Names the phenomenon directly: in the age of AI-assisted programming, XP is experiencing a renaissance, though many of the people rediscovering it do not realise that the practices already have a name.</p>
+    </div>
+  </li>
+
+  <li>
+    <div>
+      <div class="meta">Robert Melton · 2025</div>
+      <h2><a href="https://robertmelton.com/posts/xp-3-ai-enabled-development/">XP 3.0: AI Validates What Extreme Programming Got Right</a></h2>
+      <p class="summary">The economics-flipped argument. XP practitioners had the discipline. The industry called the practices too expensive and ignored them for two decades. AI removed the cost objection.</p>
+    </div>
+  </li>
+
+  <li>
+    <div>
+      <div class="meta">Stride · February 2025</div>
+      <h2><a href="https://www.stride.build/blog/does-ai-xp-make-the-myth-of-better-faster-and-cheaper-a-reality">Does AI + XP Make the Myth of Better, Faster AND Cheaper a Reality?</a></h2>
+      <p class="summary">Among the Agile methodologies, XP practitioners are best positioned to use AI well: the principles XP runs on (collaboration, adaptability, rapid feedback) line up exactly with what AI agents need.</p>
+    </div>
+  </li>
+
+  <li>
+    <div>
+      <div class="meta">Hyperact · September 2025</div>
+      <h2><a href="https://www.hyperact.co.uk/blog/should-we-revisit-xp-in-the-age-of-ai">Should we revisit Extreme Programming in the age of AI?</a></h2>
+      <p class="summary">Output creation is no longer the constraint. XP provides discipline and empathy, centering the team and elevating shared understanding above raw speed.</p>
+    </div>
+  </li>
+
+  <li>
+    <div>
+      <div class="meta">M. Gary Thomas · September 2025</div>
+      <h2><a href="http://www.mgarythomas.com/engineering/revisiting_extreme_programming/extreme_programming_revisited/">Extreme Programming Revisited</a></h2>
+      <p class="summary">AI is dragging us, kicking and screaming, back to a purer form of XP. The list of practices that work well with AI-assisted development reads like a greatest-hits compilation from 1999.</p>
+    </div>
+  </li>
+
+  <li>
+    <div>
+      <div class="meta">Anton Voronko · Medium · March 2025</div>
+      <h2><a href="https://medium.com/@antonvoronko/extreme-programming-revised-with-generative-ai-agents-5ccacf5269e4">Extreme Programming Revised with Generative AI Agents</a></h2>
+      <p class="summary">Walks through the XP practices that teams have historically struggled to adopt and shows how generative AI lowers the barrier to entry on each one.</p>
+    </div>
+  </li>
+
+  <li>
+    <div>
+      <div class="meta">arXiv · XP 2025 Workshop · August 2025</div>
+      <h2><a href="https://arxiv.org/html/2508.20563v1">AI and Agile Software Development: A Research Roadmap from the XP2025 Workshop</a></h2>
+      <p class="summary">Academic synthesis of the third consecutive year of AI-and-Agile sessions at the XP conference. Useful as a survey of what the research community considers worth studying about the AI-XP intersection.</p>
+    </div>
+  </li>
+
+</ol>
+
+<section class="historical">
+  <div class="eyebrow">Historical record</div>
+  <h2 class="section-h2">How we got Scrum instead</h2>
+  <p>The XP authors mostly chose authenticity over scale: they built no certification business and ran no marketing engine for it. Scrum took the opposite bet, packaged the process for managers, and won the decade. The pieces below are the XP authors' record of what that cost the industry, and why they think the bet aged badly.</p>
+
+  <ol class="refs">
+
+    <li>
+      <div>
+        <div class="meta">Kent Beck · Lean IT Summit · 2015</div>
+        <h2><a href="https://www.youtube.com/watch?v=cGuTmOUdFbo">Extreme Programming 20 Years Later</a></h2>
+        <p class="summary">Beck's own retrospective on the XP journey at the fifth Lean IT Summit, covering what he got right, what he got wrong, and what he is still working on. Includes the admission that calling it "Extreme Programming" was itself a branding misstep that helped Scrum's friendlier wrapper win.</p>
+      </div>
+    </li>
+
+    <li>
+      <div>
+        <div class="meta">Ron Jeffries · ronjeffries.com · 2015 to 2019</div>
+        <h2><a href="https://ronjeffries.com/categories/dark-scrum/">Dark Scrum</a></h2>
+        <p class="summary">An XP author writing for four years about what Scrum became after marketing success: a version of Agile that is oppressive to developers because it ships the process without the engineering discipline. The page collects the full series.</p>
+      </div>
+    </li>
+
+    <li>
+      <div>
+        <div class="meta">Robert C. Martin · NDC 2011</div>
+        <h2><a href="https://www.youtube.com/watch?v=hG4LH6P8Syk">The Land that Scrum Forgot</a></h2>
+        <p class="summary">Uncle Bob's foundational talk on why Scrum-without-XP produces rotting code: speed without technical quality is not speed, and a project manager retitled as a scrum master is not engineering leadership. Cited everywhere; the case still holds.</p>
+      </div>
+    </li>
+
+  </ol>
+</section>
+
+<footer class="colophon">
+  <h4><em>agilemarkdown</em></h4>
+  <span>MIT · © 2026 Matt Reider</span>
+</footer>
+
+</main>
+
+</body>
+</html>

@@ -1,0 +1,29 @@
+{
+  "request": {
+    "id": 17,
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "arguments": {
+        "backlog": "stories",
+        "offset": 0
+      },
+      "name": "iteration_view"
+    }
+  },
+  "response": {
+    "id": 17,
+    "jsonrpc": "2.0",
+    "result": {
+      "content": [
+        {
+          "text": "Iteration 1378  Mon May 25  cap 7 pts  (2 items)\n\n   1. ★  Wait by the mailbox for any kind of rep…  accepted    3p\n   2. ★  Pace exactly seven times up and down th…  unstarted   2p\n",
+          "type": "text"
+        }
+      ],
+      "structuredContent": {
+        "ascii": "Iteration 1378  Mon May 25  cap 7 pts  (2 items)\n\n   1. ★  Wait by the mailbox for any kind of rep…  accepted    3p\n   2. ★  Pace exactly seven times up and down th…  unstarted   2p\n"
+      }
+    }
+  }
+}

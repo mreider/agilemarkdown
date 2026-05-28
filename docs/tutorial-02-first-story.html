@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Your first story · agilemarkdown tutorial</title>
+<meta name="description" content="agilemarkdown tutorial · chapter 02: Your first story. Same operation shown three ways, the board, the CLI verb, the MCP JSON-RPC frame." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,500;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper:   oklch(0.974 0.009 82);
+    --paper-2: oklch(0.945 0.012 82);
+    --paper-3: oklch(0.915 0.014 82);
+    --ink:     oklch(0.205 0.015 60);
+    --ink-2:   oklch(0.36  0.018 60);
+    --ink-3:   oklch(0.52  0.018 65);
+    --rule:    oklch(0.84  0.014 78);
+    --rule-2:  oklch(0.78  0.016 78);
+    --accent:  oklch(0.52  0.135 38);
+    --accent-soft: oklch(0.85 0.06 38);
+    --term-bg: oklch(0.18  0.012 60);
+    --term-fg: oklch(0.93  0.012 82);
+    --term-dim:oklch(0.62  0.012 82);
+    --term-accent: oklch(0.78 0.13 38);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: "Source Serif 4", Georgia, serif;
+    font-size: 18px; line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); }
+  code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 0.9em; padding: 1px 4px; background: var(--paper-2); border-radius: 3px; }
+  main { max-width: 1100px; margin: 0 auto; padding: 60px 28px 120px; }
+  header.masthead { padding: 60px 0 40px; border-bottom: 1px solid var(--rule); margin-bottom: 50px; }
+  header.masthead a.back { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--ink-3); text-decoration: none; }
+  header.masthead a.back:hover { color: var(--accent); }
+  header.masthead .eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--ink-3); margin: 18px 0 14px;
+  }
+  header.masthead h1 {
+    font-size: clamp(34px, 6.5vw, 54px);
+    font-weight: 600; line-height: 1.08;
+    letter-spacing: -0.025em; margin: 0 0 14px;
+  }
+  header.masthead h1 em { font-style: italic; color: var(--accent); font-weight: 500; }
+  header.masthead .deck { font-size: clamp(17px, 2.6vw, 21px); color: var(--ink-2); line-height: 1.45; max-width: 720px; }
+  @media (max-width: 520px) {
+    main { padding: 36px 18px 80px; }
+    header.masthead { padding: 36px 0 26px; margin-bottom: 30px; }
+  }
+  h1 { font-size: 36px; font-weight: 600; letter-spacing: -0.022em; margin: 38px 0 18px; }
+  h2 {
+    font-size: 26px; font-weight: 600; line-height: 1.18;
+    letter-spacing: -0.018em; margin: 50px 0 16px;
+    border-top: 1px solid var(--rule-2); padding-top: 30px;
+  }
+  h3 {
+    font-size: 19px; font-weight: 600; margin: 28px 0 10px;
+    letter-spacing: -0.012em;
+  }
+  p { margin: 0 0 16px; }
+  ul, ol { margin: 0 0 18px; padding-left: 1.25em; }
+  li { margin-bottom: 6px; }
+  blockquote { margin: 18px 0; padding: 4px 18px; border-left: 3px solid var(--accent); color: var(--ink-2); font-style: italic; }
+
+   
+  table {
+    width: 100%; border-collapse: collapse; margin: 22px 0;
+    font-size: 14.5px;
+  }
+  th {
+    text-align: left; padding: 8px 12px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-3); font-weight: 500;
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper-2);
+  }
+  td {
+    padding: 12px 12px;
+    vertical-align: top;
+    border-bottom: 1px solid var(--rule);
+    width: 33.33%;
+  }
+  td img { max-width: 100%; height: auto; border-radius: 6px; border: 1px solid var(--rule); }
+  td pre {
+    margin: 0;
+    background: var(--term-bg); color: var(--term-fg);
+    padding: 10px 12px; border-radius: 5px;
+    font-family: "JetBrains Mono", monospace; font-size: 12px;
+    line-height: 1.55;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  td pre code { background: transparent; padding: 0; color: inherit; font-size: inherit; }
+  td details { margin-top: 8px; }
+  td details summary {
+    font-family: "JetBrains Mono", monospace; font-size: 11px;
+    color: var(--accent); cursor: pointer; user-select: none;
+    padding: 4px 0;
+  }
+  td details summary:hover { text-decoration: underline; }
+  td details > * { margin-top: 8px; }
+  @media (max-width: 760px) {
+    table, thead, tbody, tr { display: block; }
+    th { display: none; }
+    td { display: block; width: 100%; border-bottom: none; padding: 8px 0; }
+    td + td { border-top: 1px solid var(--rule); padding-top: 12px; }
+    td::before {
+      content: attr(data-channel);
+      display: block;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--ink-3); margin-bottom: 6px;
+    }
+  }
+
+   
+  h3 + ul {
+    background: var(--paper-2);
+    padding: 12px 18px 12px 36px;
+    border-radius: 6px;
+    border-left: 3px solid var(--accent-soft);
+  }
+
+   
+  nav.pager {
+    display: flex; justify-content: space-between; gap: 16px;
+    margin: 70px 0 0; padding-top: 22px; border-top: 1px solid var(--rule);
+    font-family: "JetBrains Mono", monospace; font-size: 13px;
+  }
+  nav.pager a { color: var(--ink-2); text-decoration: none; }
+  nav.pager a:hover { color: var(--accent); }
+  nav.pager .label {
+    font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink-3); display: block; margin-bottom: 4px;
+  }
+  nav.pager .next { text-align: right; }
+
+  footer { margin-top: 80px; padding-top: 24px; border-top: 1px solid var(--rule); font-size: 14px; color: var(--ink-3); text-align: center; }
+
+   
+  .chapter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    margin: 30px 0 60px;
+  }
+  .chapter-card {
+    display: block;
+    padding: 18px 20px;
+    background: var(--paper-2);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--ink);
+    transition: border-color 120ms, transform 120ms;
+  }
+  .chapter-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+  .chapter-card .num {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px; color: var(--accent);
+    letter-spacing: 0.08em;
+  }
+  .chapter-card .title {
+    font-size: 20px; font-weight: 600;
+    letter-spacing: -0.012em;
+    margin: 4px 0 0;
+  }
+</style>
+<link rel="stylesheet" href="surface-widget.css" />
+</head>
+<body>
+<main>
+  <header class="masthead">
+    <a class="back" href="tutorial.html">← Tutorial</a>
+    <div class="eyebrow">Chapter 02</div>
+    <h1>Your first story</h1>
+  </header>
+  <h1 id="2-your-first-story">2. Your first story</h1>
+<p>With the inception written and the team agreements recorded, it is
+time to create the first story.</p>
+<p>A story is a markdown file with YAML frontmatter on top: title,
+type, status, estimate, optional tags and epic. The body is plain
+prose plus a <code>## Comments</code> and <code>## Tasks</code> section.</p>
+<h2 id="21-create-the-story">2.1 Create the story</h2>
+<p>New stories land in the icebox by default. The board's <code>+</code> buttons
+and <code>am create-item</code> both default there; pass <code>--target priority</code>
+if you want to skip straight to the ranked list.</p>
+<figure class="surface-shot tut" data-active="extension">
+<div class="surface-tabs" role="tablist" aria-label="The same moment on each surface">
+<button role="tab" aria-selected="true" tabindex="0" data-surface="extension">VS Code</button>
+<button role="tab" aria-selected="false" tabindex="-1" data-surface="cli">Shell</button>
+<button role="tab" aria-selected="false" tabindex="-1" data-surface="claude">MCP</button>
+</div>
+<div class="surface-panels">
+<div class="surface-panel" data-surface="extension" role="tabpanel"><img src="tutorial/02-first-story/images/create-modal.png"></div>
+<div class="surface-panel" data-surface="cli" role="tabpanel">
+<pre><code>$ am create-item &quot;Write the README&quot; --target icebox
+created stories/write-the-readme.md
+</code></pre>
+</div>
+<div class="surface-panel" data-surface="claude" role="tabpanel">
+<p><code>create_item</code> takes a backlog and a title. The filename is derived
+from the title (lowercase, dashes for spaces). Returns the path.</p>
+<details><summary>Full envelope</summary>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;method&quot;: &quot;tools/call&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;create_item&quot;,
+    &quot;arguments&quot;: {
+      &quot;backlog&quot;: &quot;stories&quot;,
+      &quot;title&quot;: &quot;Write the README&quot;
+    }
+  }
+}
+</code></pre>
+</details>
+</div>
+</div>
+</figure>
+<p>The new file looks like this:</p>
+<pre><code>---
+title: Write the README
+project: stories
+type: feature
+status: unstarted
+author: &lt;git user&gt;
+created: 2026-05-22T09:00:00Z
+---
+
+## Problem statement
+
+(write what you're trying to do here)
+
+## Comments
+</code></pre>
+<p>The body is yours to fill in, while the system tracks the frontmatter.</p>
+<h2 id="22-estimate-it">2.2 Estimate it</h2>
+<p>agilemarkdown uses Fibonacci-ish points (0, 1, 2, 3, 5, 8) and the
+card carries an inline picker; features get pointed, while bugs,
+chores, and releases stay unpointed.</p>
+<figure class="surface-shot tut" data-active="extension">
+<div class="surface-tabs" role="tablist" aria-label="The same moment on each surface">
+<button role="tab" aria-selected="true" tabindex="0" data-surface="extension">VS Code</button>
+<button role="tab" aria-selected="false" tabindex="-1" data-surface="cli">Shell</button>
+<button role="tab" aria-selected="false" tabindex="-1" data-surface="claude">MCP</button>
+</div>
+<div class="surface-panels">
+<div class="surface-panel" data-surface="extension" role="tabpanel"><img src="tutorial/02-first-story/images/estimate.png"></div>
+<div class="surface-panel" data-surface="cli" role="tabpanel">
+<pre><code>$ am estimate stories/write-the-readme.md 3
+✓ estimate: 3
+</code></pre>
+</div>
+<div class="surface-panel" data-surface="claude" role="tabpanel">
+<p><code>set_estimate</code> takes the path and a stringy estimate. The coach
+gate catches &gt;8 and refuses with a &quot;split this story&quot; hint.</p>
+<details><summary>Full envelope</summary>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;method&quot;: &quot;tools/call&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;set_estimate&quot;,
+    &quot;arguments&quot;: {
+      &quot;path&quot;: &quot;stories/write-the-readme.md&quot;,
+      &quot;estimate&quot;: &quot;3&quot;
+    }
+  }
+}
+</code></pre>
+</details>
+</div>
+</div>
+</figure>
+<h2 id="23-rank-it-into-priority">2.3 Rank it into priority</h2>
+<p>A story in the icebox isn't on the team's plate yet. To say &quot;this
+is what we're working on next,&quot; promote it to priority. Drag from
+Icebox into Backlog in the UI; <code>am unice</code> in the CLI; <code>move_to_priority</code>
+in MCP.</p>
+<figure class="surface-shot tut" data-active="cli">
+<div class="surface-tabs" role="tablist" aria-label="The same moment on each surface">
+<button role="tab" aria-selected="true" tabindex="0" data-surface="cli">Shell</button>
+<button role="tab" aria-selected="false" tabindex="-1" data-surface="claude">MCP</button>
+</div>
+<div class="surface-panels">
+<div class="surface-panel" data-surface="cli" role="tabpanel">
+<pre><code>$ am unice stories/write-the-readme.md --top
+moved 1 item from icebox into priority (top)
+</code></pre>
+</div>
+<div class="surface-panel" data-surface="claude" role="tabpanel">
+<p><code>move_to_priority</code> promotes a story out of the icebox into the ranked
+priority list. <code>position: &quot;top&quot;</code> ranks it first; omit it and the item
+lands at the bottom. This is the MCP equivalent of dragging a card
+from Icebox into Backlog.</p>
+<details><summary>Full envelope</summary>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;method&quot;: &quot;tools/call&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;move_to_priority&quot;,
+    &quot;arguments&quot;: {
+      &quot;backlog&quot;: &quot;stories&quot;,
+      &quot;item_paths&quot;: [&quot;stories/write-the-readme.md&quot;],
+      &quot;position&quot;: &quot;top&quot;
+    }
+  }
+}
+</code></pre>
+</details>
+</div>
+</div>
+</figure>
+<h2 id="24-start-it">2.4 Start it</h2>
+<p>Status flips from <code>unstarted</code> to <code>started</code>, a <code>started:</code> timestamp
+is stamped, and the card jumps to the top of the current sprint.</p>
+<figure class="surface-shot tut" data-active="extension">
+<div class="surface-tabs" role="tablist" aria-label="The same moment on each surface">
+<button role="tab" aria-selected="true" tabindex="0" data-surface="extension">VS Code</button>
+<button role="tab" aria-selected="false" tabindex="-1" data-surface="cli">Shell</button>
+<button role="tab" aria-selected="false" tabindex="-1" data-surface="claude">MCP</button>
+</div>
+<div class="surface-panels">
+<div class="surface-panel" data-surface="extension" role="tabpanel"><img src="tutorial/02-first-story/images/started.png"></div>
+<div class="surface-panel" data-surface="cli" role="tabpanel">
+<pre><code>$ am start stories/write-the-readme.md
+✓ status: started   started_at: 2026-05-22T09:00:00Z
+</code></pre>
+</div>
+<div class="surface-panel" data-surface="claude" role="tabpanel">
+<p><code>set_status</code> with <code>status: &quot;started&quot;</code>. This is the same tool
+Chapter 4 uses for every other transition.</p>
+<details><summary>Full envelope</summary>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;method&quot;: &quot;tools/call&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;set_status&quot;,
+    &quot;arguments&quot;: {
+      &quot;path&quot;: &quot;stories/write-the-readme.md&quot;,
+      &quot;status&quot;: &quot;started&quot;
+    }
+  }
+}
+</code></pre>
+</details>
+</div>
+</div>
+</figure>
+<h3 id="what-just-happened">What just happened</h3>
+<ul>
+<li>A new story file landed in <code>stories/</code></li>
+<li>Its estimate (3 points) lives in YAML frontmatter</li>
+<li>It moved from icebox to priority, top of the list</li>
+<li>Its status flipped to <code>started</code> and the timestamp stamped</li>
+<li>Every step was visible in the CommandLog tab as an <code>am</code> verb;
+every step was a JSON-RPC frame in the MCP Console.</li>
+</ul>
+<p>Next: <a href="tutorial-03-meadow-intro.html">The seeded backlog →</a></p>
+
+  <nav class="pager">
+    <div class="prev">
+      <a href="tutorial-01-inception.html"><span class="label">Previous</span>← Inception</a>
+    </div>
+    <div class="next">
+      <a href="tutorial-03-meadow-intro.html"><span class="label">Next</span>The seeded backlog →</a>
+    </div>
+  </nav>
+  <footer>agilemarkdown · <a href="index.html">home</a> · <a href="reference.html">reference</a></footer>
+</main>
+<script src="surface-widget.js"></script>
+</body>
+</html>

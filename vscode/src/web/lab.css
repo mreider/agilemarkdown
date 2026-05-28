@@ -1,0 +1,184 @@
+/* Laboratory-only layout. Loaded by web/index.tsx alongside the
+   webview's existing styles.css. Overrides only what's needed to make
+   the App fit inside a parent grid cell instead of filling the
+   viewport on its own. */
+
+.lab-root {
+  display: grid;
+  grid-template-rows: 1fr 320px;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.lab-top {
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* App.tsx hard-codes height: 100vh on .app. In the lab we want it to
+   fill the top grid row instead. Same rule, different denominator. */
+.lab-top > .app {
+  height: 100%;
+}
+
+.lab-bottom {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--line);
+  background: var(--bg-elev);
+  min-height: 0;
+}
+
+.lab-bottom-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 8px 0;
+  background: var(--bg-soft);
+  border-bottom: 1px solid var(--line);
+}
+
+.lab-tab {
+  border: 1px solid transparent;
+  border-bottom: none;
+  background: transparent;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-3);
+  cursor: pointer;
+  border-radius: 4px 4px 0 0;
+}
+.lab-tab:hover { color: var(--ink); background: var(--bg); }
+.lab-tab.active {
+  color: var(--ink);
+  background: var(--bg);
+  border-color: var(--line);
+  border-bottom: 1px solid var(--bg);
+  margin-bottom: -1px;
+}
+.lab-tab.disabled { opacity: 0.4; cursor: not-allowed; }
+.lab-tab.disabled:hover { background: transparent; color: var(--ink-3); }
+
+.lab-bottom-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  background: #0E1014;
+  color: #C7CBD3;
+}
+
+/* CommandLog: a fake terminal. Monospace, $ prompt, ✓ / ✗ status. */
+.lab-cmdlog {
+  padding: 10px 14px;
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 12px;
+  line-height: 1.55;
+}
+.lab-cmdlog-empty {
+  color: oklch(0.55 0.02 250);
+  padding: 14px;
+}
+.lab-cmdlog-empty code {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.lab-cmdlog-line {
+  display: grid;
+  grid-template-columns: 14px 1fr auto;
+  gap: 8px;
+  align-items: start;
+  padding: 1px 0;
+}
+.lab-cmdlog-prompt { color: #5BC0EB; }
+.lab-cmdlog-verb { color: #E6E8EE; white-space: pre-wrap; word-break: break-all; }
+.lab-cmdlog-status { color: oklch(0.78 0.13 145); padding-left: 6px; }
+.lab-cmdlog-line.fail .lab-cmdlog-status { color: oklch(0.65 0.20 25); }
+.lab-cmdlog-summary {
+  grid-column: 2 / -1;
+  color: oklch(0.62 0.04 240);
+  padding-left: 0;
+  font-size: 11px;
+}
+
+/* MCP Console, split: tool form on the left, raw JSON-RPC wire view
+   on the right. Both halves scroll independently. */
+.lab-mcp {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  height: 100%;
+  min-height: 0;
+  background: #0E1014;
+  color: #C7CBD3;
+}
+.lab-mcp-form {
+  padding: 12px 14px;
+  border-right: 1px solid #1F242C;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.lab-mcp-label { font-size: 11px; color: #98A0B2; margin-top: 6px; }
+.lab-mcp-select, .lab-mcp-args {
+  background: #1A1E26;
+  color: #E6E8EE;
+  border: 1px solid #29303B;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 12px;
+}
+.lab-mcp-args { width: 100%; resize: vertical; }
+.lab-mcp-desc { font-size: 11px; color: #98A0B2; line-height: 1.5; }
+.lab-mcp-send { align-self: flex-start; margin-top: 4px; }
+.lab-mcp-err {
+  color: oklch(0.65 0.20 25);
+  font-size: 11px;
+  margin-top: 6px;
+  white-space: pre-wrap;
+}
+.lab-mcp-wire {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  min-height: 0;
+}
+.lab-mcp-block {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-bottom: 1px solid #1F242C;
+}
+.lab-mcp-block:last-child { border-bottom: none; }
+.lab-mcp-block-head {
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #98A0B2;
+  background: #15191F;
+  border-bottom: 1px solid #1F242C;
+}
+.lab-mcp-block-body {
+  margin: 0;
+  padding: 10px 14px;
+  flex: 1;
+  overflow: auto;
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 11px;
+  line-height: 1.55;
+  color: #C7CBD3;
+  background: #0E1014;
+}
+
+/* Terminal, fills the bottom pane with xterm's own styling. */
+.lab-term {
+  height: 100%;
+  width: 100%;
+  padding: 8px;
+  background: #0E1014;
+}

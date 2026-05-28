@@ -1,0 +1,27 @@
+$ am retro
+Retro summary
+
+  velocity:        7 pts
+  volatility:      22%
+  cycle time:      21.2d (median)
+  rejection rate:  0% (latest, target band 5-15%)
+  accepted total:  21
+  rejected total:  1
+
+Three questions:
+  1. What worked?
+  2. What did not work?
+  3. What changes for next iteration?
+
+Record outputs:
+  am team-agreements --set "..."      (new agreement)
+  am record-learning "..."            (one-line learning)
+
+Recent learnings:
+  # Learnings
+  - On the morning of 2026-05-07: yelling at the seedling did not help. We have agreed to try kindness instead.
+  - On the afternoon of 2026-05-14: the cookies were better when shared. We will remember this.
+  - On the evening of 2026-05-21: Owl is not as alone as Owl seems. We will write to Owl more often.
+
+$ am record-learning "Pointing the gnarly one first kept the rest honest."
+- 2026-05-28: Pointing the gnarly one first kept the rest honest.

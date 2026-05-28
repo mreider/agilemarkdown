@@ -1,22 +1,23 @@
 package commands
 
 import (
+	"context"
 	"fmt"
 	"github.com/mreider/agilemarkdown/actions"
-	"gopkg.in/urfave/cli.v1"
+	"github.com/urfave/cli/v3"
 	"strings"
 )
 
-var DeleteUserCommand = cli.Command{
+var DeleteUserCommand = &cli.Command{
 	Name:      "delete-user",
 	Usage:     "Delete the user",
 	ArgsUsage: "USER",
-	Action: func(c *cli.Context) error {
-		if len(c.Args()) == 0 {
+	Action: func(ctx context.Context, c *cli.Command) error {
+		if c.Args().Len() == 0 {
 			fmt.Println("User name, email or prefix should be specified")
 			return nil
 		}
-		nameOrEmail := strings.Join(c.Args(), " ")
+		nameOrEmail := strings.Join(c.Args().Slice(), " ")
 
 		rootDir, err := findRootDirectory()
 		if err != nil {

@@ -1,0 +1,44 @@
+{
+  "request": {
+    "id": 27,
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "arguments": {
+        "path": "stories/plan-the-moons-very-first-birthday-party.md"
+      },
+      "name": "get_comments"
+    }
+  },
+  "response": {
+    "id": 27,
+    "jsonrpc": "2.0",
+    "result": {
+      "content": [
+        {
+          "text": "{\"comments\":[{\"author\":\"owl\",\"text\":\"2026-05-27\\nThe moon does not know I am planning this. That is part of the gift.\",\"users\":[\"owl\"]},{\"author\":\"frog\",\"text\":\"2026-05-27\\nMaybe Owl should bake the cake?\",\"users\":[\"frog\"]}],\"count\":2}",
+          "type": "text"
+        }
+      ],
+      "structuredContent": {
+        "comments": [
+          {
+            "author": "owl",
+            "text": "2026-05-27\nThe moon does not know I am planning this. That is part of the gift.",
+            "users": [
+              "owl"
+            ]
+          },
+          {
+            "author": "frog",
+            "text": "2026-05-27\nMaybe Owl should bake the cake?",
+            "users": [
+              "frog"
+            ]
+          }
+        ],
+        "count": 2
+      }
+    }
+  }
+}
