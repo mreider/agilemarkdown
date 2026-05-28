@@ -7,11 +7,10 @@ full mapping between them.
 
 ## The Pivotal week
 
-The workflow this tutorial demonstrates comes from Pivotal Tracker,
-and before that from Extreme Programming. The shape is small: one
-ranked backlog, weekly sprints, three kinds of work, a few rituals
-to hold it together. The chapters demonstrate the mechanics; this
-page sketches the week so the mechanics make sense.
+The workflow the tutorial walks through is Pivotal Tracker's, which
+Tracker had picked up from Extreme Programming. The chapters show
+each mechanic in detail; this page is a quick map of the week they
+fit into.
 
 **One ranked backlog.** Different tools mean different things by
 "backlog." Here it is a single list of stories, ranked top to bottom.
@@ -21,14 +20,12 @@ contract for a fixed set of stories. Unplanned work arrives every
 week and the team finishes what it finishes. As people free up, they
 pull the next story off the top.
 
-**Velocity is a forecast.** Each story carries an estimate in points,
-a rough sizing the team agrees on. agilemarkdown uses those points
-to place markers down the backlog showing which stories are likely
-to land this week, the next week, or later. The math accounts for
-team strength: who is sick, who is on vacation. Only estimated
-stories get markers, and the deeper into the backlog you look, the
-looser the projection. That blurriness further out is just what
-software actually feels like.
+**Velocity is a forecast.** Each story carries a point estimate that
+the team agrees on, and agilemarkdown places markers down the
+backlog from those estimates, showing which stories will land this
+week, next week, or later. The math factors in team strength (who's
+sick, who's on vacation), and only estimated stories get markers.
+Projections get looser the further down you look.
 
 > "Velocity is the average normalized points completed across the
 > last N iterations, where N is the project's Velocity Strategy
@@ -38,17 +35,17 @@ software actually feels like.
 >
 > Pivotal Tracker help center, [understanding velocity](https://web.archive.org/web/20170503214450/https://www.pivotaltracker.com/help/articles/understanding_velocity/)
 
-**Three kinds of work.** Features are stories: a unit of customer
-value, carrying a point estimate and an acceptance check. The dev
-pair pulls the story off the top and works it; the product manager
-accepts it once delivered. The dev pair never accepts its own work,
-and the coach refuses any attempt. Bugs go to the top of the list
-and carry no estimate, so a buggy stretch shows up automatically as
-a drop in velocity. Chores are work the team owes itself, CI setup,
-doc fixes after a customer complains, research the team needs, and
-also carry no estimate since they do not ship to a customer. Release
-markers are a fourth type but are not work; they are dated stakes in
-the priority list (Chapter 7).
+**Three kinds of work.** A feature is a story carrying a point
+estimate and an acceptance check, and the dev pair pulls one off
+the top and works it; the PM accepts it once delivered, and the
+coach refuses any attempt by the dev pair to accept its own work.
+Bugs go to the top of the list with no estimate, so a buggy stretch
+shows up automatically as a drop in velocity. Chores are the work
+the team owes itself (CI setup, a doc fix after a customer
+complaint, research the team needs), and they stay unpointed because
+they don't ship to a customer. Release markers don't really fit,
+since they aren't work at all; they're dated stakes you plant in the
+priority list to anchor a ship date (Chapter 7).
 
 **The icebox.** A backlog needs a place for ideas that are not ready
 to prioritize. The icebox is that place: a capture pile that is not
@@ -74,11 +71,11 @@ ranked into the backlog at whatever position the PM decides.
 - **Story time.** On most Friday afternoons the PM and the
   engineering lead meet to prep for Monday, pulling icebox items
   out and estimating them so they can be ranked into priority.
-- **Friday retro.** At the end of the week the team takes a breath
-  and puts three columns up on a board (*good*, *meh*, *not so
-  good*); people write topics and discuss them civilly, without
-  blame, and the action items that come out of the conversation
-  are the first thing the next retro checks on.
+- **Friday retro.** On Friday afternoon the team puts three columns
+  on a board (*good*, *meh*, *not so good*) and walks through them.
+  People add topics, the team discusses them without making it
+  personal, and whatever action items come out get checked on at
+  the start of the next retro.
 
 The 8-point cap holds across all of this. Any story bigger than 8
 points is an epic and gets split before it can move. agilemarkdown's
