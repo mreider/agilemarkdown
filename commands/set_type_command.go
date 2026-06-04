@@ -52,6 +52,7 @@ var SetTypeCommand = &cli.Command{
 		if err := item.Save(); err != nil {
 			return err
 		}
+		recordActivity("set-type", path, t)
 		fmt.Printf("%s type=%s\n", filepath.Base(path), t)
 		return nil
 	},

@@ -58,6 +58,7 @@ var EstimateCommand = &cli.Command{
 		if err := item.Save(); err != nil {
 			return err
 		}
+		recordActivity("estimate", item.Path(), item.Estimate())
 		fmt.Printf("%s estimate -> %s\n", filepath.Base(item.Path()), item.Estimate())
 		return nil
 	},

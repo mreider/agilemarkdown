@@ -84,6 +84,7 @@ var CreateItemCommand = &cli.Command{
 		}
 		fileName := utils.GetValidFileName(itemTitle) + ".md"
 		entry := backlog.OrderEntry{Title: itemTitle, Path: fileName}
+		recordActivity("created", filepath.Join(dir, fileName), fmt.Sprintf("target=%s position=%s", target, position))
 
 		ice, _ := backlog.LoadIcebox(dir)
 		pri, _ := backlog.LoadPriority(dir)

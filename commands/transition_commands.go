@@ -60,6 +60,7 @@ func transitionCmd(name, usage string, target *backlog.BacklogItemStatus) *cli.C
 			if err := item.Save(); err != nil {
 				return err
 			}
+			recordActivity(item.Status(), path, "")
 			fmt.Printf("%s -> %s\n", filepath.Base(path), target.Name)
 			return nil
 		},
@@ -123,6 +124,7 @@ var RejectCommand = &cli.Command{
 		if err := item.Save(); err != nil {
 			return err
 		}
+		recordActivity("rejected", path, reason)
 		fmt.Printf("%s -> rejected\n", filepath.Base(path))
 		return nil
 	},

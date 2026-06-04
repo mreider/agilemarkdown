@@ -526,6 +526,7 @@ func rejectItemTool(root *backlog.BacklogsStructure) func(context.Context, *mcp.
 		if err := item.Save(); err != nil {
 			return nil, OkResult{}, err
 		}
+		recordActivity(root, author, "rejected", args.Path, reason)
 		return nil, OkResult{OK: true}, nil
 	}
 }

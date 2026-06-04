@@ -545,6 +545,7 @@ func createItem(root *backlog.BacklogsStructure) func(context.Context, *mcp.Call
 		}
 		fileName := utils.GetValidFileName(args.Title) + ".md"
 		rel, _ := filepath.Rel(root.Root(), filepath.Join(dir, fileName))
+		recordActivity(root, args.User, "created", rel, "")
 
 		// Stage the new item into _icebox.md so it shows up in the
 		// board (and any other priority/icebox view) without requiring
@@ -581,6 +582,7 @@ func setStatus(root *backlog.BacklogsStructure) func(context.Context, *mcp.CallT
 		if err := item.Save(); err != nil {
 			return nil, OkResult{}, err
 		}
+		recordActivity(root, "", item.Status(), args.Path, "")
 		if err := autoRankForStatus(root, args.Path, st); err != nil {
 			return nil, OkResult{}, err
 		}

@@ -390,6 +390,39 @@ test_create_item_simulate() {
 }
 
 #######################################
+# am bug / am chore one-shot verbs + am log audit trail
+#######################################
+test_bug_chore_verbs() {
+  cd "${REPO_DIR}/product"
+  "${AM_BIN}" bug "Login crashes on empty password"
+  assert_file Login-crashes-on-empty-password.md
+  assert_grep Login-crashes-on-empty-password.md "type: bug"
+  # bugs carry no point estimate
+  assert_not_grep Login-crashes-on-empty-password.md "^estimate: [1-9]"
+  # landed at the top of priority (saved into _priority.md)
+  assert_grep _priority.md "Login-crashes-on-empty-password.md"
+
+  "${AM_BIN}" chore "Add golden snapshot fixtures"
+  assert_file Add-golden-snapshot-fixtures.md
+  assert_grep Add-golden-snapshot-fixtures.md "type: chore"
+  assert_not_grep Add-golden-snapshot-fixtures.md "^estimate: [1-9]"
+  assert_grep _priority.md "Add-golden-snapshot-fixtures.md"
+}
+test_activity_log() {
+  cd "${REPO_DIR}/product"
+  # The bug/chore creations above appended to the audit trail at the repo root.
+  assert_file "${REPO_DIR}/.am/activity.log"
+  out="$(${AM_BIN} log)"
+  echo "${out}" | grep -q "bug" || { echo "expected 'bug' verb in am log:" >&2; echo "${out}" >&2; return 1; }
+  echo "${out}" | grep -q "Alice" || { echo "expected actor 'Alice' in am log:" >&2; echo "${out}" >&2; return 1; }
+  # --verb filter narrows to a single verb
+  "${AM_BIN}" log --verb chore | grep -q "chore" || { echo "verb filter failed" >&2; return 1; }
+  "${AM_BIN}" log --verb chore | grep -q "bug" && { echo "verb filter leaked other verbs" >&2; return 1; }
+  # --json emits machine-readable entries
+  "${AM_BIN}" log --json | grep -q '"verb"' || { echo "json output missing verb key" >&2; return 1; }
+}
+
+#######################################
 # Frontmatter editing helper for tests
 #######################################
 set_status() {
@@ -1673,6 +1706,8 @@ run_step "create-backlog spaces"      test_create_backlog_name_with_spaces
 run_step "create-item basic"          test_create_item_basic
 run_step "create-item --user"         test_create_item_user_flag
 run_step "create-item --simulate"     test_create_item_simulate
+run_step "bug/chore one-shot verbs"    test_bug_chore_verbs
+run_step "activity log / am log"       test_activity_log
 run_step "sync happy path"            test_sync_happy_path
 run_step "config.yaml present"        test_config_yaml_present
 run_step "Pivotal transitions"        test_pivotal_transitions

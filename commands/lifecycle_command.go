@@ -60,6 +60,7 @@ var PullCommand = &cli.Command{
 				if err := transitionItem(it.Path(), backlog.StartedStatus); err != nil {
 					return err
 				}
+				recordActivity("started", it.Path(), "pull")
 				fmt.Printf("%s -> started\n", filepath.Base(it.Path()))
 				fmt.Printf("  title:    %s\n", it.Title())
 				if est := it.Estimate(); est != "" {

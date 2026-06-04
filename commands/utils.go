@@ -26,6 +26,42 @@ func checkIsRootDirectory(dir string) error {
 	return nil
 }
 
+// currentActor returns the git user.name for stamping the audit trail,
+// falling back to "unknown" when git has no identity configured.
+func currentActor() string {
+	name, _, err := git.CurrentUser()
+	if err != nil || name == "" {
+		return "unknown"
+	}
+	return name
+}
+
+// recordActivity appends one semantic line to the audit trail
+// (`.am/activity.log`). It is best-effort: a failure to write the trail
+// must never fail the command the user actually asked for, so every
+// error here is swallowed. itemPath may be absolute, relative, or empty
+// (for repo-wide events); it is normalized to a path relative to the
+// repo root for stable, location-independent log lines.
+func recordActivity(verb, itemPath, detail string) {
+	root, err := findRootDirectory()
+	if err != nil || root == "" {
+		return
+	}
+	item := ""
+	if itemPath != "" {
+		if abs, aerr := filepath.Abs(itemPath); aerr == nil {
+			if rel, rerr := filepath.Rel(root, abs); rerr == nil {
+				item = rel
+			} else {
+				item = filepath.Base(itemPath)
+			}
+		} else {
+			item = filepath.Base(itemPath)
+		}
+	}
+	_ = backlog.AppendActivity(root, currentActor(), verb, item, detail)
+}
+
 func findRootDirectory() (string, error) {
 	dir, _ := filepath.Abs(".")
 	for dir != "" {
