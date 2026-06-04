@@ -13,6 +13,15 @@ import (
 func addLineToConfig(configPath, line string) error {
 	stat, err := os.Stat(configPath)
 	if err != nil {
+		if os.IsNotExist(err) {
+			// No shell rc file to augment, so there is nothing to do.
+			// This is the normal case for anyone whose login shell isn't
+			// bash (zsh users have no ~/.bash_profile), and the
+			// autocomplete setup runs on every invocation — so it must
+			// stay silent rather than surface an error that callers would
+			// otherwise see prepended to stdout (e.g. corrupting --json).
+			return nil
+		}
 		return err
 	}
 	content, err := os.ReadFile(configPath)

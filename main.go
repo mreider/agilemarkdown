@@ -27,13 +27,13 @@ func main() {
 		root := backlog.NewBacklogsStructure(rootDir)
 		err := commands.AddConfigAndGitIgnore(root)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Fprintln(os.Stderr, err)
 		}
 		backlog.NewUserList(root.UsersDirectory())
 	}
 	err := setBashAutoComplete()
 	if err != nil {
-		fmt.Printf("can't set bash autocomplete: %v\n", err)
+		fmt.Fprintf(os.Stderr, "can't set bash autocomplete: %v\n", err)
 	}
 
 	if i, err := strconv.ParseInt(version, 10, 64); err == nil {
