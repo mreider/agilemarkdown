@@ -145,10 +145,7 @@ var sprintPlanCmd = &cli.Command{
 		&cli.BoolFlag{Name: "json", Usage: "emit the iteration plan as JSON (machine-readable)"},
 	},
 	Action: func(ctx context.Context, c *cli.Command) error {
-		if err := checkIsBacklogDirectory(); err != nil {
-			return err
-		}
-		dir, err := filepath.Abs(".")
+		dir, err := resolveBacklogDir()
 		if err != nil {
 			return err
 		}

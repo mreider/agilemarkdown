@@ -94,10 +94,7 @@ var showBurnupCmd = &cli.Command{
 		if c.NArg() == 1 {
 			fmt.Sscanf(c.Args().Get(0), "%d", &offset)
 		}
-		if err := checkIsBacklogDirectory(); err != nil {
-			return err
-		}
-		dir, err := filepath.Abs(".")
+		dir, err := resolveBacklogDir()
 		if err != nil {
 			return err
 		}
@@ -138,10 +135,7 @@ var showPriorityCmd = &cli.Command{
 		&cli.BoolFlag{Name: "json", Usage: "emit the priority list as JSON (machine-readable)"},
 	},
 	Action: func(ctx context.Context, c *cli.Command) error {
-		if err := checkIsBacklogDirectory(); err != nil {
-			return err
-		}
-		dir, err := filepath.Abs(".")
+		dir, err := resolveBacklogDir()
 		if err != nil {
 			return err
 		}
@@ -180,10 +174,7 @@ var showIceboxCmd = &cli.Command{
 		&cli.BoolFlag{Name: "json", Usage: "emit the icebox list as JSON (machine-readable)"},
 	},
 	Action: func(ctx context.Context, c *cli.Command) error {
-		if err := checkIsBacklogDirectory(); err != nil {
-			return err
-		}
-		dir, err := filepath.Abs(".")
+		dir, err := resolveBacklogDir()
 		if err != nil {
 			return err
 		}
@@ -218,10 +209,7 @@ var showDoneCmd = &cli.Command{
 		&cli.BoolFlag{Name: "json", Usage: "emit the done list as JSON (machine-readable)"},
 	},
 	Action: func(ctx context.Context, c *cli.Command) error {
-		if err := checkIsBacklogDirectory(); err != nil {
-			return err
-		}
-		dir, err := filepath.Abs(".")
+		dir, err := resolveBacklogDir()
 		if err != nil {
 			return err
 		}
@@ -293,10 +281,7 @@ var showIterationCmd = &cli.Command{
 		if c.NArg() == 1 {
 			fmt.Sscanf(c.Args().Get(0), "%d", &offset)
 		}
-		if err := checkIsBacklogDirectory(); err != nil {
-			return err
-		}
-		dir, err := filepath.Abs(".")
+		dir, err := resolveBacklogDir()
 		if err != nil {
 			return err
 		}

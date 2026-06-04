@@ -17,10 +17,7 @@ var CycleTimeCommand = &cli.Command{
 	Usage:     "Show cycle time (started -> accepted) median and longest items",
 	ArgsUsage: " ",
 	Action: func(ctx context.Context, c *cli.Command) error {
-		if err := checkIsBacklogDirectory(); err != nil {
-			return err
-		}
-		dir, err := filepath.Abs(".")
+		dir, err := resolveBacklogDir()
 		if err != nil {
 			return err
 		}
@@ -40,10 +37,7 @@ var RejectionRateCommand = &cli.Command{
 	Usage:     "Show per-iteration rejection rate over the rolling lookback window",
 	ArgsUsage: " ",
 	Action: func(ctx context.Context, c *cli.Command) error {
-		if err := checkIsBacklogDirectory(); err != nil {
-			return err
-		}
-		dir, err := filepath.Abs(".")
+		dir, err := resolveBacklogDir()
 		if err != nil {
 			return err
 		}

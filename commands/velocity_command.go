@@ -20,9 +20,9 @@ var VelocityCommand = &cli.Command{
 		&cli.BoolFlag{Name: "json", Usage: "emit structured rows (iteration, planned, accepted, length_weeks, team_strength)"},
 	},
 	Action: func(ctx context.Context, c *cli.Command) error {
-		if err := checkIsBacklogDirectory(); err != nil {
-			fmt.Println(err)
-			return nil
+		dir, err := resolveBacklogDir()
+		if err != nil {
+			return err
 		}
 		var iterCount int
 		if c.NArg() > 0 {
@@ -38,10 +38,6 @@ var VelocityCommand = &cli.Command{
 			return err
 		}
 		if c.Bool("json") {
-			dir, derr := filepath.Abs(".")
-			if derr != nil {
-				return derr
-			}
 			res, err := mcpserver.VelocityHistory(ctx, root, mcpserver.VelocityHistoryArgs{
 				Backlog:        filepath.Base(dir),
 				IterationCount: iterCount,
@@ -51,7 +47,7 @@ var VelocityCommand = &cli.Command{
 			}
 			return emitJSON(res)
 		}
-		bck, err := backlog.LoadBacklog(".")
+		bck, err := backlog.LoadBacklog(dir)
 		if err != nil {
 			return err
 		}

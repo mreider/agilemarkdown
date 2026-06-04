@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/mreider/agilemarkdown/backlog"
 	"github.com/mreider/agilemarkdown/config"
@@ -17,6 +18,41 @@ func checkIsBacklogDirectory() error {
 		return errors.New("Error, please change directory to a backlog folder")
 	}
 	return nil
+}
+
+// resolveBacklogDir returns the absolute path of the backlog directory a
+// per-backlog view verb should operate on. It honors the historical
+// contract first: if the current directory is itself a backlog folder,
+// that wins. Otherwise it falls back to discovering backlogs from the
+// project (git) root the same way `dashboard`/`next`/`pull` already do,
+// so read verbs run from the repo root too. With the canonical
+// one-project-one-backlog layout this resolves unambiguously; when a repo
+// has several backlogs and cwd isn't one of them, it names them and asks
+// the caller to cd into one rather than guessing.
+func resolveBacklogDir() (string, error) {
+	if _, ok := backlog.FindOverviewFileInRootDirectory("."); ok {
+		return filepath.Abs(".")
+	}
+	root, err := findRootDirectory()
+	if err != nil {
+		return "", errors.New("Error, please change directory to a backlog folder")
+	}
+	dirs, err := backlog.NewBacklogsStructure(root).BacklogDirs()
+	if err != nil {
+		return "", err
+	}
+	switch len(dirs) {
+	case 0:
+		return "", errors.New("Error, please change directory to a backlog folder")
+	case 1:
+		return filepath.Abs(dirs[0])
+	default:
+		names := make([]string, len(dirs))
+		for i, d := range dirs {
+			names[i] = filepath.Base(d)
+		}
+		return "", fmt.Errorf("multiple backlogs found (%s); cd into one of them", strings.Join(names, ", "))
+	}
 }
 
 func checkIsRootDirectory(dir string) error {
