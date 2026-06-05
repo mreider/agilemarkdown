@@ -104,8 +104,16 @@ When operating through the `am` CLI rather than MCP (running shell commands inst
 | `sync`                   | `am sync` |
 | - | `am whoami` (current git user as JSON) |
 | - | `am history ITEM [--limit N]` (git log of one item, JSON) |
+| - | `am log [--item P] [--verb V] [-n N] [--json]` (semantic audit trail of state changes) |
+| - | `am bug "TITLE"` (create a bug at top of priority, no estimate) |
+| - | `am chore "TITLE"` (create a chore at top of priority, no estimate) |
+| - | `am brief` (one-shot onboarding: project vision + dashboard + next pull + WIP + agreements) |
 
 Convenience verb: `am pull ITEM` is `next` then `start` in one shot. The retro skill uses `am retro` for the summary surface.
+
+### The audit trail (`am log`)
+
+Every state-changing operation — `created`, `started`, `finished`, `delivered`, `accepted`, `rejected`, `set-type`, `estimate`, `bug`, `chore` — appends one line to `.am/activity.log` (actor, verb, item, detail, timestamp), through both the CLI and the MCP server. This is the "what have I been doing" feed: distinct from `am history ITEM` (which is git log for one file), `am log` is pre-commit, multi-item, and records intent. When working unattended, it is the trail a human reads to see what the agent did. Bugs and chores are born compliant: `am bug`/`am chore` set the type, strip the estimate, and drop the story at the top of priority so it is the next thing pulled — the "no fix without a bug, and the bug goes to the top" rule in one verb.
 
 ## Before you act
 

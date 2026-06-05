@@ -107,6 +107,7 @@ When operating through the `am` CLI rather than MCP (running shell commands inst
 | - | `am log [--item P] [--verb V] [-n N] [--json]` (semantic audit trail of state changes) |
 | - | `am bug "TITLE"` (create a bug at top of priority, no estimate) |
 | - | `am chore "TITLE"` (create a chore at top of priority, no estimate) |
+| - | `am brief` (one-shot onboarding: project vision + dashboard + next pull + WIP + agreements) |
 
 Convenience verb: `am pull ITEM` is `next` then `start` in one shot. The retro skill uses `am retro` for the summary surface.
 
