@@ -17,17 +17,20 @@ var CreateBacklogCommand = &cli.Command{
 		if err := checkIsRootDirectory("."); err != nil {
 			out, statusErr := git.Status()
 			if statusErr != nil && strings.Contains(out, "fatal: not a git repository") {
-				err := git.Init()
-				if err != nil {
-					return err
-				}
-				err = AddConfigAndGitIgnore(backlog.NewBacklogsStructure("."))
-				if err != nil {
+				if err := git.Init(); err != nil {
 					return err
 				}
 			} else {
 				return err
 			}
+		}
+		// Always seed config + .gitignore on explicit backlog creation,
+		// whether or not git already existed. This used to run as an
+		// implicit startup side effect on every `am` invocation, which
+		// silently polluted (and committed to) unrelated repos; it now
+		// happens only here and in `am init`, on deliberate setup.
+		if err := AddConfigAndGitIgnore(backlog.NewBacklogsStructure(".")); err != nil {
+			return err
 		}
 
 		// Default to the canonical "stories" name when omitted.

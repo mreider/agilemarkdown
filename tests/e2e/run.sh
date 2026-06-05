@@ -75,6 +75,49 @@ assert_not_grep() {
   fi
 }
 
+#######################################
+# Regression: `am` must NOT touch unrelated git repos. Earlier builds
+# auto-created .am/config.yaml + .gitignore and `git commit`ed them on
+# every invocation inside any git repo, so an editor extension shelling
+# out to `am list-backlogs` polluted whatever folder the user opened.
+#######################################
+test_no_pollution_in_innocent_repo() {
+  local victim="${WORK}/innocent"
+  mkdir -p "${victim}"
+  (
+    cd "${victim}"
+    git init -q
+    git config user.email "v@example.com"
+    git config user.name "Victim"
+    echo "hi" > README.md
+    git add README.md
+    git commit -q -m "initial"
+    local before after
+    before="$(git rev-list --count HEAD)"
+    # Simulate the extension probing an unrelated repo on folder open.
+    "${AM_BIN}" list-backlogs >/dev/null 2>&1 || true
+    "${AM_BIN}" next >/dev/null 2>&1 || true
+    after="$(git rev-list --count HEAD)"
+    if [ -d .am ]; then echo "am created .am/ in an unrelated repo" >&2; return 1; fi
+    if [ -f .gitignore ]; then echo "am created .gitignore in an unrelated repo" >&2; return 1; fi
+    if [ "${before}" != "${after}" ]; then echo "am made a rogue commit (${before} -> ${after})" >&2; return 1; fi
+    if [ -n "$(git status --porcelain)" ]; then echo "am left the worktree dirty" >&2; git status --porcelain >&2; return 1; fi
+  )
+}
+
+#######################################
+# am brief — one-shot onboarding blob
+#######################################
+test_brief_cli() {
+  cd "${REPO_DIR}/product"
+  local out
+  out="$(${AM_BIN} brief)"
+  printf '%s' "${out}" | grep -q "agent brief"   || { echo "brief: missing header" >&2; return 1; }
+  printf '%s' "${out}" | grep -q "## Dashboard"   || { echo "brief: missing dashboard" >&2; return 1; }
+  printf '%s' "${out}" | grep -q "## Next pull"    || { echo "brief: missing next pull" >&2; return 1; }
+  printf '%s' "${out}" | grep -q "## In progress"  || { echo "brief: missing in-progress" >&2; return 1; }
+}
+
 REPO_DIR="${WORK}/repo"
 mkdir -p "${REPO_DIR}"
 cd "${REPO_DIR}"
@@ -1698,6 +1741,7 @@ test_mcp_set_description() {
 
 # Run all
 run_step "coach projections in sync"  bash "${REPO_ROOT}/tests/check-coach-projections.sh"
+run_step "no pollution in unrelated repo" test_no_pollution_in_innocent_repo
 run_step "create-user --name --email" test_create_user_flags
 
 run_step "create-user positional"     test_create_user_positional
@@ -1805,6 +1849,7 @@ run_step "sprint plan CLI"            test_sprint_plan_cli
 run_step "retro CLI"                  test_retro_cli
 run_step "mcp inception_doc"          test_mcp_inception_doc
 run_step "mcp sprint_plan"            test_mcp_sprint_plan
+run_step "brief CLI"                  test_brief_cli
 
 echo
 echo "==== summary ===="

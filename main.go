@@ -4,13 +4,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/mreider/agilemarkdown/autocomplete"
-	"github.com/mreider/agilemarkdown/backlog"
 	"github.com/mreider/agilemarkdown/commands"
-	"github.com/mreider/agilemarkdown/git"
 	"github.com/urfave/cli/v3"
 	"log"
 	"os"
-	"path/filepath"
 	"strconv"
 	"time"
 )
@@ -20,17 +17,13 @@ var (
 )
 
 func main() {
-	rootDir, _ := filepath.Abs(".")
-	gitRootDir := git.GetRootGitDirectory(rootDir)
-	if gitRootDir != "" {
-		rootDir = gitRootDir
-		root := backlog.NewBacklogsStructure(rootDir)
-		err := commands.AddConfigAndGitIgnore(root)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-		}
-		backlog.NewUserList(root.UsersDirectory())
-	}
+	// No filesystem side effects at startup. Earlier builds auto-created
+	// .am/config.yaml + .gitignore and `git commit`ed them whenever `am`
+	// ran inside *any* git repo — so opening an unrelated repo in an
+	// editor that shells out to `am` (e.g. the VS Code extension probing
+	// with `am list-backlogs`) silently polluted and committed to it.
+	// Project setup now happens only on explicit `am init` /
+	// `am create-backlog`.
 	err := setBashAutoComplete()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "can't set bash autocomplete: %v\n", err)
