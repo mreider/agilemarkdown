@@ -43,6 +43,9 @@ func transitionCmd(name, usage string, target *backlog.BacklogItemStatus) *cli.C
 		Name:      name,
 		Usage:     usage,
 		ArgsUsage: "ITEM_PATH",
+		Flags: []cli.Flag{
+			&cli.StringFlag{Name: "note", Usage: "rationale for this transition, recorded to the audit trail (am log / am journal)"},
+		},
 		Action: func(ctx context.Context, c *cli.Command) error {
 			if c.NArg() != 1 {
 				fmt.Println("path to an item file is required")
@@ -60,8 +63,18 @@ func transitionCmd(name, usage string, target *backlog.BacklogItemStatus) *cli.C
 			if err := item.Save(); err != nil {
 				return err
 			}
-			recordActivity(item.Status(), path, "")
+			// Capture the rationale on the audit trail. In autonomous mode
+			// a self-accept with no note is still logged honestly so the
+			// journal shows the seam was crossed deliberately.
+			detail := strings.TrimSpace(c.String("note"))
+			if detail == "" && target == backlog.AcceptedStatus && autonomousModeActive() {
+				detail = "self-accepted (autonomous mode)"
+			}
+			recordActivity(item.Status(), path, detail)
 			fmt.Printf("%s -> %s\n", filepath.Base(path), target.Name)
+			if detail != "" {
+				fmt.Printf("  note: %s\n", detail)
+			}
 			return nil
 		},
 	}

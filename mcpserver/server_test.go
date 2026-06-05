@@ -40,6 +40,7 @@ var expectedTools = []string{
 	"inception_doc",
 	"iteration_fit",
 	"iteration_view",
+	"journal",
 	"list_backlogs",
 	"list_items",
 	"list_iteration_overrides",
@@ -59,6 +60,7 @@ var expectedTools = []string{
 	"set_estimate",
 	"set_hypothesis",
 	"set_iteration_override",
+	"set_mode",
 	"set_status",
 	"set_tags",
 	"set_task_done",
@@ -215,7 +217,7 @@ func TestVelocityChartTool(t *testing.T) {
 	mustInitRepo(t, dir)
 
 	res, err := callToolViaMemoryTransport(t, dir, "velocity_chart", map[string]any{
-		"backlog": "am-product",
+		"backlog":         "am-product",
 		"iteration_count": 4,
 	})
 	if err != nil {

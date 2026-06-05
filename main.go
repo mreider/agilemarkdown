@@ -91,6 +91,8 @@ func main() {
 			commands.DashboardCommand,
 			commands.NextCommand,
 			commands.BriefCommand,
+			commands.JournalCommand,
+			commands.ModeCommand,
 			commands.CoachCheckCommand,
 			commands.CoachStatusCommand,
 			commands.IterationFitCommand,

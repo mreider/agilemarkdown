@@ -14,6 +14,14 @@ import (
 // Pivotal Tracker semantics: estimation scale, iteration window math,
 // velocity strategy, story-type estimability.
 type Config struct {
+	// Mode selects how strictly the coach enforces the dev-pair / PM
+	// seam. "coached" (default) is the Pivotal stance: the dev pair
+	// stages work at `delivered` and the human accepts. "autonomous"
+	// collapses the seam for unattended runs — the agent may accept its
+	// own work — and shifts AM's value from gating each story to
+	// capturing intent and outcome in the audit trail (`am journal`).
+	// The AM_MODE env var overrides this per-session; see EffectiveMode.
+	Mode       string     `yaml:"mode,omitempty"`
 	Project    Project    `yaml:"project,omitempty"`
 	NewStory   NewStory   `yaml:"new_story,omitempty"`
 	Estimation Estimation `yaml:"estimation"`
@@ -21,6 +29,12 @@ type Config struct {
 	Velocity   Velocity   `yaml:"velocity"`
 	StoryTypes StoryTypes `yaml:"story_types"`
 }
+
+// Project workflow modes. See Config.Mode.
+const (
+	ModeCoached    = "coached"
+	ModeAutonomous = "autonomous"
+)
 
 // NewStory drives where the + button (column header) inserts a newly
 // created story. Defaults to "bottom" of both Current (priority) and
@@ -100,6 +114,7 @@ type StoryTypes struct {
 // bugs and chores not estimable.
 func Defaults() *Config {
 	return &Config{
+		Mode: ModeCoached,
 		Estimation: Estimation{
 			Scale:  "fibonacci",
 			Values: scaleValues("fibonacci"),
@@ -167,6 +182,10 @@ func parentDir(path string) string {
 }
 
 func (c *Config) normalize() {
+	c.Mode = strings.ToLower(strings.TrimSpace(c.Mode))
+	if c.Mode == "" {
+		c.Mode = ModeCoached
+	}
 	c.Estimation.Scale = strings.ToLower(strings.TrimSpace(c.Estimation.Scale))
 	if c.Estimation.Scale == "" {
 		c.Estimation.Scale = "fibonacci"
@@ -239,7 +258,33 @@ func (c *Config) Validate() error {
 	default:
 		return fmt.Errorf("velocity.strategy must be rolling|strict|manual")
 	}
+	switch c.Mode {
+	case ModeCoached, ModeAutonomous:
+	default:
+		return fmt.Errorf("mode must be %s|%s, got %q", ModeCoached, ModeAutonomous, c.Mode)
+	}
 	return nil
+}
+
+// EffectiveMode resolves the active workflow mode. The AM_MODE
+// environment variable, when set to a valid mode, overrides the config
+// value — handy for flipping a single unattended session to autonomous
+// without editing (and committing) .am/config.yaml. An unset or invalid
+// AM_MODE falls back to the configured mode.
+func (c *Config) EffectiveMode() string {
+	if env := strings.ToLower(strings.TrimSpace(os.Getenv("AM_MODE"))); env == ModeCoached || env == ModeAutonomous {
+		return env
+	}
+	if c.Mode == ModeAutonomous {
+		return ModeAutonomous
+	}
+	return ModeCoached
+}
+
+// IsAutonomous reports whether the dev pair may run the full loop,
+// including accepting its own work.
+func (c *Config) IsAutonomous() bool {
+	return c.EffectiveMode() == ModeAutonomous
 }
 
 // IterationLocation returns the resolved IANA Location for iteration math.

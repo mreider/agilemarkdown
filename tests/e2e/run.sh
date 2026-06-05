@@ -106,6 +106,59 @@ test_no_pollution_in_innocent_repo() {
 }
 
 #######################################
+# Workflow modes: coached refuses a dev-pair accept; autonomous allows it
+# and the journal captures the rationale.
+#######################################
+test_mode_and_journal_flow() {
+  local proj="${WORK}/modeflow"
+  mkdir -p "${proj}"
+  (
+    cd "${proj}"
+    git init -q
+    git config user.email "m@example.com"
+    git config user.name "Mode Tester"
+    "${AM_BIN}" create-backlog stories >/dev/null
+    "${AM_BIN}" mode | grep -q "mode: coached" || { echo "default mode should be coached" >&2; exit 1; }
+    # Deterministic feature story written directly (avoids depending on
+    # create-item's cwd contract); the mode/journal flow only needs a file
+    # to transition.
+    local story="stories/Mode-story.md"
+    cat > "${story}" <<'STORY'
+---
+title: Mode story
+type: feature
+status: unstarted
+---
+
+## Problem statement
+e2e mode-and-journal flow.
+STORY
+
+    # coached: the coach gate refuses a dev-pair accept (non-zero exit).
+    if "${AM_BIN}" coach-check set_status --path "${story}" --status accepted >/dev/null 2>&1; then
+      echo "coached coach-check should refuse a dev-pair accept" >&2; exit 1
+    fi
+
+    # autonomous: flip, and the same check now passes.
+    "${AM_BIN}" mode autonomous >/dev/null
+    "${AM_BIN}" mode | grep -q "mode: autonomous" || { echo "mode did not flip to autonomous" >&2; exit 1; }
+    "${AM_BIN}" coach-check set_status --path "${story}" --status accepted >/dev/null 2>&1 \
+      || { echo "autonomous coach-check should allow accept" >&2; exit 1; }
+
+    # accept with a rationale, then the journal carries it + the mode.
+    # Capture once and match in-shell: piping to `grep -q` would let grep
+    # exit on the first line and SIGPIPE `am journal`, which pipefail then
+    # reports as a (spurious) failure.
+    "${AM_BIN}" start "${story}" >/dev/null
+    "${AM_BIN}" accept "${story}" --note "AC met in e2e" >/dev/null
+    local jout
+    jout="$("${AM_BIN}" journal)"
+    case "${jout}" in *"AC met in e2e"*) ;; *) echo "journal missing the rationale note" >&2; exit 1 ;; esac
+    case "${jout}" in *"mode: autonomous"*) ;; *) echo "journal missing the mode header" >&2; exit 1 ;; esac
+  )
+}
+
+#######################################
 # am brief — one-shot onboarding blob
 #######################################
 test_brief_cli() {
@@ -1850,6 +1903,7 @@ run_step "retro CLI"                  test_retro_cli
 run_step "mcp inception_doc"          test_mcp_inception_doc
 run_step "mcp sprint_plan"            test_mcp_sprint_plan
 run_step "brief CLI"                  test_brief_cli
+run_step "mode + journal flow"        test_mode_and_journal_flow
 
 echo
 echo "==== summary ===="

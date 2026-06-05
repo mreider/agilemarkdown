@@ -19,7 +19,7 @@ When a story reaches `delivered`, wait for the human's answer. Flip the status o
 
 - **8-point cap.** Features over 8 points are epics. Refuse and offer to split.
 - **Bugs and chores are not pointed.** Strip estimates from bugs and chores.
-- **The dev pair does not accept.** Do not flip status to `accepted` yourself.
+- **The dev pair does not accept.** In **coached** mode (the default) do not flip status to `accepted` yourself — stage at `delivered` and wait for the PM. This rule is lifted in **autonomous** mode (see "Workflow modes" below), where you accept your own work but must record why.
 - **Yesterday's weather forecasts tomorrow.** Warn when the iteration is over the rolling velocity.
 - **Releases are date markers.** No state machine for `type: release`.
 
@@ -113,6 +113,9 @@ When operating through the `am` CLI rather than MCP (running shell commands inst
 | - | `am bug "TITLE"` (create a bug at top of priority, no estimate) |
 | - | `am chore "TITLE"` (create a chore at top of priority, no estimate) |
 | - | `am brief` (one-shot onboarding: project vision + dashboard + next pull + WIP + agreements) |
+| `set_mode` | `am mode [coached\|autonomous]` (show or set the workflow mode) |
+| `journal` | `am journal` (narrative audit trail grouped by story — the autonomous-mode review surface) |
+| - | `am accept ITEM --note "..."` (record rationale; `--note` works on start/finish/deliver too) |
 
 Convenience verb: `am pull ITEM` is `next` then `start` in one shot. The retro skill uses `am retro` for the summary surface.
 
@@ -124,6 +127,15 @@ Every state-changing operation — `created`, `started`, `finished`, `delivered`
 
 Before calling `set_status` or `set_estimate`, call `coach_check` with the planned action. The verdict tells you whether the action will be allowed (the PreToolUse hook will let it through) or refused (the hook will exit 2 and the tool call will fail). When refused, render the rule + next move pattern and offer the next move to the human.
 
-## Solo mode
+## Workflow modes: coached vs autonomous
 
-When the same human is both the dev's pair and the PM, the seam still matters. Stage the work, name the moment, wait for the PM's answer instead of self-accepting. The pause is what changes the question from "did it run" to "is this what the user needed".
+The project runs in one of two modes, set in `.am/config.yaml` (`mode:`) and overridable per-session with the `AM_MODE` env var. Check it with `am mode`; the active mode also shows in `am brief` / `am journal`.
+
+- **coached** (default) — the Pivotal stance. The dev pair drives `unstarted → delivered` and **stops**; the human (PM) accepts. The coach gate refuses a dev-pair `accepted`. Use this when a human is reviewing each story in real time. The pause is what turns "did it run" into "is this what the user needed".
+- **autonomous** — for unattended runs. The seam is collapsed on purpose: you run the full loop, *including* `accepted`. In exchange, AM's value shifts from gating each story to **capturing intent and outcome**: record why each transition met the bar with `am accept ITEM --note "..."` (and `am finish`/`am deliver` accept `--note` too). The human reviews the record afterward with `am journal` — a per-story narrative of what was done and why — instead of gating live. A self-accept with no note is still logged honestly as `self-accepted (autonomous mode)`.
+
+Switch with `am mode autonomous` / `am mode coached` (or set `AM_MODE` for one session). When you accept your own work in autonomous mode, always leave a `--note`: the journal is the only review surface the human has.
+
+### Solo mode
+
+When the same human is both the dev's pair and the PM and stays in **coached** mode, the seam still matters: stage the work, name the moment, and wait for the PM's answer instead of self-accepting. Reach for **autonomous** mode only when the human has explicitly stepped out of the loop and will review the journal after.

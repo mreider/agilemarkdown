@@ -82,6 +82,32 @@ func AppendActivity(root, actor, verb, item, detail string) error {
 	return err
 }
 
+// ActivityGroup is the lifecycle of a single item — or repo-wide events
+// when Item is "" — assembled from the audit trail in chronological
+// order. It is the unit of the narrative "journal" view: one story's arc
+// at a time, rather than a flat chronological feed.
+type ActivityGroup struct {
+	Item    string
+	Entries []ActivityEntry
+}
+
+// GroupActivityByItem buckets entries by Item, preserving the order in
+// which each item first appears in the trail.
+func GroupActivityByItem(entries []ActivityEntry) []ActivityGroup {
+	idx := map[string]int{}
+	var groups []ActivityGroup
+	for _, e := range entries {
+		i, ok := idx[e.Item]
+		if !ok {
+			i = len(groups)
+			idx[e.Item] = i
+			groups = append(groups, ActivityGroup{Item: e.Item})
+		}
+		groups[i].Entries = append(groups[i].Entries, e)
+	}
+	return groups
+}
+
 // LoadActivity reads the audit trail in chronological (file) order.
 // A missing log is not an error: it returns an empty slice. Malformed
 // lines are skipped rather than aborting the read, so a hand-edit can

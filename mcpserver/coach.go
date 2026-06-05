@@ -98,11 +98,25 @@ func checkSetStatus(root *backlog.BacklogsStructure, args CoachCheckArgs) (*mcp.
 		return nil, CoachVerdict{}, err
 	}
 	if target == backlog.AcceptedStatus.Name {
+		// Autonomous mode collapses the dev-pair / PM seam: the agent may
+		// accept its own work. The value shifts from gating each story to
+		// capturing why it met the bar — so allow, but nudge to record a
+		// rationale that lands in the audit trail (`am journal`).
+		cfg, _ := config.LoadConfig(filepath.Join(root.Root(), ".am", "config.yaml"))
+		if cfg != nil && cfg.IsAutonomous() {
+			return nil, CoachVerdict{
+				Allowed: true,
+				Nudge:   true,
+				Rule:    "autonomous mode: dev pair may accept its own work",
+				Source:  "autonomous-mode",
+				Next:    fmt.Sprintf("record why it meets the bar so `am journal` captures it: am accept %s --note \"...\"", args.Path),
+			}, nil
+		}
 		return nil, CoachVerdict{
 			Allowed: false,
 			Rule:    "the dev pair does not accept its own work",
 			Source:  "coach-refuses-pm-accepts",
-			Next:    "wait for the human to accept from the detail panel",
+			Next:    "wait for the human to accept from the detail panel (or switch to autonomous mode: `am mode autonomous`)",
 		}, nil
 	}
 	if item.Type() == "release" {

@@ -107,6 +107,23 @@ type coachVerdict struct {
 	Detail  string `json:"detail,omitempty"`
 }
 
+// autonomousModeActive resolves the project's effective workflow mode
+// (config + AM_MODE override) and reports whether it is autonomous.
+// Any resolution failure defaults to coached (false) — the stricter,
+// safer stance — so a missing/unreadable config never silently lifts
+// the accept gate.
+func autonomousModeActive() bool {
+	root, err := findRootDirectory()
+	if err != nil {
+		return false
+	}
+	cfg, err := config.LoadConfig(filepath.Join(root, ".am", "config.yaml"))
+	if err != nil || cfg == nil {
+		return false
+	}
+	return cfg.IsAutonomous()
+}
+
 func runCoachCheck(action, path, status, estimate, typ string) (coachVerdict, error) {
 	// Light duplication of the server-side logic so the CLI doesn't
 	// require an MCP session. Keep behavior in lock-step with
@@ -117,11 +134,22 @@ func runCoachCheck(action, path, status, estimate, typ string) (coachVerdict, er
 			return coachVerdict{}, fmt.Errorf("path is required")
 		}
 		if strings.EqualFold(status, "accepted") {
+			// Autonomous mode lets the dev pair accept its own work; the
+			// seam becomes a recorded rationale rather than a hard gate.
+			if autonomousModeActive() {
+				return coachVerdict{
+					Allowed: true,
+					Nudge:   true,
+					Rule:    "autonomous mode: dev pair may accept its own work",
+					Source:  "autonomous-mode",
+					Next:    fmt.Sprintf("record why with `am accept %s --note \"...\"` (captured to am journal)", path),
+				}, nil
+			}
 			return coachVerdict{
 				Allowed: false,
 				Rule:    "the dev pair does not accept its own work",
 				Source:  "coach-refuses-pm-accepts",
-				Next:    fmt.Sprintf("render PM ceremony with `am accept-prompt %s`", path),
+				Next:    fmt.Sprintf("render PM ceremony with `am accept-prompt %s`, or switch to autonomous mode (`am mode autonomous`)", path),
 			}, nil
 		}
 	case "set_estimate":
@@ -223,4 +251,3 @@ func iterationFitNumbers(rootDir, backlogDir, candidate string) (velocity, plann
 	}
 	return v, planned, counted, nil
 }
-

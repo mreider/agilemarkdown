@@ -72,8 +72,18 @@ func buildServer(rootDir, version string) *mcp.Server {
 
 	mcp.AddTool(srv, &mcp.Tool{
 		Name:        "set_status",
-		Description: "Change the status of an item identified by its file path. Status must be one of: unstarted, started, finished, delivered, accepted, rejected. Auto-stamps `finished`/`delivered`/`accepted` timestamps on transitions; clears them on regression.",
+		Description: "Change the status of an item identified by its file path. Status must be one of: unstarted, started, finished, delivered, accepted, rejected. Auto-stamps `finished`/`delivered`/`accepted` timestamps on transitions; clears them on regression. Pass `note` to record a rationale on the audit trail (am journal). In coached mode the coach gate refuses a dev-pair accept; in autonomous mode it is allowed and the note is captured.",
 	}, locked(setStatus(root)))
+
+	mcp.AddTool(srv, &mcp.Tool{
+		Name:        "journal",
+		Description: "Narrative audit trail grouped by story (what was done and why) plus the active workflow mode. The autonomous-mode review surface: read it to reconstruct an unattended run instead of gating each story live.",
+	}, journalTool(root))
+
+	mcp.AddTool(srv, &mcp.Tool{
+		Name:        "set_mode",
+		Description: "Set the project workflow mode: coached (dev pair stages at delivered, PM accepts) or autonomous (dev pair may accept its own work, capturing rationale to the journal).",
+	}, locked(setModeTool(root)))
 
 	mcp.AddTool(srv, &mcp.Tool{
 		Name:        "set_assigned",
@@ -351,25 +361,25 @@ type GetItemArgs struct {
 }
 
 type GetItemResult struct {
-	Path           string                `json:"path"`
-	Title          string                `json:"title"`
-	Status         string                `json:"status"`
-	Type           string                `json:"type,omitempty"`
-	Assigned       string                `json:"assigned,omitempty"`
-	Assignees      []string              `json:"assignees,omitempty"`
-	Estimate       string                `json:"estimate,omitempty"`
-	Tags           []string              `json:"tags,omitempty"`
-	Blocked        bool                  `json:"blocked,omitempty"`
-	BlockedReason  string                `json:"blocked_reason,omitempty"`
-	Epic           string                `json:"epic,omitempty"`
-	Author         string                `json:"author,omitempty" jsonschema:"original reporter from item frontmatter"`
-	Started        string                `json:"started,omitempty" jsonschema:"YYYY-MM-DD when status first hit started"`
-	Finished       string                `json:"finished,omitempty"`
-	Delivered      string                `json:"delivered,omitempty"`
-	Accepted       string                `json:"accepted,omitempty"`
-	Iteration      int                   `json:"iteration,omitempty" jsonschema:"iteration number; 0 when unknown"`
-	IterationLabel string                `json:"iteration_label,omitempty" jsonschema:"short label for items without a numeric iteration: backlog, icebox, in flight"`
-	Body           string                `json:"body"`
+	Path           string   `json:"path"`
+	Title          string   `json:"title"`
+	Status         string   `json:"status"`
+	Type           string   `json:"type,omitempty"`
+	Assigned       string   `json:"assigned,omitempty"`
+	Assignees      []string `json:"assignees,omitempty"`
+	Estimate       string   `json:"estimate,omitempty"`
+	Tags           []string `json:"tags,omitempty"`
+	Blocked        bool     `json:"blocked,omitempty"`
+	BlockedReason  string   `json:"blocked_reason,omitempty"`
+	Epic           string   `json:"epic,omitempty"`
+	Author         string   `json:"author,omitempty" jsonschema:"original reporter from item frontmatter"`
+	Started        string   `json:"started,omitempty" jsonschema:"YYYY-MM-DD when status first hit started"`
+	Finished       string   `json:"finished,omitempty"`
+	Delivered      string   `json:"delivered,omitempty"`
+	Accepted       string   `json:"accepted,omitempty"`
+	Iteration      int      `json:"iteration,omitempty" jsonschema:"iteration number; 0 when unknown"`
+	IterationLabel string   `json:"iteration_label,omitempty" jsonschema:"short label for items without a numeric iteration: backlog, icebox, in flight"`
+	Body           string   `json:"body"`
 }
 
 type CreateItemArgs struct {
@@ -385,6 +395,7 @@ type CreateItemResult struct {
 type SetStatusArgs struct {
 	Path   string `json:"path"`
 	Status string `json:"status" jsonschema:"one of: unstarted, started, finished, delivered, accepted, rejected"`
+	Note   string `json:"note,omitempty" jsonschema:"rationale for this transition, recorded to the audit trail (am journal); especially useful for autonomous-mode accepts"`
 }
 
 type SetAssignedArgs struct {
@@ -582,7 +593,16 @@ func setStatus(root *backlog.BacklogsStructure) func(context.Context, *mcp.CallT
 		if err := item.Save(); err != nil {
 			return nil, OkResult{}, err
 		}
-		recordActivity(root, "", item.Status(), args.Path, "")
+		// Capture rationale on the audit trail. An autonomous self-accept
+		// with no note is still logged honestly so the journal shows the
+		// dev-pair / PM seam was crossed deliberately.
+		detail := strings.TrimSpace(args.Note)
+		if detail == "" && st == backlog.AcceptedStatus {
+			if cfg, _ := config.LoadConfig(filepath.Join(root.Root(), ".am", "config.yaml")); cfg != nil && cfg.IsAutonomous() {
+				detail = "self-accepted (autonomous mode)"
+			}
+		}
+		recordActivity(root, "", item.Status(), args.Path, detail)
 		if err := autoRankForStatus(root, args.Path, st); err != nil {
 			return nil, OkResult{}, err
 		}
