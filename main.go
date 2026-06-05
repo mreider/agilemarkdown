@@ -97,6 +97,7 @@ func main() {
 			commands.AlignCommand,
 			commands.DashboardCommand,
 			commands.NextCommand,
+			commands.BriefCommand,
 			commands.CoachCheckCommand,
 			commands.CoachStatusCommand,
 			commands.IterationFitCommand,

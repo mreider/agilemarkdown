@@ -1,6 +1,17 @@
 {
   "//": "Agile Markdown coach gate. Installed by `am create-backlog` and `am init`. Edit freely; future re-runs do not overwrite.",
   "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/session-context.sh"
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "mcp__agilemarkdown__set_status",

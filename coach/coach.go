@@ -43,6 +43,7 @@ var install = []installEntry{
 	{"skills/am-plan/SKILL.md", ".claude/skills/am-plan/SKILL.md", 0o644},
 	{"skills/am-retro/SKILL.md", ".claude/skills/am-retro/SKILL.md", 0o644},
 	{"hooks/coach-gate.sh", ".claude/hooks/coach-gate.sh", 0o755},
+	{"hooks/session-context.sh", ".claude/hooks/session-context.sh", 0o755},
 	{"settings.json", ".claude/settings.json", 0o644},
 }
 
