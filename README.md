@@ -17,7 +17,7 @@ A tool for managing backlogs efficiently. Three pieces fit together.
 
 **The backlog lives in git as markdown.** Each story is a plain file with YAML frontmatter on top and a body underneath. Priority is a ranked list; the icebox is a capture pile, not ranked. Velocity is computed from accepted points across a rolling window. The repo is the database, and any text editor works on it.
 
-**The LLM sees what the human sees.** `am mcp` is a stdio MCP server with 55 tools, and any MCP-aware client connects (Claude Desktop, Claude Code, Cursor, Codex CLI). LLMs read markdown natively, so the agent and the human are looking at the same files at the same time.
+**The LLM sees what the human sees.** `am mcp` is a stdio MCP server with 55 tools, and any MCP-aware client connects (Claude Desktop, Claude Code, Cursor, Codex CLI). LLMs read markdown natively, so the agent and the human are looking at the same files at the same time. Because the plan lives in the repo rather than the chat, the agent's context survives between sessions, and every status change is logged — an auditable trail of what was done and why, instead of scrollback that evaporates.
 
 **The Pivotal way ships as a coach.** The agent is the dev pair and the human is the product manager. The hard rules block real violations: features are capped at 8 points, bugs and chores are not estimated, the dev pair never accepts its own work, an iteration cannot silently overcommit beyond rolling velocity, and releases stay as date markers. Working agreements layer on top as nudges, and acceptance is the moment the human owns.
 
@@ -132,7 +132,7 @@ The coach is the part of agilemarkdown that turns an MCP-aware agent into a prac
 
 **Skills.** Six Claude Code skills under `.claude/skills/` auto-fire on the right phrases: `am-inception` runs the kickoff, `am-plan` runs IPM, `am-align` runs the pre-pull restatement so the agent does not confidently build the wrong thing, `am-decompose` breaks a problem into Pivotal-sized stories, `am-accept` walks the PM through accept-or-reject on a delivered story, and `am-retro` runs the end-of-iteration retro.
 
-**Hooks.** A PreToolUse hook at `.claude/hooks/coach-gate.sh`, wired through `.claude/settings.json`, gates `set_status` and `set_estimate`. When Claude Code is about to flip a story to `accepted` or estimate a feature above 8 points, the hook intercepts and exits 2; the tool call aborts with the refusal message in the conversation. Words become teeth.
+**Hooks.** A PreToolUse hook at `.claude/hooks/coach-gate.sh`, wired through `.claude/settings.json`, gates `set_status` and `set_estimate`. When Claude Code is about to flip a story to `accepted` or estimate a feature above 8 points, the hook intercepts and exits 2; the tool call aborts with the refusal message in the conversation. Words become teeth. `am init` adds a companion `am-work-gate.sh` that refuses `Edit`/`Write` on code unless a story is `started`; it installs into the user's global Claude config and keys off the edited file's backlog, so the rule holds even when the agent launches from outside the repo — no story pulled, no code edits.
 
 Run `am coach` in any agilemarkdown repo to see the coach's read on the project right now.
 

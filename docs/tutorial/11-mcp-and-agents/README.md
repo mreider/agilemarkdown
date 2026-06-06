@@ -140,6 +140,16 @@ Acceptance is the PM's; the agent never sends it.
 </td>
 </tr></table>
 
+Working one started story at a time is also what keeps an agent
+useful over a long run: its context stays scoped to the increment,
+`am log` records every transition as it happens, and an unattended
+session in autonomous mode is reviewable afterward through the
+per-story journal (`am journal`). Decompose the work into
+Pivotal-sized stories first, then the agent can grind through them —
+even unattended, with permissions relaxed — and you read the journal
+when you're back rather than reconstructing what happened from chat
+scrollback.
+
 ## 11.4 The three-surface symmetry
 
 All three surfaces drive the same git repo, with no central server
