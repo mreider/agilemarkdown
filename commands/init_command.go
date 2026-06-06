@@ -47,12 +47,26 @@ var InitCommand = &cli.Command{
 		if err != nil {
 			return err
 		}
-		if len(written) == 0 {
-			fmt.Println("coach mode already installed; nothing to do")
-			return nil
-		}
 		for _, p := range written {
 			fmt.Printf("wrote %s\n", p)
+		}
+
+		// Install the cwd-independent work-gate into the user's global
+		// Claude config so the "no edits without a started story" rule is
+		// enforced even when the agent session launches from outside this
+		// repo (the per-repo gate only fires when launched from here).
+		if home, herr := os.UserHomeDir(); herr == nil {
+			changed, gerr := coach.InstallGlobalGate(home)
+			if gerr != nil {
+				fmt.Printf("warning: global work-gate not installed: %v\n", gerr)
+			}
+			for _, p := range changed {
+				fmt.Printf("installed global work-gate: %s\n", p)
+			}
+		}
+
+		if len(written) == 0 {
+			fmt.Println("coach mode already installed")
 		}
 		return nil
 	},
