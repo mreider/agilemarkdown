@@ -83,6 +83,23 @@ func (f *OrderFile) Remove(itemFile string) bool {
 	return true
 }
 
+// Rename re-points the entry at oldFile to newFile in place — same
+// rank, fresh title. Used when sync re-slugs a retitled story so the
+// order entry follows the file instead of orphaning (an orphaned entry
+// gets dropped by the invariant pass and the item re-ingested at the
+// icebox bottom, losing its rank). Returns false if oldFile is absent.
+func (f *OrderFile) Rename(oldFile, newFile, newTitle string) bool {
+	i := f.IndexOf(oldFile)
+	if i < 0 {
+		return false
+	}
+	f.entries[i].Path = newFile
+	if newTitle != "" {
+		f.entries[i].Title = newTitle
+	}
+	return true
+}
+
 // InsertTop inserts e at index 0.
 func (f *OrderFile) InsertTop(e OrderEntry) { f.InsertAt(0, e) }
 

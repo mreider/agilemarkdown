@@ -189,3 +189,32 @@ func TestEnforceOrderInvariantPromotesStartedFromIcebox(t *testing.T) {
 		t.Fatalf("icebox want %v got %v", wantIce, gotIce)
 	}
 }
+
+// Rename re-points an entry in place: same rank, fresh title; absent
+// old names are a no-op.
+func TestOrderFileRenameKeepsRank(t *testing.T) {
+	dir := t.TempDir()
+	pri, err := LoadOrderFile(PriorityFilePath(dir), "Priority")
+	if err != nil {
+		t.Fatal(err)
+	}
+	pri.InsertBottom(OrderEntry{Title: "Alpha", Path: "alpha.md"})
+	pri.InsertBottom(OrderEntry{Title: "Story", Path: "Story.md"})
+	pri.InsertBottom(OrderEntry{Title: "Omega", Path: "omega.md"})
+
+	if !pri.Rename("Story.md", "renamed-story.md", "Renamed story") {
+		t.Fatal("expected rename to hit the existing entry")
+	}
+	if pri.IndexOf("renamed-story.md") != 1 {
+		t.Fatalf("expected the renamed entry to keep rank 1; entries: %v", pri.Entries())
+	}
+	if pri.IndexOf("Story.md") >= 0 {
+		t.Fatal("old path still present after rename")
+	}
+	if e, _ := pri.entryFor("renamed-story.md"); e.Title != "Renamed story" {
+		t.Fatalf("expected the fresh title; got %q", e.Title)
+	}
+	if pri.Rename("ghost.md", "x.md", "") {
+		t.Fatal("renaming an absent entry must be a no-op")
+	}
+}

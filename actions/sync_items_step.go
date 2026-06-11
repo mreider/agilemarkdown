@@ -144,6 +144,7 @@ func (s *SyncItemsStep) updateItemsFileNames() error {
 			if currentItemName != expectedItemName {
 				newItemPath := filepath.Join(filepath.Dir(item.Path()), expectedItemName)
 				if _, err := os.Stat(newItemPath); os.IsNotExist(err) {
+					oldItemName := filepath.Base(item.Path())
 					err := os.Rename(item.Path(), newItemPath)
 					if err == nil {
 						err := git.Add(newItemPath)
@@ -153,6 +154,23 @@ func (s *SyncItemsStep) updateItemsFileNames() error {
 						err = overview.UpdateItemLinkInOverviewFile(item.Path(), newItemPath)
 						if err != nil {
 							return err
+						}
+						// The order entry follows the file — same rank,
+						// fresh title. Left stale, the invariant pass
+						// would drop the orphan and re-ingest the item
+						// at the icebox bottom, losing its rank.
+						for _, load := range []func(string) (*backlog.OrderFile, error){
+							backlog.LoadPriority, backlog.LoadIcebox,
+						} {
+							of, oerr := load(backlogDir)
+							if oerr != nil {
+								return oerr
+							}
+							if of.Rename(oldItemName, expectedItemName, item.Title()) {
+								if serr := of.Save(); serr != nil {
+									return serr
+								}
+							}
 						}
 					}
 				}
