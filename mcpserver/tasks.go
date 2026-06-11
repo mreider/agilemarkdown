@@ -3,7 +3,6 @@ package mcpserver
 import (
 	"context"
 	"fmt"
-	"path/filepath"
 
 	"github.com/mreider/agilemarkdown/backlog"
 	"github.com/mreider/agilemarkdown/utils"
@@ -28,8 +27,7 @@ type ListTasksResult struct {
 
 func listTasksTool(root *backlog.BacklogsStructure) func(context.Context, *mcp.CallToolRequest, ListTasksArgs) (*mcp.CallToolResult, ListTasksResult, error) {
 	return func(ctx context.Context, req *mcp.CallToolRequest, args ListTasksArgs) (*mcp.CallToolResult, ListTasksResult, error) {
-		path := filepath.Join(root.Root(), args.Path)
-		item, err := backlog.LoadBacklogItem(path)
+		item, _, err := loadExistingItem(root, args.Path)
 		if err != nil {
 			return nil, ListTasksResult{}, err
 		}
@@ -52,8 +50,7 @@ func addTaskTool(root *backlog.BacklogsStructure) func(context.Context, *mcp.Cal
 		if args.Text == "" {
 			return nil, OkResult{}, fmt.Errorf("text is required")
 		}
-		path := filepath.Join(root.Root(), args.Path)
-		item, err := backlog.LoadBacklogItem(path)
+		item, _, err := loadExistingItem(root, args.Path)
 		if err != nil {
 			return nil, OkResult{}, err
 		}
@@ -74,8 +71,7 @@ type SetTaskDoneArgs struct {
 
 func setTaskDoneTool(root *backlog.BacklogsStructure) func(context.Context, *mcp.CallToolRequest, SetTaskDoneArgs) (*mcp.CallToolResult, OkResult, error) {
 	return func(ctx context.Context, req *mcp.CallToolRequest, args SetTaskDoneArgs) (*mcp.CallToolResult, OkResult, error) {
-		path := filepath.Join(root.Root(), args.Path)
-		item, err := backlog.LoadBacklogItem(path)
+		item, _, err := loadExistingItem(root, args.Path)
 		if err != nil {
 			return nil, OkResult{}, err
 		}

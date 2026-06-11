@@ -3,7 +3,6 @@ package mcpserver
 import (
 	"context"
 	"fmt"
-	"path/filepath"
 	"strings"
 
 	"github.com/mreider/agilemarkdown/actions"
@@ -20,8 +19,7 @@ type SetTagsArgs struct {
 
 func setTagsTool(root *backlog.BacklogsStructure) func(context.Context, *mcp.CallToolRequest, SetTagsArgs) (*mcp.CallToolResult, OkResult, error) {
 	return func(ctx context.Context, req *mcp.CallToolRequest, args SetTagsArgs) (*mcp.CallToolResult, OkResult, error) {
-		path := filepath.Join(root.Root(), args.Path)
-		item, err := backlog.LoadBacklogItem(path)
+		item, _, err := loadExistingItem(root, args.Path)
 		if err != nil {
 			return nil, OkResult{}, err
 		}
@@ -48,8 +46,7 @@ type SetEpicArgs struct {
 
 func setEpicTool(root *backlog.BacklogsStructure) func(context.Context, *mcp.CallToolRequest, SetEpicArgs) (*mcp.CallToolResult, OkResult, error) {
 	return func(ctx context.Context, req *mcp.CallToolRequest, args SetEpicArgs) (*mcp.CallToolResult, OkResult, error) {
-		path := filepath.Join(root.Root(), args.Path)
-		item, err := backlog.LoadBacklogItem(path)
+		item, _, err := loadExistingItem(root, args.Path)
 		if err != nil {
 			return nil, OkResult{}, err
 		}

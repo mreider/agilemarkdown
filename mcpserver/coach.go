@@ -73,8 +73,7 @@ func checkPull(root *backlog.BacklogsStructure, args CoachCheckArgs) (*mcp.CallT
 	if args.Path == "" {
 		return nil, CoachVerdict{}, fmt.Errorf("path is required for pull check")
 	}
-	path := filepath.Join(root.Root(), args.Path)
-	item, err := backlog.LoadBacklogItem(path)
+	item, _, err := loadExistingItem(root, args.Path)
 	if err != nil {
 		return nil, CoachVerdict{}, err
 	}
@@ -92,8 +91,7 @@ func checkSetStatus(root *backlog.BacklogsStructure, args CoachCheckArgs) (*mcp.
 		return nil, CoachVerdict{}, fmt.Errorf("path is required for set_status check")
 	}
 	target := strings.ToLower(strings.TrimSpace(args.Status))
-	path := filepath.Join(root.Root(), args.Path)
-	item, err := backlog.LoadBacklogItem(path)
+	item, _, err := loadExistingItem(root, args.Path)
 	if err != nil {
 		return nil, CoachVerdict{}, err
 	}
@@ -138,8 +136,7 @@ func checkSetEstimate(root *backlog.BacklogsStructure, args CoachCheckArgs) (*mc
 	if err != nil {
 		return nil, CoachVerdict{Allowed: false, Rule: "estimate must be numeric", Source: "8-point-hard-cap"}, nil
 	}
-	path := filepath.Join(root.Root(), args.Path)
-	item, err := backlog.LoadBacklogItem(path)
+	item, _, err := loadExistingItem(root, args.Path)
 	if err != nil {
 		return nil, CoachVerdict{}, err
 	}
@@ -265,8 +262,7 @@ func iterationFitTool(root *backlog.BacklogsStructure) func(context.Context, *mc
 			counted++
 		}
 		if args.CandidatePath != "" {
-			candPath := filepath.Join(root.Root(), args.CandidatePath)
-			cand, err := backlog.LoadBacklogItem(candPath)
+			cand, _, err := loadExistingItem(root, args.CandidatePath)
 			if err == nil {
 				planned += parsePoints(cand.Estimate())
 			}

@@ -496,8 +496,7 @@ func listItems(root *backlog.BacklogsStructure) func(context.Context, *mcp.CallT
 
 func getItem(root *backlog.BacklogsStructure) func(context.Context, *mcp.CallToolRequest, GetItemArgs) (*mcp.CallToolResult, GetItemResult, error) {
 	return func(ctx context.Context, req *mcp.CallToolRequest, args GetItemArgs) (*mcp.CallToolResult, GetItemResult, error) {
-		path := filepath.Join(root.Root(), args.Path)
-		item, err := backlog.LoadBacklogItem(path)
+		item, itemRel, err := loadExistingItem(root, args.Path)
 		if err != nil {
 			return nil, GetItemResult{}, err
 		}
@@ -514,7 +513,7 @@ func getItem(root *backlog.BacklogsStructure) func(context.Context, *mcp.CallToo
 		// the frontmatter into the body, duplicating the YAML block on
 		// every save.
 		return nil, GetItemResult{
-			Path:           args.Path,
+			Path:           itemRel,
 			Title:          item.Title(),
 			Status:         item.Status(),
 			Type:           item.Type(),
@@ -584,8 +583,7 @@ func setStatus(root *backlog.BacklogsStructure) func(context.Context, *mcp.CallT
 		if st == nil {
 			return nil, OkResult{}, fmt.Errorf("invalid status %q (valid: %s)", args.Status, backlog.AllStatusesList())
 		}
-		path := filepath.Join(root.Root(), args.Path)
-		item, err := backlog.LoadBacklogItem(path)
+		item, itemRel, err := loadExistingItem(root, args.Path)
 		if err != nil {
 			return nil, OkResult{}, err
 		}
@@ -602,8 +600,8 @@ func setStatus(root *backlog.BacklogsStructure) func(context.Context, *mcp.CallT
 				detail = "self-accepted (autonomous mode)"
 			}
 		}
-		recordActivity(root, "", item.Status(), args.Path, detail)
-		if err := autoRankForStatus(root, args.Path, st); err != nil {
+		recordActivity(root, "", item.Status(), itemRel, detail)
+		if err := autoRankForStatus(root, itemRel, st); err != nil {
 			return nil, OkResult{}, err
 		}
 		return nil, OkResult{OK: true}, nil
@@ -680,8 +678,7 @@ func autoRankForStatus(root *backlog.BacklogsStructure, itemPath string, st *bac
 
 func setAssigned(root *backlog.BacklogsStructure) func(context.Context, *mcp.CallToolRequest, SetAssignedArgs) (*mcp.CallToolResult, OkResult, error) {
 	return func(ctx context.Context, req *mcp.CallToolRequest, args SetAssignedArgs) (*mcp.CallToolResult, OkResult, error) {
-		path := filepath.Join(root.Root(), args.Path)
-		item, err := backlog.LoadBacklogItem(path)
+		item, _, err := loadExistingItem(root, args.Path)
 		if err != nil {
 			return nil, OkResult{}, err
 		}
@@ -705,8 +702,7 @@ func setAssigned(root *backlog.BacklogsStructure) func(context.Context, *mcp.Cal
 
 func setEstimate(root *backlog.BacklogsStructure) func(context.Context, *mcp.CallToolRequest, SetEstimateArgs) (*mcp.CallToolResult, OkResult, error) {
 	return func(ctx context.Context, req *mcp.CallToolRequest, args SetEstimateArgs) (*mcp.CallToolResult, OkResult, error) {
-		path := filepath.Join(root.Root(), args.Path)
-		item, err := backlog.LoadBacklogItem(path)
+		item, _, err := loadExistingItem(root, args.Path)
 		if err != nil {
 			return nil, OkResult{}, err
 		}

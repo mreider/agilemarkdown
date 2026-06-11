@@ -403,13 +403,13 @@ type EpicProgressArgs struct {
 	Slug string `json:"slug"`
 }
 type EpicProgressResult struct {
-	Slug          string `json:"slug"`
-	TotalStories  int    `json:"total_stories"`
-	AcceptedStories int  `json:"accepted_stories"`
-	TotalPoints   float64 `json:"total_points"`
-	AcceptedPoints float64 `json:"accepted_points"`
-	PercentDone   float64 `json:"percent_done"`
-	ASCII         string  `json:"ascii"`
+	Slug            string  `json:"slug"`
+	TotalStories    int     `json:"total_stories"`
+	AcceptedStories int     `json:"accepted_stories"`
+	TotalPoints     float64 `json:"total_points"`
+	AcceptedPoints  float64 `json:"accepted_points"`
+	PercentDone     float64 `json:"percent_done"`
+	ASCII           string  `json:"ascii"`
 }
 
 func epicProgressTool(root *backlog.BacklogsStructure) func(context.Context, *mcp.CallToolRequest, EpicProgressArgs) (*mcp.CallToolResult, EpicProgressResult, error) {
@@ -448,11 +448,11 @@ func epicProgressTool(root *backlog.BacklogsStructure) func(context.Context, *mc
 			pct = accPts / totalPts * 100
 		}
 		return &mcp.CallToolResult{
-			Content: []mcp.Content{&mcp.TextContent{Text: text}},
-		}, EpicProgressResult{
-			Slug: args.Slug, TotalStories: total, AcceptedStories: acc,
-			TotalPoints: totalPts, AcceptedPoints: accPts, PercentDone: pct, ASCII: text,
-		}, nil
+				Content: []mcp.Content{&mcp.TextContent{Text: text}},
+			}, EpicProgressResult{
+				Slug: args.Slug, TotalStories: total, AcceptedStories: acc,
+				TotalPoints: totalPts, AcceptedPoints: accPts, PercentDone: pct, ASCII: text,
+			}, nil
 	}
 }
 
@@ -498,8 +498,7 @@ type RejectItemArgs struct {
 // history of the back-and-forth is preserved next to the story.
 func rejectItemTool(root *backlog.BacklogsStructure) func(context.Context, *mcp.CallToolRequest, RejectItemArgs) (*mcp.CallToolResult, OkResult, error) {
 	return func(ctx context.Context, req *mcp.CallToolRequest, args RejectItemArgs) (*mcp.CallToolResult, OkResult, error) {
-		path := filepath.Join(root.Root(), args.Path)
-		item, err := backlog.LoadBacklogItem(path)
+		item, itemRel, err := loadExistingItem(root, args.Path)
 		if err != nil {
 			return nil, OkResult{}, err
 		}
@@ -526,7 +525,7 @@ func rejectItemTool(root *backlog.BacklogsStructure) func(context.Context, *mcp.
 		if err := item.Save(); err != nil {
 			return nil, OkResult{}, err
 		}
-		recordActivity(root, author, "rejected", args.Path, reason)
+		recordActivity(root, author, "rejected", itemRel, reason)
 		return nil, OkResult{OK: true}, nil
 	}
 }

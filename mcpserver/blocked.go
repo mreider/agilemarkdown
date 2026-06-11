@@ -2,7 +2,6 @@ package mcpserver
 
 import (
 	"context"
-	"path/filepath"
 
 	"github.com/mreider/agilemarkdown/backlog"
 	"github.com/mreider/agilemarkdown/utils"
@@ -17,8 +16,7 @@ type BlockItemArgs struct {
 
 func blockItemTool(root *backlog.BacklogsStructure) func(context.Context, *mcp.CallToolRequest, BlockItemArgs) (*mcp.CallToolResult, OkResult, error) {
 	return func(ctx context.Context, req *mcp.CallToolRequest, args BlockItemArgs) (*mcp.CallToolResult, OkResult, error) {
-		path := filepath.Join(root.Root(), args.Path)
-		item, err := backlog.LoadBacklogItem(path)
+		item, _, err := loadExistingItem(root, args.Path)
 		if err != nil {
 			return nil, OkResult{}, err
 		}
@@ -37,8 +35,7 @@ type UnblockItemArgs struct {
 
 func unblockItemTool(root *backlog.BacklogsStructure) func(context.Context, *mcp.CallToolRequest, UnblockItemArgs) (*mcp.CallToolResult, OkResult, error) {
 	return func(ctx context.Context, req *mcp.CallToolRequest, args UnblockItemArgs) (*mcp.CallToolResult, OkResult, error) {
-		path := filepath.Join(root.Root(), args.Path)
-		item, err := backlog.LoadBacklogItem(path)
+		item, _, err := loadExistingItem(root, args.Path)
 		if err != nil {
 			return nil, OkResult{}, err
 		}
@@ -58,8 +55,7 @@ type SetDescriptionArgs struct {
 
 func setDescriptionTool(root *backlog.BacklogsStructure) func(context.Context, *mcp.CallToolRequest, SetDescriptionArgs) (*mcp.CallToolResult, OkResult, error) {
 	return func(ctx context.Context, req *mcp.CallToolRequest, args SetDescriptionArgs) (*mcp.CallToolResult, OkResult, error) {
-		path := filepath.Join(root.Root(), args.Path)
-		item, err := backlog.LoadBacklogItem(path)
+		item, _, err := loadExistingItem(root, args.Path)
 		if err != nil {
 			return nil, OkResult{}, err
 		}

@@ -3,7 +3,6 @@ package mcpserver
 import (
 	"context"
 	"fmt"
-	"path/filepath"
 	"strings"
 
 	"github.com/mreider/agilemarkdown/backlog"
@@ -30,8 +29,7 @@ type GetCommentsResult struct {
 
 func getCommentsTool(root *backlog.BacklogsStructure) func(context.Context, *mcp.CallToolRequest, GetCommentsArgs) (*mcp.CallToolResult, GetCommentsResult, error) {
 	return func(ctx context.Context, req *mcp.CallToolRequest, args GetCommentsArgs) (*mcp.CallToolResult, GetCommentsResult, error) {
-		path := filepath.Join(root.Root(), args.Path)
-		item, err := backlog.LoadBacklogItem(path)
+		item, _, err := loadExistingItem(root, args.Path)
 		if err != nil {
 			return nil, GetCommentsResult{}, err
 		}
@@ -60,8 +58,7 @@ func addCommentTool(root *backlog.BacklogsStructure) func(context.Context, *mcp.
 		if text == "" {
 			return nil, OkResult{}, fmt.Errorf("text is required")
 		}
-		path := filepath.Join(root.Root(), args.Path)
-		item, err := backlog.LoadBacklogItem(path)
+		item, _, err := loadExistingItem(root, args.Path)
 		if err != nil {
 			return nil, OkResult{}, err
 		}
@@ -81,4 +78,3 @@ func addCommentTool(root *backlog.BacklogsStructure) func(context.Context, *mcp.
 		return nil, OkResult{OK: true}, nil
 	}
 }
-

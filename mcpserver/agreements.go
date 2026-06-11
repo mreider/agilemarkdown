@@ -156,8 +156,7 @@ type SetHypothesisArgs struct {
 
 func setHypothesisTool(root *backlog.BacklogsStructure) func(context.Context, *mcp.CallToolRequest, SetHypothesisArgs) (*mcp.CallToolResult, OkResult, error) {
 	return func(ctx context.Context, req *mcp.CallToolRequest, args SetHypothesisArgs) (*mcp.CallToolResult, OkResult, error) {
-		path := filepath.Join(root.Root(), args.Path)
-		item, err := backlog.LoadBacklogItem(path)
+		item, _, err := loadExistingItem(root, args.Path)
 		if err != nil {
 			return nil, OkResult{}, err
 		}
